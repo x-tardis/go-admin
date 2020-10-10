@@ -10,6 +10,7 @@ require (
 	github.com/casbin/gorm-adapter/v3 v3.0.2
 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/git-chglog/git-chglog v0.0.0-20200414013904-db796966b373 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect

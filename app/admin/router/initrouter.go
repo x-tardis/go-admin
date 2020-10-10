@@ -32,10 +32,10 @@ func InitRouter() {
 	}
 	r.Use(middleware2.WithContextDb(middleware2.GetGormFromConfig(deployed.Cfg)))
 	r.Use(middleware.LoggerToFile(), // 日志处理
-		middleware2.CustomError, // 自定义错误处理
-		middleware2.NoCache,     // NoCache is a middleware function that appends headers
-		middleware2.Cors,        // 跨域处理
-		middleware2.Secure,      // Secure is a middleware function that appends security
+		middleware2.Recovery(), // 自定义错误处理
+		middleware2.NoCache(),  // NoCache is a middleware function that appends headers
+		middleware2.Cors(),     // 跨域处理
+		middleware2.Secure(),   // Secure is a middleware function that appends security
 	)
 	// the jwt middleware
 	var err error
