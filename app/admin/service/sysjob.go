@@ -8,7 +8,7 @@ import (
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/service"
-	"github.com/x-tardis/go-admin/logger"
+	"github.com/x-tardis/go-admin/pkg/logger"
 )
 
 type SysJob struct {

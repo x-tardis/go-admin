@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/logger"
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )

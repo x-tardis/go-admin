@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	dlog "github.com/x-tardis/go-admin/debug/log"
+	dlog "github.com/x-tardis/go-admin/pkg/logger/log"
 )
 
 func init() {

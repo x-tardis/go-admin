@@ -6,7 +6,7 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/dto"
 	common "github.com/x-tardis/go-admin/common/models"
-	"github.com/x-tardis/go-admin/logger"
+	"github.com/x-tardis/go-admin/pkg/logger"
 )
 
 type SysJobSearch struct {

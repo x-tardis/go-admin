@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/x-tardis/go-admin/logger"
+	"github.com/x-tardis/go-admin/pkg/logger"
 )
 
 type Config struct {
