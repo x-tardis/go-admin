@@ -154,7 +154,7 @@ func DeleteRole(c *gin.Context) {
 	var Role models.SysRole
 	Role.UpdateBy = tools.GetUserIdStr(c)
 
-	IDS := tools.IdsStrToIdsIntGroup("roleId", c)
+	IDS := tools.IdsStrToIdsIntGroup(c.Param("roleId"))
 	_, err := Role.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", -1)
 

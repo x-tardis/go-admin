@@ -72,7 +72,7 @@ func DeleteSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
 	data.UpdateBy = tools.GetUserIdStr(c)
 
-	IDS := tools.IdsStrToIdsIntGroup("id", c)
+	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, msg.DeletedFail, 500)
 	app.OK(c, nil, msg.DeletedSuccess)

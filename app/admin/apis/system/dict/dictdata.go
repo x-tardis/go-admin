@@ -148,7 +148,7 @@ func UpdateDictData(c *gin.Context) {
 func DeleteDictData(c *gin.Context) {
 	var data models.DictData
 	data.UpdateBy = tools.GetUserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup("dictCode", c)
+	IDS := tools.IdsStrToIdsIntGroup(c.Param("dictCode"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
 	app.OK(c, result, "删除成功")

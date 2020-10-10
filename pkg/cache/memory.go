@@ -4,7 +4,7 @@ import (
 	"github.com/matchstalk/go-admin-core/cache"
 )
 
-var MemoryAdapter Adapter
+var MemoryAdapter cache.Adapter
 
 func InitMemory() error {
 	MemoryAdapter = &cache.Memory{

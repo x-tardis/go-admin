@@ -261,7 +261,7 @@ func UpdateSysTable(c *gin.Context) {
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
 func DeleteSysTables(c *gin.Context) {
 	var data tools.SysTables
-	IDS := tools2.IdsStrToIdsIntGroup("tableId", c)
+	IDS := tools2.IdsStrToIdsIntGroup(c.Param("tableId"))
 	_, err := data.BatchDelete(IDS)
 	tools2.HasError(err, "删除失败", 500)
 	var res app.Response

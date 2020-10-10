@@ -4,17 +4,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
 	"github.com/x-tardis/go-admin/tools/config"
 )
-
-var store = base64Captcha.DefaultMemStore
 
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(map[string]interface{}); ok {
@@ -71,7 +69,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrMissingLoginValues
 	}
 	if config.ApplicationConfig.Mode != "dev" {
-		if !store.Verify(loginVals.UUID, loginVals.Code, true) {
+		if !deployed.Captcha.Verify(loginVals.UUID, loginVals.Code, true) {
 			username = loginVals.Username
 			msg = "验证码错误"
 			status = "1"

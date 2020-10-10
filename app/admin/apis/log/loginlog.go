@@ -126,7 +126,7 @@ func UpdateLoginLog(c *gin.Context) {
 func DeleteLoginLog(c *gin.Context) {
 	var data models.LoginLog
 	data.UpdateBy = tools.GetUserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup("infoId", c)
+	IDS := tools.IdsStrToIdsIntGroup(c.Param("infoId"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
 	var res app.Response

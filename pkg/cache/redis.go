@@ -8,7 +8,7 @@ import (
 	"github.com/matchstalk/redisqueue"
 )
 
-var RedisAdapter Adapter
+var RedisAdapter cache.Adapter
 
 func InitRedis() error {
 	RedisAdapter = &cache.Redis{

@@ -143,7 +143,7 @@ func UpdateConfig(c *gin.Context) {
 func DeleteConfig(c *gin.Context) {
 	var data models.SysConfig
 	data.UpdateBy = tools.GetUserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup("configId", c)
+	IDS := tools.IdsStrToIdsIntGroup(c.Param("configId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
 	app.OK(c, result, msg.DeletedSuccess)

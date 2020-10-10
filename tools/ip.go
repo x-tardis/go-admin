@@ -35,7 +35,7 @@ func GetLocation(ip string) string {
 }
 
 // 获取局域网ip地址
-func GetLocaHonst() string {
+func GetLocalHost() string {
 	netInterfaces, err := net.Interfaces()
 	if err != nil {
 		fmt.Println("net.Interfaces failed, err:", err.Error())

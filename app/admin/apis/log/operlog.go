@@ -105,7 +105,7 @@ func InsertOperLog(c *gin.Context) {
 func DeleteOperLog(c *gin.Context) {
 	var data models.SysOperLog
 	data.UpdateBy = tools.GetUserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup("operId", c)
+	IDS := tools.IdsStrToIdsIntGroup(c.Param("operId"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
 	var res app.Response

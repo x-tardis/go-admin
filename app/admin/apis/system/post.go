@@ -113,7 +113,7 @@ func UpdatePost(c *gin.Context) {
 func DeletePost(c *gin.Context) {
 	var data models.Post
 	data.UpdateBy = tools.GetUserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup("postId", c)
+	IDS := tools.IdsStrToIdsIntGroup(c.Param("postId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
 	app.OK(c, result, "删除成功")

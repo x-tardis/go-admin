@@ -108,10 +108,10 @@ func run() error {
 	tip()
 	fmt.Println(tools.Green("Server run at:"))
 	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/ \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/ \r\n", tools.GetLocalHost(), config.ApplicationConfig.Port)
 	fmt.Println(tools.Green("Swagger run at:"))
 	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocalHost(), config.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrentTimeStr())
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
