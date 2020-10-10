@@ -8,7 +8,6 @@ import (
 	"github.com/x-tardis/go-admin/cmd/migrate/migration"
 	_ "github.com/x-tardis/go-admin/cmd/migrate/migration/version"
 	"github.com/x-tardis/go-admin/common/models"
-	"github.com/x-tardis/go-admin/pkg/database"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/tools/config"
@@ -37,7 +36,7 @@ func run(*cobra.Command, []string) {
 	//2. 设置日志
 	logger.Setup()
 	//3. 初始化数据库链接
-	database.Setup(config.DatabaseConfig.Driver, config.DatabaseConfig.Source)
+	deployed.SetupDatabase(config.DatabaseConfig.Driver, config.DatabaseConfig.Source)
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()

@@ -21,7 +21,6 @@ import (
 
 	"github.com/x-tardis/go-admin/app/jobs"
 	"github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/pkg/database"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/tools"
 	"github.com/x-tardis/go-admin/tools/config"
@@ -60,7 +59,7 @@ func setup() {
 	//2. 设置日志
 	logger.Setup()
 	//3. 初始化数据库链接
-	database.Setup(config.DatabaseConfig.Driver, config.DatabaseConfig.Source)
+	deployed.SetupDatabase(config.DatabaseConfig.Driver, config.DatabaseConfig.Source)
 	//4. 接口访问控制加载
 	deployed.SetupCasbin()
 
