@@ -2,7 +2,6 @@ package tools
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -12,23 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/thinkgos/go-core-package/extos"
 )
-
-func PathCreate(dir string) error {
-	return os.MkdirAll(dir, os.ModePerm)
-}
-
-func FileCreate(content bytes.Buffer, name string) {
-	file, err := os.Create(name)
-	if err != nil {
-		log.Println(err)
-	}
-	_, err = file.WriteString(content.String())
-	if err != nil {
-		log.Println(err)
-	}
-	file.Close()
-}
 
 type ReplaceHelper struct {
 	Root    string //路径
@@ -114,4 +99,38 @@ func GetCurrentPath() string {
 		fmt.Println(err)
 	}
 	return strings.Replace(dir, "\\", "/", -1)
+}
+
+//如果不存在则新建文件夹
+func IsNotExistMkDir(src string) error {
+	if exist := extos.IsExist(src); !exist {
+		if err := os.MkdirAll(src, os.ModePerm); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func GetDirFiles(dir string) ([]string, error) {
+	dirList, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	filesRet := make([]string, 0)
+
+	for _, file := range dirList {
+		if file.IsDir() {
+			files, err := GetDirFiles(dir + string(os.PathSeparator) + file.Name())
+			if err != nil {
+				return nil, err
+			}
+
+			filesRet = append(filesRet, files...)
+		} else {
+			filesRet = append(filesRet, dir+string(os.PathSeparator)+file.Name())
+		}
+	}
+
+	return filesRet, nil
 }

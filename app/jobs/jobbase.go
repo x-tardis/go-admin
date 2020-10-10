@@ -58,7 +58,6 @@ func (e *ExecJob) Run() {
 
 //http 任务接口
 func (h *HttpJob) Run() {
-
 	startTime := time.Now()
 	var count = 0
 	/* 循环 */

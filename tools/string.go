@@ -14,6 +14,10 @@ func GetCurrentTime() time.Time {
 	return time.Now()
 }
 
+func GetCurrentTimeStamp() int64 {
+	return time.Now().UnixNano() / 1e6
+}
+
 func StructToJsonStr(e interface{}) (string, error) {
 	if b, err := json.Marshal(e); err == nil {
 		return string(b), err

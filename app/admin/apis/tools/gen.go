@@ -7,6 +7,7 @@ import (
 	"text/template"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/go-core-package/extos"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
@@ -76,7 +77,6 @@ func GenCodeV3(c *gin.Context) {
 }
 
 func NOActionsGenV3(tab tools.SysTables) {
-
 	basePath := "template/v3/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
 
@@ -99,13 +99,6 @@ func NOActionsGenV3(tab tools.SysTables) {
 	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
 	tools2.HasError(err, "", -1)
 
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
-
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -120,13 +113,13 @@ func NOActionsGenV3(tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
-	tools2.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
+	extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes())
+	extos.WriteFile("./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go", b2.Bytes())
+	extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes())
+	extos.WriteFile(config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
+	extos.WriteFile(config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
+	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
+	extos.WriteFile("./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go", b7.Bytes())
 
 }
 
@@ -149,12 +142,6 @@ func ActionsGenV3(tab tools.SysTables) {
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
 	tools2.HasError(err, "", -1)
 
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
-
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b3 bytes.Buffer
@@ -166,15 +153,14 @@ func ActionsGenV3(tab tools.SysTables) {
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
 
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+	extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes())
+	extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes())
+	extos.WriteFile(config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
+	extos.WriteFile(config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
+	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
 }
 
 func GenMenuAndApi(c *gin.Context) {
-
 	table := tools.SysTables{}
 	timeNow := tools2.GetCurrentTime()
 	id, err := strconv.Atoi(c.Param("tableId"))

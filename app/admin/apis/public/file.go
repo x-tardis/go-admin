@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"path"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	imgType "github.com/shamsher31/goimgtype"
 
-	"github.com/x-tardis/go-admin/pkg/utils"
 	"github.com/x-tardis/go-admin/tools"
 	"github.com/x-tardis/go-admin/tools/app"
 )
@@ -51,7 +51,7 @@ func UploadFile(c *gin.Context) {
 			// 上传文件至指定目录
 			guid := uuid.New().String()
 
-			singleFile := "static/uploadfile/" + guid + utils.GetExt(files.Filename)
+			singleFile := "static/uploadfile/" + guid + path.Ext(files.Filename)
 			_ = c.SaveUploadedFile(files, singleFile)
 			fileType, _ := imgType.Get(singleFile)
 			fileResponse = FileResponse{
@@ -68,7 +68,7 @@ func UploadFile(c *gin.Context) {
 			var multipartFile []FileResponse
 			for _, f := range files {
 				guid := uuid.New().String()
-				multipartFileName := "static/uploadfile/" + guid + utils.GetExt(f.Filename)
+				multipartFileName := "static/uploadfile/" + guid + path.Ext(f.Filename)
 				e := c.SaveUploadedFile(f, multipartFileName)
 				fileType, _ := imgType.Get(multipartFileName)
 				if e == nil {
