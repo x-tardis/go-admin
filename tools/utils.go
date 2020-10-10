@@ -68,7 +68,7 @@ func GetOrm(c *gin.Context) (*gorm.DB, error) {
 	}
 	switch idb.(type) {
 	case *gorm.DB:
-		//新增操作
+		// 新增操作
 		return idb.(*gorm.DB), nil
 	default:
 		return nil, errors.New(fmt.Sprintf("msgID[%s], db connect not exist", msgID))

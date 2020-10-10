@@ -9,6 +9,8 @@ type Ssl struct {
 	Domain string
 }
 
+var SslConfig = new(Ssl)
+
 func InitSsl(cfg *viper.Viper) *Ssl {
 	return &Ssl{
 		KeyStr: cfg.GetString("key"),
@@ -17,5 +19,3 @@ func InitSsl(cfg *viper.Viper) *Ssl {
 		Domain: cfg.GetString("domain"),
 	}
 }
-
-var SslConfig = new(Ssl)

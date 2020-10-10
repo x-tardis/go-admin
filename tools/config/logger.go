@@ -12,6 +12,8 @@ type Logger struct {
 	EnabledJOB bool `default:"false"`
 }
 
+var LoggerConfig = new(Logger)
+
 func InitLog(cfg *viper.Viper) *Logger {
 	return &Logger{
 		Path:       cfg.GetString("path"),
@@ -23,5 +25,3 @@ func InitLog(cfg *viper.Viper) *Logger {
 		EnabledJOB: cfg.GetBool("enabledjob"),
 	}
 }
-
-var LoggerConfig = new(Logger)

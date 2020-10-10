@@ -9,11 +9,11 @@ type Jwt struct {
 	Timeout int64
 }
 
+var JwtConfig = new(Jwt)
+
 func InitJwt(cfg *viper.Viper) *Jwt {
 	return &Jwt{
 		Secret:  cfg.GetString("secret"),
 		Timeout: cfg.GetInt64("timeout"),
 	}
 }
-
-var JwtConfig = new(Jwt)

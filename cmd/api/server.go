@@ -13,6 +13,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/router"
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/textcolor"
 
 	"github.com/gin-gonic/gin"
@@ -69,7 +70,7 @@ func setup() {
 }
 
 func run() error {
-	if viper.GetString("settings.application.mode") == tools.ModeProd {
+	if viper.GetString("mode") == infra.ModeProd {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	engine := global.Cfg.GetEngine()

@@ -16,9 +16,9 @@ import (
 )
 
 type ReplaceHelper struct {
-	Root    string //路径
-	OldText string //需要替换的文本
-	NewText string //新的文本
+	Root    string // 路径
+	OldText string // 需要替换的文本
+	NewText string // 新的文本
 }
 
 func (h *ReplaceHelper) DoWrok() error {
@@ -37,21 +37,20 @@ func (h ReplaceHelper) walkCallback(path string, f os.FileInfo, err error) error
 		return nil
 	}
 
-	//文件类型需要进行过滤
-
+	// 文件类型需要进行过滤
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
-		//err
+		// err
 		return err
 	}
 	content := string(buf)
 	log.Printf("h.OldText: %s \n", h.OldText)
 	log.Printf("h.NewText: %s \n", h.NewText)
 
-	//替换
+	// 替换
 	newContent := strings.Replace(content, h.OldText, h.NewText, -1)
 
-	//重新写入
+	// 重新写入
 	ioutil.WriteFile(path, []byte(newContent), 0)
 
 	return err
@@ -92,7 +91,7 @@ func GetFileSize(filename string) int64 {
 	return result
 }
 
-//获取当前路径，比如：E:/abc/data/test
+// 获取当前路径，比如：E:/abc/data/test
 func GetCurrentPath() string {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -101,7 +100,7 @@ func GetCurrentPath() string {
 	return strings.Replace(dir, "\\", "/", -1)
 }
 
-//如果不存在则新建文件夹
+// 如果不存在则新建文件夹
 func IsNotExistMkDir(src string) error {
 	if exist := extos.IsExist(src); !exist {
 		if err := os.MkdirAll(src, os.ModePerm); err != nil {

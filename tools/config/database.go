@@ -7,13 +7,11 @@ type Database struct {
 	Source string
 }
 
-func InitDatabase(cfg *viper.Viper) *Database {
+var DatabaseConfig = new(Database)
 
-	db := &Database{
+func InitDatabase(cfg *viper.Viper) *Database {
+	return &Database{
 		Driver: cfg.GetString("driver"),
 		Source: cfg.GetString("source"),
 	}
-	return db
 }
-
-var DatabaseConfig = new(Database)

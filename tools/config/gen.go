@@ -7,11 +7,11 @@ type Gen struct {
 	FrontPath string
 }
 
+var GenConfig = new(Gen)
+
 func InitGen(cfg *viper.Viper) *Gen {
 	return &Gen{
 		DBName:    cfg.GetString("dbname"),
 		FrontPath: cfg.GetString("frontpath"),
 	}
 }
-
-var GenConfig = new(Gen)
