@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
 )
 
-//权限检查中间件
-func AuthCheckRole() gin.HandlerFunc {
+// 权限检查中间件
+func AuthCheckRole(enforcer *casbin.SyncedEnforcer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		//检查权限
-		res, err := deployed.CasbinEnforcer.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
+		// 检查权限
+		res, err := enforcer.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
 		tools.HasError(err, "", 500)
 
 		fmt.Printf("%s [INFO] %s %s %s \r\n",

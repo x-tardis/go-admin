@@ -13,7 +13,6 @@ import (
 func CustomError(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
-
 			if c.IsAborted() {
 				c.Status(200)
 			}

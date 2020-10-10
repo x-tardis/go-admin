@@ -2,12 +2,14 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/x-tardis/go-admin/app/admin/apis/sysjob"
-	"github.com/x-tardis/go-admin/app/admin/middleware"
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/app/admin/service/dto"
 	"github.com/x-tardis/go-admin/common/actions"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
 func init() {
@@ -16,8 +18,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-
-	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		sysJob := &models.SysJob{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {

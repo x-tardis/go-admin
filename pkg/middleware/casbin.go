@@ -33,7 +33,7 @@ func NewCasbinEnforcerFromString(modelText string, db *gorm.DB) (*casbin.SyncedE
 	return NewCasbinEnforcer(md, db)
 }
 
-// NewCasbinEnforcerFromFile new casbin enforcer from file
+// NedwCasbinEnforcerFromFile new casbin enforcer from file
 func NewCasbinEnforcerFromFile(modelPath string, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
 	md, err := model.NewModelFromFile(modelPath)
 	if err != nil {

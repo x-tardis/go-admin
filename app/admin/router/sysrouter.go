@@ -5,14 +5,16 @@ import (
 
 	log2 "github.com/x-tardis/go-admin/app/admin/apis/log"
 	"github.com/x-tardis/go-admin/app/admin/apis/monitor"
+	"github.com/x-tardis/go-admin/app/admin/apis/ping"
 	"github.com/x-tardis/go-admin/app/admin/apis/public"
 	"github.com/x-tardis/go-admin/app/admin/apis/system"
 	"github.com/x-tardis/go-admin/app/admin/apis/system/dict"
 	. "github.com/x-tardis/go-admin/app/admin/apis/tools"
-	"github.com/x-tardis/go-admin/app/admin/middleware"
-	"github.com/x-tardis/go-admin/app/admin/middleware/handler"
+	middleware2 "github.com/x-tardis/go-admin/app/admin/middleware"
 	_ "github.com/x-tardis/go-admin/docs"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/ws"
 
 	"github.com/gin-gonic/gin"
@@ -41,7 +43,7 @@ func sysBaseRouter(r *gin.RouterGroup) {
 	go ws.WebsocketManager.SendAllService()
 
 	r.GET("/", system.HelloWorld)
-	r.GET("/info", handler.Ping)
+	r.GET("/info", ping.Ping)
 }
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
@@ -125,7 +127,7 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		v1auth.GET("/getinfo", system.GetInfo)
 		v1auth.GET("/menurole", system.GetMenuRole)
@@ -133,7 +135,7 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		v1auth.GET("/roleMenuTreeselect/:roleId", system.GetMenuTreeRoleselect)
 		v1auth.GET("/roleDeptTreeselect/:roleId", system.GetDeptTreeRoleselect)
 
-		v1auth.POST("/logout", handler.LogOut)
+		v1auth.POST("/logout", middleware2.LogOut)
 		v1auth.GET("/menuids", system.GetMenuIDS)
 
 		v1auth.GET("/operloglist", log2.GetOperLogList)
@@ -142,7 +144,7 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 }
 
 func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		v1auth.GET("/deptList", system.GetDeptList)
 		v1auth.GET("/deptTree", system.GetDeptTree)
@@ -156,7 +158,7 @@ func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 }
 
 func registerUserCenterRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	user := v1.Group("/user").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	user := v1.Group("/user").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		user.GET("/profile", system.GetSysUserProfile)
 		user.POST("/avatar", system.InsetSysUserAvatar)
@@ -165,7 +167,7 @@ func registerUserCenterRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMid
 }
 
 func registerOperLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	operlog := v1.Group("/operlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	operlog := v1.Group("/operlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		operlog.GET("/:operId", log2.GetOperLog)
 		operlog.DELETE("/:operId", log2.DeleteOperLog)
@@ -173,7 +175,7 @@ func registerOperLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 }
 
 func registerLoginLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	loginlog := v1.Group("/loginlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	loginlog := v1.Group("/loginlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		loginlog.GET("/:infoId", log2.GetLoginLog)
 		loginlog.POST("", log2.InsertLoginLog)
@@ -183,7 +185,7 @@ func registerLoginLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddl
 }
 
 func registerPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	post := v1.Group("/post").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	post := v1.Group("/post").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		post.GET("/:postId", system.GetPost)
 		post.POST("", system.InsertPost)
@@ -193,7 +195,7 @@ func registerPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 }
 
 func registerMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	menu := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	menu := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		menu.GET("/:id", system.GetMenu)
 		menu.POST("", system.InsertMenu)
@@ -203,7 +205,7 @@ func registerMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 }
 
 func registerConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	config := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	config := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		config.GET("/:configId", system.GetConfig)
 		config.POST("", system.InsertConfig)
@@ -213,7 +215,7 @@ func registerConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 }
 
 func registerRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	role := v1.Group("/role").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	role := v1.Group("/role").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		role.GET("/:roleId", system.GetRole)
 		role.POST("", system.InsertRole)
@@ -223,7 +225,7 @@ func registerRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 }
 
 func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	sysuser := v1.Group("/sysUser").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	sysuser := v1.Group("/sysUser").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		sysuser.GET("/:userId", system.GetSysUser)
 		sysuser.GET("/", system.GetSysUserInit)
@@ -234,7 +236,7 @@ func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 }
 
 func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		dicts.GET("/datalist", dict.GetDictDataList)
 		dicts.GET("/typelist", dict.GetDictTypeList)
@@ -253,7 +255,7 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 }
 
 func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	dept := v1.Group("/dept").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	dept := v1.Group("/dept").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		dept.GET("/:deptId", system.GetDept)
 		dept.POST("", system.InsertDept)
