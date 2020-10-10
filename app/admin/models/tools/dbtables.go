@@ -7,7 +7,6 @@ import (
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
-	config2 "github.com/x-tardis/go-admin/tools/config"
 )
 
 type DBTables struct {
@@ -25,10 +24,10 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	table := new(gorm.DB)
 	var count int64
 
-	if config2.DatabaseConfig.Driver == "mysql" {
+	if deployed.DatabaseConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.tables")
-		table = table.Where("TABLE_NAME not in (select table_name from " + config2.GenConfig.DBName + ".sys_tables) ")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+		table = table.Where("TABLE_NAME not in (select table_name from " + deployed.GenConfig.DBName + ".sys_tables) ")
+		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
 		if e.TableName != "" {
 			table = table.Where("TABLE_NAME = ?", e.TableName)
@@ -47,9 +46,9 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
 	table := new(gorm.DB)
-	if config2.DatabaseConfig.Driver == "mysql" {
+	if deployed.DatabaseConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.tables")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 		if e.TableName == "" {
 			return doc, errors.New("table name cannot be empty！")
 		}

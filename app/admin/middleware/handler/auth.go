@@ -11,7 +11,6 @@ import (
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 func PayloadFunc(data interface{}) jwt.MapClaims {
@@ -68,7 +67,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 
 		return nil, jwt.ErrMissingLoginValues
 	}
-	if config.ApplicationConfig.Mode != "dev" {
+	if deployed.ApplicationConfig.Mode != "dev" {
 		if !deployed.Captcha.Verify(loginVals.UUID, loginVals.Code, true) {
 			username = loginVals.Username
 			msg = "验证码错误"
@@ -95,7 +94,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 
 // Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
-	if config.LoggerConfig.EnabledDB {
+	if deployed.LoggerConfig.EnabledDB {
 		var loginlog models.LoginLog
 		ua := user_agent.New(c.Request.UserAgent())
 		loginlog.Ipaddr = c.ClientIP()

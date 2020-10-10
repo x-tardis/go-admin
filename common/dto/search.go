@@ -1,10 +1,10 @@
 package dto
 
 import (
-	"github.com/x-tardis/go-admin/tools/config"
-
 	"github.com/matchstalk/go-admin-core/search"
 	"gorm.io/gorm"
+
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type GeneralDelDto struct {
@@ -45,7 +45,7 @@ func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
 			GormPublic: search.GormPublic{},
 			Join:       make([]*search.GormJoin, 0),
 		}
-		search.ResolveSearchQuery(config.DatabaseConfig.Driver, q, condition)
+		search.ResolveSearchQuery(deployed.DatabaseConfig.Driver, q, condition)
 		for _, join := range condition.Join {
 			if join == nil {
 				continue

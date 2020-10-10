@@ -24,7 +24,6 @@ import (
 	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 var configFile string
@@ -35,12 +34,8 @@ var StartCmd = &cobra.Command{
 	Short:        "Start API server",
 	Example:      "go-admin server -c config.yaml",
 	SilenceUsage: true,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		setup()
-	},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return run()
-	},
+	PreRun:       setup,
+	RunE:         run,
 }
 
 var AppRouters = make([]func(), 0)
@@ -54,13 +49,18 @@ func init() {
 	AppRouters = append(AppRouters, router.InitRouter)
 }
 
-func setup() {
+func setup(cmd *cobra.Command, args []string) {
+	viper.BindPFlags(cmd.Flags()) // nolint: errcheck
+	// viper.SetEnvPrefix("oam")
+	// // OAM_CONFIGFILE
+	// viper.BindEnv("config") // nolint: errcheck
+
 	//1. 读取配置
-	config.Setup(configFile)
+	deployed.Setup(configFile)
 	//2. 设置日志
 	logger.Setup()
 	//3. 初始化数据库链接
-	deployed.SetupDatabase(config.DatabaseConfig.Driver, config.DatabaseConfig.Source)
+	deployed.SetupDatabase(deployed.DatabaseConfig.Driver, deployed.DatabaseConfig.Source)
 	//4. 接口访问控制加载
 	deployed.SetupCasbin()
 
@@ -69,7 +69,7 @@ func setup() {
 
 }
 
-func run() error {
+func run(cmd *cobra.Command, args []string) error {
 	if viper.GetString("mode") == infra.ModeProd {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -83,7 +83,7 @@ func run() error {
 	}
 
 	srv := &http.Server{
-		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
+		Addr:    deployed.ApplicationConfig.Host + ":" + deployed.ApplicationConfig.Port,
 		Handler: global.Cfg.GetEngine(),
 	}
 	go func() {
@@ -94,8 +94,8 @@ func run() error {
 
 	go func() {
 		// 服务连接
-		if config.SslConfig.Enable {
-			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
+		if deployed.SslConfig.Enable {
+			if err := srv.ListenAndServeTLS(deployed.SslConfig.Pem, deployed.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
 				global.Logger.Fatal("listen: ", err)
 			}
 		} else {
@@ -108,11 +108,11 @@ func run() error {
 	fmt.Println(textcolor.Red(string(content)))
 	tip()
 	fmt.Println(textcolor.Green("Server run at:"))
-	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/ \r\n", tools.GetLocalHost(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", deployed.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/ \r\n", tools.GetLocalHost(), deployed.ApplicationConfig.Port)
 	fmt.Println(textcolor.Green("Swagger run at:"))
-	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocalHost(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", deployed.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocalHost(), deployed.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrentTimeStr())
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)

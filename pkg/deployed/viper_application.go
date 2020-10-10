@@ -1,4 +1,4 @@
-package config
+package deployed
 
 import "github.com/spf13/viper"
 
@@ -14,7 +14,10 @@ type Application struct {
 	EnableDP      bool
 }
 
-func InitApplication(cfg *viper.Viper) *Application {
+var ApplicationConfig = new(Application)
+
+func ViperApplication() *Application {
+	cfg := viper.Sub("application")
 	return &Application{
 		ReadTimeout:   cfg.GetInt("readTimeout"),
 		WriterTimeout: cfg.GetInt("writerTimeout"),
@@ -27,5 +30,3 @@ func InitApplication(cfg *viper.Viper) *Application {
 		EnableDP:      cfg.GetBool("enabledp"),
 	}
 }
-
-var ApplicationConfig = new(Application)

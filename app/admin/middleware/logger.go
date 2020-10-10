@@ -10,8 +10,8 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
-	config2 "github.com/x-tardis/go-admin/tools/config"
 )
 
 // 日志记录到文件
@@ -54,7 +54,7 @@ func LoggerToFile() gin.HandlerFunc {
 
 		global.RequestLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
 
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LoggerConfig.EnabledDB {
+		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && deployed.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime)
 		}
 	}

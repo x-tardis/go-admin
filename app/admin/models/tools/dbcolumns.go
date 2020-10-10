@@ -7,7 +7,6 @@ import (
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
-	config2 "github.com/x-tardis/go-admin/tools/config"
 )
 
 type DBColumns struct {
@@ -30,9 +29,9 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 	var count int64
 	table := new(gorm.DB)
 
-	if config2.DatabaseConfig.Driver == "mysql" {
+	if deployed.DatabaseConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.`COLUMNS`")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
 		if e.TableName != "" {
 			return nil, 0, errors.New("table name cannot be empty！")
@@ -57,9 +56,9 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 		return nil, errors.New("table name cannot be empty！")
 	}
 
-	if config2.DatabaseConfig.Driver == "mysql" {
+	if deployed.DatabaseConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.columns")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
 		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
 	} else {

@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/x-tardis/go-admin/cmd/migrate/migration"
 	_ "github.com/x-tardis/go-admin/cmd/migrate/migration/version"
 	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/logger"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 var configFile string
@@ -28,15 +28,21 @@ func init() {
 	//StartCmd.PersistentFlags().BoolVarP(&exec, "exec", "e", false, "exec script")
 }
 
-func run(*cobra.Command, []string) {
+func run(cmd *cobra.Command, args []string) {
 	usage := `start init`
 	fmt.Println(usage)
+
+	viper.BindPFlags(cmd.Flags()) // nolint: errcheck
+	// viper.SetEnvPrefix("oam")
+	// // OAM_CONFIGFILE
+	// viper.BindEnv("config") // nolint: errcheck
+
 	//1. 读取配置
-	config.Setup(configFile)
+	deployed.Setup(configFile)
 	//2. 设置日志
 	logger.Setup()
 	//3. 初始化数据库链接
-	deployed.SetupDatabase(config.DatabaseConfig.Driver, config.DatabaseConfig.Source)
+	deployed.SetupDatabase(deployed.DatabaseConfig.Driver, deployed.DatabaseConfig.Source)
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()
@@ -50,7 +56,7 @@ func run(*cobra.Command, []string) {
 }
 
 func migrateModel() error {
-	if config.DatabaseConfig.Driver == "mysql" {
+	if deployed.DatabaseConfig.Driver == "mysql" {
 		deployed.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
 	err := deployed.DB.Debug().AutoMigrate(&models.Migration{})

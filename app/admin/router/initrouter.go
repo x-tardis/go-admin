@@ -4,13 +4,14 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/x-tardis/go-admin/app/admin/middleware"
 	"github.com/x-tardis/go-admin/app/admin/middleware/handler"
 	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/common/log"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	_ "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 func InitRouter() {
@@ -27,7 +28,7 @@ func InitRouter() {
 		log.Fatal("not support other engine")
 		os.Exit(-1)
 	}
-	if config.SslConfig.Enable {
+	if deployed.SslConfig.Enable {
 		r.Use(handler.TlsHandler())
 	}
 	r.Use(middleware.WithContextDb(middleware.GetGormFromConfig(global.Cfg)))

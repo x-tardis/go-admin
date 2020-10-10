@@ -1,4 +1,4 @@
-package config
+package deployed
 
 import "github.com/spf13/viper"
 
@@ -11,7 +11,11 @@ type Ssl struct {
 
 var SslConfig = new(Ssl)
 
-func InitSsl(cfg *viper.Viper) *Ssl {
+func ViperSsl() *Ssl {
+	cfg := viper.Sub("ssl")
+	if cfg == nil {
+		cfg = viper.New()
+	}
 	return &Ssl{
 		KeyStr: cfg.GetString("key"),
 		Pem:    cfg.GetString("pem"),

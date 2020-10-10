@@ -1,4 +1,4 @@
-package config
+package deployed
 
 import "github.com/spf13/viper"
 
@@ -9,7 +9,8 @@ type Gen struct {
 
 var GenConfig = new(Gen)
 
-func InitGen(cfg *viper.Viper) *Gen {
+func ViperGen() *Gen {
+	cfg := viper.Sub("gen")
 	return &Gen{
 		DBName:    cfg.GetString("dbname"),
 		FrontPath: cfg.GetString("frontpath"),

@@ -10,9 +10,9 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	tools2 "github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 func Preview(c *gin.Context) {
@@ -113,8 +113,8 @@ func NOActionsGenV3(tab tools.SysTables) {
 	extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go", b2.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes())
-	extos.WriteFile(config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
-	extos.WriteFile(config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
+	extos.WriteFile(deployed.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
+	extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go", b7.Bytes())
 
@@ -152,8 +152,8 @@ func ActionsGenV3(tab tools.SysTables) {
 
 	extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes())
-	extos.WriteFile(config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
-	extos.WriteFile(config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
+	extos.WriteFile(deployed.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
+	extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
 }
 

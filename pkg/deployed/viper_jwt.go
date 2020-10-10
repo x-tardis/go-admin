@@ -1,4 +1,4 @@
-package config
+package deployed
 
 import (
 	"github.com/spf13/viper"
@@ -11,7 +11,8 @@ type Jwt struct {
 
 var JwtConfig = new(Jwt)
 
-func InitJwt(cfg *viper.Viper) *Jwt {
+func ViperJwt() *Jwt {
+	cfg := viper.Sub("jwt")
 	return &Jwt{
 		Secret:  cfg.GetString("secret"),
 		Timeout: cfg.GetInt64("timeout"),

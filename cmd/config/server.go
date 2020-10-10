@@ -5,8 +5,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
-	"github.com/x-tardis/go-admin/tools/config"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 var configFile string
@@ -21,34 +22,39 @@ func init() {
 	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yaml", "Start server with provided configuration file")
 }
 
-func run(*cobra.Command, []string) {
-	config.Setup(configFile)
+func run(cmd *cobra.Command, args []string) {
+	viper.BindPFlags(cmd.Flags()) // nolint: errcheck
+	// viper.SetEnvPrefix("oam")
+	// // OAM_CONFIGFILE
+	// viper.BindEnv("config") // nolint: errcheck
 
-	application, errs := json.MarshalIndent(config.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
+	deployed.Setup(configFile)
+
+	application, errs := json.MarshalIndent(deployed.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}
 	fmt.Println("application:", string(application))
 
-	jwt, errs := json.MarshalIndent(config.JwtConfig, "", "   ") //转换成JSON返回的是byte[]
+	jwt, errs := json.MarshalIndent(deployed.JwtConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}
 	fmt.Println("jwt:", string(jwt))
 
-	database, errs := json.MarshalIndent(config.DatabaseConfig, "", "   ") //转换成JSON返回的是byte[]
+	database, errs := json.MarshalIndent(deployed.DatabaseConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}
 	fmt.Println("database:", string(database))
 
-	gen, errs := json.MarshalIndent(config.GenConfig, "", "   ") //转换成JSON返回的是byte[]
+	gen, errs := json.MarshalIndent(deployed.GenConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}
 	fmt.Println("gen:", string(gen))
 
-	loggerConfig, errs := json.MarshalIndent(config.LoggerConfig, "", "   ") //转换成JSON返回的是byte[]
+	loggerConfig, errs := json.MarshalIndent(deployed.LoggerConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}

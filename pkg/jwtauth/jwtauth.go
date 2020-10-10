@@ -10,7 +10,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	config2 "github.com/x-tardis/go-admin/tools/config"
+
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 const JwtPayloadKey = "JWT_PAYLOAD"
@@ -286,12 +287,12 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 	}
 
 	mw.Timeout = time.Hour
-	if config2.JwtConfig.Timeout != 0 {
+	if deployed.JwtConfig.Timeout != 0 {
 		// TODO: token过期时长
-		mw.Timeout = time.Duration(config2.JwtConfig.Timeout) * time.Second
+		mw.Timeout = time.Duration(deployed.JwtConfig.Timeout) * time.Second
 	}
 
-	if config2.ApplicationConfig.Mode == "dev" {
+	if deployed.ApplicationConfig.Mode == "dev" {
 		// TODO: dev mode token过期时长 为 10 年
 		mw.Timeout = time.Duration(876010) * time.Hour
 	}

@@ -1,4 +1,4 @@
-package config
+package deployed
 
 import "github.com/spf13/viper"
 
@@ -14,7 +14,8 @@ type Logger struct {
 
 var LoggerConfig = new(Logger)
 
-func InitLog(cfg *viper.Viper) *Logger {
+func ViperLogger() *Logger {
+	cfg := viper.Sub("logger")
 	return &Logger{
 		Path:       cfg.GetString("path"),
 		Level:      cfg.GetString("level"),

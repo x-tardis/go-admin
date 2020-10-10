@@ -18,7 +18,6 @@ import (
 	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/database"
 	"github.com/x-tardis/go-admin/pkg/middleware"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 var Verify = password.BCrypt{}
@@ -58,7 +57,7 @@ func SetupDatabase(driver, source string) {
 		DB:     rawdb,
 	})
 
-	if config.LoggerConfig.EnabledDB {
+	if LoggerConfig.EnabledDB {
 		DB.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 			SlowThreshold: time.Second,
 			Colorful:      true,

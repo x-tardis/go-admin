@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/common/log"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 type DataPermission struct {
@@ -63,7 +63,7 @@ func newDataPermission(tx *gorm.DB, userId interface{}) (*DataPermission, error)
 
 func Permission(tableName string, p *DataPermission) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if !config.ApplicationConfig.EnableDP {
+		if !deployed.ApplicationConfig.EnableDP {
 			return db
 		}
 		switch p.DataScope {

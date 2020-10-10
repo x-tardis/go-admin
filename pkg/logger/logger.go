@@ -4,8 +4,8 @@ import (
 	"github.com/gogf/gf/os/glog"
 
 	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/textcolor"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 var Logger *glog.Logger
@@ -14,22 +14,22 @@ var RequestLogger *glog.Logger
 
 func Setup() {
 	Logger = glog.New()
-	_ = Logger.SetPath(config.LoggerConfig.Path + "/bus")
-	Logger.SetStdoutPrint(config.LoggerConfig.EnabledBUS && config.LoggerConfig.Stdout)
+	_ = Logger.SetPath(deployed.LoggerConfig.Path + "/bus")
+	Logger.SetStdoutPrint(deployed.LoggerConfig.EnabledBUS && deployed.LoggerConfig.Stdout)
 	Logger.SetFile("bus-{Ymd}.log")
-	_ = Logger.SetLevelStr(config.LoggerConfig.Level)
+	_ = Logger.SetLevelStr(deployed.LoggerConfig.Level)
 
 	JobLogger = glog.New()
-	_ = JobLogger.SetPath(config.LoggerConfig.Path + "/job")
+	_ = JobLogger.SetPath(deployed.LoggerConfig.Path + "/job")
 	JobLogger.SetStdoutPrint(false)
 	JobLogger.SetFile("db-{Ymd}.log")
-	_ = JobLogger.SetLevelStr(config.LoggerConfig.Level)
+	_ = JobLogger.SetLevelStr(deployed.LoggerConfig.Level)
 
 	RequestLogger = glog.New()
-	_ = RequestLogger.SetPath(config.LoggerConfig.Path + "/request")
+	_ = RequestLogger.SetPath(deployed.LoggerConfig.Path + "/request")
 	RequestLogger.SetStdoutPrint(false)
 	RequestLogger.SetFile("access-{Ymd}.log")
-	_ = RequestLogger.SetLevelStr(config.LoggerConfig.Level)
+	_ = RequestLogger.SetLevelStr(deployed.LoggerConfig.Level)
 
 	Logger.Info(textcolor.Green("Logger init success!"))
 

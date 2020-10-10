@@ -4,14 +4,14 @@ import (
 	"time"
 
 	"github.com/x-tardis/go-admin/app/admin/middleware/handler"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/tools/config"
 )
 
 func AuthInit() (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           "test zone",
-		Key:             []byte(config.ApplicationConfig.JwtSecret),
+		Key:             []byte(deployed.ApplicationConfig.JwtSecret),
 		Timeout:         time.Hour,
 		MaxRefresh:      time.Hour,
 		PayloadFunc:     handler.PayloadFunc,
