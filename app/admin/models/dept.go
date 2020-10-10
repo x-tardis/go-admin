@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -42,7 +42,7 @@ type DeptLable struct {
 
 func (e *SysDept) Create() (SysDept, error) {
 	var doc SysDept
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -50,14 +50,14 @@ func (e *SysDept) Create() (SysDept, error) {
 	deptPath := "/" + cast.ToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP SysDept
-		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
+		deployed.DB.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0" + deptPath
 	}
 	var mp = map[string]string{}
 	mp["deptPath"] = deptPath
-	if err := orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Updates(mp).Error; err != nil {
+	if err := deployed.DB.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Updates(mp).Error; err != nil {
 		err := result.Error
 		return doc, err
 	}
@@ -69,7 +69,7 @@ func (e *SysDept) Create() (SysDept, error) {
 func (e *SysDept) Get() (SysDept, error) {
 	var doc SysDept
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DeptId != 0 {
 		table = table.Where("dept_id = ?", e.DeptId)
 	}
@@ -86,7 +86,7 @@ func (e *SysDept) Get() (SysDept, error) {
 func (e *SysDept) GetList() ([]SysDept, error) {
 	var doc []SysDept
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DeptId != 0 {
 		table = table.Where("dept_id = ?", e.DeptId)
 	}
@@ -106,7 +106,7 @@ func (e *SysDept) GetList() ([]SysDept, error) {
 func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
 	var doc []SysDept
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DeptId != 0 {
 		table = table.Where("dept_id = ?", e.DeptId)
 	}
@@ -180,14 +180,14 @@ func Digui(deptlist *[]SysDept, menu SysDept) SysDept {
 }
 
 func (e *SysDept) Update(id int) (update SysDept, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", id).First(&update).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("dept_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	deptPath := "/" + cast.ToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP SysDept
-		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
+		deployed.DB.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0" + deptPath
@@ -201,7 +201,7 @@ func (e *SysDept) Update(id int) (update SysDept, err error) {
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
 
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 
@@ -216,7 +216,7 @@ func (e *SysDept) Delete(id int) (success bool, err error) {
 	tools.HasError(err, "", 500)
 	tools.Assert(len(userlist) <= 0, "当前部门存在用户，不能删除！", 500)
 
-	tx := orm.Eloquent.Begin()
+	tx := deployed.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()

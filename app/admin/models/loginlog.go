@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type LoginLog struct {
@@ -32,7 +32,7 @@ func (LoginLog) TableName() string {
 func (e *LoginLog) Get() (LoginLog, error) {
 	var doc LoginLog
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.Ipaddr != "" {
 		table = table.Where("ipaddr = ?", e.Ipaddr)
 	}
@@ -49,7 +49,7 @@ func (e *LoginLog) Get() (LoginLog, error) {
 func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int, error) {
 	var doc []LoginLog
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.Ipaddr != "" {
 		table = table.Where("ipaddr = ?", e.Ipaddr)
 	}
@@ -73,7 +73,7 @@ func (e *LoginLog) Create() (LoginLog, error) {
 	var doc LoginLog
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -84,20 +84,20 @@ func (e *LoginLog) Create() (LoginLog, error) {
 
 func (e *LoginLog) Update(id int) (update LoginLog, err error) {
 
-	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *LoginLog) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("info_id in (?)", id).Delete(&LoginLog{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("info_id in (?)", id).Delete(&LoginLog{}).Error; err != nil {
 		return
 	}
 	Result = true

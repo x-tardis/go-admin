@@ -5,10 +5,10 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/app/jobs"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/service"
-	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
 type SysJob struct {
@@ -38,7 +38,7 @@ func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 			return err
 		}
 	case <-time.After(time.Second * 1):
-		e.Msg = msg.TimeOut
+		e.Msg = codes.TimeOut
 		return nil
 	}
 	return nil

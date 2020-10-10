@@ -3,7 +3,7 @@ package models
 import (
 	"strconv"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysContent struct {
@@ -29,7 +29,7 @@ func (SysContent) TableName() string {
 // 创建SysContent
 func (e *SysContent) Create() (SysContent, error) {
 	var doc SysContent
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -41,7 +41,7 @@ func (e *SysContent) Create() (SysContent, error) {
 // 获取SysContent
 func (e *SysContent) Get() (SysContent, error) {
 	var doc SysContent
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 
 	if e.Id != 0 {
 		table = table.Where("id = ?", e.Id)
@@ -69,7 +69,7 @@ func (e *SysContent) Get() (SysContent, error) {
 func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int, error) {
 	var doc []SysContent
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 
 	if e.CateId != "" {
 		table = table.Where("cate_id = ?", e.CateId)
@@ -101,13 +101,13 @@ func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int, er
 
 // 更新SysContent
 func (e *SysContent) Update(id int) (update SysContent, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
@@ -115,7 +115,7 @@ func (e *SysContent) Update(id int) (update SysContent, err error) {
 
 // 删除SysContent
 func (e *SysContent) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).Delete(&SysContent{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).Delete(&SysContent{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -125,7 +125,7 @@ func (e *SysContent) Delete(id int) (success bool, err error) {
 
 //批量删除
 func (e *SysContent) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id in (?)", id).Delete(&SysContent{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id in (?)", id).Delete(&SysContent{}).Error; err != nil {
 		return
 	}
 	Result = true

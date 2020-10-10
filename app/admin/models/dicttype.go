@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type DictType struct {
@@ -31,12 +31,12 @@ func (e *DictType) Create() (DictType, error) {
 	var doc DictType
 
 	var i int64
-	orm.Eloquent.Table(e.TableName()).Where("dict_name=? or dict_type = ?", e.DictName, e.DictType).Count(&i)
+	deployed.DB.Table(e.TableName()).Where("dict_name=? or dict_type = ?", e.DictName, e.DictType).Count(&i)
 	if i > 0 {
 		return doc, errors.New("字典名称或者字典类型已经存在！")
 	}
 
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -48,7 +48,7 @@ func (e *DictType) Create() (DictType, error) {
 func (e *DictType) Get() (DictType, error) {
 	var doc DictType
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DictId != 0 {
 		table = table.Where("dict_id = ?", e.DictId)
 	}
@@ -68,7 +68,7 @@ func (e *DictType) Get() (DictType, error) {
 func (e *DictType) GetList() ([]DictType, error) {
 	var doc []DictType
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DictId != 0 {
 		table = table.Where("dict_id = ?", e.DictId)
 	}
@@ -89,7 +89,7 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 	var doc []DictType
 	var db *gorm.DB
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DictId != 0 {
 		db = db.Where("dict_id = ?", e.DictId)
 	}
@@ -114,7 +114,7 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 }
 
 func (e *DictType) Update(id int) (update DictType, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 
@@ -128,14 +128,14 @@ func (e *DictType) Update(id int) (update DictType, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *DictType) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dict_id = ?", id).Delete(&DictData{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("dict_id = ?", id).Delete(&DictData{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -144,7 +144,7 @@ func (e *DictType) Delete(id int) (success bool, err error) {
 }
 
 func (e *DictType) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dict_id in (?)", id).Delete(&DictType{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("dict_id in (?)", id).Delete(&DictType{}).Error; err != nil {
 		return
 	}
 	Result = true

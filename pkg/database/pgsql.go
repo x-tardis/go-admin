@@ -13,12 +13,12 @@ import (
 
 	"github.com/x-tardis/go-admin/common/config"
 	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/textcolor"
 	toolsConfig "github.com/x-tardis/go-admin/tools/config"
 )
 
-type PgSql struct {
-}
+type PgSql struct{}
 
 func (e *PgSql) Setup() {
 	var err error
@@ -33,7 +33,7 @@ func (e *PgSql) Setup() {
 		Driver: "mysql",
 		DB:     db,
 	})
-	global.Eloquent, err = e.Open(db, &gorm.Config{
+	deployed.DB, err = e.Open(db, &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
@@ -44,12 +44,12 @@ func (e *PgSql) Setup() {
 		log.Printf("%s connect success!", e.GetDriver())
 	}
 
-	if global.Eloquent.Error != nil {
-		log.Fatalf("database error %v", global.Eloquent.Error)
+	if deployed.DB.Error != nil {
+		log.Fatalf("database error %v", deployed.DB.Error)
 	}
 
 	if toolsConfig.LoggerConfig.EnabledDB {
-		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+		deployed.DB.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 			SlowThreshold: time.Second,
 			Colorful:      true,
 			LogLevel:      logger.Info,

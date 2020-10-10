@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	mycasbin "github.com/x-tardis/go-admin/pkg/casbin"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -16,9 +16,8 @@ func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := mycasbin.Casbin()
 		//检查权限
-		res, err := e.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
+		res, err := deployed.CasbinEnforcer.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
 		tools.HasError(err, "", 500)
 
 		fmt.Printf("%s [INFO] %s %s %s \r\n",

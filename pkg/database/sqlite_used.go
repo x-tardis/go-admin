@@ -13,18 +13,18 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
-type SqLite struct {
-}
+type SqLite struct{}
 
 func (e *SqLite) Setup() {
 	var err error
 
 	global.Source = e.GetConnect()
 	log.Println(global.Source)
-	global.Eloquent, err = e.Open(e.GetDriver(), &gorm.Config{
+	deployed.DB, err = e.Open(e.GetDriver(), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
@@ -36,12 +36,12 @@ func (e *SqLite) Setup() {
 		log.Printf("%s connect success!", e.GetDriver())
 	}
 
-	if global.Eloquent.Error != nil {
-		log.Fatalf("database error %v", global.Eloquent.Error)
+	if deployed.DB.Error != nil {
+		log.Fatalf("database error %v", deployed.DB.Error)
 	}
 
 	if config.LoggerConfig.EnabledDB {
-		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+		deployed.DB.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 			SlowThreshold: time.Second,
 			Colorful:      true,
 			LogLevel:      logger.Info,

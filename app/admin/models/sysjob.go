@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/x-tardis/go-admin/common/dto"
-	orm "github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysJob struct {
@@ -50,17 +50,17 @@ func (e *SysJob) SetUpdateBy(updateBy uint) {
 
 // 创建SysJob
 func (e *SysJob) Create() (err error) {
-	return orm.Eloquent.Table(e.TableName()).Create(e).Error
+	return deployed.DB.Table(e.TableName()).Create(e).Error
 }
 
 // 获取SysJob
 func (e *SysJob) Get(id interface{}) (err error) {
-	return orm.Eloquent.Table(e.TableName()).First(e, id).Error
+	return deployed.DB.Table(e.TableName()).First(e, id).Error
 }
 
 // 获取SysJob带分页
 func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}, list interface{}) (int, error) {
-	table := orm.Eloquent.Table(e.TableName()).Scopes(dto.MakeCondition(v))
+	table := deployed.DB.Table(e.TableName()).Scopes(dto.MakeCondition(v))
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	//dataPermission := new(DataPermission)
@@ -75,23 +75,23 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}, list interf
 }
 
 func (e *SysJob) GetList(list interface{}) (err error) {
-	return orm.Eloquent.Table(e.TableName()).Where("status = ?", 2).Find(list).Error
+	return deployed.DB.Table(e.TableName()).Where("status = ?", 2).Find(list).Error
 }
 
 // 更新SysJob
 func (e *SysJob) Update(id interface{}) (err error) {
-	return orm.Eloquent.Table(e.TableName()).Where(id).Updates(&e).Error
+	return deployed.DB.Table(e.TableName()).Where(id).Updates(&e).Error
 }
 
 func (e *SysJob) RemoveAllEntryID() (update SysJob, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("entry_id > ?", 0).Update("entry_id", 0).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("entry_id > ?", 0).Update("entry_id", 0).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *SysJob) RemoveEntryID(entryID int) (update SysJob, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("entry_id = ?", entryID).Updates(map[string]interface{}{"entry_id": 0}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("entry_id = ?", entryID).Updates(map[string]interface{}{"entry_id": 0}).Error; err != nil {
 		return
 	}
 	return
@@ -99,7 +99,7 @@ func (e *SysJob) RemoveEntryID(entryID int) (update SysJob, err error) {
 
 // 删除SysJob
 func (e *SysJob) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where(id).Delete(&SysJob{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where(id).Delete(&SysJob{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -109,5 +109,5 @@ func (e *SysJob) Delete(id int) (success bool, err error) {
 
 //批量删除
 func (e *SysJob) BatchDelete(id []int) error {
-	return orm.Eloquent.Table(e.TableName()).Where(id).Delete(&SysJob{}).Error
+	return deployed.DB.Table(e.TableName()).Where(id).Delete(&SysJob{}).Error
 }

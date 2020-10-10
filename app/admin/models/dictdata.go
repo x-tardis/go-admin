@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strconv"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type DictData struct {
@@ -35,7 +35,7 @@ func (e *DictData) Create() (DictData, error) {
 	var doc DictData
 
 	var i int64
-	if err := orm.Eloquent.Table(e.TableName()).
+	if err := deployed.DB.Table(e.TableName()).
 		Where("dict_type = ?", e.DictType).
 		Where("dict_label=? or (dict_label=? and dict_value = ?)", e.DictLabel, e.DictLabel, e.DictValue).
 		Count(&i).Error; err != nil {
@@ -45,7 +45,7 @@ func (e *DictData) Create() (DictData, error) {
 		return doc, errors.New("字典标签或者字典键值已经存在！")
 	}
 
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -57,7 +57,7 @@ func (e *DictData) Create() (DictData, error) {
 func (e *DictData) GetByCode() (DictData, error) {
 	var doc DictData
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DictCode != 0 {
 		table = table.Where("dict_code = ?", e.DictCode)
 	}
@@ -77,7 +77,7 @@ func (e *DictData) GetByCode() (DictData, error) {
 func (e *DictData) Get() ([]DictData, error) {
 	var doc []DictData
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DictCode != 0 {
 		table = table.Where("dict_code = ?", e.DictCode)
 	}
@@ -97,7 +97,7 @@ func (e *DictData) Get() ([]DictData, error) {
 func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error) {
 	var doc []DictData
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.DictCode != 0 {
 		table = table.Where("dict_code = ?", e.DictCode)
 	}
@@ -128,7 +128,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 }
 
 func (e *DictData) Update(id int) (update DictData, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dict_code = ?", id).First(&update).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("dict_code = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
@@ -142,14 +142,14 @@ func (e *DictData) Update(id int) (update DictData, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *DictData) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dict_code = ?", id).Delete(&DictData{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("dict_code = ?", id).Delete(&DictData{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -158,7 +158,7 @@ func (e *DictData) Delete(id int) (success bool, err error) {
 }
 
 func (e *DictData) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dict_code in (?)", id).Delete(&DictData{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("dict_code in (?)", id).Delete(&DictData{}).Error; err != nil {
 		return
 	}
 	Result = true

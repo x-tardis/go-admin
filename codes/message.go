@@ -1,4 +1,4 @@
-package msg
+package codes
 
 var (
 	CreatedSuccess = "创建成功！"

@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	orm "github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -96,7 +95,7 @@ type SysUserView struct {
 // 获取用户数据
 func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 
-	table := orm.Eloquent.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
+	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
 	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
 	if e.UserId != 0 {
 		table = table.Where("user_id = ?", e.UserId)
@@ -132,7 +131,7 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 
 func (e *SysUser) GetUserInfo() (SysUserView SysUserView, err error) {
 
-	table := orm.Eloquent.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
+	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
 	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
 	if e.UserId != 0 {
 		table = table.Where("user_id = ?", e.UserId)
@@ -166,7 +165,7 @@ func (e *SysUser) GetUserInfo() (SysUserView SysUserView, err error) {
 
 func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
 
-	table := orm.Eloquent.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
+	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
 	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
 	if e.UserId != 0 {
 		table = table.Where("user_id = ?", e.UserId)
@@ -200,7 +199,7 @@ func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
 
 func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, error) {
 	var doc []SysUserPage
-	table := orm.Eloquent.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
+	table := deployed.DB.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
 	table = table.Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
 
 	if e.Username != "" {
@@ -255,14 +254,14 @@ func (e SysUser) Insert() (id int, err error) {
 
 	// check 用户名
 	var count int64
-	orm.Eloquent.Table(e.TableName()).Where("username = ?", e.Username).Count(&count)
+	deployed.DB.Table(e.TableName()).Where("username = ?", e.Username).Count(&count)
 	if count > 0 {
 		err = errors.New("账户已存在！")
 		return
 	}
 
 	//添加数据
-	if err = orm.Eloquent.Table(e.TableName()).Create(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Create(&e).Error; err != nil {
 		return
 	}
 	id = e.UserId
@@ -276,7 +275,7 @@ func (e *SysUser) Update(id int) (update SysUser, err error) {
 			return
 		}
 	}
-	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 	if e.RoleId == 0 {
@@ -285,14 +284,14 @@ func (e *SysUser) Update(id int) (update SysUser, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("user_id in (?)", id).Delete(&SysUser{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("user_id in (?)", id).Delete(&SysUser{}).Error; err != nil {
 		return
 	}
 	Result = true

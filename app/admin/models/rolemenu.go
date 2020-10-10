@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type RoleMenu struct {
@@ -25,7 +25,7 @@ type MenuPath struct {
 
 func (rm *RoleMenu) Get() ([]RoleMenu, error) {
 	var r []RoleMenu
-	table := orm.Eloquent.Table("sys_role_menu")
+	table := deployed.DB.Table("sys_role_menu")
 	if rm.RoleId != 0 {
 		table = table.Where("role_id = ?", rm.RoleId)
 
@@ -38,7 +38,7 @@ func (rm *RoleMenu) Get() ([]RoleMenu, error) {
 
 func (rm *RoleMenu) GetPermis() ([]string, error) {
 	var r []Menu
-	table := orm.Eloquent.Select("sys_menu.permission").Table("sys_menu").Joins("left join sys_role_menu on sys_menu.menu_id = sys_role_menu.menu_id")
+	table := deployed.DB.Select("sys_menu.permission").Table("sys_menu").Joins("left join sys_role_menu on sys_menu.menu_id = sys_role_menu.menu_id")
 
 	table = table.Where("role_id = ?", rm.RoleId)
 
@@ -55,7 +55,7 @@ func (rm *RoleMenu) GetPermis() ([]string, error) {
 
 func (rm *RoleMenu) GetIDS() ([]MenuPath, error) {
 	var r []MenuPath
-	table := orm.Eloquent.Select("sys_menu.path").Table("sys_role_menu")
+	table := deployed.DB.Select("sys_menu.path").Table("sys_role_menu")
 	table = table.Joins("left join sys_role on sys_role.role_id=sys_role_menu.role_id")
 	table = table.Joins("left join sys_menu on sys_menu.id=sys_role_menu.menu_id")
 	table = table.Where("sys_role.role_name = ? and sys_menu.type=1", rm.RoleName)
@@ -66,7 +66,7 @@ func (rm *RoleMenu) GetIDS() ([]MenuPath, error) {
 }
 
 func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
-	tx := orm.Eloquent.Begin()
+	tx := deployed.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
@@ -105,7 +105,7 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
 
 // 该方法即将弃用
 func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
-	tx := orm.Eloquent.Begin()
+	tx := deployed.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
@@ -148,7 +148,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	)
 
 	// 开始事务
-	tx := orm.Eloquent.Begin()
+	tx := deployed.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
@@ -222,7 +222,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 
 func (rm *RoleMenu) Delete(RoleId string, MenuID string) (bool, error) {
 	rm.RoleId, _ = strconv.Atoi(RoleId)
-	table := orm.Eloquent.Table("sys_role_menu").Where("role_id = ?", RoleId)
+	table := deployed.DB.Table("sys_role_menu").Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		table = table.Where("menu_id = ?", MenuID)
 	}

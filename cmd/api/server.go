@@ -12,6 +12,7 @@ import (
 	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/app/admin/router"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/textcolor"
 
 	"github.com/gin-gonic/gin"
@@ -19,9 +20,8 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/x-tardis/go-admin/app/jobs"
-	"github.com/x-tardis/go-admin/common/database"
 	"github.com/x-tardis/go-admin/common/global"
-	mycasbin "github.com/x-tardis/go-admin/pkg/casbin"
+	"github.com/x-tardis/go-admin/pkg/database"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/tools"
 	"github.com/x-tardis/go-admin/tools/config"
@@ -62,7 +62,7 @@ func setup() {
 	//3. 初始化数据库链接
 	database.Setup(config.DatabaseConfig.Driver)
 	//4. 接口访问控制加载
-	mycasbin.Setup()
+	deployed.SetupCasbin()
 
 	usageStr := `starting api server`
 	global.Logger.Info(usageStr)

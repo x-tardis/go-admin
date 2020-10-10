@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	mycasbin "github.com/x-tardis/go-admin/pkg/casbin"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 
@@ -97,7 +97,7 @@ func InsertRole(c *gin.Context) {
 		tools.HasError(err, "", -1)
 	}
 
-	_, err = mycasbin.LoadPolicy()
+	err = deployed.CasbinEnforcer.LoadPolicy()
 	tools.HasError(err, "", -1)
 
 	servers.OKWithRequestID(c, data, "添加成功")
@@ -127,7 +127,7 @@ func UpdateRole(c *gin.Context) {
 		tools.HasError(err2, "修改失败（insert）", -1)
 	}
 
-	_, err = mycasbin.LoadPolicy()
+	err = deployed.CasbinEnforcer.LoadPolicy()
 	tools.HasError(err, "", -1)
 
 	servers.OKWithRequestID(c, result, "修改成功")
@@ -165,7 +165,7 @@ func DeleteRole(c *gin.Context) {
 	_, err := Role.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", -1)
 
-	_, err = mycasbin.LoadPolicy()
+	err = deployed.CasbinEnforcer.LoadPolicy()
 	tools.HasError(err, "", -1)
 
 	servers.OKWithRequestID(c, "", "删除成功")

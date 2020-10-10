@@ -3,7 +3,7 @@ package models
 import (
 	"github.com/spf13/cast"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysFileDir struct {
@@ -27,7 +27,7 @@ func (SysFileDir) TableName() string {
 // 创建SysFileDir
 func (e *SysFileDir) Create() (SysFileDir, error) {
 	var doc SysFileDir
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -36,14 +36,14 @@ func (e *SysFileDir) Create() (SysFileDir, error) {
 	path := "/" + cast.ToString(e.Id)
 	if int(e.PId) != 0 {
 		var deptP SysFileDir
-		orm.Eloquent.Table(e.TableName()).Where("id = ?", e.PId).First(&deptP)
+		deployed.DB.Table(e.TableName()).Where("id = ?", e.PId).First(&deptP)
 		path = deptP.Path + path
 	} else {
 		path = "/0" + path
 	}
 	var mp = map[string]string{}
 	mp["path"] = path
-	if err := orm.Eloquent.Table(e.TableName()).Where("id = ?", e.Id).Updates(mp).Error; err != nil {
+	if err := deployed.DB.Table(e.TableName()).Where("id = ?", e.Id).Updates(mp).Error; err != nil {
 		err := result.Error
 		return doc, err
 	}
@@ -56,7 +56,7 @@ func (e *SysFileDir) Create() (SysFileDir, error) {
 // 获取SysFileDir
 func (e *SysFileDir) Get() (SysFileDir, error) {
 	var doc SysFileDir
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 
 	if e.Id != 0 {
 		table = table.Where("id = ?", e.Id)
@@ -72,7 +72,7 @@ func (e *SysFileDir) Get() (SysFileDir, error) {
 func (e *SysFileDir) GetPage() ([]SysFileDir, int, error) {
 	var doc []SysFileDir
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	//dataPermission := new(DataPermission)
@@ -92,14 +92,14 @@ func (e *SysFileDir) GetPage() ([]SysFileDir, int, error) {
 
 // 更新SysFileDir
 func (e *SysFileDir) Update(id int) (update SysFileDir, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	path := "/" + cast.ToString(e.Id)
 	if int(e.Id) != 0 {
 		var deptP SysFileDir
-		orm.Eloquent.Table(e.TableName()).Where("id = ?", e.Id).First(&deptP)
+		deployed.DB.Table(e.TableName()).Where("id = ?", e.Id).First(&deptP)
 		path = deptP.Path + path
 	} else {
 		path = "/0" + path
@@ -112,7 +112,7 @@ func (e *SysFileDir) Update(id int) (update SysFileDir, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
@@ -120,7 +120,7 @@ func (e *SysFileDir) Update(id int) (update SysFileDir, err error) {
 
 // 删除SysFileDir
 func (e *SysFileDir) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).Delete(&SysFileDir{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).Delete(&SysFileDir{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -130,7 +130,7 @@ func (e *SysFileDir) Delete(id int) (success bool, err error) {
 
 //批量删除
 func (e *SysFileDir) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id in (?)", id).Delete(&SysFileDir{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id in (?)", id).Delete(&SysFileDir{}).Error; err != nil {
 		return
 	}
 	Result = true

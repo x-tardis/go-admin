@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysTables struct {
@@ -56,7 +56,7 @@ type Params struct {
 func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, error) {
 	var doc []SysTables
 
-	table := orm.Eloquent.Table("sys_tables")
+	table := deployed.DB.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -77,7 +77,7 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, erro
 func (e *SysTables) Get() (SysTables, error) {
 	var doc SysTables
 	var err error
-	table := orm.Eloquent.Table("sys_tables")
+	table := deployed.DB.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -104,7 +104,7 @@ func (e *SysTables) Get() (SysTables, error) {
 func (e *SysTables) GetTree() ([]SysTables, error) {
 	var doc []SysTables
 	var err error
-	table := orm.Eloquent.Table("sys_tables")
+	table := deployed.DB.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -134,7 +134,7 @@ func (e *SysTables) GetTree() ([]SysTables, error) {
 
 func (e *SysTables) Create() (SysTables, error) {
 	var doc SysTables
-	result := orm.Eloquent.Table("sys_tables").Create(&e)
+	result := deployed.DB.Table("sys_tables").Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -150,13 +150,13 @@ func (e *SysTables) Create() (SysTables, error) {
 }
 
 func (e *SysTables) Update() (update SysTables, err error) {
-	//if err = orm.Eloquent.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
+	//if err = orm.DB.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
 	//	return
 	//}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
 
@@ -170,7 +170,7 @@ func (e *SysTables) Update() (update SysTables, err error) {
 	tables := make([]SysTables, 0)
 	tableMap := make(map[string]*SysTables)
 	if len(tableNames) > 0 {
-		if err = orm.Eloquent.Table("sys_tables").Where("table_name in (?)", tableNames).Find(&tables).Error; err != nil {
+		if err = deployed.DB.Table("sys_tables").Where("table_name in (?)", tableNames).Find(&tables).Error; err != nil {
 			return
 		}
 		for i := range tables {
@@ -202,7 +202,7 @@ func (e *SysTables) Update() (update SysTables, err error) {
 }
 
 func (e *SysTables) Delete() (success bool, err error) {
-	tx := orm.Eloquent.Begin()
+	tx := deployed.DB.Begin()
 	defer func() {
 		if err != nil {
 			tx.Rollback()
@@ -223,7 +223,7 @@ func (e *SysTables) Delete() (success bool, err error) {
 }
 
 func (e *SysTables) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Unscoped().Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
+	if err = deployed.DB.Unscoped().Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
 		return
 	}
 	Result = true

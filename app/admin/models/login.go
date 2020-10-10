@@ -1,7 +1,6 @@
 package models
 
 import (
-	orm "github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -13,7 +12,7 @@ type Login struct {
 }
 
 func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
-	e = orm.Eloquent.Table("sys_user").Where("username = ? ", u.Username).Find(&user).Error
+	e = deployed.DB.Table("sys_user").Where("username = ? ", u.Username).Find(&user).Error
 	if e != nil {
 		return
 	}
@@ -22,7 +21,7 @@ func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 	if e != nil {
 		return
 	}
-	e = orm.Eloquent.Table("sys_role").Where("role_id = ? ", user.RoleId).First(&role).Error
+	e = deployed.DB.Table("sys_role").Where("role_id = ? ", user.RoleId).First(&role).Error
 	if e != nil {
 		return
 	}

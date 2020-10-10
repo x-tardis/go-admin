@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysRole struct {
@@ -43,7 +43,7 @@ func (role *SysRole) GetById(tx *gorm.DB, id interface{}) error {
 func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error) {
 	var doc []SysRole
 
-	table := orm.Eloquent.Table("sys_role")
+	table := deployed.DB.Table("sys_role")
 	if role.RoleId != 0 {
 		table = table.Where("role_id = ?", role.RoleId)
 	}
@@ -74,7 +74,7 @@ func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error
 }
 
 func (role *SysRole) Get() (SysRole SysRole, err error) {
-	table := orm.Eloquent.Table("sys_role")
+	table := deployed.DB.Table("sys_role")
 	if role.RoleId != 0 {
 		table = table.Where("role_id = ?", role.RoleId)
 	}
@@ -89,7 +89,7 @@ func (role *SysRole) Get() (SysRole SysRole, err error) {
 }
 
 func (role *SysRole) GetList() (SysRole []SysRole, err error) {
-	table := orm.Eloquent.Table("sys_role")
+	table := deployed.DB.Table("sys_role")
 	if role.RoleId != 0 {
 		table = table.Where("role_id = ?", role.RoleId)
 	}
@@ -107,7 +107,7 @@ func (role *SysRole) GetList() (SysRole []SysRole, err error) {
 func (role *SysRole) GetRoleMeunId() ([]int, error) {
 	menuIds := make([]int, 0)
 	menuList := make([]MenuIdList, 0)
-	if err := orm.Eloquent.Table("sys_role_menu").Select("sys_role_menu.menu_id").Where("role_id = ? ", role.RoleId).Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id =?  and parent_id is not null)", role.RoleId).Find(&menuList).Error; err != nil {
+	if err := deployed.DB.Table("sys_role_menu").Select("sys_role_menu.menu_id").Where("role_id = ? ", role.RoleId).Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id =?  and parent_id is not null)", role.RoleId).Find(&menuList).Error; err != nil {
 		return nil, err
 	}
 
@@ -119,12 +119,12 @@ func (role *SysRole) GetRoleMeunId() ([]int, error) {
 
 func (role *SysRole) Insert() (id int, err error) {
 	var i int64
-	orm.Eloquent.Table(role.TableName()).Where("role_name=? or role_key = ?", role.RoleName, role.RoleKey).Count(&i)
+	deployed.DB.Table(role.TableName()).Where("role_name=? or role_key = ?", role.RoleName, role.RoleKey).Count(&i)
 	if i > 0 {
 		return 0, errors.New("角色名称或者角色标识已经存在！")
 	}
 	role.UpdateBy = ""
-	result := orm.Eloquent.Table(role.TableName()).Create(&role)
+	result := deployed.DB.Table(role.TableName()).Create(&role)
 	if result.Error != nil {
 		err = result.Error
 		return
@@ -140,7 +140,7 @@ type DeptIdList struct {
 func (role *SysRole) GetRoleDeptId() ([]int, error) {
 	deptIds := make([]int, 0)
 	deptList := make([]DeptIdList, 0)
-	if err := orm.Eloquent.Table("sys_role_dept").Select("sys_role_dept.dept_id").Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").Where("role_id = ? ", role.RoleId).Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", role.RoleId).Find(&deptList).Error; err != nil {
+	if err := deployed.DB.Table("sys_role_dept").Select("sys_role_dept.dept_id").Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").Where("role_id = ? ", role.RoleId).Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", role.RoleId).Find(&deptList).Error; err != nil {
 		return nil, err
 	}
 
@@ -153,7 +153,7 @@ func (role *SysRole) GetRoleDeptId() ([]int, error) {
 
 //修改
 func (role *SysRole) Update(id int) (update SysRole, err error) {
-	if err = orm.Eloquent.Table(role.TableName()).First(&update, id).Error; err != nil {
+	if err = deployed.DB.Table(role.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 
@@ -167,7 +167,7 @@ func (role *SysRole) Update(id int) (update SysRole, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(role.TableName()).Model(&update).Updates(&role).Error; err != nil {
+	if err = deployed.DB.Table(role.TableName()).Model(&update).Updates(&role).Error; err != nil {
 		return
 	}
 	return
@@ -175,7 +175,7 @@ func (role *SysRole) Update(id int) (update SysRole, err error) {
 
 //批量删除
 func (role *SysRole) BatchDelete(id []int) (Result bool, err error) {
-	tx := orm.Eloquent.Begin()
+	tx := deployed.DB.Begin()
 
 	defer func() {
 		if r := recover(); r != nil {

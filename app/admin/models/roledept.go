@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 //sys_role_dept
@@ -28,17 +28,17 @@ func (rm *SysRoleDept) Insert(roleId int, deptIds []int) (bool, error) {
 			sql += fmt.Sprintf("(%d,%d),", roleId, deptIds[i])
 		}
 	}
-	orm.Eloquent.Exec(sql)
+	deployed.DB.Exec(sql)
 
 	return true, nil
 }
 
 func (rm *SysRoleDept) DeleteRoleDept(roleId int) (bool, error) {
-	if err := orm.Eloquent.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
+	if err := deployed.DB.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
 		return false, err
 	}
 	var role SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
+	if err := deployed.DB.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		return false, err
 	}
 

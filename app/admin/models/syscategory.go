@@ -3,7 +3,7 @@ package models
 import (
 	"strconv"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysCategory struct {
@@ -27,7 +27,7 @@ func (SysCategory) TableName() string {
 // 创建SysCategory
 func (e *SysCategory) Create() (SysCategory, error) {
 	var doc SysCategory
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -39,7 +39,7 @@ func (e *SysCategory) Create() (SysCategory, error) {
 // 获取SysCategory
 func (e *SysCategory) Get() (SysCategory, error) {
 	var doc SysCategory
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 
 	if e.Id != 0 {
 		table = table.Where("id = ?", e.Id)
@@ -63,7 +63,7 @@ func (e *SysCategory) Get() (SysCategory, error) {
 func (e *SysCategory) GetPage(pageSize int, pageIndex int) ([]SysCategory, int, error) {
 	var doc []SysCategory
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 
 	if e.Name != "" {
 		table = table.Where("name = ?", e.Name)
@@ -91,13 +91,13 @@ func (e *SysCategory) GetPage(pageSize int, pageIndex int) ([]SysCategory, int, 
 
 // 更新SysCategory
 func (e *SysCategory) Update(id int) (update SysCategory, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
@@ -105,7 +105,7 @@ func (e *SysCategory) Update(id int) (update SysCategory, err error) {
 
 // 删除SysCategory
 func (e *SysCategory) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).Delete(&SysCategory{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).Delete(&SysCategory{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -115,7 +115,7 @@ func (e *SysCategory) Delete(id int) (success bool, err error) {
 
 //批量删除
 func (e *SysCategory) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id in (?)", id).Delete(&SysCategory{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("id in (?)", id).Delete(&SysCategory{}).Error; err != nil {
 		return
 	}
 	Result = true

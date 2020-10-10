@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
 	"github.com/x-tardis/go-admin/cmd/migrate/migration"
 	_ "github.com/x-tardis/go-admin/cmd/migrate/migration/version"
-	"github.com/x-tardis/go-admin/common/database"
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/database"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/tools/config"
 )
@@ -51,13 +52,13 @@ func run(*cobra.Command, []string) {
 
 func migrateModel() error {
 	if config.DatabaseConfig.Driver == "mysql" {
-		global.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+		deployed.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
-	err := global.Eloquent.Debug().AutoMigrate(&models.Migration{})
+	err := deployed.DB.Debug().AutoMigrate(&models.Migration{})
 	if err != nil {
 		return err
 	}
-	migration.Migrate.SetDb(global.Eloquent.Debug())
+	migration.Migrate.SetDb(deployed.DB.Debug())
 	migration.Migrate.Migrate()
 	return err
 }

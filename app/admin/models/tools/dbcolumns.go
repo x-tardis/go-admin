@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
 	config2 "github.com/x-tardis/go-admin/tools/config"
 )
@@ -31,7 +31,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 	table := new(gorm.DB)
 
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Table("information_schema.`COLUMNS`")
+		table = deployed.DB.Table("information_schema.`COLUMNS`")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		if e.TableName != "" {
@@ -58,7 +58,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 	}
 
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Table("information_schema.columns")
+		table = deployed.DB.Table("information_schema.columns")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")

@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
 // @Summary 配置列表数据
@@ -139,5 +139,5 @@ func DeleteConfig(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("configId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-	servers.OKWithRequestID(c, result, msg.DeletedSuccess)
+	servers.OKWithRequestID(c, result, codes.DeletedSuccess)
 }

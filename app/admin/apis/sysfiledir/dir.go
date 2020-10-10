@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
 func GetSysFileDirList(c *gin.Context) {
@@ -68,6 +68,6 @@ func DeleteSysFileDir(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
-	tools.HasError(err, msg.DeletedFail, 500)
-	servers.OKWithRequestID(c, nil, msg.DeletedSuccess)
+	tools.HasError(err, codes.DeletedFail, 500)
+	servers.OKWithRequestID(c, nil, codes.DeletedSuccess)
 }

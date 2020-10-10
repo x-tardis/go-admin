@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
 // @Summary 分页部门列表数据
@@ -56,8 +56,8 @@ func GetDept(c *gin.Context) {
 	Dept.DeptId, _ = strconv.Atoi(c.Param("deptId"))
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.Get()
-	tools.HasError(err, msg.NotFound, 404)
-	servers.OKWithRequestID(c, result, msg.GetSuccess)
+	tools.HasError(err, codes.NotFound, 404)
+	servers.OKWithRequestID(c, result, codes.GetSuccess)
 }
 
 // @Summary 添加部门
@@ -77,7 +77,7 @@ func InsertDept(c *gin.Context) {
 	data.CreateBy = tools.GetUserIdStr(c)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	servers.OKWithRequestID(c, result, msg.CreatedSuccess)
+	servers.OKWithRequestID(c, result, codes.CreatedSuccess)
 }
 
 // @Summary 修改部门
@@ -98,7 +98,7 @@ func UpdateDept(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.DeptId)
 	tools.HasError(err, "", -1)
-	servers.OKWithRequestID(c, result, msg.UpdatedSuccess)
+	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
 }
 
 // @Summary 删除部门
@@ -113,7 +113,7 @@ func DeleteDept(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
-	servers.OKWithRequestID(c, "", msg.DeletedSuccess)
+	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
@@ -122,7 +122,7 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("roleId"))
 	SysRole.RoleId = id
 	result, err := Dept.SetDeptLable()
-	tools.HasError(err, msg.NotFound, -1)
+	tools.HasError(err, codes.NotFound, -1)
 	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = SysRole.GetRoleDeptId()

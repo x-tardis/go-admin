@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 //sys_operlog
@@ -41,7 +41,7 @@ func (SysOperLog) TableName() string {
 func (e *SysOperLog) Get() (SysOperLog, error) {
 	var doc SysOperLog
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.OperIp != "" {
 		table = table.Where("oper_ip = ?", e.OperIp)
 	}
@@ -58,7 +58,7 @@ func (e *SysOperLog) Get() (SysOperLog, error) {
 func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int, error) {
 	var doc []SysOperLog
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.OperIp != "" {
 		table = table.Where("oper_ip = ?", e.OperIp)
 	}
@@ -85,7 +85,7 @@ func (e *SysOperLog) Create() (SysOperLog, error) {
 	var doc SysOperLog
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -95,20 +95,20 @@ func (e *SysOperLog) Create() (SysOperLog, error) {
 }
 
 func (e *SysOperLog) Update(id int) (update SysOperLog, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *SysOperLog) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where(" oper_id in (?)", id).Delete(&SysOperLog{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where(" oper_id in (?)", id).Delete(&SysOperLog{}).Error; err != nil {
 		return
 	}
 	Result = true

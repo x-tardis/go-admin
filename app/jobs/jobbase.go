@@ -10,7 +10,7 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg"
-	"github.com/x-tardis/go-admin/pkg/cronjob"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 var timeFormat = "2006-01-02 15:04:05"
@@ -89,7 +89,7 @@ func Setup() {
 
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
 
-	global.GADMCron = cronjob.NewWithSeconds()
+	deployed.Cron = deployed.NewCron()
 
 	sysJob := models.SysJob{}
 	jobList := make([]models.SysJob, 0)
@@ -128,10 +128,10 @@ func Setup() {
 	}
 
 	// 其中任务
-	global.GADMCron.Start()
+	deployed.Cron.Start()
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore start success.")
 	// 关闭任务
-	defer global.GADMCron.Stop()
+	defer deployed.Cron.Stop()
 	select {}
 }
 
@@ -145,7 +145,7 @@ func AddJob(job Job) (int, error) {
 }
 
 func (h *HttpJob) addJob() (int, error) {
-	id, err := global.GADMCron.AddJob(h.CronExpression, h)
+	id, err := deployed.Cron.AddJob(h.CronExpression, h)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
 		return 0, err
@@ -155,7 +155,7 @@ func (h *HttpJob) addJob() (int, error) {
 }
 
 func (h *ExecJob) addJob() (int, error) {
-	id, err := global.GADMCron.AddJob(h.CronExpression, h)
+	id, err := deployed.Cron.AddJob(h.CronExpression, h)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
 		return 0, err
@@ -168,7 +168,7 @@ func (h *ExecJob) addJob() (int, error) {
 func Remove(entryID int) chan bool {
 	ch := make(chan bool)
 	go func() {
-		global.GADMCron.Remove(cron.EntryID(entryID))
+		deployed.Cron.Remove(cron.EntryID(entryID))
 		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Remove success ,info entryID :", entryID)
 		ch <- true
 	}()
@@ -179,7 +179,7 @@ func Remove(entryID int) chan bool {
 func Stop() chan bool {
 	ch := make(chan bool)
 	go func() {
-		global.GADMCron.Stop()
+		deployed.Cron.Stop()
 		ch <- true
 	}()
 	return ch

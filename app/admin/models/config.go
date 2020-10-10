@@ -5,7 +5,7 @@ import (
 	"strconv"
 	_ "time"
 
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysConfig struct {
@@ -31,12 +31,12 @@ func (SysConfig) TableName() string {
 func (e *SysConfig) Create() (SysConfig, error) {
 	var doc SysConfig
 	var i int64
-	orm.Eloquent.Table(e.TableName()).Where("config_name=? or config_key = ?", e.ConfigName, e.ConfigKey).Count(&i)
+	deployed.DB.Table(e.TableName()).Where("config_name=? or config_key = ?", e.ConfigName, e.ConfigKey).Count(&i)
 	if i > 0 {
 		return doc, errors.New("参数名称或者参数键名已经存在！")
 	}
 
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -49,7 +49,7 @@ func (e *SysConfig) Create() (SysConfig, error) {
 func (e *SysConfig) Get() (SysConfig, error) {
 	var doc SysConfig
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 	if e.ConfigId != 0 {
 		table = table.Where("config_id = ?", e.ConfigId)
 	}
@@ -67,7 +67,7 @@ func (e *SysConfig) Get() (SysConfig, error) {
 func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, error) {
 	var doc []SysConfig
 
-	table := orm.Eloquent.Table(e.TableName())
+	table := deployed.DB.Table(e.TableName())
 
 	if e.ConfigName != "" {
 		table = table.Where("config_name = ?", e.ConfigName)
@@ -96,7 +96,7 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 }
 
 func (e *SysConfig) Update(id int) (update SysConfig, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("config_id = ?", id).First(&update).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
@@ -110,14 +110,14 @@ func (e *SysConfig) Update(id int) (update SysConfig, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *SysConfig) Delete() (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("config_id = ?", e.ConfigId).Delete(&SysConfig{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("config_id = ?", e.ConfigId).Delete(&SysConfig{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -126,7 +126,7 @@ func (e *SysConfig) Delete() (success bool, err error) {
 }
 
 func (e *SysConfig) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("config_id in (?)", id).Delete(&SysConfig{}).Error; err != nil {
+	if err = deployed.DB.Table(e.TableName()).Where("config_id in (?)", id).Delete(&SysConfig{}).Error; err != nil {
 		return
 	}
 	Result = true

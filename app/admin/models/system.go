@@ -1,7 +1,7 @@
 package models
 
 import (
-	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type SysSetting struct {
@@ -17,7 +17,7 @@ func (SysSetting) TableName() string {
 
 //查询
 func (s *SysSetting) Get() (create SysSetting, err error) {
-	result := orm.Eloquent.Table("sys_setting").First(&create)
+	result := deployed.DB.Table("sys_setting").First(&create)
 	if result.Error != nil {
 		err = result.Error
 		return
@@ -27,7 +27,7 @@ func (s *SysSetting) Get() (create SysSetting, err error) {
 
 //修改
 func (s *SysSetting) Update() (update SysSetting, err error) {
-	if err = orm.Eloquent.Table("sys_setting").Model(&update).Updates(&s).Error; err != nil {
+	if err = deployed.DB.Table("sys_setting").Model(&update).Updates(&s).Error; err != nil {
 		return
 	}
 	return
