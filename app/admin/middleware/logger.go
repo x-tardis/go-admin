@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -52,7 +51,7 @@ func LoggerToFile() gin.HandlerFunc {
 			clientIP,
 		)
 
-		global.RequestLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
+		deployed.RequestLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
 
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && deployed.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime)

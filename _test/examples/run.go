@@ -8,7 +8,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/logger"
 )
 
 func main() {
@@ -18,7 +17,7 @@ func main() {
 		panic(err)
 	}
 	deployed.SetupCasbin()
-	logger.Setup()
+	deployed.SetupLogger()
 	engine := gin.Default()
 	//router.InitRouter()
 	log.Fatal(engine.Run(":8000"))

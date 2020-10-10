@@ -15,7 +15,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	cconfig "github.com/x-tardis/go-admin/common/config"
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/database"
 	"github.com/x-tardis/go-admin/pkg/middleware"
 )
@@ -31,6 +30,8 @@ var Cron *cron.Cron
 var DB *gorm.DB
 
 var CasbinEnforcer *casbin.SyncedEnforcer
+
+var Cfg cconfig.Conf = cconfig.DefaultConfig()
 
 func SetupCasbin() {
 	e, err := middleware.NewCasbinEnforcerFromString(CasbinModeText, DB)
@@ -52,7 +53,7 @@ func SetupDatabase(driver, source string) {
 	if err != nil {
 		log.Fatalf("database error %v", err)
 	}
-	global.Cfg.SetDb(&cconfig.DBConfig{
+	Cfg.SetDb(&cconfig.DBConfig{
 		Driver: "mysql",
 		DB:     rawdb,
 	})

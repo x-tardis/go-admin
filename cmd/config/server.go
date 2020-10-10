@@ -28,7 +28,7 @@ func run(cmd *cobra.Command, args []string) {
 	// // OAM_CONFIGFILE
 	// viper.BindEnv("config") // nolint: errcheck
 
-	deployed.Setup(configFile)
+	deployed.SetupConfig(configFile)
 
 	application, errs := json.MarshalIndent(deployed.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {

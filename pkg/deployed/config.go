@@ -8,7 +8,7 @@ import (
 )
 
 // 载入配置文件
-func Setup(path string) {
+func SetupConfig(path string) {
 	err := LoadConfig(path)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Parse config file fail: %s", err.Error()))

@@ -7,7 +7,6 @@ import (
 	"github.com/mssola/user_agent"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
@@ -87,7 +86,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		msg = "登录失败"
 		status = "1"
 		LoginLogToDB(c, status, msg, username)
-		global.RequestLogger.Println(e.Error())
+		deployed.RequestLogger.Println(e.Error())
 	}
 	return nil, jwt.ErrFailedAuthentication
 }

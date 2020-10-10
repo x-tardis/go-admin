@@ -2,7 +2,7 @@ package deployed
 
 import "github.com/spf13/viper"
 
-type Logger struct {
+type Log struct {
 	Path       string
 	Level      string
 	Stdout     bool
@@ -12,11 +12,11 @@ type Logger struct {
 	EnabledJOB bool `default:"false"`
 }
 
-var LoggerConfig = new(Logger)
+var LoggerConfig = new(Log)
 
-func ViperLogger() *Logger {
+func ViperLogger() *Log {
 	cfg := viper.Sub("logger")
-	return &Logger{
+	return &Log{
 		Path:       cfg.GetString("path"),
 		Level:      cfg.GetString("level"),
 		Stdout:     cfg.GetBool("stdout"),

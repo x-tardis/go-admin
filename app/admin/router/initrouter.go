@@ -7,7 +7,6 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/middleware"
 	"github.com/x-tardis/go-admin/app/admin/middleware/handler"
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/logger"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	_ "github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -16,10 +15,10 @@ import (
 
 func InitRouter() {
 	var r *gin.Engine
-	h := global.Cfg.GetEngine()
+	h := deployed.Cfg.GetEngine()
 	if h == nil {
 		h = gin.New()
-		global.Cfg.SetEngine(h)
+		deployed.Cfg.SetEngine(h)
 	}
 	switch h.(type) {
 	case *gin.Engine:
@@ -31,7 +30,7 @@ func InitRouter() {
 	if deployed.SslConfig.Enable {
 		r.Use(handler.TlsHandler())
 	}
-	r.Use(middleware.WithContextDb(middleware.GetGormFromConfig(global.Cfg)))
+	r.Use(middleware.WithContextDb(middleware.GetGormFromConfig(deployed.Cfg)))
 	middleware.InitMiddleware(r)
 	// the jwt middleware
 	var err error

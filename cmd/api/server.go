@@ -21,8 +21,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/x-tardis/go-admin/app/jobs"
-	"github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -56,24 +54,22 @@ func setup(cmd *cobra.Command, args []string) {
 	// viper.BindEnv("config") // nolint: errcheck
 
 	//1. 读取配置
-	deployed.Setup(configFile)
+	deployed.SetupConfig(configFile)
 	//2. 设置日志
-	logger.Setup()
+	deployed.SetupLogger()
 	//3. 初始化数据库链接
 	deployed.SetupDatabase(deployed.DatabaseConfig.Driver, deployed.DatabaseConfig.Source)
 	//4. 接口访问控制加载
 	deployed.SetupCasbin()
 
-	usageStr := `starting api server`
-	global.Logger.Info(usageStr)
-
+	deployed.Logger.Info(`starting api server`)
 }
 
 func run(cmd *cobra.Command, args []string) error {
 	if viper.GetString("mode") == infra.ModeProd {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	engine := global.Cfg.GetEngine()
+	engine := deployed.Cfg.GetEngine()
 	if engine == nil {
 		engine = gin.New()
 	}
@@ -84,7 +80,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	srv := &http.Server{
 		Addr:    deployed.ApplicationConfig.Host + ":" + deployed.ApplicationConfig.Port,
-		Handler: global.Cfg.GetEngine(),
+		Handler: deployed.Cfg.GetEngine(),
 	}
 	go func() {
 		jobs.InitJob()
@@ -96,11 +92,11 @@ func run(cmd *cobra.Command, args []string) error {
 		// 服务连接
 		if deployed.SslConfig.Enable {
 			if err := srv.ListenAndServeTLS(deployed.SslConfig.Pem, deployed.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
-				global.Logger.Fatal("listen: ", err)
+				deployed.Logger.Fatal("listen: ", err)
 			}
 		} else {
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				global.Logger.Fatal("listen: ", err)
+				deployed.Logger.Fatal("listen: ", err)
 			}
 		}
 	}()
@@ -123,9 +119,9 @@ func run(cmd *cobra.Command, args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		global.Logger.Fatal("Server Shutdown:", err)
+		deployed.Logger.Fatal("Server Shutdown:", err)
 	}
-	global.Logger.Println("Server exiting")
+	deployed.Logger.Println("Server exiting")
 
 	return nil
 }

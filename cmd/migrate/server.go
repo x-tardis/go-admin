@@ -10,7 +10,6 @@ import (
 	_ "github.com/x-tardis/go-admin/cmd/migrate/migration/version"
 	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/logger"
 )
 
 var configFile string
@@ -38,9 +37,9 @@ func run(cmd *cobra.Command, args []string) {
 	// viper.BindEnv("config") // nolint: errcheck
 
 	//1. 读取配置
-	deployed.Setup(configFile)
+	deployed.SetupConfig(configFile)
 	//2. 设置日志
-	logger.Setup()
+	deployed.SetupLogger()
 	//3. 初始化数据库链接
 	deployed.SetupDatabase(deployed.DatabaseConfig.Driver, deployed.DatabaseConfig.Source)
 	//4. 数据库迁移
@@ -51,8 +50,8 @@ func run(cmd *cobra.Command, args []string) {
 	//if err := models.InitDb(); err != nil {
 	//	global.Logger.Fatalf("数据库基础数据初始化失败！error: %v ", err)
 	//}
-	usage = `数据库基础数据初始化成功`
-	fmt.Println(usage)
+
+	fmt.Println(`数据库基础数据初始化成功`)
 }
 
 func migrateModel() error {

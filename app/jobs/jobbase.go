@@ -8,7 +8,6 @@ import (
 	"github.com/robfig/cron/v3"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -41,7 +40,7 @@ func (e *ExecJob) Run() {
 	startTime := time.Now()
 	var obj = jobList[e.InvokeTarget]
 	if obj == nil {
-		global.JobLogger.Warning(" ExecJob Run job nil", e)
+		deployed.JobLogger.Warning(" ExecJob Run job nil", e)
 		return
 	}
 	CallExec(obj.(JobsExec), e.Args)
@@ -53,7 +52,7 @@ func (e *ExecJob) Run() {
 	//TODO: 待完善部分
 	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
 	//ws.SendAll(str)
-	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
+	deployed.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
 }
 
 //http 任务接口
@@ -81,7 +80,7 @@ LOOP:
 	latencyTime := endTime.Sub(startTime)
 	//TODO: 待完善部分
 
-	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
+	deployed.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
 }
 
 // 初始化

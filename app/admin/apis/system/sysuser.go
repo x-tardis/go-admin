@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
-	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -220,7 +220,7 @@ func InsetSysUserAvatar(c *gin.Context) {
 	guid := uuid.New().String()
 	filPath := "static/uploadfile/" + guid + ".jpg"
 	for _, file := range files {
-		global.Logger.Debug(file.Filename)
+		deployed.Logger.Debug(file.Filename)
 		// 上传文件至指定目录
 		_ = c.SaveUploadedFile(file, filPath)
 	}
