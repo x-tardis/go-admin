@@ -7,7 +7,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/logger"
 )
@@ -20,7 +19,7 @@ func main() {
 	}
 	deployed.SetupCasbin()
 	logger.Setup()
-	global.GinEngine = gin.Default()
+	engine := gin.Default()
 	//router.InitRouter()
-	log.Fatal(global.GinEngine.Run(":8000"))
+	log.Fatal(engine.Run(":8000"))
 }

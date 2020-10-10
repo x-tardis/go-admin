@@ -60,7 +60,7 @@ func setup() {
 	//2. 设置日志
 	logger.Setup()
 	//3. 初始化数据库链接
-	database.Setup(config.DatabaseConfig.Driver)
+	database.Setup(config.DatabaseConfig.Driver, config.DatabaseConfig.Source)
 	//4. 接口访问控制加载
 	deployed.SetupCasbin()
 

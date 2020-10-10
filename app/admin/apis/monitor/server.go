@@ -22,7 +22,7 @@ const (
 // @Summary 系统信息
 // @Description 获取JSON
 // @Tags 系统信息
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/settings/serverInfo [get]
 func ServerInfo(c *gin.Context) {
 	osDic := make(map[string]interface{})

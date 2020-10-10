@@ -21,7 +21,7 @@ import (
 // @Param configType query string false "configType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configList [get]
 // @Security Bearer
 func GetConfigList(c *gin.Context) {
@@ -57,7 +57,7 @@ func GetConfigList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 配置
 // @Param configId path int true "配置编码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/config/{configId} [get]
 // @Security Bearer
 func GetConfig(c *gin.Context) {
@@ -73,7 +73,7 @@ func GetConfig(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 配置
 // @Param configKey path int true "configKey"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configKey/{configKey} [get]
 // @Security Bearer
 func GetConfigByConfigKey(c *gin.Context) {

@@ -1,7 +1,6 @@
 package global
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/os/glog"
 
 	"github.com/x-tardis/go-admin/common/config"
@@ -9,13 +8,7 @@ import (
 
 var Cfg config.Conf = config.DefaultConfig()
 
-var GinEngine *gin.Engine
-
-var (
-	Source string
-	Driver string
-	DBName string
-)
+var Driver string
 
 var (
 	Logger        *glog.Logger

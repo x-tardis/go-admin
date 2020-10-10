@@ -89,7 +89,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -144,7 +144,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -198,7 +198,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -235,7 +235,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -272,7 +272,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -385,7 +385,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -453,7 +453,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -505,9 +505,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "配置"
+                    "字典数据"
                 ],
-                "summary": "添加配置",
+                "summary": "添加字典数据",
                 "parameters": [
                     {
                         "description": "data",
@@ -515,7 +515,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SysConfig"
+                            "$ref": "#/definitions/models.DictType"
                         }
                     }
                 ],
@@ -577,7 +577,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -608,7 +608,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -663,7 +663,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -787,7 +787,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Page"
+                            "$ref": "#/definitions/paginator.Page"
                         }
                     }
                 }
@@ -818,7 +818,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -943,7 +943,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -1021,7 +1021,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -1368,7 +1368,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -1448,7 +1448,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -1496,7 +1496,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -1597,7 +1597,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -1831,7 +1831,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -1927,7 +1927,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -2025,7 +2025,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -2086,7 +2086,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -2108,7 +2108,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -2168,7 +2168,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -2396,7 +2396,7 @@ var doc = `{
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.Response"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     }
                 }
@@ -2483,44 +2483,6 @@ var doc = `{
         }
     },
     "definitions": {
-        "app.Page": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "list": {
-                    "type": "object"
-                },
-                "pageIndex": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
-                }
-            }
-        },
-        "app.Response": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "代码",
-                    "type": "integer",
-                    "example": 200
-                },
-                "data": {
-                    "description": "数据集",
-                    "type": "object"
-                },
-                "msg": {
-                    "description": "消息",
-                    "type": "string"
-                },
-                "requestId": {
-                    "type": "string"
-                }
-            }
-        },
         "models.DictType": {
             "type": "object",
             "properties": {
@@ -3328,6 +3290,41 @@ var doc = `{
                     "type": "integer"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "paginator.Page": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "list": {
+                    "type": "object"
+                },
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                }
+            }
+        },
+        "servers.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "object"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "requestId": {
                     "type": "string"
                 }
             }

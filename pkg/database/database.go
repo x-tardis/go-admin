@@ -1,30 +1,44 @@
 package database
 
 import (
-	"gorm.io/gorm"
+	"log"
+	"os"
+	"time"
+
+	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/tools/config"
+	"gorm.io/gorm/logger"
 )
 
-// Database interface
-type Database interface {
-	Setup()
-	Open(conn string, cfg *gorm.Config) (db *gorm.DB, err error)
-	GetConnect() string
-	GetDriver() string
-}
+func Setup(driver, source string) {
+	var err error
 
-func Setup(driver string) {
 	switch driver {
 	case "mysql":
-		var db = new(Mysql)
-		db.Setup()
+		deployed.DB, err = newMsql(source)
 	case "postgres":
-		var db = new(PgSql)
-		db.Setup()
-
+		deployed.DB, err = newPgSql(source)
 	case "sqlite3":
-		var db = new(SqLite)
-		db.Setup()
+		deployed.DB, err = newSqlite3(source)
 	default:
 		panic("please select database driver one of [mysql|postgres|mysqlite3], if use sqlite3,build tags with sqlite3!")
+	}
+
+	if err != nil {
+		log.Fatalf("%s connect error %v", driver, err)
+	} else {
+		log.Printf("%s connect success!", driver)
+	}
+
+	if deployed.DB.Error != nil {
+		log.Fatalf("database error %v", deployed.DB.Error)
+	}
+
+	if config.LoggerConfig.EnabledDB {
+		deployed.DB.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+			SlowThreshold: time.Second,
+			Colorful:      true,
+			LogLevel:      logger.Info,
+		})
 	}
 }

@@ -1,30 +1,4 @@
 definitions:
-  app.Page:
-    properties:
-      count:
-        type: integer
-      list:
-        type: object
-      pageIndex:
-        type: integer
-      pageSize:
-        type: integer
-    type: object
-  app.Response:
-    properties:
-      code:
-        description: 代码
-        example: 200
-        type: integer
-      data:
-        description: 数据集
-        type: object
-      msg:
-        description: 消息
-        type: string
-      requestId:
-        type: string
-    type: object
   models.DictType:
     properties:
       createBy:
@@ -596,6 +570,29 @@ definitions:
       username:
         type: string
     type: object
+  paginator.Page:
+    properties:
+      count:
+        type: integer
+      list:
+        type: object
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  servers.Response:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        type: object
+      msg:
+        type: string
+      requestId:
+        type: string
+    type: object
   tools.Params:
     properties:
       treeCode:
@@ -832,7 +829,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 获取配置
@@ -851,7 +848,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 获取配置
@@ -885,7 +882,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 配置列表数据
@@ -911,7 +908,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       summary: 分页列表数据 / page list data
       tags:
       - 工具 / Tools
@@ -935,7 +932,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       summary: 分页列表数据 / page list data
       tags:
       - 工具 / Tools
@@ -1003,7 +1000,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 部门列表数据
@@ -1046,7 +1043,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 分页部门列表数据
@@ -1063,7 +1060,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.SysConfig'
+          $ref: '#/definitions/models.DictType'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1071,9 +1068,9 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 添加配置
+      summary: 添加字典数据
       tags:
-      - 配置
+      - 字典数据
     put:
       consumes:
       - application/json
@@ -1124,7 +1121,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 通过编码获取字典数据
@@ -1158,7 +1155,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 字典数据列表
@@ -1177,7 +1174,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 通过字典类型获取字典数据
@@ -1255,7 +1252,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 通过字典id获取字典类型
@@ -1289,7 +1286,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Page'
+            $ref: '#/definitions/paginator.Page'
       security:
       - Bearer: []
       summary: 字典类型列表数据
@@ -1367,7 +1364,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 通过编码获取登录日志
@@ -1401,7 +1398,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 登录日志列表
@@ -1618,7 +1615,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 通过编码获取登录日志
@@ -1669,7 +1666,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 登录日志列表
@@ -1699,7 +1696,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 岗位列表数据
@@ -1781,7 +1778,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 获取岗位信息
@@ -1912,7 +1909,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 角色列表数据
@@ -1975,7 +1972,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       summary: 系统信息
       tags:
       - 系统信息
@@ -2049,7 +2046,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 获取配置
@@ -2075,7 +2072,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       summary: 分页列表数据
       tags:
       - 工具 - 生成表
@@ -2086,7 +2083,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 获取用户角色和职位
@@ -2124,7 +2121,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 获取用户
@@ -2269,7 +2266,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/servers.Response'
       security:
       - Bearer: []
       summary: 获取个人中心用户

@@ -18,7 +18,7 @@ import (
 // @Param postCode query string false "postCode"
 // @Param postId query string false "postId"
 // @Param status query string false "status"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
 // @Security Bearer
 func GetPostList(c *gin.Context) {
@@ -57,7 +57,7 @@ func GetPostList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 岗位
 // @Param postId path int true "postId"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
 // @Security Bearer
 func GetPost(c *gin.Context) {
