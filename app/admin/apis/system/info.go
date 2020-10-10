@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 func GetInfo(c *gin.Context) {
@@ -49,5 +49,5 @@ func GetInfo(c *gin.Context) {
 	mp["deptId"] = user.DeptId
 	mp["name"] = user.NickName
 
-	app.OK(c, mp, "")
+	servers.OKWithRequestID(c, mp, "")
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	tools2 "github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
@@ -21,14 +21,12 @@ import (
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
 func GetDBTableList(c *gin.Context) {
-	var res app.Response
 	var data tools.DBTables
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
 	if config.DatabaseConfig.Driver == "sqlite3" || config.DatabaseConfig.Driver == "postgres" {
-		res.Msg = "对不起，sqlite3 或 postgres 不支持代码生成！"
-		c.JSON(http.StatusOK, res.ReturnError(500))
+		servers.FailWithRequestID(c, http.StatusInternalServerError, "对不起，sqlite3 或 postgres 不支持代码生成")
 		return
 	}
 
@@ -50,7 +48,5 @@ func GetDBTableList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }

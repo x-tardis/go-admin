@@ -2,9 +2,9 @@ package public
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"path"
 	"strings"
 
@@ -12,8 +12,8 @@ import (
 	"github.com/google/uuid"
 	imgType "github.com/shamsher31/goimgtype"
 
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 type FileResponse struct {
@@ -38,14 +38,14 @@ func UploadFile(c *gin.Context) {
 	urlPerfix := fmt.Sprintf("http://%s/", c.Request.Host)
 	var fileResponse FileResponse
 	if tag == "" {
-		app.Error(c, 200, errors.New(""), "缺少标识")
+		servers.FailWithRequestID(c, http.StatusOK, "缺少标识")
 		return
 	} else {
 		switch tag {
 		case "1": // 单图
 			files, err := c.FormFile("file")
 			if err != nil {
-				app.Error(c, 200, errors.New(""), "图片不能为空")
+				servers.FailWithRequestID(c, http.StatusOK, "图片不能为空")
 				return
 			}
 			// 上传文件至指定目录
@@ -61,7 +61,7 @@ func UploadFile(c *gin.Context) {
 				Name:     files.Filename,
 				Type:     fileType,
 			}
-			app.OK(c, fileResponse, "上传成功")
+			servers.OKWithRequestID(c, fileResponse, "上传成功")
 			return
 		case "2": // 多图
 			files := c.Request.MultipartForm.File["file"]
@@ -81,7 +81,7 @@ func UploadFile(c *gin.Context) {
 					})
 				}
 			}
-			app.OK(c, multipartFile, "上传成功")
+			servers.OKWithRequestID(c, multipartFile, "上传成功")
 			return
 		case "3": // base64
 			files, _ := c.GetPostForm("file")
@@ -98,7 +98,7 @@ func UploadFile(c *gin.Context) {
 				Name:     "",
 				Type:     typeStr,
 			}
-			app.OK(c, fileResponse, "上传成功")
+			servers.OKWithRequestID(c, fileResponse, "上传成功")
 		}
 	}
 }

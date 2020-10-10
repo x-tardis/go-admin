@@ -1,15 +1,15 @@
 package system
 
 import (
-	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 查询系统信息
@@ -29,7 +29,7 @@ func GetSetting(c *gin.Context) {
 	}
 
 	tools.HasError(e, "查询失败", 500)
-	app.OK(c, r, "查询成功")
+	servers.OKWithRequestID(c, r, "查询成功")
 }
 
 // @Summary 更新或提交系统信息
@@ -42,7 +42,7 @@ func GetSetting(c *gin.Context) {
 func CreateSetting(c *gin.Context) {
 	var s models.ResponseSystemConfig
 	if err := c.ShouldBind(&s); err != nil {
-		app.Error(c, 200, errors.New("缺少必要参数"), "")
+		servers.FailWithRequestID(c, http.StatusOK, "缺少必要参数")
 		return
 	}
 
@@ -52,7 +52,7 @@ func CreateSetting(c *gin.Context) {
 
 	a, e := sModel.Update()
 	if e != nil {
-		app.Error(c, 200, e, "")
+		servers.FailWithRequestID(c, http.StatusOK, e.Error())
 		return
 	}
 
@@ -62,6 +62,6 @@ func CreateSetting(c *gin.Context) {
 		}
 	}
 
-	app.OK(c, a, "提交成功")
+	servers.OKWithRequestID(c, a, "提交成功")
 
 }

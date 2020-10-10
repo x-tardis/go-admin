@@ -1,15 +1,14 @@
 package log
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 登录日志列表
@@ -51,9 +50,7 @@ func GetLoginLogList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	var res app.Response
-	res.Data = mp
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 // @Summary 通过编码获取登录日志
@@ -65,13 +62,10 @@ func GetLoginLogList(c *gin.Context) {
 // @Security Bearer
 func GetLoginLog(c *gin.Context) {
 	var LoginLog models.LoginLog
-	LoginLog.InfoId, _ = strconv.Atoi(c.Param("infoId"))
+	LoginLog.InfoId = cast.ToInt(c.Param("infoId"))
 	result, err := LoginLog.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 添加登录日志
@@ -86,13 +80,11 @@ func GetLoginLog(c *gin.Context) {
 // @Security Bearer
 func InsertLoginLog(c *gin.Context) {
 	var data models.LoginLog
-	err := c.BindWith(&data, binding.JSON)
+	err := c.BindJSON(&data)
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 修改登录日志
@@ -107,13 +99,11 @@ func InsertLoginLog(c *gin.Context) {
 // @Security Bearer
 func UpdateLoginLog(c *gin.Context) {
 	var data models.LoginLog
-	err := c.BindWith(&data, binding.JSON)
+	err := c.BindJSON(&data)
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.InfoId)
 	tools.HasError(err, "", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 批量删除登录日志
@@ -129,7 +119,5 @@ func DeleteLoginLog(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("infoId"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-	var res app.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithMessage("删除成功"))
 }

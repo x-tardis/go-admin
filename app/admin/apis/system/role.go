@@ -4,11 +4,12 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 	mycasbin "github.com/x-tardis/go-admin/pkg/casbin"
+	"github.com/x-tardis/go-admin/pkg/servers"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 角色列表数据
@@ -43,7 +44,7 @@ func GetRoleList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	app.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
 // @Summary 获取Role数据
@@ -62,7 +63,7 @@ func GetRole(c *gin.Context) {
 	menuIds, err = Role.GetRoleMeunId()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	result.MenuIds = menuIds
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 
 }
 
@@ -93,7 +94,7 @@ func InsertRole(c *gin.Context) {
 	_, err = mycasbin.LoadPolicy()
 	tools.HasError(err, "", -1)
 
-	app.OK(c, data, "添加成功")
+	servers.OKWithRequestID(c, data, "添加成功")
 }
 
 // @Summary 修改用户角色
@@ -123,7 +124,7 @@ func UpdateRole(c *gin.Context) {
 	_, err = mycasbin.LoadPolicy()
 	tools.HasError(err, "", -1)
 
-	app.OK(c, result, "修改成功")
+	servers.OKWithRequestID(c, result, "修改成功")
 }
 
 func UpdateRoleDataScope(c *gin.Context) {
@@ -140,7 +141,7 @@ func UpdateRoleDataScope(c *gin.Context) {
 		_, err2 := t.Insert(data.RoleId, data.DeptIds)
 		tools.HasError(err2, "添加失败2", -1)
 	}
-	app.OK(c, result, "修改成功")
+	servers.OKWithRequestID(c, result, "修改成功")
 }
 
 // @Summary 删除用户角色
@@ -161,5 +162,5 @@ func DeleteRole(c *gin.Context) {
 	_, err = mycasbin.LoadPolicy()
 	tools.HasError(err, "", -1)
 
-	app.OK(c, "", "删除成功")
+	servers.OKWithRequestID(c, "", "删除成功")
 }

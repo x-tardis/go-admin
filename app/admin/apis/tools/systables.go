@@ -1,15 +1,14 @@
 package tools
 
 import (
-	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	tools2 "github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 分页列表数据
@@ -45,10 +44,7 @@ func GetSysTableList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	var res app.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 // @Summary 获取配置
@@ -64,13 +60,10 @@ func GetSysTables(c *gin.Context) {
 	result, err := data.Get()
 	tools2.HasError(err, "抱歉未找到相关信息", -1)
 
-	var res app.Response
-	res.Data = result
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	res.Data = mp
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 func GetSysTablesInfo(c *gin.Context) {
@@ -81,13 +74,10 @@ func GetSysTablesInfo(c *gin.Context) {
 	result, err := data.Get()
 	tools2.HasError(err, "抱歉未找到相关信息", -1)
 
-	var res app.Response
-	res.Data = result
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	res.Data = mp
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 func GetSysTablesTree(c *gin.Context) {
@@ -95,9 +85,7 @@ func GetSysTablesTree(c *gin.Context) {
 	result, err := data.GetTree()
 	tools2.HasError(err, "抱歉未找到相关信息", -1)
 
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 添加表结构
@@ -120,10 +108,7 @@ func InsertSysTable(c *gin.Context) {
 		_, err = data.Create()
 		tools2.HasError(err, "", -1)
 	}
-	var res app.Response
-	res.Msg = "添加成功！"
-	c.JSON(http.StatusOK, res.ReturnOK())
-
+	servers.Success(c, servers.WithMessage("添加成功"))
 }
 
 func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
@@ -246,10 +231,7 @@ func UpdateSysTable(c *gin.Context) {
 	result, err := data.Update()
 	tools2.HasError(err, "", -1)
 
-	var res app.Response
-	res.Data = result
-	res.Msg = "修改成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result), servers.WithMessage("修改成功"))
 }
 
 // @Summary 删除表结构
@@ -264,7 +246,5 @@ func DeleteSysTables(c *gin.Context) {
 	IDS := tools2.IdsStrToIdsIntGroup(c.Param("tableId"))
 	_, err := data.BatchDelete(IDS)
 	tools2.HasError(err, "删除失败", 500)
-	var res app.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithMessage("删除成功"))
 }

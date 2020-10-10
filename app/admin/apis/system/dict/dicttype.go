@@ -1,7 +1,6 @@
 package dict
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -9,8 +8,8 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 字典类型列表数据
@@ -46,7 +45,7 @@ func GetDictTypeList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	app.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
 // @Summary 通过字典id获取字典类型
@@ -62,9 +61,7 @@ func GetDictType(c *gin.Context) {
 	DictType.DictId = cast.ToInt(c.Param("dictId"))
 	result, err := DictType.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 func GetDictTypeOptionSelect(c *gin.Context) {
@@ -73,9 +70,7 @@ func GetDictTypeOptionSelect(c *gin.Context) {
 	DictType.DictId = cast.ToInt(c.Param("dictId"))
 	result, err := DictType.GetList()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 添加字典类型
@@ -95,9 +90,7 @@ func InsertDictType(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 修改字典类型
@@ -117,9 +110,7 @@ func UpdateDictType(c *gin.Context) {
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.DictId)
 	tools.HasError(err, "", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 删除字典类型
@@ -135,5 +126,5 @@ func DeleteDictType(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("dictId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-	app.OK(c, result, "删除成功")
+	servers.OKWithRequestID(c, result, "删除成功")
 }

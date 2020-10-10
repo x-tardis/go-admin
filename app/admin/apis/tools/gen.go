@@ -2,7 +2,6 @@ package tools
 
 import (
 	"bytes"
-	"net/http"
 	"strconv"
 	"text/template"
 
@@ -11,8 +10,8 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	tools2 "github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
@@ -54,10 +53,8 @@ func Preview(c *gin.Context) {
 	mp["template/vue.go.template"] = b4.String()
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
-	var res app.Response
-	res.Data = mp
 
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 func GenCodeV3(c *gin.Context) {
@@ -73,7 +70,7 @@ func GenCodeV3(c *gin.Context) {
 		NOActionsGenV3(tab)
 	}
 
-	app.OK(c, "", "Code generated successfully！")
+	servers.OKWithRequestID(c, "", "Code generated successfully！")
 }
 
 func NOActionsGenV3(tab tools.SysTables) {
@@ -391,5 +388,5 @@ func GenMenuAndApi(c *gin.Context) {
 	ADelete.UpdatedAt = timeNow
 	ADelete.MenuId, err = ADelete.Create()
 
-	app.OK(c, "", "数据生成成功！")
+	servers.OKWithRequestID(c, "", "数据生成成功！")
 }

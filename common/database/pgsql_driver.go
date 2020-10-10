@@ -13,7 +13,7 @@ import (
 
 	"github.com/x-tardis/go-admin/common/config"
 	"github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
+	"github.com/x-tardis/go-admin/pkg/textcolor"
 	toolsConfig "github.com/x-tardis/go-admin/tools/config"
 )
 
@@ -27,7 +27,7 @@ func (e *PgSql) Setup() {
 	log.Println(global.Source)
 	db, err := sql.Open("postgresql", global.Source)
 	if err != nil {
-		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
+		global.Logger.Fatal(textcolor.Red(e.GetDriver()+" connect error :"), err)
 	}
 	global.Cfg.SetDb(&config.DBConfig{
 		Driver: "mysql",

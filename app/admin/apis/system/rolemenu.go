@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
-	"github.com/x-tardis/go-admin/tools/app"
+	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 // @Summary RoleMenu列表数据
@@ -22,14 +22,11 @@ func GetRoleMenu(c *gin.Context) {
 	var Rm models.RoleMenu
 	err := c.ShouldBind(&Rm)
 	result, err := Rm.Get()
-	var res app.Response
 	if err != nil {
-		res.Msg = "抱歉未找到相关信息"
-		c.JSON(http.StatusOK, res.ReturnError(200))
+		servers.FailWithRequestID(c, http.StatusOK, "抱歉未找到相关信息")
 		return
 	}
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 type RoleMenuPost struct {
@@ -38,12 +35,7 @@ type RoleMenuPost struct {
 }
 
 func InsertRoleMenu(c *gin.Context) {
-
-	var res app.Response
-	res.Msg = "添加成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
-	return
-
+	servers.Success(c, servers.WithMessage("添加成功"))
 }
 
 // @Summary 删除用户菜单数据
@@ -61,13 +53,8 @@ func DeleteRoleMenu(c *gin.Context) {
 	fmt.Println(menuId)
 	_, err := t.Delete(id, menuId)
 	if err != nil {
-		var res app.Response
-		res.Msg = "删除失败"
-		c.JSON(http.StatusOK, res.ReturnError(200))
+		servers.FailWithRequestID(c, http.StatusOK, "删除失败")
 		return
 	}
-	var res app.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
-	return
+	servers.Success(c, servers.WithMessage("删除成功"))
 }

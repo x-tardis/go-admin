@@ -2,8 +2,9 @@ package logger
 
 import (
 	"github.com/gogf/gf/os/glog"
+
 	"github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
+	"github.com/x-tardis/go-admin/pkg/textcolor"
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
@@ -30,7 +31,7 @@ func Setup() {
 	RequestLogger.SetFile("access-{Ymd}.log")
 	_ = RequestLogger.SetLevelStr(config.LoggerConfig.Level)
 
-	Logger.Info(tools.Green("Logger init success!"))
+	Logger.Info(textcolor.Green("Logger init success!"))
 
 	global.Logger = Logger.Line()
 	global.JobLogger = JobLogger.Line()

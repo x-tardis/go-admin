@@ -10,8 +10,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // Manager 所有 websocket 信息
@@ -313,7 +314,7 @@ func (manager *Manager) UnWsClient(c *gin.Context) {
 	id := c.Param("id")
 	group := c.Param("channel")
 	WsLogout(id, group)
-	app.OK(c, "ws close success", "success")
+	servers.OKWithRequestID(c, "ws close success", "success")
 }
 
 func SendGroup(msg []byte) {

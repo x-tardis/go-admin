@@ -1,15 +1,14 @@
 package dict
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 字典数据列表
@@ -52,10 +51,7 @@ func GetDictDataList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	var res app.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 // @Summary 通过编码获取字典数据
@@ -71,9 +67,7 @@ func GetDictData(c *gin.Context) {
 	DictData.DictCode, _ = strconv.Atoi(c.Param("dictCode"))
 	result, err := DictData.GetByCode()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 通过字典类型获取字典数据
@@ -89,9 +83,7 @@ func GetDictDataByDictType(c *gin.Context) {
 	result, err := DictData.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 添加字典数据
@@ -111,9 +103,7 @@ func InsertDictData(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 修改字典数据
@@ -133,9 +123,7 @@ func UpdateDictData(c *gin.Context) {
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.DictCode)
 	tools.HasError(err, "", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 删除字典数据
@@ -151,5 +139,5 @@ func DeleteDictData(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("dictCode"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-	app.OK(c, result, "删除成功")
+	servers.OKWithRequestID(c, result, "删除成功")
 }

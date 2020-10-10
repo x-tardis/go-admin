@@ -1,15 +1,14 @@
 package system
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
@@ -51,10 +50,7 @@ func GetConfigList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	var res app.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 // @Summary 获取配置
@@ -70,10 +66,7 @@ func GetConfig(c *gin.Context) {
 	result, err := Config.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	var res app.Response
-	res.Data = result
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 获取配置
@@ -89,7 +82,7 @@ func GetConfigByConfigKey(c *gin.Context) {
 	result, err := Config.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	app.OK(c, result, result.ConfigValue)
+	servers.OKWithRequestID(c, result, result.ConfigValue)
 }
 
 // @Summary 添加配置
@@ -110,7 +103,7 @@ func InsertConfig(c *gin.Context) {
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
 
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 // @Summary 修改配置
@@ -130,7 +123,7 @@ func UpdateConfig(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.ConfigId)
 	tools.HasError(err, "", -1)
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 // @Summary 删除配置
@@ -146,5 +139,5 @@ func DeleteConfig(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("configId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-	app.OK(c, result, msg.DeletedSuccess)
+	servers.OKWithRequestID(c, result, msg.DeletedSuccess)
 }

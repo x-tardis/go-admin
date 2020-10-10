@@ -1,15 +1,14 @@
 package log
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 登录日志列表
@@ -51,10 +50,7 @@ func GetOperLogList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	var res app.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(mp))
 }
 
 // @Summary 通过编码获取登录日志
@@ -69,9 +65,7 @@ func GetOperLog(c *gin.Context) {
 	OperLog.OperId, _ = strconv.Atoi(c.Param("operId"))
 	result, err := OperLog.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 添加操作日志
@@ -90,9 +84,7 @@ func InsertOperLog(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithData(result))
 }
 
 // @Summary 批量删除操作日志
@@ -108,7 +100,5 @@ func DeleteOperLog(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("operId"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
-	var res app.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	servers.Success(c, servers.WithMessage("删除成功"))
 }

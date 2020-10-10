@@ -10,8 +10,8 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // IndexAction 通用查询动作
@@ -32,7 +32,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		//查询列表
 		err = req.Bind(c)
 		if err != nil {
-			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
 			return
 		}
 
@@ -49,10 +49,10 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Errorf("MsgID[%s] Index error: %s", msgID, err)
-			app.Error(c, http.StatusInternalServerError, err, "查询失败")
+			servers.FailWithRequestID(c, http.StatusInternalServerError, "查询失败")
 			return
 		}
-		app.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+		servers.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 		c.Next()
 	}
 }

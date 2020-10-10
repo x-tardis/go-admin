@@ -12,7 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/common/config"
 	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/common/middleware"
-	"github.com/x-tardis/go-admin/tools"
+	"github.com/x-tardis/go-admin/pkg/textcolor"
 )
 
 var WithContextDb = middleware.WithContextDb
@@ -39,7 +39,7 @@ func GetGormFromConfig(cfg config.Conf) map[string]*gorm.DB {
 				},
 			})
 			if err != nil {
-				global.Logger.Fatal(tools.Red(k+" connect error :"), err)
+				global.Logger.Fatal(textcolor.Red(k+" connect error :"), err)
 			}
 		}
 		return gormDB
@@ -51,7 +51,7 @@ func GetGormFromConfig(cfg config.Conf) map[string]*gorm.DB {
 		},
 	})
 	if err != nil {
-		global.Logger.Fatal(tools.Red(c.Driver+" connect error :"), err)
+		global.Logger.Fatal(textcolor.Red(c.Driver+" connect error :"), err)
 	}
 	gormDB["*"] = db
 	return gormDB

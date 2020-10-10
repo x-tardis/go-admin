@@ -13,7 +13,7 @@ import (
 
 	"github.com/x-tardis/go-admin/common/config"
 	"github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
+	"github.com/x-tardis/go-admin/pkg/textcolor"
 	toolsConfig "github.com/x-tardis/go-admin/tools/config"
 )
 
@@ -22,10 +22,10 @@ type Mysql struct {
 
 func (e *Mysql) Setup() {
 	global.Source = e.GetConnect()
-	global.Logger.Info(tools.Green(global.Source))
+	global.Logger.Info(textcolor.Green(global.Source))
 	db, err := sql.Open("mysql", global.Source)
 	if err != nil {
-		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
+		global.Logger.Fatal(textcolor.Red(e.GetDriver()+" connect error :"), err)
 	}
 	global.Cfg.SetDb(&config.DBConfig{
 		Driver: "mysql",
@@ -37,13 +37,13 @@ func (e *Mysql) Setup() {
 		},
 	})
 	if err != nil {
-		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
+		global.Logger.Fatal(textcolor.Red(e.GetDriver()+" connect error :"), err)
 	} else {
-		global.Logger.Info(tools.Green(e.GetDriver() + " connect success !"))
+		global.Logger.Info(textcolor.Green(e.GetDriver() + " connect success !"))
 	}
 
 	if global.Eloquent.Error != nil {
-		global.Logger.Fatal(tools.Red(" database error :"), global.Eloquent.Error)
+		global.Logger.Fatal(textcolor.Red(" database error :"), global.Eloquent.Error)
 	}
 
 	if toolsConfig.LoggerConfig.EnabledDB {

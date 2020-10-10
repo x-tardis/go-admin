@@ -1,6 +1,7 @@
 package system
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -9,8 +10,8 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 列表用户信息数据
@@ -51,7 +52,7 @@ func GetSysUserList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	app.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
 // @Summary 获取用户
@@ -76,7 +77,7 @@ func GetSysUser(c *gin.Context) {
 
 	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
-	app.Custum(c, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -115,7 +116,7 @@ func GetSysUserProfile(c *gin.Context) {
 	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
 
-	app.Custum(c, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -141,7 +142,7 @@ func GetSysUserInit(c *gin.Context) {
 	mp := make(map[string]interface{}, 2)
 	mp["roles"] = roles
 	mp["posts"] = posts
-	app.OK(c, mp, "")
+	servers.OKWithRequestID(c, mp, "")
 }
 
 // @Summary 创建用户
@@ -161,7 +162,7 @@ func InsertSysUser(c *gin.Context) {
 	sysuser.CreateBy = tools.GetUserIdStr(c)
 	id, err := sysuser.Insert()
 	tools.HasError(err, "添加失败", 500)
-	app.OK(c, id, "添加成功")
+	servers.OKWithRequestID(c, id, "添加成功")
 }
 
 // @Summary 修改用户数据
@@ -180,7 +181,7 @@ func UpdateSysUser(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.UserId)
 	tools.HasError(err, "修改失败", 500)
-	app.OK(c, result, "修改成功")
+	servers.OKWithRequestID(c, result, "修改成功")
 }
 
 // @Summary 删除用户数据
@@ -196,7 +197,7 @@ func DeleteSysUser(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("userId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c, result, "删除成功")
+	servers.OKWithRequestID(c, result, "删除成功")
 }
 
 // @Summary 修改头像
@@ -222,7 +223,7 @@ func InsetSysUserAvatar(c *gin.Context) {
 	sysuser.Avatar = "/" + filPath
 	sysuser.UpdateBy = tools.GetUserIdStr(c)
 	sysuser.Update(sysuser.UserId)
-	app.OK(c, filPath, "修改成功")
+	servers.OKWithRequestID(c, filPath, "修改成功")
 }
 
 func SysUserUpdatePwd(c *gin.Context) {
@@ -232,5 +233,5 @@ func SysUserUpdatePwd(c *gin.Context) {
 	sysuser := models.SysUser{}
 	sysuser.UserId = tools.GetUserId(c)
 	sysuser.SetPwd(pwd)
-	app.OK(c, "", "密码修改成功")
+	servers.OKWithRequestID(c, "", "密码修改成功")
 }

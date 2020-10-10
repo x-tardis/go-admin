@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // @Summary 岗位列表数据
@@ -44,7 +44,7 @@ func GetPostList(c *gin.Context) {
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
-	app.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
 // @Summary 获取岗位信息
@@ -59,7 +59,7 @@ func GetPost(c *gin.Context) {
 	Post.PostId, _ = strconv.Atoi(c.Param("postId"))
 	result, err := Post.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 // @Summary 添加岗位
@@ -79,7 +79,7 @@ func InsertPost(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 // @Summary 修改岗位
@@ -100,7 +100,7 @@ func UpdatePost(c *gin.Context) {
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.PostId)
 	tools.HasError(err, "", -1)
-	app.OK(c, result, "修改成功")
+	servers.OKWithRequestID(c, result, "修改成功")
 }
 
 // @Summary 删除岗位
@@ -116,5 +116,5 @@ func DeletePost(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("postId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c, result, "删除成功")
+	servers.OKWithRequestID(c, result, "删除成功")
 }

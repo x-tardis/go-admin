@@ -1,14 +1,15 @@
 package system
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
@@ -29,7 +30,7 @@ func GetDeptList(c *gin.Context) {
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.SetDept(true)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 func GetDeptTree(c *gin.Context) {
@@ -39,7 +40,7 @@ func GetDeptTree(c *gin.Context) {
 	Dept.DeptId, _ = strconv.Atoi(c.Request.FormValue("deptId"))
 	result, err := Dept.SetDept(false)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 // @Summary 部门列表数据
@@ -56,7 +57,7 @@ func GetDept(c *gin.Context) {
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.Get()
 	tools.HasError(err, msg.NotFound, 404)
-	app.OK(c, result, msg.GetSuccess)
+	servers.OKWithRequestID(c, result, msg.GetSuccess)
 }
 
 // @Summary 添加部门
@@ -76,7 +77,7 @@ func InsertDept(c *gin.Context) {
 	data.CreateBy = tools.GetUserIdStr(c)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	app.OK(c, result, msg.CreatedSuccess)
+	servers.OKWithRequestID(c, result, msg.CreatedSuccess)
 }
 
 // @Summary 修改部门
@@ -97,7 +98,7 @@ func UpdateDept(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.DeptId)
 	tools.HasError(err, "", -1)
-	app.OK(c, result, msg.UpdatedSuccess)
+	servers.OKWithRequestID(c, result, msg.UpdatedSuccess)
 }
 
 // @Summary 删除部门
@@ -112,7 +113,7 @@ func DeleteDept(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c, "", msg.DeletedSuccess)
+	servers.OKWithRequestID(c, "", msg.DeletedSuccess)
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
@@ -127,7 +128,7 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 		menuIds, err = SysRole.GetRoleDeptId()
 		tools.HasError(err, "抱歉未找到相关信息", -1)
 	}
-	app.Custum(c, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code":        200,
 		"depts":       result,
 		"checkedKeys": menuIds,

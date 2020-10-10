@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/tools"
+	"github.com/x-tardis/go-admin/pkg/textcolor"
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
@@ -21,7 +21,7 @@ type DataPermission struct {
 func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) (*gorm.DB, error) {
 
 	if !config.ApplicationConfig.EnableDP {
-		usageStr := `数据权限已经为您` + tools.Green(`关闭`) + `，如需开启请参考配置文件字段说明`
+		usageStr := `数据权限已经为您` + textcolor.Green(`关闭`) + `，如需开启请参考配置文件字段说明`
 		fmt.Printf("%s\n", usageStr)
 		return table, nil
 	}

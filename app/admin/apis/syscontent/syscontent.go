@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
@@ -33,7 +33,7 @@ func GetSysContentList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	app.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
 func GetSysContent(c *gin.Context) {
@@ -42,7 +42,7 @@ func GetSysContent(c *gin.Context) {
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 // @Summary 添加内容管理
@@ -61,7 +61,7 @@ func InsertSysContent(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 func UpdateSysContent(c *gin.Context) {
@@ -72,7 +72,7 @@ func UpdateSysContent(c *gin.Context) {
 	result, err := data.Update(data.Id)
 	tools.HasError(err, "", -1)
 
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 func DeleteSysContent(c *gin.Context) {
@@ -82,5 +82,5 @@ func DeleteSysContent(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, msg.DeletedFail, 500)
-	app.OK(c, nil, msg.DeletedSuccess)
+	servers.OKWithRequestID(c, nil, msg.DeletedSuccess)
 }

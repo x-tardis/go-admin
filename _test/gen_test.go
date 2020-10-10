@@ -1,4 +1,4 @@
-package test
+package _test
 
 import (
 	//"github.com/x-tardis/go-admin/models/tools"

@@ -12,6 +12,7 @@ import (
 	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/app/admin/router"
+	"github.com/x-tardis/go-admin/pkg/textcolor"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -104,12 +105,12 @@ func run() error {
 		}
 	}()
 	content, _ := ioutil.ReadFile("./static/go-admin.txt")
-	fmt.Println(tools.Red(string(content)))
+	fmt.Println(textcolor.Red(string(content)))
 	tip()
-	fmt.Println(tools.Green("Server run at:"))
+	fmt.Println(textcolor.Green("Server run at:"))
 	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", config.ApplicationConfig.Port)
 	fmt.Printf("-  Network: http://%s:%s/ \r\n", tools.GetLocalHost(), config.ApplicationConfig.Port)
-	fmt.Println(tools.Green("Swagger run at:"))
+	fmt.Println(textcolor.Green("Swagger run at:"))
 	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", config.ApplicationConfig.Port)
 	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocalHost(), config.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrentTimeStr())
@@ -130,6 +131,6 @@ func run() error {
 }
 
 func tip() {
-	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+builder.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + textcolor.Green(`go-admin `+builder.Version) + ` 可以使用 ` + textcolor.Red(`-h`) + ` 查看命令`
 	fmt.Printf("%s \n\n", usageStr)
 }

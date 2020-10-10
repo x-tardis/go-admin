@@ -8,8 +8,8 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // DeleteAction 通用删除动作
@@ -27,13 +27,13 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		err = req.Bind(c)
 		if err != nil {
 			log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
-			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
 			return
 		}
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
 			return
 		}
 
@@ -47,14 +47,14 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Delete(object)
 		if db.Error != nil {
 			log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
-			app.Error(c, http.StatusInternalServerError, err, "删除失败")
+			servers.FailWithRequestID(c, http.StatusInternalServerError, "删除失败")
 			return
 		}
 		if db.RowsAffected == 0 {
-			app.Error(c, http.StatusForbidden, nil, "无权删除该数据")
+			servers.FailWithRequestID(c, http.StatusForbidden, "无权删除该数据")
 			return
 		}
-		app.OK(c, object.GetId(), "删除成功")
+		servers.OKWithRequestID(c, object.GetId(), "删除成功")
 		c.Next()
 	}
 }

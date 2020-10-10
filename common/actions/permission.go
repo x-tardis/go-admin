@@ -9,8 +9,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/common/log"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
@@ -35,7 +35,7 @@ func PermissionAction() gin.HandlerFunc {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
 				log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
-				app.Error(c, http.StatusInternalServerError, err, "权限范围鉴定错误")
+				servers.FailWithRequestID(c, http.StatusInternalServerError, "权限范围鉴定错误")
 				c.Abort()
 				return
 			}

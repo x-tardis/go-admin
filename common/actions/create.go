@@ -8,8 +8,8 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 )
 
 // CreateAction 通用新增动作
@@ -26,23 +26,23 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		req := control.Generate()
 		err = req.Bind(c)
 		if err != nil {
-			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
 			return
 		}
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
 			return
 		}
 		object.SetCreateBy(tools.GetUserIdUint(c))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
 			log.Errorf("MsgID[%s] Create error: %s", msgID, err)
-			app.Error(c, http.StatusInternalServerError, err, "创建失败")
+			servers.FailWithRequestID(c, http.StatusInternalServerError, "创建失败")
 			return
 		}
-		app.OK(c, object.GetId(), "创建成功")
+		servers.OKWithRequestID(c, object.GetId(), "创建成功")
 		c.Next()
 	}
 }

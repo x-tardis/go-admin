@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
-	"github.com/x-tardis/go-admin/tools/app"
 	"github.com/x-tardis/go-admin/tools/app/msg"
 )
 
@@ -35,7 +35,7 @@ func GetSysFileInfoList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	app.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
 func GetSysFileInfo(c *gin.Context) {
@@ -44,7 +44,7 @@ func GetSysFileInfo(c *gin.Context) {
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 func InsertSysFileInfo(c *gin.Context) {
@@ -54,7 +54,7 @@ func InsertSysFileInfo(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 func UpdateSysFileInfo(c *gin.Context) {
@@ -65,7 +65,7 @@ func UpdateSysFileInfo(c *gin.Context) {
 	result, err := data.Update(data.Id)
 	tools.HasError(err, "", -1)
 
-	app.OK(c, result, "")
+	servers.OKWithRequestID(c, result, "")
 }
 
 func DeleteSysFileInfo(c *gin.Context) {
@@ -75,5 +75,5 @@ func DeleteSysFileInfo(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, msg.DeletedFail, 500)
-	app.OK(c, nil, msg.DeletedSuccess)
+	servers.OKWithRequestID(c, nil, msg.DeletedSuccess)
 }
