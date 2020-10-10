@@ -74,10 +74,12 @@ func Infof(template string, args ...interface{}) {
 	DefaultLogger.Logf(InfoLevel, template, args...)
 }
 
+// Trace trace级日志输出
 func Trace(args ...interface{}) {
 	DefaultLogger.Log(TraceLevel, args...)
 }
 
+// Tracef trace级日志输出
 func Tracef(template string, args ...interface{}) {
 	DefaultLogger.Logf(TraceLevel, template, args...)
 }
@@ -98,19 +100,23 @@ func Warnf(template string, args ...interface{}) {
 	DefaultLogger.Logf(WarnLevel, template, args...)
 }
 
+// Error error级日志输出
 func Error(args ...interface{}) {
 	DefaultLogger.Log(ErrorLevel, args...)
 }
 
+// Errorf error级日志输出
 func Errorf(template string, args ...interface{}) {
 	DefaultLogger.Logf(ErrorLevel, template, args...)
 }
 
+// Fatal fatal级日志输出
 func Fatal(args ...interface{}) {
 	DefaultLogger.Log(FatalLevel, args...)
 	os.Exit(1)
 }
 
+// Fatalf fatal级日志输出
 func Fatalf(template string, args ...interface{}) {
 	DefaultLogger.Logf(FatalLevel, template, args...)
 	os.Exit(1)

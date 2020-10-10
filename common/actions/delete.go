@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -17,7 +17,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := tools.GetOrm(c)
 		if err != nil {
-			log.Error(err)
+			logger.Error(err)
 			return
 		}
 
@@ -26,7 +26,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		req := control.Generate()
 		err = req.Bind(c)
 		if err != nil {
-			log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+			logger.Errorf("MsgID[%s] Bind error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
 			return
 		}
@@ -46,7 +46,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Delete(object)
 		if db.Error != nil {
-			log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+			logger.Errorf("MsgID[%s] Delete error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "删除失败")
 			return
 		}

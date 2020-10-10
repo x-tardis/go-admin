@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -17,7 +17,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := tools.GetOrm(c)
 		if err != nil {
-			log.Error(err)
+			logger.Error(err)
 			return
 		}
 
@@ -38,7 +38,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		object.SetCreateBy(tools.GetUserIdUint(c))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
-			log.Errorf("MsgID[%s] Create error: %s", msgID, err)
+			logger.Errorf("MsgID[%s] Create error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "创建失败")
 			return
 		}

@@ -5,8 +5,8 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/common/log"
 	common "github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/logger"
 )
 
 type SysJobSearch struct {
@@ -26,7 +26,7 @@ func (m *SysJobSearch) GetNeedSearch() interface{} {
 func (m *SysJobSearch) Bind(ctx *gin.Context) error {
 	err := ctx.ShouldBind(m)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", err)
+		logger.Errorf("MsgID[%s] Bind error: %s", err)
 	}
 	return err
 }

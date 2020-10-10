@@ -8,8 +8,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/logger"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -20,7 +20,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 	return func(c *gin.Context) {
 		db, err := tools.GetOrm(c)
 		if err != nil {
-			log.Error(err)
+			logger.Error(err)
 			return
 		}
 
@@ -49,7 +49,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			Find(list).Limit(-1).Offset(-1).
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Errorf("MsgID[%s] Index error: %s", msgID, err)
+			logger.Errorf("MsgID[%s] Index error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "查询失败")
 			return
 		}

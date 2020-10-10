@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/common/log"
+	"github.com/x-tardis/go-admin/logger"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -25,7 +25,7 @@ func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := tools.GetOrm(c)
 		if err != nil {
-			log.Error(err)
+			logger.Error(err)
 			return
 		}
 
@@ -34,7 +34,7 @@ func PermissionAction() gin.HandlerFunc {
 		if userId := tools.GetUserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
-				log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
+				logger.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
 				servers.FailWithRequestID(c, http.StatusInternalServerError, "权限范围鉴定错误")
 				c.Abort()
 				return

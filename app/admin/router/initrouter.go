@@ -8,7 +8,7 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/middleware"
 	"github.com/x-tardis/go-admin/app/admin/middleware/handler"
 	"github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/common/log"
+	"github.com/x-tardis/go-admin/logger"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	_ "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
@@ -25,7 +25,7 @@ func InitRouter() {
 	case *gin.Engine:
 		r = h.(*gin.Engine)
 	default:
-		log.Fatal("not support other engine")
+		logger.Fatal("not support other engine")
 		os.Exit(-1)
 	}
 	if deployed.SslConfig.Enable {
