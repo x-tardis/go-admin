@@ -13,21 +13,20 @@ import (
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
-var (
-	configYml string
-	exec      bool
-	StartCmd  = &cobra.Command{
-		Use:     "migrate",
-		Short:   "Initialize the database",
-		Example: "github.com/x-tardis/go-admin migrate -c config/settings.yml",
-		Run: func(cmd *cobra.Command, args []string) {
-			run()
-		},
-	}
-)
+var configFile string
+var StartCmd = &cobra.Command{
+	Use:     "migrate",
+	Short:   "Initialize the database",
+	Example: "github.com/x-tardis/go-admin migrate -c config/settings.yml",
+	Run: func(cmd *cobra.Command, args []string) {
+		run()
+	},
+}
+
+// var exec bool
 
 func init() {
-	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
+	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yaml", "Start server with provided configuration file")
 	//StartCmd.PersistentFlags().BoolVarP(&exec, "exec", "e", false, "exec script")
 }
 
@@ -35,7 +34,7 @@ func run() {
 	usage := `start init`
 	fmt.Println(usage)
 	//1. 读取配置
-	config.Setup(configYml)
+	config.Setup(configFile)
 	//2. 设置日志
 	logger.Setup()
 	//3. 初始化数据库链接

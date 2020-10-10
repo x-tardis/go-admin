@@ -6,12 +6,12 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/cmd/api"
 	"github.com/x-tardis/go-admin/cmd/config"
 	"github.com/x-tardis/go-admin/cmd/migrate"
 	"github.com/x-tardis/go-admin/cmd/version"
-	"github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 }
 
 func tip() {
-	usageStr := `欢迎使用 ` + tools.Green(`github.com/x-tardis/go-admin `+global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + tools.Green(`github.com/x-tardis/go-admin `+builder.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
 	usageStr1 := `也可以参考 http://doc.zhangwj.com/github.com/x-tardis/go-admin-site/guide/ksks.html 里边的【启动】章节`
 	fmt.Printf("%s\n", usageStr)
 	fmt.Printf("%s\n", usageStr1)

@@ -9,11 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	// github.com/x-tardis/go-admin Version Info
-	Version = "1.2.0"
-)
-
 var Cfg config.Conf = config.DefaultConfig()
 
 var GinEngine *gin.Engine

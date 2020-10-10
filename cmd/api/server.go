@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/thinkgos/sharp/builder"
+
 	"github.com/x-tardis/go-admin/app/admin/router"
 
 	"github.com/gin-gonic/gin"
@@ -24,28 +26,26 @@ import (
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
-var (
-	configYml string
-	port      string
-	mode      string
-	StartCmd  = &cobra.Command{
-		Use:          "server",
-		Short:        "Start API server",
-		Example:      "github.com/x-tardis/go-admin server -c config/settings.yml",
-		SilenceUsage: true,
-		PreRun: func(cmd *cobra.Command, args []string) {
-			setup()
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return run()
-		},
-	}
-)
+var configFile string
+var port string
+var mode string
+var StartCmd = &cobra.Command{
+	Use:          "server",
+	Short:        "Start API server",
+	Example:      "go-admin server -c config.yaml",
+	SilenceUsage: true,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		setup()
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return run()
+	},
+}
 
 var AppRouters = make([]func(), 0)
 
 func init() {
-	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
+	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yaml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
 
@@ -54,9 +54,8 @@ func init() {
 }
 
 func setup() {
-
 	//1. 读取配置
-	config.Setup(configYml)
+	config.Setup(configFile)
 	//2. 设置日志
 	logger.Setup()
 	//3. 初始化数据库链接
@@ -70,7 +69,7 @@ func setup() {
 }
 
 func run() error {
-	if viper.GetString("settings.application.mode") == string(tools.ModeProd) {
+	if viper.GetString("settings.application.mode") == tools.ModeProd {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	engine := global.Cfg.GetEngine()
@@ -104,7 +103,7 @@ func run() error {
 			}
 		}
 	}()
-	content, _ := ioutil.ReadFile("./static/github.com/x-tardis/go-admin.txt")
+	content, _ := ioutil.ReadFile("./static/go-admin.txt")
 	fmt.Println(tools.Red(string(content)))
 	tip()
 	fmt.Println(tools.Green("Server run at:"))
@@ -131,6 +130,6 @@ func run() error {
 }
 
 func tip() {
-	usageStr := `欢迎使用 ` + tools.Green(`github.com/x-tardis/go-admin `+global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+builder.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
 	fmt.Printf("%s \n\n", usageStr)
 }

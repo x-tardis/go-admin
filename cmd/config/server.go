@@ -9,25 +9,20 @@ import (
 	"github.com/x-tardis/go-admin/tools/config"
 )
 
-var (
-	configYml string
-	mode      string
-	StartCmd  = &cobra.Command{
-		Use:     "config",
-		Short:   "Get Application config info",
-		Example: "github.com/x-tardis/go-admin config -c config/settings.yml",
-		Run: func(cmd *cobra.Command, args []string) {
-			run()
-		},
-	}
-)
-
-func init() {
-	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
+var configFile string
+var StartCmd = &cobra.Command{
+	Use:     "config",
+	Short:   "Get Application config info",
+	Example: "go-admin config -c config.yml",
+	Run:     run,
 }
 
-func run() {
-	config.Setup(configYml)
+func init() {
+	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yaml", "Start server with provided configuration file")
+}
+
+func run(*cobra.Command, []string) {
+	config.Setup(configFile)
 
 	application, errs := json.MarshalIndent(config.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
@@ -58,5 +53,4 @@ func run() {
 		fmt.Println(errs.Error())
 	}
 	fmt.Println("logger:", string(loggerConfig))
-
 }
