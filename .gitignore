@@ -1,0 +1,17 @@
+.idea
+.vscode
+static/uploadfile
+main.exe
+go-admin
+temp/
+!temp
+vendor
+config/settings.dev.yml
+go-admin
+common/middleware/demo.go
+config/settings.dev.*.yml
+config/settings.dev.*.yml.log
+temp/logs
+config/settings.dev.yml.log
+config/settings.b.dev.yml
+cmd/migrate/migration/version_local/*
