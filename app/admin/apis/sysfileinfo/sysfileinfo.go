@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 	"github.com/x-tardis/go-admin/tools/app/msg"
@@ -35,7 +36,12 @@ func GetSysFileInfoList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	servers.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.Success(c, servers.WithData(&paginator.Page{
+		List:      result,
+		Count:     count,
+		PageIndex: pageIndex,
+		PageSize:  pageSize,
+	}))
 }
 
 func GetSysFileInfo(c *gin.Context) {

@@ -10,6 +10,7 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/log"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -52,7 +53,13 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "查询失败")
 			return
 		}
-		servers.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+
+		servers.Success(c, servers.WithData(&paginator.Page{
+			List:      list,
+			Count:     int(count),
+			PageIndex: req.GetPageIndex(),
+			PageSize:  req.GetPageSize(),
+		}), servers.WithMessage("查询成功"))
 		c.Next()
 	}
 }

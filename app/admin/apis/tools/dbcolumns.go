@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
+	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	tools2 "github.com/x-tardis/go-admin/tools"
 )
@@ -37,11 +38,10 @@ func GetDBColumnList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools2.HasError(err, "", -1)
 
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
-
-	servers.Success(c, servers.WithData(mp))
+	servers.Success(c, servers.WithData(&paginator.Page{
+		List:      result,
+		Count:     count,
+		PageIndex: pageIndex,
+		PageSize:  pageSize,
+	}))
 }

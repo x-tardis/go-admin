@@ -10,6 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -52,7 +53,12 @@ func GetSysUserList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	servers.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.Success(c, servers.WithData(&paginator.Page{
+		List:      result,
+		Count:     count,
+		PageIndex: pageIndex,
+		PageSize:  pageSize,
+	}))
 }
 
 // @Summary 获取用户

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -44,13 +45,12 @@ func GetOperLogList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
-
-	servers.Success(c, servers.WithData(mp))
+	servers.Success(c, servers.WithData(&paginator.Page{
+		List:      result,
+		Count:     count,
+		PageIndex: pageIndex,
+		PageSize:  pageSize,
+	}))
 }
 
 // @Summary 通过编码获取登录日志

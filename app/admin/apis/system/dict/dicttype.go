@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -45,7 +46,12 @@ func GetDictTypeList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	servers.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.Success(c, servers.WithData(&paginator.Page{
+		List:      result,
+		Count:     count,
+		PageIndex: pageIndex,
+		PageSize:  pageSize,
+	}))
 }
 
 // @Summary 通过字典id获取字典类型

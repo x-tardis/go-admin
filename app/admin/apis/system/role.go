@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	mycasbin "github.com/x-tardis/go-admin/pkg/casbin"
+	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -44,7 +45,12 @@ func GetRoleList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	servers.PageOK(c, result, count, pageIndex, pageSize, "")
+	servers.Success(c, servers.WithData(&paginator.Page{
+		List:      result,
+		Count:     count,
+		PageIndex: pageIndex,
+		PageSize:  pageSize,
+	}))
 }
 
 // @Summary 获取Role数据

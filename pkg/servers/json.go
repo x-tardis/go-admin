@@ -63,20 +63,3 @@ func OKWithRequestID(c *gin.Context, data interface{}, msg string) {
 func FailWithRequestID(c *gin.Context, code int, msg string) {
 	Success(c, WithCode(code), WithMessage(msg))
 }
-
-type Page struct {
-	List      interface{} `json:"list"`
-	Count     int         `json:"count"`
-	PageIndex int         `json:"pageIndex"`
-	PageSize  int         `json:"pageSize"`
-}
-
-// 分页数据处理
-func PageOK(c *gin.Context, result interface{}, count int, pageIndex int, pageSize int, msg string) {
-	OKWithRequestID(c, Page{
-		result,
-		count,
-		pageIndex,
-		pageSize,
-	}, msg)
-}
