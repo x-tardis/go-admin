@@ -1,6 +1,8 @@
 package syscategory
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
@@ -17,10 +19,10 @@ func GetSysCategoryList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.Name = c.Request.FormValue("name")
@@ -35,7 +37,7 @@ func GetSysCategoryList(c *gin.Context) {
 
 func GetSysCategory(c *gin.Context) {
 	var data models.SysCategory
-	data.Id, _ = tools.StringToInt(c.Param("id"))
+	data.Id, _ = strconv.Atoi(c.Param("id"))
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 

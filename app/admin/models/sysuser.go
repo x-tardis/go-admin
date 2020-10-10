@@ -3,13 +3,14 @@ package models
 import (
 	"errors"
 	"log"
+	"strconv"
 	"strings"
 
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	"golang.org/x/crypto/bcrypt"
-
 	orm "github.com/x-tardis/go-admin/common/global"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -214,12 +215,12 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	}
 
 	if e.DeptId != 0 {
-		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+tools.IntToString(e.DeptId)+"%")
+		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+cast.ToString(e.DeptId)+"%")
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 	table, err := dataPermission.GetDataScope(e.TableName(), table)
 	if err != nil {
 		return nil, 0, err
@@ -233,18 +234,17 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 }
 
 //加密
-func (e *SysUser) Encrypt() (err error) {
+func (e *SysUser) Encrypt() error {
 	if e.Password == "" {
-		return
+		return nil
 	}
 
-	var hash []byte
-	if hash, err = bcrypt.GenerateFromPassword([]byte(e.Password), bcrypt.DefaultCost); err != nil {
-		return
-	} else {
-		e.Password = string(hash)
-		return
+	hash, err := deployed.Verify.Hash(e.Password, "")
+	if err != nil {
+		return err
 	}
+	e.Password = hash
+	return nil
 }
 
 //添加
@@ -304,7 +304,7 @@ func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
 	if err != nil {
 		tools.HasError(err, "获取用户数据失败(代码202)", 500)
 	}
-	_, err = tools.CompareHashAndPassword(user.Password, pwd.OldPassword)
+	err = deployed.Verify.Compare(pwd.OldPassword, "", user.Password)
 	if err != nil {
 		if strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
 			tools.HasError(err, "密码错误(代码202)", 500)

@@ -2,6 +2,7 @@ package log
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -30,12 +31,12 @@ func GetLoginLogList(c *gin.Context) {
 
 	size := c.Request.FormValue("pageSize")
 	if size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	index := c.Request.FormValue("pageIndex")
 	if index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.Username = c.Request.FormValue("username")
@@ -64,7 +65,7 @@ func GetLoginLogList(c *gin.Context) {
 // @Security Bearer
 func GetLoginLog(c *gin.Context) {
 	var LoginLog models.LoginLog
-	LoginLog.InfoId, _ = tools.StringToInt(c.Param("infoId"))
+	LoginLog.InfoId, _ = strconv.Atoi(c.Param("infoId"))
 	result, err := LoginLog.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 

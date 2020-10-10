@@ -1,11 +1,12 @@
 package models
 
 import (
+	"strconv"
+
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type SysRole struct {
@@ -58,7 +59,7 @@ func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(role.DataScope)
+	dataPermission.UserId, _ = strconv.Atoi(role.DataScope)
 	table, err := dataPermission.GetDataScope("sys_role", table)
 	if err != nil {
 		return nil, 0, err

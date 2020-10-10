@@ -2,6 +2,7 @@ package tools
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -25,11 +26,11 @@ func GetDBColumnList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools2.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools2.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.TableName = c.Request.FormValue("tableName")

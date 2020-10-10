@@ -2,6 +2,7 @@ package log
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -30,12 +31,12 @@ func GetOperLogList(c *gin.Context) {
 
 	size := c.Request.FormValue("pageSize")
 	if size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	index := c.Request.FormValue("pageIndex")
 	if index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.OperName = c.Request.FormValue("operName")
@@ -65,7 +66,7 @@ func GetOperLogList(c *gin.Context) {
 // @Security Bearer
 func GetOperLog(c *gin.Context) {
 	var OperLog models.SysOperLog
-	OperLog.OperId, _ = tools.StringToInt(c.Param("operId"))
+	OperLog.OperId, _ = strconv.Atoi(c.Param("operId"))
 	result, err := OperLog.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response

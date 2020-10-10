@@ -1,6 +1,8 @@
 package system
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -25,15 +27,15 @@ func GetPostList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	id := c.Request.FormValue("postId")
-	data.PostId, _ = tools.StringToInt(id)
+	data.PostId, _ = strconv.Atoi(id)
 
 	data.PostCode = c.Request.FormValue("postCode")
 	data.PostName = c.Request.FormValue("postName")
@@ -54,7 +56,7 @@ func GetPostList(c *gin.Context) {
 // @Security Bearer
 func GetPost(c *gin.Context) {
 	var Post models.Post
-	Post.PostId, _ = tools.StringToInt(c.Param("postId"))
+	Post.PostId, _ = strconv.Atoi(c.Param("postId"))
 	result, err := Post.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c, result, "")

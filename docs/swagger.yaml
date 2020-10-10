@@ -10,20 +10,6 @@ definitions:
       pageSize:
         type: integer
     type: object
-  app.PageResponse:
-    properties:
-      code:
-        description: 代码
-        example: 200
-        type: integer
-      data:
-        $ref: '#/definitions/app.Page'
-        description: 数据集
-        type: object
-      msg:
-        description: 消息
-        type: string
-    type: object
   app.Response:
     properties:
       code:
@@ -35,6 +21,8 @@ definitions:
         type: object
       msg:
         description: 消息
+        type: string
+      requestId:
         type: string
     type: object
   models.DictType:
@@ -729,6 +717,12 @@ definitions:
       functionName:
         description: 功能名称
         type: string
+      isActions:
+        type: integer
+      isAuth:
+        type: integer
+      isDataScope:
+        type: integer
       isLogicalDelete:
         type: string
       logicalDelete:
@@ -780,13 +774,11 @@ definitions:
     type: object
 info:
   contact: {}
-  description: |-
-    基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档
-    添加qq群: 74520518 进入技术交流群 请备注，谢谢！
+  description: 基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档
   license:
     name: MIT
-    url: https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md
-  title: go-admin API
+    url: https://github.com/wenjianzhang/github.com/x-tardis/go-admin/blob/master/LICENSE.md
+  title: github.com/x-tardis/go-admin API
   version: 1.0.1
 paths:
   /api/v1/config:
@@ -801,7 +793,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysConfig'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -960,7 +951,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysDept'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -987,7 +977,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysDept'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1074,8 +1063,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.DictType'
-          type: object
+          $ref: '#/definitions/models.SysConfig'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1083,9 +1071,9 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 添加字典数据
+      summary: 添加配置
       tags:
-      - 字典数据
+      - 配置
     put:
       consumes:
       - application/json
@@ -1097,7 +1085,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.DictType'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1208,7 +1195,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.DictType'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1230,7 +1216,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.DictType'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1304,7 +1289,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.PageResponse'
+            $ref: '#/definitions/app.Page'
       security:
       - Bearer: []
       summary: 字典类型列表数据
@@ -1322,7 +1307,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.LoginLog'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1344,7 +1328,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.LoginLog'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1519,7 +1502,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Menu'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -1613,7 +1595,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysOperLog'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1735,7 +1716,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Post'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1758,7 +1738,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Post'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1861,7 +1840,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysRole'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1881,7 +1859,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysRole'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -2033,7 +2010,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/tools.SysTables'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2127,7 +2103,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysUser'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2185,7 +2160,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysCategory'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2206,7 +2180,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysContent'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2227,7 +2200,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysFileDir'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2246,7 +2218,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysUser'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2283,7 +2254,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysUser'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -2342,12 +2312,9 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Login'
-          type: object
       responses:
         "200":
-          description: '{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token":
-            ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A"
-            }'
+          description: '{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }'
           schema:
             type: string
       summary: 登陆
@@ -2364,79 +2331,6 @@ paths:
       security:
       - Bearer: []
       summary: 退出登录
-  /sd/cpu:
-    get:
-      consumes:
-      - text/html
-      description: CPU 使用量 DiskCheck checks the disk usage.
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: CPU 使用量
-  /sd/disk:
-    get:
-      consumes:
-      - text/html
-      description: 服务器硬盘使用量 DiskCheck checks the disk usage.
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: 'OK - Free space: 16321MB (15GB) / 51200MB (50GB) | Used: 31%'
-          schema:
-            type: string
-        "429":
-          description: WARNING
-          schema:
-            type: string
-        "500":
-          description: CRITICAL
-          schema:
-            type: string
-      summary: 服务器硬盘使用量
-  /sd/health:
-    get:
-      consumes:
-      - text/html
-      description: 健康状况
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: 健康状况 HealthCheck shows OK as the ping-pong result.
-  /sd/os:
-    get:
-      consumes:
-      - text/html
-      description: Os
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: OS
-  /sd/ram:
-    get:
-      consumes:
-      - text/html
-      description: 内存使用量 RAMCheck checks the disk usage.
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: 内存使用量
 securityDefinitions:
   Bearer:
     in: header

@@ -2,6 +2,7 @@ package system
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -30,11 +31,11 @@ func GetConfigList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.ConfigKey = c.Request.FormValue("configKey")
@@ -65,7 +66,7 @@ func GetConfigList(c *gin.Context) {
 // @Security Bearer
 func GetConfig(c *gin.Context) {
 	var Config models.SysConfig
-	Config.ConfigId, _ = tools.StringToInt(c.Param("configId"))
+	Config.ConfigId, _ = strconv.Atoi(c.Param("configId"))
 	result, err := Config.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 

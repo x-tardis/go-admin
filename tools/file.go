@@ -37,13 +37,10 @@ type ReplaceHelper struct {
 }
 
 func (h *ReplaceHelper) DoWrok() error {
-
 	return filepath.Walk(h.Root, h.walkCallback)
-
 }
 
 func (h ReplaceHelper) walkCallback(path string, f os.FileInfo, err error) error {
-
 	if err != nil {
 		return err
 	}

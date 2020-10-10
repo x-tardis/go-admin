@@ -1,12 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档\n添加qq群: 74520518 进入技术交流群 请备注，谢谢！",
-        "title": "go-admin API",
+        "description": "基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档",
+        "title": "github.com/x-tardis/go-admin API",
         "contact": {},
         "license": {
             "name": "MIT",
-            "url": "https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md"
+            "url": "https://github.com/wenjianzhang/github.com/x-tardis/go-admin/blob/master/LICENSE.md"
         },
         "version": "1.0.1"
     },
@@ -33,7 +33,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysConfig"
                         }
                     }
@@ -291,7 +290,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysDept"
                         }
                     }
@@ -326,7 +324,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysDept"
                         }
                     }
@@ -467,7 +464,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.DictType"
                         }
                     }
@@ -492,9 +488,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "字典数据"
+                    "配置"
                 ],
-                "summary": "添加字典数据",
+                "summary": "添加配置",
                 "parameters": [
                     {
                         "description": "data",
@@ -502,8 +498,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/models.DictType"
+                            "$ref": "#/definitions/models.SysConfig"
                         }
                     }
                 ],
@@ -679,7 +674,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.DictType"
                         }
                     }
@@ -714,7 +708,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.DictType"
                         }
                     }
@@ -777,7 +770,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/app.PageResponse"
+                            "$ref": "#/definitions/app.Page"
                         }
                     }
                 }
@@ -860,7 +853,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.LoginLog"
                         }
                     }
@@ -895,7 +887,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.LoginLog"
                         }
                     }
@@ -1144,7 +1135,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Menu"
                         }
                     }
@@ -1322,7 +1312,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysOperLog"
                         }
                     }
@@ -1516,7 +1505,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Post"
                         }
                     }
@@ -1553,7 +1541,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Post"
                         }
                     }
@@ -1710,7 +1697,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysRole"
                         }
                     }
@@ -1740,7 +1726,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysRole"
                         }
                     }
@@ -1953,7 +1938,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/tools.SysTables"
                         }
                     }
@@ -2128,7 +2112,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysUser"
                         }
                     }
@@ -2221,7 +2204,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysCategory"
                         }
                     }
@@ -2253,7 +2235,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysContent"
                         }
                     }
@@ -2285,7 +2266,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysFileDir"
                         }
                     }
@@ -2314,7 +2294,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysUser"
                         }
                     }
@@ -2346,7 +2325,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.SysUser"
                         }
                     }
@@ -2450,7 +2428,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Login"
                         }
                     }
@@ -2486,118 +2463,6 @@
                     }
                 }
             }
-        },
-        "/sd/cpu": {
-            "get": {
-                "description": "CPU 使用量 DiskCheck checks the disk usage.",
-                "consumes": [
-                    "text/html"
-                ],
-                "produces": [
-                    "text/html"
-                ],
-                "summary": "CPU 使用量",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/sd/disk": {
-            "get": {
-                "description": "服务器硬盘使用量 DiskCheck checks the disk usage.",
-                "consumes": [
-                    "text/html"
-                ],
-                "produces": [
-                    "text/html"
-                ],
-                "summary": "服务器硬盘使用量",
-                "responses": {
-                    "200": {
-                        "description": "OK - Free space: 16321MB (15GB) / 51200MB (50GB) | Used: 31%",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "WARNING",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "CRITICAL",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/sd/health": {
-            "get": {
-                "description": "健康状况",
-                "consumes": [
-                    "text/html"
-                ],
-                "produces": [
-                    "text/html"
-                ],
-                "summary": "健康状况 HealthCheck shows OK as the ping-pong result.",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/sd/os": {
-            "get": {
-                "description": "Os",
-                "consumes": [
-                    "text/html"
-                ],
-                "produces": [
-                    "text/html"
-                ],
-                "summary": "OS",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/sd/ram": {
-            "get": {
-                "description": "内存使用量 RAMCheck checks the disk usage.",
-                "consumes": [
-                    "text/html"
-                ],
-                "produces": [
-                    "text/html"
-                ],
-                "summary": "内存使用量",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -2618,25 +2483,6 @@
                 }
             }
         },
-        "app.PageResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "代码",
-                    "type": "integer",
-                    "example": 200
-                },
-                "data": {
-                    "description": "数据集",
-                    "type": "object",
-                    "$ref": "#/definitions/app.Page"
-                },
-                "msg": {
-                    "description": "消息",
-                    "type": "string"
-                }
-            }
-        },
         "app.Response": {
             "type": "object",
             "properties": {
@@ -2651,6 +2497,9 @@
                 },
                 "msg": {
                     "description": "消息",
+                    "type": "string"
+                },
+                "requestId": {
                     "type": "string"
                 }
             }
@@ -3646,6 +3495,15 @@
                 "functionName": {
                     "description": "功能名称",
                     "type": "string"
+                },
+                "isActions": {
+                    "type": "integer"
+                },
+                "isAuth": {
+                    "type": "integer"
+                },
+                "isDataScope": {
+                    "type": "integer"
                 },
                 "isLogicalDelete": {
                     "type": "string"

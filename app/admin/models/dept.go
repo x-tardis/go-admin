@@ -2,7 +2,10 @@ package models
 
 import (
 	"errors"
+	"strconv"
 	_ "time"
+
+	"github.com/spf13/cast"
 
 	orm "github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/tools"
@@ -44,7 +47,7 @@ func (e *SysDept) Create() (SysDept, error) {
 		err := result.Error
 		return doc, err
 	}
-	deptPath := "/" + tools.IntToString(e.DeptId)
+	deptPath := "/" + cast.ToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP SysDept
 		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
@@ -119,7 +122,7 @@ func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
 	if bl {
 		// 数据权限控制
 		dataPermission := new(DataPermission)
-		dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+		dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 		tableper, err := dataPermission.GetDataScope("sys_dept", table)
 		if err != nil {
 			return nil, err
@@ -181,7 +184,7 @@ func (e *SysDept) Update(id int) (update SysDept, err error) {
 		return
 	}
 
-	deptPath := "/" + tools.IntToString(e.DeptId)
+	deptPath := "/" + cast.ToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP SysDept
 		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)

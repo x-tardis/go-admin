@@ -2,6 +2,7 @@ package tools
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -26,11 +27,11 @@ func GetSysTableList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools2.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools2.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.TBName = c.Request.FormValue("tableName")
@@ -59,7 +60,7 @@ func GetSysTableList(c *gin.Context) {
 // @Security Bearer
 func GetSysTables(c *gin.Context) {
 	var data tools.SysTables
-	data.TableId, _ = tools2.StringToInt(c.Param("tableId"))
+	data.TableId, _ = strconv.Atoi(c.Param("tableId"))
 	result, err := data.Get()
 	tools2.HasError(err, "抱歉未找到相关信息", -1)
 

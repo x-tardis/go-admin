@@ -2,6 +2,7 @@ package dict
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -29,18 +30,18 @@ func GetDictDataList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.DictLabel = c.Request.FormValue("dictLabel")
 	data.Status = c.Request.FormValue("status")
 	data.DictType = c.Request.FormValue("dictType")
 	id := c.Request.FormValue("dictCode")
-	data.DictCode, _ = tools.StringToInt(id)
+	data.DictCode, _ = strconv.Atoi(id)
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
@@ -67,7 +68,7 @@ func GetDictDataList(c *gin.Context) {
 func GetDictData(c *gin.Context) {
 	var DictData models.DictData
 	DictData.DictLabel = c.Request.FormValue("dictLabel")
-	DictData.DictCode, _ = tools.StringToInt(c.Param("dictCode"))
+	DictData.DictCode, _ = strconv.Atoi(c.Param("dictCode"))
 	result, err := DictData.GetByCode()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response

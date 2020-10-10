@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/tools"
@@ -43,7 +44,7 @@ func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) (*gorm.DB, 
 		table = table.Where(tbname+".create_by in (SELECT user_id from sys_user where dept_id = ? )", user.DeptId)
 	}
 	if role.DataScope == "4" {
-		table = table.Where(tbname+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+tools.IntToString(user.DeptId)+"%")
+		table = table.Where(tbname+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+cast.ToString(user.DeptId)+"%")
 	}
 	if role.DataScope == "5" || role.DataScope == "" {
 		table = table.Where(tbname+".create_by = ?", e.UserId)
@@ -75,7 +76,7 @@ func DataScopes(tableName string, userid int) func(db *gorm.DB) *gorm.DB {
 			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", user.DeptId)
 		}
 		if role.DataScope == "4" {
-			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+tools.IntToString(user.DeptId)+"%")
+			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+cast.ToString(user.DeptId)+"%")
 		}
 		if role.DataScope == "5" || role.DataScope == "" {
 			return db.Where(tableName+".create_by = ?", userid)

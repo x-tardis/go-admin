@@ -1,6 +1,8 @@
 package system
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
@@ -23,7 +25,7 @@ func GetDeptList(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
-	Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
+	Dept.DeptId, _ = strconv.Atoi(c.Request.FormValue("deptId"))
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.SetDept(true)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
@@ -34,7 +36,7 @@ func GetDeptTree(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
-	Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
+	Dept.DeptId, _ = strconv.Atoi(c.Request.FormValue("deptId"))
 	result, err := Dept.SetDept(false)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c, result, "")
@@ -50,7 +52,7 @@ func GetDeptTree(c *gin.Context) {
 // @Security Bearer
 func GetDept(c *gin.Context) {
 	var Dept models.SysDept
-	Dept.DeptId, _ = tools.StringToInt(c.Param("deptId"))
+	Dept.DeptId, _ = strconv.Atoi(c.Param("deptId"))
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.Get()
 	tools.HasError(err, msg.NotFound, 404)
@@ -107,7 +109,7 @@ func UpdateDept(c *gin.Context) {
 // @Router /api/v1/dept/{id} [delete]
 func DeleteDept(c *gin.Context) {
 	var data models.SysDept
-	id, err := tools.StringToInt(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
 	app.OK(c, "", msg.DeletedSuccess)
@@ -116,7 +118,7 @@ func DeleteDept(c *gin.Context) {
 func GetDeptTreeRoleselect(c *gin.Context) {
 	var Dept models.SysDept
 	var SysRole models.SysRole
-	id, err := tools.StringToInt(c.Param("roleId"))
+	id, err := strconv.Atoi(c.Param("roleId"))
 	SysRole.RoleId = id
 	result, err := Dept.SetDeptLable()
 	tools.HasError(err, msg.NotFound, -1)

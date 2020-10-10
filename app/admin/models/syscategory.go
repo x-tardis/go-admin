@@ -1,8 +1,9 @@
 package models
 
 import (
+	"strconv"
+
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type SysCategory struct {
@@ -74,7 +75,7 @@ func (e *SysCategory) GetPage(pageSize int, pageIndex int) ([]SysCategory, int, 
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 	table, err := dataPermission.GetDataScope(e.TableName(), table)
 	if err != nil {
 		return nil, 0, err

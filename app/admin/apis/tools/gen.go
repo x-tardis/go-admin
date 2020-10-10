@@ -3,6 +3,7 @@ package tools
 import (
 	"bytes"
 	"net/http"
+	"strconv"
 	"text/template"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ import (
 
 func Preview(c *gin.Context) {
 	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
+	id, err := strconv.Atoi(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
 	t1, err := template.ParseFiles("template/v3/model.go.template")
@@ -60,7 +61,7 @@ func Preview(c *gin.Context) {
 
 func GenCodeV3(c *gin.Context) {
 	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
+	id, err := strconv.Atoi(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
 	tab, _ := table.Get()
@@ -176,7 +177,7 @@ func GenMenuAndApi(c *gin.Context) {
 
 	table := tools.SysTables{}
 	timeNow := tools2.GetCurrentTime()
-	id, err := tools2.StringToInt(c.Param("tableId"))
+	id, err := strconv.Atoi(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
 	tab, _ := table.Get()

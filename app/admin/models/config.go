@@ -2,10 +2,10 @@ package models
 
 import (
 	"errors"
+	"strconv"
 	_ "time"
 
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type SysConfig struct {
@@ -81,7 +81,7 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_config", table)
 	if err != nil {
 		return nil, 0, err

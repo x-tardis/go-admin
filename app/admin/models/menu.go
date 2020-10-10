@@ -2,9 +2,11 @@ package models
 
 import (
 	"errors"
+	"strconv"
+
+	"github.com/spf13/cast"
 
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type Menu struct {
@@ -262,7 +264,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 	table, err = dataPermission.GetDataScope("sys_menu", table)
 	if err != nil {
 		return nil, err
@@ -295,9 +297,9 @@ func InitPaths(menu *Menu) (err error) {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return
 		}
-		menu.Paths = parentMenu.Paths + "/" + tools.IntToString(menu.MenuId)
+		menu.Paths = parentMenu.Paths + "/" + cast.ToString(menu.MenuId)
 	} else {
-		menu.Paths = "/0/" + tools.IntToString(menu.MenuId)
+		menu.Paths = "/0/" + cast.ToString(menu.MenuId)
 	}
 	orm.Eloquent.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return

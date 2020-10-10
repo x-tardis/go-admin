@@ -2,9 +2,11 @@ package dict
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/tools"
@@ -19,7 +21,7 @@ import (
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} app.PageResponse "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Page "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/list [get]
 // @Security Bearer
 func GetDictTypeList(c *gin.Context) {
@@ -29,16 +31,16 @@ func GetDictTypeList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.DictName = c.Request.FormValue("dictName")
 	id := c.Request.FormValue("dictId")
-	data.DictId, _ = tools.StringToInt(id)
+	data.DictId = cast.ToInt(id)
 	data.DictType = c.Request.FormValue("dictType")
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
@@ -57,7 +59,7 @@ func GetDictTypeList(c *gin.Context) {
 func GetDictType(c *gin.Context) {
 	var DictType models.DictType
 	DictType.DictName = c.Request.FormValue("dictName")
-	DictType.DictId, _ = tools.StringToInt(c.Param("dictId"))
+	DictType.DictId = cast.ToInt(c.Param("dictId"))
 	result, err := DictType.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response
@@ -68,7 +70,7 @@ func GetDictType(c *gin.Context) {
 func GetDictTypeOptionSelect(c *gin.Context) {
 	var DictType models.DictType
 	DictType.DictName = c.Request.FormValue("dictName")
-	DictType.DictId, _ = tools.StringToInt(c.Param("dictId"))
+	DictType.DictId = cast.ToInt(c.Param("dictId"))
 	result, err := DictType.GetList()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response

@@ -1,6 +1,8 @@
 package system
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	mycasbin "github.com/x-tardis/go-admin/pkg/casbin"
 
@@ -27,11 +29,11 @@ func GetRoleList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.RoleKey = c.Request.FormValue("roleKey")
@@ -54,7 +56,7 @@ func GetRoleList(c *gin.Context) {
 // @Security Bearer
 func GetRole(c *gin.Context) {
 	var Role models.SysRole
-	Role.RoleId, _ = tools.StringToInt(c.Param("roleId"))
+	Role.RoleId, _ = strconv.Atoi(c.Param("roleId"))
 	result, err := Role.Get()
 	menuIds := make([]int, 0)
 	menuIds, err = Role.GetRoleMeunId()

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 
 	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
 )
@@ -38,7 +39,7 @@ func GetUserId(c *gin.Context) int {
 func GetUserIdStr(c *gin.Context) string {
 	data := ExtractClaims(c)
 	if data["identity"] != nil {
-		return Int64ToString(int64((data["identity"]).(float64)))
+		return cast.ToString(int64((data["identity"]).(float64)))
 	}
 	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserIdStr 缺少identity")
 	return ""

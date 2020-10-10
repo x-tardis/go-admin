@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/global"
@@ -69,7 +70,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	sysOperLog := models.SysOperLog{}
 	sysOperLog.OperIp = clientIP
 	sysOperLog.OperLocation = tools.GetLocation(clientIP)
-	sysOperLog.Status = tools.IntToString(statusCode)
+	sysOperLog.Status = cast.ToString(statusCode)
 	sysOperLog.OperName = tools.GetUserName(c)
 	sysOperLog.RequestMethod = c.Request.Method
 	sysOperLog.OperUrl = reqUri

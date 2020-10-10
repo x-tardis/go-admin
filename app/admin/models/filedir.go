@@ -1,8 +1,9 @@
 package models
 
 import (
+	"github.com/spf13/cast"
+
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type SysFileDir struct {
@@ -32,7 +33,7 @@ func (e *SysFileDir) Create() (SysFileDir, error) {
 		return doc, err
 	}
 
-	path := "/" + tools.IntToString(e.Id)
+	path := "/" + cast.ToString(e.Id)
 	if int(e.PId) != 0 {
 		var deptP SysFileDir
 		orm.Eloquent.Table(e.TableName()).Where("id = ?", e.PId).First(&deptP)
@@ -75,7 +76,7 @@ func (e *SysFileDir) GetPage() ([]SysFileDir, int, error) {
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	//dataPermission := new(DataPermission)
-	//dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	//dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 	//table, err := dataPermission.GetDataScope(e.TableName(), table)
 	//if err != nil {
 	//	return nil, 0, err
@@ -95,7 +96,7 @@ func (e *SysFileDir) Update(id int) (update SysFileDir, err error) {
 		return
 	}
 
-	path := "/" + tools.IntToString(e.Id)
+	path := "/" + cast.ToString(e.Id)
 	if int(e.Id) != 0 {
 		var deptP SysFileDir
 		orm.Eloquent.Table(e.TableName()).Where("id = ?", e.Id).First(&deptP)

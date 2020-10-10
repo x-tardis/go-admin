@@ -2,11 +2,11 @@ package models
 
 import (
 	"errors"
+	"strconv"
 
 	"gorm.io/gorm"
 
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type DictType struct {
@@ -99,7 +99,7 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_dict_type", table)
 	if err != nil {
 		return nil, 0, err

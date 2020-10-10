@@ -3,24 +3,16 @@ package tools
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"log"
 	"runtime"
 	"strconv"
 
+	"gorm.io/gorm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/spf13/cast"
-	"golang.org/x/crypto/bcrypt"
 )
-
-func CompareHashAndPassword(e string, p string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword([]byte(e), []byte(p))
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
 
 // Assert 条件断言
 // 当断言条件为 假 时触发 panic

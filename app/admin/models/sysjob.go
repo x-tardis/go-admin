@@ -6,7 +6,6 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	orm "github.com/x-tardis/go-admin/common/global"
 	"github.com/x-tardis/go-admin/common/models"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type SysJob struct {
@@ -65,7 +64,7 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}, list interf
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	//dataPermission := new(DataPermission)
-	userid, _ := tools.StringToInt(e.DataScope)
+	userid, _ := strconv.Atoi(e.DataScope)
 
 	var count int64
 

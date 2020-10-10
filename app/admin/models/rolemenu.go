@@ -2,9 +2,9 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type RoleMenu struct {
@@ -221,7 +221,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 }
 
 func (rm *RoleMenu) Delete(RoleId string, MenuID string) (bool, error) {
-	rm.RoleId, _ = tools.StringToInt(RoleId)
+	rm.RoleId, _ = strconv.Atoi(RoleId)
 	table := orm.Eloquent.Table("sys_role_menu").Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		table = table.Where("menu_id = ?", MenuID)

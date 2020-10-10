@@ -1,8 +1,9 @@
 package models
 
 import (
+	"strconv"
+
 	orm "github.com/x-tardis/go-admin/common/global"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type Post struct {
@@ -100,7 +101,7 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_post", table)
 	if err != nil {
 		return nil, 0, err

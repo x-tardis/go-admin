@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ func IdsStrToIdsIntGroupStr(keys string) []int {
 	IDS := make([]int, 0)
 	ids := strings.Split(keys, ",")
 	for i := 0; i < len(ids); i++ {
-		ID, _ := StringToInt(ids[i])
+		ID, _ := strconv.Atoi(ids[i])
 		IDS = append(IDS, ID)
 	}
 	return IDS

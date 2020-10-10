@@ -1,6 +1,8 @@
 package system
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
@@ -27,12 +29,12 @@ func GetSysUserList(c *gin.Context) {
 
 	size := c.Request.FormValue("pageSize")
 	if size != "" {
-		pageSize, err = tools.StringToInt(size)
+		pageSize, err = strconv.Atoi(size)
 	}
 
 	index := c.Request.FormValue("pageIndex")
 	if index != "" {
-		pageIndex, err = tools.StringToInt(index)
+		pageIndex, err = strconv.Atoi(index)
 	}
 
 	data.Username = c.Request.FormValue("username")
@@ -40,10 +42,10 @@ func GetSysUserList(c *gin.Context) {
 	data.Phone = c.Request.FormValue("phone")
 
 	postId := c.Request.FormValue("postId")
-	data.PostId, _ = tools.StringToInt(postId)
+	data.PostId, _ = strconv.Atoi(postId)
 
 	deptId := c.Request.FormValue("deptId")
-	data.DeptId, _ = tools.StringToInt(deptId)
+	data.DeptId, _ = strconv.Atoi(deptId)
 
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
@@ -61,7 +63,7 @@ func GetSysUserList(c *gin.Context) {
 // @Security Bearer
 func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
-	SysUser.UserId, _ = tools.StringToInt(c.Param("userId"))
+	SysUser.UserId, _ = strconv.Atoi(c.Param("userId"))
 	result, err := SysUser.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
@@ -93,7 +95,7 @@ func GetSysUser(c *gin.Context) {
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
 	userId := tools.GetUserIdStr(c)
-	SysUser.UserId, _ = tools.StringToInt(userId)
+	SysUser.UserId, _ = strconv.Atoi(userId)
 	result, err := SysUser.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
