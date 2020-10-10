@@ -49,6 +49,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7
+	github.com/thinkgos/go-core-package v0.1.3
 	github.com/thinkgos/sharp v0.3.2
 	github.com/ugorji/go v1.1.10 // indirect
 	github.com/unrolled/secure v1.0.8

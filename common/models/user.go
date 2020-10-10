@@ -1,10 +1,12 @@
 package models
 
 import (
+	"github.com/thinkgos/go-core-package/extrand"
+	"github.com/thinkgos/go-core-package/lib/password"
 	"gorm.io/gorm"
-
-	"github.com/x-tardis/go-admin/pkg"
 )
+
+var verify = new(password.BCrypt)
 
 // BaseUser 密码登录基础用户
 type BaseUser struct {
@@ -17,26 +19,12 @@ type BaseUser struct {
 // SetPassword 设置密码
 func (u *BaseUser) SetPassword(value string) {
 	u.Password = value
-	u.generateSalt()
-	u.PasswordHash = u.GetPasswordHash()
-}
-
-// GetPasswordHash 获取密码hash
-func (u *BaseUser) GetPasswordHash() string {
-	passwordHash, err := pkg.SetPassword(u.Password, u.Salt)
-	if err != nil {
-		return ""
-	}
-	return passwordHash
-}
-
-// generateSalt 生成加盐值
-func (u *BaseUser) generateSalt() {
-	u.Salt = pkg.GenerateRandomKey16()
+	u.Salt = extrand.RandString(16)
+	u.PasswordHash, _ = verify.Hash(u.Password, u.Salt)
 }
 
 // Verify 验证密码
 func (u *BaseUser) Verify(db *gorm.DB, tableName string) bool {
 	db.Table(tableName).Where("username = ?", u.Username).First(u)
-	return u.GetPasswordHash() == u.PasswordHash
+	return verify.Compare(u.Password, u.Salt, u.PasswordHash) == nil
 }

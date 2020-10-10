@@ -17,10 +17,8 @@ var configFile string
 var StartCmd = &cobra.Command{
 	Use:     "migrate",
 	Short:   "Initialize the database",
-	Example: "github.com/x-tardis/go-admin migrate -c config/settings.yml",
-	Run: func(cmd *cobra.Command, args []string) {
-		run()
-	},
+	Example: "go-admin migrate -c config.yaml",
+	Run:     run,
 }
 
 // var exec bool
@@ -30,7 +28,7 @@ func init() {
 	//StartCmd.PersistentFlags().BoolVarP(&exec, "exec", "e", false, "exec script")
 }
 
-func run() {
+func run(*cobra.Command, []string) {
 	usage := `start init`
 	fmt.Println(usage)
 	//1. 读取配置
