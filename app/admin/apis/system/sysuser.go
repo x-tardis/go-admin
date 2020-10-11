@@ -10,6 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -49,7 +50,7 @@ func GetSysUserList(c *gin.Context) {
 	deptId := c.Request.FormValue("deptId")
 	data.DeptId, _ = strconv.Atoi(deptId)
 
-	data.DataScope = tools.GetUserIdStr(c)
+	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
@@ -101,7 +102,7 @@ func GetSysUser(c *gin.Context) {
 // @Security Bearer
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
-	userId := tools.GetUserIdStr(c)
+	userId := jwtauth.UserIdStr(c)
 	SysUser.UserId, _ = strconv.Atoi(userId)
 	result, err := SysUser.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
@@ -165,7 +166,7 @@ func InsertSysUser(c *gin.Context) {
 	err := c.BindWith(&sysuser, binding.JSON)
 	tools.HasError(err, "非法数据格式", 500)
 
-	sysuser.CreateBy = tools.GetUserIdStr(c)
+	sysuser.CreateBy = jwtauth.UserIdStr(c)
 	id, err := sysuser.Insert()
 	tools.HasError(err, "添加失败", 500)
 	servers.OKWithRequestID(c, id, "添加成功")
@@ -184,7 +185,7 @@ func UpdateSysUser(c *gin.Context) {
 	var data models.SysUser
 	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.UserId)
 	tools.HasError(err, "修改失败", 500)
 	servers.OKWithRequestID(c, result, "修改成功")
@@ -199,7 +200,7 @@ func UpdateSysUser(c *gin.Context) {
 // @Router /api/v1/sysuser/{userId} [delete]
 func DeleteSysUser(c *gin.Context) {
 	var data models.SysUser
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("userId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
@@ -225,9 +226,9 @@ func InsetSysUserAvatar(c *gin.Context) {
 		_ = c.SaveUploadedFile(file, filPath)
 	}
 	sysuser := models.SysUser{}
-	sysuser.UserId = tools.GetUserId(c)
+	sysuser.UserId = jwtauth.UserId(c)
 	sysuser.Avatar = "/" + filPath
-	sysuser.UpdateBy = tools.GetUserIdStr(c)
+	sysuser.UpdateBy = jwtauth.UserIdStr(c)
 	sysuser.Update(sysuser.UserId)
 	servers.OKWithRequestID(c, filPath, "修改成功")
 }
@@ -237,7 +238,7 @@ func SysUserUpdatePwd(c *gin.Context) {
 	err := c.Bind(&pwd)
 	tools.HasError(err, "数据解析失败", 500)
 	sysuser := models.SysUser{}
-	sysuser.UserId = tools.GetUserId(c)
+	sysuser.UserId = jwtauth.UserId(c)
 	sysuser.SetPwd(pwd)
 	servers.OKWithRequestID(c, "", "密码修改成功")
 }

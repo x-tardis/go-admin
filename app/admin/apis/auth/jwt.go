@@ -11,7 +11,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/infra"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -31,7 +31,7 @@ func NewJWTAuth(key string) (*jwt.GinJWTMiddleware, error) {
 		Timeout:    time.Hour,
 		MaxRefresh: time.Hour,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(infra.JWTIdentity); ok {
+			if v, ok := data.(jwtauth.Identities); ok {
 				return jwt.MapClaims{
 					userIdKey:    v.UserId,
 					usernameKey:  v.UserName,
@@ -45,7 +45,7 @@ func NewJWTAuth(key string) (*jwt.GinJWTMiddleware, error) {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			return infra.JWTIdentity{
+			return jwtauth.Identities{
 				cast.ToInt(claims[userIdKey]),
 				cast.ToString(claims[usernameKey]),
 				cast.ToInt(claims[roleIdKey]),
@@ -56,7 +56,7 @@ func NewJWTAuth(key string) (*jwt.GinJWTMiddleware, error) {
 		},
 		Authenticator: authenticator,
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			_, ok := data.(infra.JWTIdentity)
+			_, ok := data.(jwtauth.Identities)
 			return ok
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
@@ -101,7 +101,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrFailedAuthentication
 	}
 	loginLogRecord(c, "0", "登录成功", req.Username)
-	return infra.JWTIdentity{
+	return jwtauth.Identities{
 		UserId:    user.UserId,
 		UserName:  user.Username,
 		RoleId:    role.RoleId,
@@ -121,7 +121,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 // @Router /logout [post]
 // @Security Bearer
 func logoutResponse(c *gin.Context, code int) {
-	loginLogRecord(c, "0", "退出成功", tools.GetUserName(c))
+	loginLogRecord(c, "0", "退出成功", jwtauth.UserName(c))
 	c.JSON(http.StatusOK, gin.H{"code": code, "msg": "退出成功"})
 }
 

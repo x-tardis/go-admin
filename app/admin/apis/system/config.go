@@ -8,6 +8,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -41,7 +42,7 @@ func GetConfigList(c *gin.Context) {
 	data.ConfigKey = c.Request.FormValue("configKey")
 	data.ConfigName = c.Request.FormValue("configName")
 	data.ConfigType = c.Request.FormValue("configType")
-	data.DataScope = tools.GetUserIdStr(c)
+	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
@@ -98,7 +99,7 @@ func GetConfigByConfigKey(c *gin.Context) {
 func InsertConfig(c *gin.Context) {
 	var data models.SysConfig
 	err := c.BindWith(&data, binding.JSON)
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
@@ -120,7 +121,7 @@ func UpdateConfig(c *gin.Context) {
 	var data models.SysConfig
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.ConfigId)
 	tools.HasError(err, "", -1)
 	servers.OKWithRequestID(c, result, "")
@@ -135,7 +136,7 @@ func UpdateConfig(c *gin.Context) {
 // @Router /api/v1/config/{configId} [delete]
 func DeleteConfig(c *gin.Context) {
 	var data models.SysConfig
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("configId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -96,7 +97,7 @@ func InsertOperLog(c *gin.Context) {
 // @Router /api/v1/operlog/{operId} [delete]
 func DeleteOperLog(c *gin.Context) {
 	var data models.SysOperLog
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("operId"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)

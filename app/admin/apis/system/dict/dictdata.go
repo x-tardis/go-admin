@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -42,7 +43,7 @@ func GetDictDataList(c *gin.Context) {
 	data.DictType = c.Request.FormValue("dictType")
 	id := c.Request.FormValue("dictCode")
 	data.DictCode, _ = strconv.Atoi(id)
-	data.DataScope = tools.GetUserIdStr(c)
+	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
@@ -99,7 +100,7 @@ func GetDictDataByDictType(c *gin.Context) {
 func InsertDictData(c *gin.Context) {
 	var data models.DictData
 	err := c.ShouldBindJSON(&data)
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
@@ -119,7 +120,7 @@ func InsertDictData(c *gin.Context) {
 func UpdateDictData(c *gin.Context) {
 	var data models.DictData
 	err := c.BindWith(&data, binding.JSON)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.DictCode)
 	tools.HasError(err, "", -1)
@@ -135,7 +136,7 @@ func UpdateDictData(c *gin.Context) {
 // @Router /api/v1/dict/data/{dictCode} [delete]
 func DeleteDictData(c *gin.Context) {
 	var data models.DictData
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("dictCode"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)

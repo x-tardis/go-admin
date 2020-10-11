@@ -8,6 +8,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -32,7 +33,7 @@ func GetSysFileInfoList(c *gin.Context) {
 	}
 	tools.HasError(err, "", -1)
 
-	data.DataScope = tools.GetUserIdStr(c)
+	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
@@ -56,7 +57,7 @@ func GetSysFileInfo(c *gin.Context) {
 func InsertSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
 	err := c.ShouldBindJSON(&data)
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
@@ -67,7 +68,7 @@ func UpdateSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
 	tools.HasError(err, "", -1)
 
@@ -76,7 +77,7 @@ func UpdateSysFileInfo(c *gin.Context) {
 
 func DeleteSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)

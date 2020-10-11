@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -115,7 +116,7 @@ func UpdateLoginLog(c *gin.Context) {
 // @Router /api/v1/loginlog/{infoId} [delete]
 func DeleteLoginLog(c *gin.Context) {
 	var data models.LoginLog
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("infoId"))
 	_, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)

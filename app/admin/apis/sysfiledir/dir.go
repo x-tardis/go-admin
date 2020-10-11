@@ -8,6 +8,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -17,7 +18,7 @@ func GetSysFileDirList(c *gin.Context) {
 	SysFileDir.Label = c.Request.FormValue("label")
 	SysFileDir.PId, _ = strconv.Atoi(c.Request.FormValue("pid"))
 	SysFileDir.Id, _ = strconv.Atoi(c.Request.FormValue("id"))
-	SysFileDir.DataScope = tools.GetUserIdStr(c)
+	SysFileDir.DataScope = jwtauth.UserIdStr(c)
 	result, err := SysFileDir.SetSysFileDir()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	servers.OKWithRequestID(c, result, "")
@@ -44,7 +45,7 @@ func GetSysFileDir(c *gin.Context) {
 func InsertSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 	err := c.ShouldBindJSON(&data)
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
@@ -55,7 +56,7 @@ func UpdateSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
 	tools.HasError(err, "", -1)
 
@@ -64,7 +65,7 @@ func UpdateSysFileDir(c *gin.Context) {
 
 func DeleteSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 
@@ -41,7 +42,7 @@ func GetRoleList(c *gin.Context) {
 	data.RoleKey = c.Request.FormValue("roleKey")
 	data.RoleName = c.Request.FormValue("roleName")
 	data.Status = c.Request.FormValue("status")
-	data.DataScope = tools.GetUserIdStr(c)
+	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
@@ -84,7 +85,7 @@ func GetRole(c *gin.Context) {
 // @Router /api/v1/role [post]
 func InsertRole(c *gin.Context) {
 	var data models.SysRole
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", 500)
 	id, err := data.Insert()
@@ -114,7 +115,7 @@ func InsertRole(c *gin.Context) {
 // @Router /api/v1/role [put]
 func UpdateRole(c *gin.Context) {
 	var data models.SysRole
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", -1)
 	result, err := data.Update(data.RoleId)
@@ -135,7 +136,7 @@ func UpdateRole(c *gin.Context) {
 
 func UpdateRoleDataScope(c *gin.Context) {
 	var data models.SysRole
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", -1)
 	result, err := data.Update(data.RoleId)
@@ -159,7 +160,7 @@ func UpdateRoleDataScope(c *gin.Context) {
 // @Router /api/v1/role/{roleId} [delete]
 func DeleteRole(c *gin.Context) {
 	var Role models.SysRole
-	Role.UpdateBy = tools.GetUserIdStr(c)
+	Role.UpdateBy = jwtauth.UserIdStr(c)
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("roleId"))
 	_, err := Role.BatchDelete(IDS)

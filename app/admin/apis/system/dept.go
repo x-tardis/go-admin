@@ -9,6 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -27,7 +28,7 @@ func GetDeptList(c *gin.Context) {
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
 	Dept.DeptId, _ = strconv.Atoi(c.Request.FormValue("deptId"))
-	Dept.DataScope = tools.GetUserIdStr(c)
+	Dept.DataScope = jwtauth.UserIdStr(c)
 	result, err := Dept.SetDept(true)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	servers.OKWithRequestID(c, result, "")
@@ -54,7 +55,7 @@ func GetDeptTree(c *gin.Context) {
 func GetDept(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptId, _ = strconv.Atoi(c.Param("deptId"))
-	Dept.DataScope = tools.GetUserIdStr(c)
+	Dept.DataScope = jwtauth.UserIdStr(c)
 	result, err := Dept.Get()
 	tools.HasError(err, codes.NotFound, 404)
 	servers.OKWithRequestID(c, result, codes.GetSuccess)
@@ -74,7 +75,7 @@ func InsertDept(c *gin.Context) {
 	var data models.SysDept
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "", 500)
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
 	servers.OKWithRequestID(c, result, codes.CreatedSuccess)
@@ -95,7 +96,7 @@ func UpdateDept(c *gin.Context) {
 	var data models.SysDept
 	err := c.BindJSON(&data)
 	tools.HasError(err, "", -1)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.DeptId)
 	tools.HasError(err, "", -1)
 	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)

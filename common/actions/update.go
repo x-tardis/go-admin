@@ -7,6 +7,7 @@ import (
 
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -35,7 +36,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
 			return
 		}
-		object.SetUpdateBy(uint(tools.GetUserId(c)))
+		object.SetUpdateBy(uint(jwtauth.UserId(c)))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)

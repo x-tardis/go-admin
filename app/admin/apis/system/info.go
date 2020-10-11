@@ -4,13 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
 
 func GetInfo(c *gin.Context) {
 	var roles = make([]string, 1)
-	roles[0] = tools.GetRoleName(c)
+	roles[0] = jwtauth.RoleName(c)
 
 	var permissions = make([]string, 1)
 	permissions[0] = "*:*:*"
@@ -19,11 +20,11 @@ func GetInfo(c *gin.Context) {
 	buttons[0] = "*:*:*"
 
 	RoleMenu := models.RoleMenu{}
-	RoleMenu.RoleId = tools.GetRoleId(c)
+	RoleMenu.RoleId = jwtauth.RoleId(c)
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
-	if tools.GetRoleName(c) == "admin" || tools.GetRoleName(c) == "系统管理员" {
+	if jwtauth.RoleName(c) == "admin" || jwtauth.RoleName(c) == "系统管理员" {
 		mp["permissions"] = permissions
 		mp["buttons"] = buttons
 	} else {
@@ -33,7 +34,7 @@ func GetInfo(c *gin.Context) {
 	}
 
 	sysuser := models.SysUser{}
-	sysuser.UserId = tools.GetUserId(c)
+	sysuser.UserId = jwtauth.UserId(c)
 	user, err := sysuser.Get()
 	tools.HasError(err, "", 500)
 

@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -31,7 +32,7 @@ func PermissionAction() gin.HandlerFunc {
 
 		msgID := tools.GenerateMsgIDFromContext(c)
 		var p = new(DataPermission)
-		if userId := tools.GetUserIdStr(c); userId != "" {
+		if userId := jwtauth.UserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
 				logger.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)

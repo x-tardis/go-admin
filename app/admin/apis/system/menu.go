@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -25,7 +26,7 @@ func GetMenuList(c *gin.Context) {
 	Menu.MenuName = c.Request.FormValue("menuName")
 	Menu.Visible = c.Request.FormValue("visible")
 	Menu.Title = c.Request.FormValue("title")
-	Menu.DataScope = tools.GetUserIdStr(c)
+	Menu.DataScope = jwtauth.UserIdStr(c)
 	result, err := Menu.SetMenu()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
@@ -103,7 +104,7 @@ func InsertMenu(c *gin.Context) {
 	var data models.Menu
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	servers.OKWithRequestID(c, result, "")
@@ -123,7 +124,7 @@ func InsertMenu(c *gin.Context) {
 func UpdateMenu(c *gin.Context) {
 	var data models.Menu
 	err2 := c.BindWith(&data, binding.JSON)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err2, "修改失败", -1)
 	_, err := data.Update(data.MenuId)
 	tools.HasError(err, "", 501)
@@ -141,7 +142,7 @@ func UpdateMenu(c *gin.Context) {
 func DeleteMenu(c *gin.Context) {
 	var data models.Menu
 	id, err := strconv.Atoi(c.Param("id"))
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
 	servers.OKWithRequestID(c, "", "删除成功")
@@ -157,7 +158,7 @@ func DeleteMenu(c *gin.Context) {
 // @Security Bearer
 func GetMenuRole(c *gin.Context) {
 	var Menu models.Menu
-	result, err := Menu.SetMenuRole(tools.GetRoleName(c))
+	result, err := Menu.SetMenuRole(jwtauth.RoleName(c))
 	tools.HasError(err, "获取失败", 500)
 	servers.OKWithRequestID(c, result, "")
 }
@@ -173,7 +174,7 @@ func GetMenuRole(c *gin.Context) {
 func GetMenuIDS(c *gin.Context) {
 	var data models.RoleMenu
 	data.RoleName = c.GetString("role")
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.GetIDS()
 	tools.HasError(err, "获取失败", 500)
 	servers.OKWithRequestID(c, result, "")

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	tools2 "github.com/x-tardis/go-admin/tools"
 )
@@ -116,7 +117,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.CreateBy = tools2.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get()
@@ -135,7 +136,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList()
-	data.CreateBy = tools2.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -227,7 +228,7 @@ func UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
 	tools2.HasError(err, "数据解析失败", 500)
-	data.UpdateBy = tools2.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update()
 	tools2.HasError(err, "", -1)
 

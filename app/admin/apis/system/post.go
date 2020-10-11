@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -42,7 +43,7 @@ func GetPostList(c *gin.Context) {
 	data.PostName = c.Request.FormValue("postName")
 	data.Status = c.Request.FormValue("status")
 
-	data.DataScope = tools.GetUserIdStr(c)
+	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 	servers.Success(c, servers.WithData(&paginator.Page{
@@ -81,7 +82,7 @@ func GetPost(c *gin.Context) {
 func InsertPost(c *gin.Context) {
 	var data models.Post
 	err := c.Bind(&data)
-	data.CreateBy = tools.GetUserIdStr(c)
+	data.CreateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
@@ -102,7 +103,7 @@ func UpdatePost(c *gin.Context) {
 	var data models.Post
 
 	err := c.Bind(&data)
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.PostId)
 	tools.HasError(err, "", -1)
@@ -118,7 +119,7 @@ func UpdatePost(c *gin.Context) {
 // @Router /api/v1/post/{postId} [delete]
 func DeletePost(c *gin.Context) {
 	var data models.Post
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("postId"))
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)

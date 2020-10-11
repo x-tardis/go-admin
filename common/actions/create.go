@@ -7,6 +7,7 @@ import (
 
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
@@ -35,7 +36,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
 			return
 		}
-		object.SetCreateBy(uint(tools.GetUserId(c)))
+		object.SetCreateBy(uint(jwtauth.UserId(c)))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
 			logger.Errorf("MsgID[%s] Create error: %s", msgID, err)

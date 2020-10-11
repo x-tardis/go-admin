@@ -229,7 +229,7 @@ func registerRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 
 func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	sysuser := v1.Group("/sysUser").
-		Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
+		Use(authMiddleware.MiddlewareFunc(), middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		sysuser.GET("/:userId", system.GetSysUser)
 		sysuser.GET("/", system.GetSysUserInit)

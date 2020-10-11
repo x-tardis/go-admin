@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -70,7 +71,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	sysOperLog.OperIp = clientIP
 	sysOperLog.OperLocation = tools.GetLocation(clientIP)
 	sysOperLog.Status = cast.ToString(statusCode)
-	sysOperLog.OperName = tools.GetUserName(c)
+	sysOperLog.OperName = jwtauth.UserName(c)
 	sysOperLog.RequestMethod = c.Request.Method
 	sysOperLog.OperUrl = reqUri
 	if reqUri == "/login" {
@@ -97,7 +98,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	}
 	b, _ := c.Get("body")
 	sysOperLog.OperParam, _ = tools.StructToJsonStr(b)
-	sysOperLog.CreateBy = tools.GetUserName(c)
+	sysOperLog.CreateBy = jwtauth.UserName(c)
 	sysOperLog.OperTime = time.Now()
 	sysOperLog.LatencyTime = (latencyTime).String()
 	sysOperLog.UserAgent = c.Request.UserAgent()
