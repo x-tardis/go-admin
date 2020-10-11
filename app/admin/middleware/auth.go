@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -9,8 +10,17 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
+
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/x-tardis/go-admin/tools"
+)
+
+const (
+	RoleIdKey    = "roleid"
+	RoleKey      = "rolekey"
+	NiceKey      = "nice"
+	DataScopeKey = "datascope"
+	RoleNameKey  = "rolename"
 )
 
 func AuthInit(key string) (*jwt.GinJWTMiddleware, error) {
@@ -35,12 +45,12 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 		u, _ := v["user"].(models.SysUser)
 		r, _ := v["role"].(models.SysRole)
 		return jwt.MapClaims{
-			jwt.IdentityKey:  u.UserId,
-			jwt.RoleIdKey:    r.RoleId,
-			jwt.RoleKey:      r.RoleKey,
-			jwt.NiceKey:      u.Username,
-			jwt.DataScopeKey: r.DataScope,
-			jwt.RoleNameKey:  r.RoleName,
+			jwt.IdentityKey: u.UserId,
+			RoleIdKey:       r.RoleId,
+			RoleKey:         r.RoleKey,
+			NiceKey:         u.Username,
+			DataScopeKey:    r.DataScope,
+			RoleNameKey:     r.RoleName,
 		}
 	}
 	return jwt.MapClaims{}
@@ -90,8 +100,8 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 			msg = "验证码错误"
 			status = "1"
 			LoginLogToDB(c, status, msg, username)
-
-			return nil, jwt.ErrInvalidVerificationode
+			return nil, errors.New("验证码错误")
+			// return nil, jwt.ErrInvalidVerificationode
 		}
 	}
 	user, role, e := loginVals.GetUser()

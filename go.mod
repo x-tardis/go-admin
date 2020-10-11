@@ -5,11 +5,11 @@ go 1.15
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/bsm/redislock v0.6.0 // indirect
 	github.com/casbin/casbin/v2 v2.13.1
 	github.com/casbin/gorm-adapter/v3 v3.0.2
 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/git-chglog/git-chglog v0.0.0-20200414013904-db796966b373 // indirect

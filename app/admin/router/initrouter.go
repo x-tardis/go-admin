@@ -7,7 +7,6 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/middleware"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	_ "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	middleware2 "github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/tools"

@@ -3,12 +3,12 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/x-tardis/go-admin/app/admin/apis/sysjob"
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/app/admin/service/dto"
 	"github.com/x-tardis/go-admin/common/actions"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 

@@ -3,6 +3,11 @@ package router
 import (
 	"mime"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
+
 	log2 "github.com/x-tardis/go-admin/app/admin/apis/log"
 	"github.com/x-tardis/go-admin/app/admin/apis/monitor"
 	"github.com/x-tardis/go-admin/app/admin/apis/ping"
@@ -13,13 +18,8 @@ import (
 	middleware2 "github.com/x-tardis/go-admin/app/admin/middleware"
 	_ "github.com/x-tardis/go-admin/docs"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/ws"
-
-	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
@@ -37,7 +37,6 @@ func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Rou
 }
 
 func sysBaseRouter(r *gin.RouterGroup) {
-
 	go ws.WebsocketManager.Start()
 	go ws.WebsocketManager.SendService()
 	go ws.WebsocketManager.SendAllService()
@@ -69,13 +68,9 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
 	registerDBRouter(v1)
-
 	registerSysTableRouter(v1)
-
 	registerPublicRouter(v1)
-
 	registerSysSettingRouter(v1)
-
 }
 
 func registerDBRouter(api *gin.RouterGroup) {

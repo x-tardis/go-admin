@@ -3,14 +3,15 @@ package tools
 import (
 	"fmt"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
-	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
 func ExtractClaims(c *gin.Context) jwt.MapClaims {
-	claims, exists := c.Get(jwt.JwtPayloadKey)
+	claims, exists := c.Get(infra.JwtPayloadKey)
 	if !exists {
 		return make(jwt.MapClaims)
 	}

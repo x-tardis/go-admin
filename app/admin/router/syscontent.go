@@ -5,7 +5,8 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/apis/syscontent"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	jwt "github.com/x-tardis/go-admin/pkg/jwtauth"
+
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
