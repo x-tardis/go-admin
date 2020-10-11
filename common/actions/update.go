@@ -35,7 +35,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
 			return
 		}
-		object.SetUpdateBy(tools.GetUserIdUint(c))
+		object.SetUpdateBy(uint(tools.GetUserId(c)))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)

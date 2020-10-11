@@ -35,7 +35,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
 			return
 		}
-		object.SetCreateBy(tools.GetUserIdUint(c))
+		object.SetCreateBy(uint(tools.GetUserId(c)))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
 			logger.Errorf("MsgID[%s] Create error: %s", msgID, err)

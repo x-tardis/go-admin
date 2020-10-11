@@ -8,19 +8,10 @@ import (
 	"github.com/spf13/cast"
 )
 
-func GetUserIdUint(c *gin.Context) uint {
-	data := jwt.ExtractClaims(c)
-	if data["identity"] != nil {
-		return uint((data["identity"]).(float64))
-	}
-	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserId 缺少identity")
-	return 0
-}
-
 func GetUserId(c *gin.Context) int {
 	data := jwt.ExtractClaims(c)
-	if data["identity"] != nil {
-		return int((data["identity"]).(float64))
+	if data["userId"] != nil {
+		return int((data["userId"]).(float64))
 	}
 	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserId 缺少identity")
 	return 0
@@ -28,8 +19,8 @@ func GetUserId(c *gin.Context) int {
 
 func GetUserIdStr(c *gin.Context) string {
 	data := jwt.ExtractClaims(c)
-	if data["identity"] != nil {
-		return cast.ToString(int64((data["identity"]).(float64)))
+	if data["userId"] != nil {
+		return cast.ToString(int64((data["userId"]).(float64)))
 	}
 	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserIdStr 缺少identity")
 	return ""
@@ -37,8 +28,8 @@ func GetUserIdStr(c *gin.Context) string {
 
 func GetUserName(c *gin.Context) string {
 	data := jwt.ExtractClaims(c)
-	if data["nice"] != nil {
-		return (data["nice"]).(string)
+	if data["UsernameKey"] != nil {
+		return (data["UsernameKey"]).(string)
 	}
 	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserName 缺少nice")
 	return ""
