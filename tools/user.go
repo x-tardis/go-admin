@@ -32,9 +32,9 @@ func GetUserIdStr(c *gin.Context) string {
 }
 
 func GetUserName(c *gin.Context) string {
-	data := jwt.ExtractClaims(c)
-	if data["username"] != nil {
-		return (data["username"]).(string)
+	data, ok := GetJWTIdentity(c)
+	if ok {
+		return data.UserName
 	}
 	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserName 缺少username")
 	return ""
