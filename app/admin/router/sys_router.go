@@ -131,7 +131,7 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		v1auth.GET("/roleMenuTreeselect/:roleId", system.GetMenuTreeRoleselect)
 		v1auth.GET("/roleDeptTreeselect/:roleId", system.GetDeptTreeRoleselect)
 
-		v1auth.POST("/logout", auth.LogOut)
+		v1auth.POST("/logout", auth.Logout)
 		v1auth.GET("/menuids", system.GetMenuIDS)
 
 		v1auth.GET("/operloglist", log2.GetOperLogList)

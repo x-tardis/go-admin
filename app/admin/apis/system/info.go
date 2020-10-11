@@ -9,7 +9,6 @@ import (
 )
 
 func GetInfo(c *gin.Context) {
-
 	var roles = make([]string, 1)
 	roles[0] = tools.GetRoleName(c)
 

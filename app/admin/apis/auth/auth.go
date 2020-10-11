@@ -10,6 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -45,7 +46,14 @@ func authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrFailedAuthentication
 	}
 	LoginLogRecord(c, "0", "登录成功", req.Username)
-	return map[string]interface{}{"user": user, "role": role}, nil
+	return infra.JWTIdentity{
+		UserId:    user.UserId,
+		UserName:  user.Username,
+		RoleId:    role.RoleId,
+		RoleName:  role.RoleName,
+		RoleKey:   role.RoleKey,
+		DataScope: role.DataScope,
+	}, nil
 }
 
 // @Summary 退出登录
@@ -57,7 +65,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 // @Success 200 {string} string "{"code": 200, "msg": "成功退出系统" }"
 // @Router /logout [post]
 // @Security Bearer
-func LogOut(c *gin.Context) {
+func Logout(c *gin.Context) {
 	LoginLogRecord(c, "0", "退出成功", tools.GetUserName(c))
 	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "msg": "退出成功"})
 }

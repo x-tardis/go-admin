@@ -28,10 +28,10 @@ func GetUserIdStr(c *gin.Context) string {
 
 func GetUserName(c *gin.Context) string {
 	data := jwt.ExtractClaims(c)
-	if data["UsernameKey"] != nil {
-		return (data["UsernameKey"]).(string)
+	if data["username"] != nil {
+		return (data["username"]).(string)
 	}
-	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserName 缺少nice")
+	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserName 缺少username")
 	return ""
 }
 
