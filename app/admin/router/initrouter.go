@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/x-tardis/go-admin/app/admin/apis/auth"
 	"github.com/x-tardis/go-admin/app/admin/middleware"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/logger"
@@ -38,7 +39,7 @@ func InitRouter() {
 	)
 	// the jwt middleware
 	var err error
-	authMiddleware, err := middleware.AuthInit(deployed.ApplicationConfig.JwtSecret)
+	authMiddleware, err := auth.NewJWTAuth(deployed.ApplicationConfig.JwtSecret)
 	tools.HasError(err, "JWT Init Error", 500)
 
 	// 注册系统路由

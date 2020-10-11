@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/go-core-package/extos"
@@ -159,7 +160,7 @@ func ActionsGenV3(tab tools.SysTables) {
 
 func GenMenuAndApi(c *gin.Context) {
 	table := tools.SysTables{}
-	timeNow := tools2.GetCurrentTime()
+	timeNow := time.Now()
 	id, err := strconv.Atoi(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
