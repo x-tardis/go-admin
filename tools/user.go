@@ -6,21 +6,10 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
-
-	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
-func ExtractClaims(c *gin.Context) jwt.MapClaims {
-	claims, exists := c.Get(infra.JwtPayloadKey)
-	if !exists {
-		return make(jwt.MapClaims)
-	}
-
-	return claims.(jwt.MapClaims)
-}
-
 func GetUserIdUint(c *gin.Context) uint {
-	data := ExtractClaims(c)
+	data := jwt.ExtractClaims(c)
 	if data["identity"] != nil {
 		return uint((data["identity"]).(float64))
 	}
@@ -29,7 +18,7 @@ func GetUserIdUint(c *gin.Context) uint {
 }
 
 func GetUserId(c *gin.Context) int {
-	data := ExtractClaims(c)
+	data := jwt.ExtractClaims(c)
 	if data["identity"] != nil {
 		return int((data["identity"]).(float64))
 	}
@@ -38,7 +27,7 @@ func GetUserId(c *gin.Context) int {
 }
 
 func GetUserIdStr(c *gin.Context) string {
-	data := ExtractClaims(c)
+	data := jwt.ExtractClaims(c)
 	if data["identity"] != nil {
 		return cast.ToString(int64((data["identity"]).(float64)))
 	}
@@ -47,7 +36,7 @@ func GetUserIdStr(c *gin.Context) string {
 }
 
 func GetUserName(c *gin.Context) string {
-	data := ExtractClaims(c)
+	data := jwt.ExtractClaims(c)
 	if data["nice"] != nil {
 		return (data["nice"]).(string)
 	}
@@ -56,7 +45,7 @@ func GetUserName(c *gin.Context) string {
 }
 
 func GetRoleName(c *gin.Context) string {
-	data := ExtractClaims(c)
+	data := jwt.ExtractClaims(c)
 	if data["rolekey"] != nil {
 		return (data["rolekey"]).(string)
 	}
@@ -65,7 +54,7 @@ func GetRoleName(c *gin.Context) string {
 }
 
 func GetRoleId(c *gin.Context) int {
-	data := ExtractClaims(c)
+	data := jwt.ExtractClaims(c)
 	if data["roleid"] != nil {
 		i := int((data["roleid"]).(float64))
 		return i

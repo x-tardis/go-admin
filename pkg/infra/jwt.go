@@ -2,8 +2,6 @@ package infra
 
 import "time"
 
-const JwtPayloadKey = "JWT_PAYLOAD"
-
 // Jwt 配置信息
 type JWT struct {
 	Realm      string        `yaml:"realm" json:"realm"`

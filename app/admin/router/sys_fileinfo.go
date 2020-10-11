@@ -8,9 +8,7 @@ import (
 
 // 无需认证的路由代码
 func registerSysFileInfoRouter(v1 *gin.RouterGroup) {
-
 	v1.GET("/sysfileinfoList", sysfileinfo.GetSysFileInfoList)
-
 	r := v1.Group("/sysfileinfo")
 	{
 		r.GET("/:id", sysfileinfo.GetSysFileInfo)
@@ -22,9 +20,7 @@ func registerSysFileInfoRouter(v1 *gin.RouterGroup) {
 
 // 无需认证的路由代码
 func registerSysFileDirRouter(v1 *gin.RouterGroup) {
-
 	v1.GET("/sysfiledirList", sysfiledir.GetSysFileDirList)
-
 	r := v1.Group("/sysfiledir")
 	{
 		r.GET("/:id", sysfiledir.GetSysFileDir)

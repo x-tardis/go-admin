@@ -18,7 +18,8 @@ func init() {
 
 // 需认证的路由代码
 func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole(deployed.CasbinEnforcer))
+	r := v1.Group("/sysjob").
+		Use(authMiddleware.MiddlewareFunc(), middleware.AuthCheckRole(deployed.CasbinEnforcer))
 	{
 		sysJob := &models.SysJob{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {

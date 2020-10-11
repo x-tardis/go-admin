@@ -8,15 +8,13 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/tools"
 )
 
 // 权限检查中间件
 func AuthCheckRole(enforcer *casbin.SyncedEnforcer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		data, _ := c.Get(infra.JwtPayloadKey)
-		v := data.(jwt.MapClaims)
+		v := jwt.ExtractClaims(c)
 		// 检查权限
 		res, err := enforcer.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
 		tools.HasError(err, "", 500)

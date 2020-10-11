@@ -53,7 +53,6 @@ func GetLocalHost() string {
 				}
 			}
 		}
-
 	}
 	return ""
 }
