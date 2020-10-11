@@ -65,9 +65,9 @@ func authenticator(c *gin.Context) (interface{}, error) {
 // @Success 200 {string} string "{"code": 200, "msg": "成功退出系统" }"
 // @Router /logout [post]
 // @Security Bearer
-func Logout(c *gin.Context) {
+func logoutResponse(c *gin.Context, code int) {
 	LoginLogRecord(c, "0", "退出成功", tools.GetUserName(c))
-	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "msg": "退出成功"})
+	c.JSON(http.StatusOK, gin.H{"code": code, "msg": "退出成功"})
 }
 
 // LoginLogRecord Write log to database
@@ -76,7 +76,6 @@ func LoginLogRecord(c *gin.Context, status string, msg string, username string) 
 		ua := user_agent.New(c.Request.UserAgent())
 		browserName, browserVersion := ua.Browser()
 		location := tools.GetLocation(c.ClientIP())
-
 		loginLog := models.LoginLog{
 			Ipaddr:        c.ClientIP(),
 			Username:      username,
