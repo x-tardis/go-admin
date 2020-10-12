@@ -2,8 +2,8 @@ package models
 
 import (
 	"fmt"
-	"strconv"
 
+	"github.com/spf13/cast"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -221,7 +221,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 }
 
 func (rm *RoleMenu) Delete(RoleId string, MenuID string) (bool, error) {
-	rm.RoleId, _ = strconv.Atoi(RoleId)
+	rm.RoleId = cast.ToInt(RoleId)
 	table := deployed.DB.Table("sys_role_menu").Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		table = table.Where("menu_id = ?", MenuID)

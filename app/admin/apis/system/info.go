@@ -11,7 +11,7 @@ import (
 
 func GetInfo(c *gin.Context) {
 	var roles = make([]string, 1)
-	roles[0] = jwtauth.RoleName(c)
+	roles[0] = jwtauth.RoleKey(c)
 
 	var permissions = make([]string, 1)
 	permissions[0] = "*:*:*"
@@ -24,7 +24,7 @@ func GetInfo(c *gin.Context) {
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
-	if jwtauth.RoleName(c) == "admin" || jwtauth.RoleName(c) == "系统管理员" {
+	if jwtauth.RoleKey(c) == "admin" || jwtauth.RoleKey(c) == "系统管理员" {
 		mp["permissions"] = permissions
 		mp["buttons"] = buttons
 	} else {

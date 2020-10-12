@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -42,7 +43,7 @@ func GetDictDataList(c *gin.Context) {
 	data.Status = c.Request.FormValue("status")
 	data.DictType = c.Request.FormValue("dictType")
 	id := c.Request.FormValue("dictCode")
-	data.DictCode, _ = strconv.Atoi(id)
+	data.DictCode = cast.ToInt(id)
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
@@ -65,7 +66,7 @@ func GetDictDataList(c *gin.Context) {
 func GetDictData(c *gin.Context) {
 	var DictData models.DictData
 	DictData.DictLabel = c.Request.FormValue("dictLabel")
-	DictData.DictCode, _ = strconv.Atoi(c.Param("dictCode"))
+	DictData.DictCode = cast.ToInt(c.Param("dictCode"))
 	result, err := DictData.GetByCode()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	servers.Success(c, servers.WithData(result))

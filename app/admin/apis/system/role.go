@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -64,7 +65,7 @@ func GetRoleList(c *gin.Context) {
 // @Security Bearer
 func GetRole(c *gin.Context) {
 	var Role models.SysRole
-	Role.RoleId, _ = strconv.Atoi(c.Param("roleId"))
+	Role.RoleId = cast.ToInt(c.Param("roleId"))
 	result, err := Role.Get()
 	menuIds := make([]int, 0)
 	menuIds, err = Role.GetRoleMeunId()

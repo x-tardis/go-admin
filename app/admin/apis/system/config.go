@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -63,7 +64,7 @@ func GetConfigList(c *gin.Context) {
 // @Security Bearer
 func GetConfig(c *gin.Context) {
 	var Config models.SysConfig
-	Config.ConfigId, _ = strconv.Atoi(c.Param("configId"))
+	Config.ConfigId = cast.ToInt(c.Param("configId"))
 	result, err := Config.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 

@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"strconv"
 	_ "time"
 
 	"github.com/spf13/cast"
@@ -122,7 +121,7 @@ func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
 	if bl {
 		// 数据权限控制
 		dataPermission := new(DataPermission)
-		dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
+		dataPermission.UserId = cast.ToInt(e.DataScope)
 		tableper, err := dataPermission.GetDataScope("sys_dept", table)
 		if err != nil {
 			return nil, err

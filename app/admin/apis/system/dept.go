@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -27,7 +28,7 @@ func GetDeptList(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
-	Dept.DeptId, _ = strconv.Atoi(c.Request.FormValue("deptId"))
+	Dept.DeptId = cast.ToInt(c.Request.FormValue("deptId"))
 	Dept.DataScope = jwtauth.UserIdStr(c)
 	result, err := Dept.SetDept(true)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
@@ -38,7 +39,7 @@ func GetDeptTree(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
-	Dept.DeptId, _ = strconv.Atoi(c.Request.FormValue("deptId"))
+	Dept.DeptId = cast.ToInt(c.Request.FormValue("deptId"))
 	result, err := Dept.SetDept(false)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	servers.OKWithRequestID(c, result, "")
@@ -54,7 +55,7 @@ func GetDeptTree(c *gin.Context) {
 // @Security Bearer
 func GetDept(c *gin.Context) {
 	var Dept models.SysDept
-	Dept.DeptId, _ = strconv.Atoi(c.Param("deptId"))
+	Dept.DeptId = cast.ToInt(c.Param("deptId"))
 	Dept.DataScope = jwtauth.UserIdStr(c)
 	result, err := Dept.Get()
 	tools.HasError(err, codes.NotFound, 404)

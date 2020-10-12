@@ -7,7 +7,6 @@ import (
 )
 
 func InitData(db *gorm.DB) {
-
 	list := []models.CasbinRule{
 		{"p", "admin", "/api/v1/menulist", "GET", "", "", ""},
 		{"p", "admin", "/api/v1/menu", "POST", "", "", ""},

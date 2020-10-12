@@ -2,7 +2,8 @@ package models
 
 import (
 	"errors"
-	"strconv"
+
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -113,7 +114,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
+	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_dict_data", table)
 	if err != nil {
 		return nil, 0, err

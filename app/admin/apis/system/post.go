@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -37,7 +38,7 @@ func GetPostList(c *gin.Context) {
 	}
 
 	id := c.Request.FormValue("postId")
-	data.PostId, _ = strconv.Atoi(id)
+	data.PostId = cast.ToInt(id)
 
 	data.PostCode = c.Request.FormValue("postCode")
 	data.PostName = c.Request.FormValue("postName")
@@ -63,7 +64,7 @@ func GetPostList(c *gin.Context) {
 // @Security Bearer
 func GetPost(c *gin.Context) {
 	var Post models.Post
-	Post.PostId, _ = strconv.Atoi(c.Param("postId"))
+	Post.PostId = cast.ToInt(c.Param("postId"))
 	result, err := Post.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	servers.OKWithRequestID(c, result, "")

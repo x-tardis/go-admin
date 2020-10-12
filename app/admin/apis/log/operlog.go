@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -63,7 +64,7 @@ func GetOperLogList(c *gin.Context) {
 // @Security Bearer
 func GetOperLog(c *gin.Context) {
 	var OperLog models.SysOperLog
-	OperLog.OperId, _ = strconv.Atoi(c.Param("operId"))
+	OperLog.OperId = cast.ToInt(c.Param("operId"))
 	result, err := OperLog.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	servers.Success(c, servers.WithData(result))

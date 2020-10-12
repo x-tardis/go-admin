@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -45,7 +46,7 @@ func GetSysContentList(c *gin.Context) {
 
 func GetSysContent(c *gin.Context) {
 	var data models.SysContent
-	data.Id, _ = strconv.Atoi(c.Param("id"))
+	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 

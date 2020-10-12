@@ -56,6 +56,13 @@ func UserName(c *gin.Context) string {
 
 func RoleName(c *gin.Context) string {
 	if data, ok := Identity(c); ok {
+		return data.RoleName
+	}
+	return ""
+}
+
+func RoleKey(c *gin.Context) string {
+	if data, ok := Identity(c); ok {
 		return data.RoleKey
 	}
 	return ""

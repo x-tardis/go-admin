@@ -2,8 +2,8 @@ package models
 
 import (
 	"errors"
-	"strconv"
 
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -99,7 +99,7 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
+	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_dict_type", table)
 	if err != nil {
 		return nil, 0, err

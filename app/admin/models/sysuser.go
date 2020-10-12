@@ -3,7 +3,6 @@ package models
 import (
 	"errors"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -219,7 +218,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
+	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope(e.TableName(), table)
 	if err != nil {
 		return nil, 0, err

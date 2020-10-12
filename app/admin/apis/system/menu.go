@@ -158,7 +158,7 @@ func DeleteMenu(c *gin.Context) {
 // @Security Bearer
 func GetMenuRole(c *gin.Context) {
 	var Menu models.Menu
-	result, err := Menu.SetMenuRole(jwtauth.RoleName(c))
+	result, err := Menu.SetMenuRole(jwtauth.RoleKey(c))
 	tools.HasError(err, "获取失败", 500)
 	servers.OKWithRequestID(c, result, "")
 }
@@ -173,7 +173,7 @@ func GetMenuRole(c *gin.Context) {
 // @Security Bearer
 func GetMenuIDS(c *gin.Context) {
 	var data models.RoleMenu
-	data.RoleName = c.GetString("role")
+	data.RoleName = jwtauth.RoleName(c)
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.GetIDS()
 	tools.HasError(err, "获取失败", 500)

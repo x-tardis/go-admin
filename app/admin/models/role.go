@@ -1,9 +1,8 @@
 package models
 
 import (
-	"strconv"
-
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -59,7 +58,7 @@ func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = strconv.Atoi(role.DataScope)
+	dataPermission.UserId = cast.ToInt(role.DataScope)
 	table, err := dataPermission.GetDataScope("sys_role", table)
 	if err != nil {
 		return nil, 0, err

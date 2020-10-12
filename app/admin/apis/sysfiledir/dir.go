@@ -1,10 +1,9 @@
 package sysfiledir
 
 import (
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -16,8 +15,8 @@ import (
 func GetSysFileDirList(c *gin.Context) {
 	var SysFileDir models.SysFileDir
 	SysFileDir.Label = c.Request.FormValue("label")
-	SysFileDir.PId, _ = strconv.Atoi(c.Request.FormValue("pid"))
-	SysFileDir.Id, _ = strconv.Atoi(c.Request.FormValue("id"))
+	SysFileDir.PId = cast.ToInt(c.Request.FormValue("pid"))
+	SysFileDir.Id = cast.ToInt(c.Request.FormValue("id"))
 	SysFileDir.DataScope = jwtauth.UserIdStr(c)
 	result, err := SysFileDir.SetSysFileDir()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
@@ -26,7 +25,7 @@ func GetSysFileDirList(c *gin.Context) {
 
 func GetSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
-	data.Id, _ = strconv.Atoi(c.Param("id"))
+	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 

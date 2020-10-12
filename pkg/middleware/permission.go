@@ -14,7 +14,7 @@ import (
 // 权限检查中间件
 func AuthCheckRole(enforcer *casbin.SyncedEnforcer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		role := jwtauth.RoleName(c)
+		role := jwtauth.RoleKey(c)
 		// 检查权限
 		res, err := enforcer.Enforce(role, c.Request.URL.Path, c.Request.Method)
 		tools.HasError(err, "", 500)

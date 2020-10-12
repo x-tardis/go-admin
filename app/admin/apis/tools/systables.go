@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -57,7 +58,7 @@ func GetSysTableList(c *gin.Context) {
 // @Security Bearer
 func GetSysTables(c *gin.Context) {
 	var data tools.SysTables
-	data.TableId, _ = strconv.Atoi(c.Param("tableId"))
+	data.TableId = cast.ToInt(c.Param("tableId"))
 	result, err := data.Get()
 	tools2.HasError(err, "抱歉未找到相关信息", -1)
 

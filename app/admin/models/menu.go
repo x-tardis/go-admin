@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"strconv"
 
 	"github.com/spf13/cast"
 
@@ -264,7 +263,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
+	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err = dataPermission.GetDataScope("sys_menu", table)
 	if err != nil {
 		return nil, err

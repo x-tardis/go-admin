@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -45,10 +46,10 @@ func GetSysUserList(c *gin.Context) {
 	data.Phone = c.Request.FormValue("phone")
 
 	postId := c.Request.FormValue("postId")
-	data.PostId, _ = strconv.Atoi(postId)
+	data.PostId = cast.ToInt(postId)
 
 	deptId := c.Request.FormValue("deptId")
-	data.DeptId, _ = strconv.Atoi(deptId)
+	data.DeptId = cast.ToInt(deptId)
 
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
@@ -71,7 +72,7 @@ func GetSysUserList(c *gin.Context) {
 // @Security Bearer
 func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
-	SysUser.UserId, _ = strconv.Atoi(c.Param("userId"))
+	SysUser.UserId = cast.ToInt(c.Param("userId"))
 	result, err := SysUser.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
@@ -103,7 +104,7 @@ func GetSysUser(c *gin.Context) {
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
 	userId := jwtauth.UserIdStr(c)
-	SysUser.UserId, _ = strconv.Atoi(userId)
+	SysUser.UserId = cast.ToInt(userId)
 	result, err := SysUser.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole

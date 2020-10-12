@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"strconv"
 	_ "time"
+
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -81,7 +82,7 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = strconv.Atoi(e.DataScope)
+	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_config", table)
 	if err != nil {
 		return nil, 0, err
