@@ -10,7 +10,6 @@ import (
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	tools2 "github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 分页列表数据 / page list data
@@ -41,7 +40,10 @@ func GetDBTableList(c *gin.Context) {
 
 	data.TableName = c.Request.FormValue("tableName")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,

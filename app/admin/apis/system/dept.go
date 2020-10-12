@@ -5,14 +5,12 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 分页部门列表数据
@@ -26,12 +24,16 @@ import (
 // @Security Bearer
 func GetDeptList(c *gin.Context) {
 	var Dept models.SysDept
+
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
 	Dept.DeptId = cast.ToInt(c.Request.FormValue("deptId"))
 	Dept.DataScope = jwtauth.UserIdStr(c)
 	result, err := Dept.SetDept(true)
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -41,7 +43,10 @@ func GetDeptTree(c *gin.Context) {
 	Dept.Status = c.Request.FormValue("status")
 	Dept.DeptId = cast.ToInt(c.Request.FormValue("deptId"))
 	result, err := Dept.SetDept(false)
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -58,7 +63,10 @@ func GetDept(c *gin.Context) {
 	Dept.DeptId = cast.ToInt(c.Param("deptId"))
 	Dept.DataScope = jwtauth.UserIdStr(c)
 	result, err := Dept.Get()
-	tools.HasError(err, codes.NotFound, 404)
+	if err != nil {
+		servers.Fail(c, 404, codes.NotFound)
+		return
+	}
 	servers.OKWithRequestID(c, result, codes.GetSuccess)
 }
 
@@ -74,11 +82,18 @@ func GetDept(c *gin.Context) {
 // @Security Bearer
 func InsertDept(c *gin.Context) {
 	var data models.SysDept
-	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "", 500)
+
+	err := c.BindJSON(&data)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, codes.CreatedSuccess)
 }
 
@@ -96,10 +111,16 @@ func InsertDept(c *gin.Context) {
 func UpdateDept(c *gin.Context) {
 	var data models.SysDept
 	err := c.BindJSON(&data)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.DeptId)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
 }
 
@@ -114,7 +135,10 @@ func DeleteDept(c *gin.Context) {
 	var data models.SysDept
 	id, err := strconv.Atoi(c.Param("id"))
 	_, err = data.Delete(id)
-	tools.HasError(err, "删除失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, "删除失败")
+		return
+	}
 	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
 }
 
@@ -124,11 +148,17 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("roleId"))
 	SysRole.RoleId = id
 	result, err := Dept.SetDeptLable()
-	tools.HasError(err, codes.NotFound, -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFound)
+		return
+	}
 	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = SysRole.GetRoleDeptId()
-		tools.HasError(err, "抱歉未找到相关信息", -1)
+		if err != nil {
+			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+			return
+		}
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code":        200,

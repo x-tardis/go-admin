@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	tools2 "github.com/x-tardis/go-admin/tools"
@@ -38,8 +39,10 @@ func GetSysTableList(c *gin.Context) {
 	data.TBName = c.Request.FormValue("tableName")
 	data.TableComment = c.Request.FormValue("tableComment")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools2.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
 	mp["count"] = count
@@ -60,7 +63,10 @@ func GetSysTables(c *gin.Context) {
 	var data tools.SysTables
 	data.TableId = cast.ToInt(c.Param("tableId"))
 	result, err := data.Get()
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
@@ -74,8 +80,10 @@ func GetSysTablesInfo(c *gin.Context) {
 		data.TBName = c.Request.FormValue("tableName")
 	}
 	result, err := data.Get()
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
@@ -85,8 +93,10 @@ func GetSysTablesInfo(c *gin.Context) {
 func GetSysTablesTree(c *gin.Context) {
 	var data tools.SysTables
 	result, err := data.GetTree()
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -101,14 +111,18 @@ func GetSysTablesTree(c *gin.Context) {
 // @Router /api/v1/sys/tables/info [post]
 // @Security Bearer
 func InsertSysTable(c *gin.Context) {
-
 	tablesList := strings.Split(c.Request.FormValue("tables"), ",")
 	for i := 0; i < len(tablesList); i++ {
-
 		data, err := genTableInit(tablesList, i, c)
-
+		if err != nil {
+			servers.Fail(c, -1, err.Error())
+			return
+		}
 		_, err = data.Create()
-		tools2.HasError(err, "", -1)
+		if err != nil {
+			servers.Fail(c, -1, err.Error())
+			return
+		}
 	}
 	servers.Success(c, servers.WithMessage("添加成功"))
 }
@@ -122,7 +136,9 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get()
-
+	if err != nil {
+		return tools.SysTables{}, err
+	}
 	dbColumn.TableName = data.TBName
 	tablenamelist := strings.Split(dbColumn.TableName, "_")
 	for i := 0; i < len(tablenamelist); i++ {
@@ -137,6 +153,9 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList()
+	if err != nil {
+		return tools.SysTables{}, err
+	}
 	data.CreateBy = jwtauth.UserIdStr(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
@@ -228,12 +247,18 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 func UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
-	tools2.HasError(err, "数据解析失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DataParseFailed)
+		return
+	}
+
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update()
-	tools2.HasError(err, "", -1)
-
-	servers.Success(c, servers.WithData(result), servers.WithMessage("修改成功"))
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
+	servers.Success(c, servers.WithData(result), servers.WithMessage(codes.UpdatedSuccess))
 }
 
 // @Summary 删除表结构
@@ -247,6 +272,9 @@ func DeleteSysTables(c *gin.Context) {
 	var data tools.SysTables
 	IDS := tools2.IdsStrToIdsIntGroup(c.Param("tableId"))
 	_, err := data.BatchDelete(IDS)
-	tools2.HasError(err, "删除失败", 500)
-	servers.Success(c, servers.WithMessage("删除成功"))
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
+	servers.Success(c, servers.WithMessage(codes.DeletedSuccess))
 }

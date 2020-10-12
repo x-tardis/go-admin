@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type DBTables struct {
@@ -36,7 +35,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 			return nil, 0, err
 		}
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
+		return nil, 0, errors.New("目前只支持mysql数据库")
 	}
 
 	//table.Count(&count)
@@ -54,7 +53,7 @@ func (e *DBTables) Get() (DBTables, error) {
 		}
 		table = table.Where("TABLE_NAME = ?", e.TableName)
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
+		return DBTables{}, errors.New("目前只支持mysql数据库")
 	}
 	if err := table.First(&doc).Error; err != nil {
 		return doc, err

@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary Menu列表数据
@@ -28,8 +28,10 @@ func GetMenuList(c *gin.Context) {
 	Menu.Title = c.Request.FormValue("title")
 	Menu.DataScope = jwtauth.UserIdStr(c)
 	result, err := Menu.SetMenu()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -46,7 +48,10 @@ func GetMenu(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	data.MenuId = id
 	result, err := data.GetByMenuId()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -56,11 +61,17 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("roleId"))
 	SysRole.RoleId = id
 	result, err := Menu.SetMenuLable()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = SysRole.GetRoleMeunId()
-		tools.HasError(err, "抱歉未找到相关信息", -1)
+		if err != nil {
+			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+			return
+		}
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code":        200,
@@ -81,7 +92,10 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 func GetMenuTreeelect(c *gin.Context) {
 	var data models.Menu
 	result, err := data.SetMenuLable()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -103,10 +117,16 @@ func GetMenuTreeelect(c *gin.Context) {
 func InsertMenu(c *gin.Context) {
 	var data models.Menu
 	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -123,11 +143,18 @@ func InsertMenu(c *gin.Context) {
 // @Security Bearer
 func UpdateMenu(c *gin.Context) {
 	var data models.Menu
-	err2 := c.BindWith(&data, binding.JSON)
+
+	err := c.BindJSON(&data)
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err2, "修改失败", -1)
-	_, err := data.Update(data.MenuId)
-	tools.HasError(err, "", 501)
+	if err != nil {
+		servers.Fail(c, -1, codes.UpdatedFail)
+		return
+	}
+	_, err = data.Update(data.MenuId)
+	if err != nil {
+		servers.Fail(c, 501, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, "", "修改成功")
 
 }
@@ -144,7 +171,10 @@ func DeleteMenu(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	_, err = data.Delete(id)
-	tools.HasError(err, "删除失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
 	servers.OKWithRequestID(c, "", "删除成功")
 }
 
@@ -159,7 +189,10 @@ func DeleteMenu(c *gin.Context) {
 func GetMenuRole(c *gin.Context) {
 	var Menu models.Menu
 	result, err := Menu.SetMenuRole(jwtauth.RoleKey(c))
-	tools.HasError(err, "获取失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.GetFail)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -176,6 +209,9 @@ func GetMenuIDS(c *gin.Context) {
 	data.RoleName = jwtauth.RoleName(c)
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.GetIDS()
-	tools.HasError(err, "获取失败", 500)
-	servers.OKWithRequestID(c, result, "")
+	if err != nil {
+		servers.Fail(c, 500, codes.GetFail)
+		return
+	}
+	servers.OKWithRequestID(c, result, codes.GetSuccess)
 }

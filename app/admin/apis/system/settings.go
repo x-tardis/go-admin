@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 查询系统信息
@@ -20,16 +20,18 @@ import (
 // @Router /api/v1/setting [get]
 func GetSetting(c *gin.Context) {
 	var s models.SysSetting
-	r, e := s.Get()
 
+	r, err := s.Get()
+	if err != nil {
+		servers.Fail(c, 500, codes.GetFail)
+		return
+	}
 	if r.Logo != "" {
 		if !strings.HasPrefix(r.Logo, "http") {
 			r.Logo = fmt.Sprintf("http://%s/%s", c.Request.Host, r.Logo)
 		}
 	}
-
-	tools.HasError(e, "查询失败", 500)
-	servers.OKWithRequestID(c, r, "查询成功")
+	servers.OKWithRequestID(c, r, codes.GetSuccess)
 }
 
 // @Summary 更新或提交系统信息

@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -45,8 +44,10 @@ func GetOperLogList(c *gin.Context) {
 	data.Status = c.Request.FormValue("status")
 	data.OperIp = c.Request.FormValue("operIp")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
 		Count:     count,
@@ -66,7 +67,10 @@ func GetOperLog(c *gin.Context) {
 	var OperLog models.SysOperLog
 	OperLog.OperId = cast.ToInt(c.Param("operId"))
 	result, err := OperLog.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, "抱歉未找到相关信息")
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -82,10 +86,17 @@ func GetOperLog(c *gin.Context) {
 // @Security Bearer
 func InsertOperLog(c *gin.Context) {
 	var data models.SysOperLog
-	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "", 500)
+
+	err := c.BindJSON(&data)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -101,6 +112,9 @@ func DeleteOperLog(c *gin.Context) {
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("operId"))
 	_, err := data.BatchDelete(IDS)
-	tools.HasError(err, "删除失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, "删除失败")
+		return
+	}
 	servers.Success(c, servers.WithMessage("删除成功"))
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	tools2 "github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 分页列表数据 / page list data
@@ -34,10 +33,15 @@ func GetDBColumnList(c *gin.Context) {
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
-	tools2.Assert(data.TableName == "", "table name cannot be empty！", 500)
+	if data.TableName == "" {
+		servers.Fail(c, 500, "table name cannot be empty")
+		return
+	}
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools2.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
 		Count:     count,

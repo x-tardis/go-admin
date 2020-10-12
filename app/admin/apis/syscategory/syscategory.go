@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -33,8 +32,10 @@ func GetSysCategoryList(c *gin.Context) {
 
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
 		Count:     count,
@@ -47,8 +48,10 @@ func GetSysCategory(c *gin.Context) {
 	var data models.SysCategory
 	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, "抱歉未找到相关信息")
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -65,20 +68,32 @@ func InsertSysCategory(c *gin.Context) {
 	var data models.SysCategory
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", 500)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
 func UpdateSysCategory(c *gin.Context) {
 	var data models.SysCategory
-	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "数据解析失败", -1)
+
+	err := c.BindJSON(&data)
+	if err != nil {
+		servers.Fail(c, -1, "数据解析失败")
+		return
+	}
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -88,6 +103,9 @@ func DeleteSysCategory(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
-	tools.HasError(err, codes.DeletedFail, 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
 	servers.OKWithRequestID(c, nil, codes.DeletedSuccess)
 }

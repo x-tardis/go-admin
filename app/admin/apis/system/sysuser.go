@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
@@ -53,8 +54,10 @@ func GetSysUserList(c *gin.Context) {
 
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
 		Count:     count,
@@ -74,7 +77,10 @@ func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
 	SysUser.UserId = cast.ToInt(c.Param("userId"))
 	result, err := SysUser.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	var SysRole models.SysRole
 	var Post models.Post
 	roles, err := SysRole.GetList()
@@ -106,7 +112,10 @@ func GetSysUserProfile(c *gin.Context) {
 	userId := jwtauth.UserIdStr(c)
 	SysUser.UserId = cast.ToInt(userId)
 	result, err := SysUser.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	var SysRole models.SysRole
 	var Post models.Post
 	var Dept models.SysDept
@@ -146,7 +155,10 @@ func GetSysUserInit(c *gin.Context) {
 	var Post models.Post
 	roles, err := SysRole.GetList()
 	posts, err := Post.GetList()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	mp := make(map[string]interface{}, 2)
 	mp["roles"] = roles
 	mp["posts"] = posts
@@ -165,12 +177,18 @@ func GetSysUserInit(c *gin.Context) {
 func InsertSysUser(c *gin.Context) {
 	var sysuser models.SysUser
 	err := c.BindWith(&sysuser, binding.JSON)
-	tools.HasError(err, "非法数据格式", 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DataParseFailed)
+		return
+	}
 
 	sysuser.CreateBy = jwtauth.UserIdStr(c)
 	id, err := sysuser.Insert()
-	tools.HasError(err, "添加失败", 500)
-	servers.OKWithRequestID(c, id, "添加成功")
+	if err != nil {
+		servers.Fail(c, 500, codes.CreatedFail)
+		return
+	}
+	servers.OKWithRequestID(c, id, codes.CreatedSuccess)
 }
 
 // @Summary 修改用户数据
@@ -185,11 +203,17 @@ func InsertSysUser(c *gin.Context) {
 func UpdateSysUser(c *gin.Context) {
 	var data models.SysUser
 	err := c.Bind(&data)
-	tools.HasError(err, "数据解析失败", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.UserId)
-	tools.HasError(err, "修改失败", 500)
-	servers.OKWithRequestID(c, result, "修改成功")
+	if err != nil {
+		servers.Fail(c, -1, codes.UpdatedFail)
+		return
+	}
+	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
 }
 
 // @Summary 删除用户数据
@@ -204,8 +228,11 @@ func DeleteSysUser(c *gin.Context) {
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("userId"))
 	result, err := data.BatchDelete(IDS)
-	tools.HasError(err, "删除失败", 500)
-	servers.OKWithRequestID(c, result, "删除成功")
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
+	servers.OKWithRequestID(c, result, codes.DeletedSuccess)
 }
 
 // @Summary 修改头像
@@ -231,13 +258,16 @@ func InsetSysUserAvatar(c *gin.Context) {
 	sysuser.Avatar = "/" + filPath
 	sysuser.UpdateBy = jwtauth.UserIdStr(c)
 	sysuser.Update(sysuser.UserId)
-	servers.OKWithRequestID(c, filPath, "修改成功")
+	servers.OKWithRequestID(c, filPath, codes.UpdatedSuccess)
 }
 
 func SysUserUpdatePwd(c *gin.Context) {
 	var pwd models.SysUserPwd
 	err := c.Bind(&pwd)
-	tools.HasError(err, "数据解析失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.UpdatedFail)
+		return
+	}
 	sysuser := models.SysUser{}
 	sysuser.UserId = jwtauth.UserId(c)
 	sysuser.SetPwd(pwd)

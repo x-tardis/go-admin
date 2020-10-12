@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -46,7 +47,10 @@ func GetPostList(c *gin.Context) {
 
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
 		Count:     count,
@@ -66,7 +70,10 @@ func GetPost(c *gin.Context) {
 	var Post models.Post
 	Post.PostId = cast.ToInt(c.Param("postId"))
 	result, err := Post.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -84,9 +91,15 @@ func InsertPost(c *gin.Context) {
 	var data models.Post
 	err := c.Bind(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", 500)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -105,10 +118,16 @@ func UpdatePost(c *gin.Context) {
 
 	err := c.Bind(&data)
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	result, err := data.Update(data.PostId)
-	tools.HasError(err, "", -1)
-	servers.OKWithRequestID(c, result, "修改成功")
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
+	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
 }
 
 // @Summary 删除岗位
@@ -123,6 +142,9 @@ func DeletePost(c *gin.Context) {
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("postId"))
 	result, err := data.BatchDelete(IDS)
-	tools.HasError(err, "删除失败", 500)
-	servers.OKWithRequestID(c, result, "删除成功")
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
+	servers.OKWithRequestID(c, result, codes.DeletedSuccess)
 }

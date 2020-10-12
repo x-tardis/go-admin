@@ -59,6 +59,10 @@ func OKWithRequestID(c *gin.Context, data interface{}, msg string) {
 	Success(c, WithData(data), WithMessage(msg), WithRequestId(tools.GenerateMsgIDFromContext(c)))
 }
 
+func Fail(c *gin.Context, code int, msg string) {
+	Success(c, WithCode(code), WithMessage(msg))
+}
+
 // 失败数据处理
 func FailWithRequestID(c *gin.Context, code int, msg string) {
 	Success(c, WithCode(code), WithMessage(msg))

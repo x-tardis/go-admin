@@ -2,14 +2,12 @@ package models
 
 import (
 	"errors"
-	"log"
 	"strings"
 
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // User
@@ -297,23 +295,24 @@ func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
 	return
 }
 
-func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
+func (e *SysUser) SetPwd(pwd SysUserPwd) (bool, error) {
 	user, err := e.GetUserInfo()
 	if err != nil {
-		tools.HasError(err, "获取用户数据失败(代码202)", 500)
+		return false, errors.New("获取用户数据失败(代码202)")
 	}
 	err = deployed.Verify.Compare(pwd.OldPassword, "", user.Password)
 	if err != nil {
 		if strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
-			tools.HasError(err, "密码错误(代码202)", 500)
+			return false, errors.New("密码错误(代码202)")
 		}
-		log.Print(err)
-		return
+		return false, err
 	}
 	e.Password = pwd.NewPassword
 	_, err = e.Update(e.UserId)
-	tools.HasError(err, "更新密码失败(代码202)", 500)
-	return
+	if err != nil {
+		return false, errors.New("更新密码失败(代码202)")
+	}
+	return true, nil
 }
 
 func (e *SysUser) GetByUserId(tx *gorm.DB, id interface{}) error {

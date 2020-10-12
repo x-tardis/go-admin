@@ -34,7 +34,10 @@ func GetSysContentList(c *gin.Context) {
 
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
@@ -48,8 +51,10 @@ func GetSysContent(c *gin.Context) {
 	var data models.SysContent
 	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, "抱歉未找到相关信息")
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -66,20 +71,32 @@ func InsertSysContent(c *gin.Context) {
 	var data models.SysContent
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", 500)
+
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
 func UpdateSysContent(c *gin.Context) {
 	var data models.SysContent
 	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "数据解析失败", -1)
+	if err != nil {
+		servers.Fail(c, -1, "数据解析失败")
+		return
+	}
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -89,6 +106,9 @@ func DeleteSysContent(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
-	tools.HasError(err, codes.DeletedFail, 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
 	servers.OKWithRequestID(c, nil, codes.DeletedSuccess)
 }

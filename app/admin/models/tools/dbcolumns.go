@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type DBColumns struct {
@@ -62,7 +61,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 
 		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
+		return nil, errors.New("目前只支持mysql数据库")
 	}
 	if err := table.Find(&doc).Error; err != nil {
 		return doc, err

@@ -44,8 +44,10 @@ func GetLoginLogList(c *gin.Context) {
 	data.Status = c.Request.FormValue("status")
 	data.Ipaddr = c.Request.FormValue("ipaddr")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
 		Count:     count,
@@ -65,7 +67,10 @@ func GetLoginLog(c *gin.Context) {
 	var LoginLog models.LoginLog
 	LoginLog.InfoId = cast.ToInt(c.Param("infoId"))
 	result, err := LoginLog.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, "抱歉未找到相关信息")
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -82,9 +87,15 @@ func GetLoginLog(c *gin.Context) {
 func InsertLoginLog(c *gin.Context) {
 	var data models.LoginLog
 	err := c.BindJSON(&data)
-	tools.HasError(err, "", 500)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -101,9 +112,15 @@ func InsertLoginLog(c *gin.Context) {
 func UpdateLoginLog(c *gin.Context) {
 	var data models.LoginLog
 	err := c.BindJSON(&data)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	result, err := data.Update(data.InfoId)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -119,6 +136,9 @@ func DeleteLoginLog(c *gin.Context) {
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("infoId"))
 	_, err := data.BatchDelete(IDS)
-	tools.HasError(err, "修改失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, "修改失败")
+		return
+	}
 	servers.Success(c, servers.WithMessage("删除成功"))
 }

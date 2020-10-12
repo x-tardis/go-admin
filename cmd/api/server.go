@@ -109,12 +109,12 @@ func run(cmd *cobra.Command, args []string) error {
 	fmt.Println(textcolor.Green("Swagger run at:"))
 	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", deployed.ApplicationConfig.Port)
 	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocalHost(), deployed.ApplicationConfig.Port)
-	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrentTimeStr())
+	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.CurrentTime())
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	fmt.Printf("%s Shutdown Server ... \r\n", tools.GetCurrentTimeStr())
+	fmt.Printf("%s Shutdown Server ... \r\n", tools.CurrentTime())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

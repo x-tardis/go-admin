@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -17,10 +18,13 @@ func AuthCheckRole(enforcer *casbin.SyncedEnforcer) gin.HandlerFunc {
 		role := jwtauth.RoleKey(c)
 		// 检查权限
 		res, err := enforcer.Enforce(role, c.Request.URL.Path, c.Request.Method)
-		tools.HasError(err, "", 500)
+		if err != nil {
+			servers.Fail(c, 500, err.Error())
+			return
+		}
 
 		fmt.Printf("%s [INFO] %s %s %s \r\n",
-			tools.GetCurrentTimeStr(),
+			tools.CurrentTime(),
 			c.Request.Method,
 			c.Request.URL.Path,
 			role,

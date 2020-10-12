@@ -19,7 +19,10 @@ func GetSysFileDirList(c *gin.Context) {
 	SysFileDir.Id = cast.ToInt(c.Request.FormValue("id"))
 	SysFileDir.DataScope = jwtauth.UserIdStr(c)
 	result, err := SysFileDir.SetSysFileDir()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, "抱歉未找到相关信息")
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -27,8 +30,10 @@ func GetSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, "抱歉未找到相关信息")
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -45,20 +50,32 @@ func InsertSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", 500)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
 func UpdateSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
+
 	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "数据解析失败", -1)
+	if err != nil {
+		servers.Fail(c, -1, "数据解析失败")
+		return
+	}
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -68,6 +85,9 @@ func DeleteSysFileDir(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
-	tools.HasError(err, codes.DeletedFail, 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
 	servers.OKWithRequestID(c, nil, codes.DeletedSuccess)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
@@ -45,7 +46,10 @@ func GetRoleList(c *gin.Context) {
 	data.Status = c.Request.FormValue("status")
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
@@ -69,7 +73,10 @@ func GetRole(c *gin.Context) {
 	result, err := Role.Get()
 	menuIds := make([]int, 0)
 	menuIds, err = Role.GetRoleMeunId()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	result.MenuIds = menuIds
 	servers.OKWithRequestID(c, result, "")
 
@@ -88,21 +95,33 @@ func InsertRole(c *gin.Context) {
 	var data models.SysRole
 	data.CreateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
-	tools.HasError(err, "数据解析失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DataParseFailed)
+		return
+	}
 	id, err := data.Insert()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	data.RoleId = id
 
 	var t models.RoleMenu
 	if len(data.MenuIds) > 0 {
 		_, err = t.Insert(id, data.MenuIds)
-		tools.HasError(err, "", -1)
+		if err != nil {
+			servers.Fail(c, -1, err.Error())
+			return
+		}
 	}
 
 	err = deployed.CasbinEnforcer.LoadPolicy()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 
-	servers.OKWithRequestID(c, data, "添加成功")
+	servers.OKWithRequestID(c, data, codes.CreatedSuccess)
 }
 
 // @Summary 修改用户角色
@@ -118,20 +137,34 @@ func UpdateRole(c *gin.Context) {
 	var data models.SysRole
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
-	tools.HasError(err, "数据解析失败", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
 	result, err := data.Update(data.RoleId)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(data.RoleId)
-	tools.HasError(err, "修改失败（delete rm）", -1)
+	if err != nil {
+		servers.Fail(c, -1, "修改失败（delete rm）")
+		return
+	}
 	if len(data.MenuIds) > 0 {
-		_, err2 := t.Insert(data.RoleId, data.MenuIds)
-		tools.HasError(err2, "修改失败（insert）", -1)
+		_, err := t.Insert(data.RoleId, data.MenuIds)
+		if err != nil {
+			servers.Fail(c, -1, "修改失败（insert）")
+			return
+		}
 	}
 
 	err = deployed.CasbinEnforcer.LoadPolicy()
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "修改成功")
 }
 
@@ -139,17 +172,26 @@ func UpdateRoleDataScope(c *gin.Context) {
 	var data models.SysRole
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
-	tools.HasError(err, "数据解析失败", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
 	result, err := data.Update(data.RoleId)
 
 	var t models.SysRoleDept
 	_, err = t.DeleteRoleDept(data.RoleId)
-	tools.HasError(err, "添加失败1", -1)
-	if data.DataScope == "2" {
-		_, err2 := t.Insert(data.RoleId, data.DeptIds)
-		tools.HasError(err2, "添加失败2", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.CreatedFail)
+		return
 	}
-	servers.OKWithRequestID(c, result, "修改成功")
+	if data.DataScope == "2" {
+		_, err := t.Insert(data.RoleId, data.DeptIds)
+		if err != nil {
+			servers.Fail(c, -1, codes.CreatedFail)
+			return
+		}
+	}
+	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
 }
 
 // @Summary 删除用户角色
@@ -165,10 +207,16 @@ func DeleteRole(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("roleId"))
 	_, err := Role.BatchDelete(IDS)
-	tools.HasError(err, "删除失败", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.DeletedFail)
+		return
+	}
 
 	err = deployed.CasbinEnforcer.LoadPolicy()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 
-	servers.OKWithRequestID(c, "", "删除成功")
+	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
 }

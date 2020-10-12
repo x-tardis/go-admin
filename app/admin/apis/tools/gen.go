@@ -13,26 +13,46 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	tools2 "github.com/x-tardis/go-admin/tools"
 )
 
 func Preview(c *gin.Context) {
 	table := tools.SysTables{}
 	id, err := strconv.Atoi(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	table.TableId = id
 	t1, err := template.ParseFiles("template/v3/model.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	t2, err := template.ParseFiles("template/v3/no_actions/api.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	t3, err := template.ParseFiles("template/v3/js.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	t4, err := template.ParseFiles("template/v3/vue.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	t6, err := template.ParseFiles("template/v3/no_actions/dto.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	tab, _ := table.Get()
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -61,20 +81,26 @@ func Preview(c *gin.Context) {
 func GenCodeV3(c *gin.Context) {
 	table := tools.SysTables{}
 	id, err := strconv.Atoi(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	table.TableId = id
 	tab, _ := table.Get()
 
 	if tab.IsActions == 1 {
-		ActionsGenV3(tab)
+		err = ActionsGenV3(tab)
 	} else {
-		NOActionsGenV3(tab)
+		err = NOActionsGenV3(tab)
 	}
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, "", "Code generated successfully！")
 }
 
-func NOActionsGenV3(tab tools.SysTables) {
+func NOActionsGenV3(tab tools.SysTables) error {
 	basePath := "template/v3/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
 
@@ -83,19 +109,33 @@ func NOActionsGenV3(tab tools.SysTables) {
 	}
 
 	t1, err := template.ParseFiles(basePath + "model.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t2, err := template.ParseFiles(basePath + "no_actions/apis.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t3, err := template.ParseFiles(routerFile)
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -118,10 +158,10 @@ func NOActionsGenV3(tab tools.SysTables) {
 	extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go", b7.Bytes())
-
+	return nil
 }
 
-func ActionsGenV3(tab tools.SysTables) {
+func ActionsGenV3(tab tools.SysTables) error {
 	basePath := "template/v3/"
 	routerFile := basePath + "actions/router_check_role.go.template"
 
@@ -130,15 +170,25 @@ func ActionsGenV3(tab tools.SysTables) {
 	}
 
 	t1, err := template.ParseFiles(basePath + "model.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t3, err := template.ParseFiles(routerFile)
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		return err
+	}
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -156,13 +206,17 @@ func ActionsGenV3(tab tools.SysTables) {
 	extos.WriteFile(deployed.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
 	extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
+	return nil
 }
 
 func GenMenuAndApi(c *gin.Context) {
 	table := tools.SysTables{}
 	timeNow := time.Now()
 	id, err := strconv.Atoi(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	table.TableId = id
 	tab, _ := table.Get()
 	Mmenu := models.Menu{}

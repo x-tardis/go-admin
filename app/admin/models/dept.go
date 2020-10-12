@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type SysDept struct {
@@ -208,12 +207,15 @@ func (e *SysDept) Update(id int) (update SysDept, err error) {
 }
 
 func (e *SysDept) Delete(id int) (success bool, err error) {
-
 	user := SysUser{}
 	user.DeptId = id
 	userlist, err := user.GetList()
-	tools.HasError(err, "", 500)
-	tools.Assert(len(userlist) <= 0, "当前部门存在用户，不能删除！", 500)
+	if err != nil {
+		return false, err
+	}
+	if len(userlist) <= 0 {
+		return false, errors.New("当前部门存在用户，不能删除！")
+	}
 
 	tx := deployed.DB.Begin()
 	defer func() {

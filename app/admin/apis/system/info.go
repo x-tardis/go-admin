@@ -6,7 +6,6 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 func GetInfo(c *gin.Context) {
@@ -36,7 +35,10 @@ func GetInfo(c *gin.Context) {
 	sysuser := models.SysUser{}
 	sysuser.UserId = jwtauth.UserId(c)
 	user, err := sysuser.Get()
-	tools.HasError(err, "", 500)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 
 	mp["introduction"] = " am a super administrator"
 

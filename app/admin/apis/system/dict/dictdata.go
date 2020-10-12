@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -46,7 +47,10 @@ func GetDictDataList(c *gin.Context) {
 	data.DictCode = cast.ToInt(id)
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
@@ -68,7 +72,10 @@ func GetDictData(c *gin.Context) {
 	DictData.DictLabel = c.Request.FormValue("dictLabel")
 	DictData.DictCode = cast.ToInt(c.Param("dictCode"))
 	result, err := DictData.GetByCode()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -83,8 +90,10 @@ func GetDictDataByDictType(c *gin.Context) {
 	var DictData models.DictData
 	DictData.DictType = c.Param("dictType")
 	result, err := DictData.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -102,9 +111,15 @@ func InsertDictData(c *gin.Context) {
 	var data models.DictData
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", 500)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -122,9 +137,15 @@ func UpdateDictData(c *gin.Context) {
 	var data models.DictData
 	err := c.BindWith(&data, binding.JSON)
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	result, err := data.Update(data.DictCode)
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(result))
 }
 
@@ -137,9 +158,13 @@ func UpdateDictData(c *gin.Context) {
 // @Router /api/v1/dict/data/{dictCode} [delete]
 func DeleteDictData(c *gin.Context) {
 	var data models.DictData
+
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("dictCode"))
 	result, err := data.BatchDelete(IDS)
-	tools.HasError(err, "修改失败", 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
 	servers.OKWithRequestID(c, result, "删除成功")
 }

@@ -24,20 +24,31 @@ func GetSysFileInfoList(c *gin.Context) {
 	if size := c.Request.FormValue("pageSize"); size != "" {
 		pageSize, err = strconv.Atoi(size)
 	}
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	if index := c.Request.FormValue("pageIndex"); index != "" {
 		pageIndex, err = strconv.Atoi(index)
 	}
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	if pid := c.Request.FormValue("pId"); pid != "" {
 		data.PId, err = strconv.Atoi(pid)
 	}
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 
 	data.DataScope = jwtauth.UserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
 		Count:     count,
@@ -50,8 +61,10 @@ func GetSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
 	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, "抱歉未找到相关信息")
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -59,20 +72,32 @@ func InsertSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
-	tools.HasError(err, "", 500)
+	if err != nil {
+		servers.Fail(c, 500, err.Error())
+		return
+	}
 	result, err := data.Create()
-	tools.HasError(err, "", -1)
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
 func UpdateSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
 	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "数据解析失败", -1)
+	if err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
+
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
-	tools.HasError(err, "", -1)
-
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
 	servers.OKWithRequestID(c, result, "")
 }
 
@@ -82,6 +107,9 @@ func DeleteSysFileInfo(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
-	tools.HasError(err, codes.DeletedFail, 500)
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
 	servers.OKWithRequestID(c, nil, codes.DeletedSuccess)
 }
