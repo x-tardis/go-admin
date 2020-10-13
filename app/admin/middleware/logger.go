@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // 日志记录到文件
@@ -98,7 +98,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 		sysOperLog.Title = menuList[0].Title
 	}
 	b, _ := c.Get("body")
-	sysOperLog.OperParam, _ = tools.StructToJsonStr(b)
+	sysOperLog.OperParam, _ = jsoniter.MarshalToString(b)
 	sysOperLog.CreateBy = jwtauth.UserName(c)
 	sysOperLog.OperTime = time.Now()
 	sysOperLog.LatencyTime = (latencyTime).String()

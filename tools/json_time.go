@@ -31,7 +31,7 @@ func (t JSONTime) Value() (driver.Value, error) {
 	return t.Time, nil
 }
 
-// Scan valueof time.Time
+// Scan value of time.Time
 func (t *JSONTime) Scan(v interface{}) error {
 	value, ok := v.(time.Time)
 	if ok {

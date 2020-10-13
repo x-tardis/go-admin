@@ -24,6 +24,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/imdario/mergo v0.3.11 // indirect
+	github.com/json-iterator/go v1.1.10
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/matchstalk/go-admin-core v1.2.0

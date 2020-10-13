@@ -3,13 +3,13 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // 权限检查中间件
@@ -24,7 +24,7 @@ func AuthCheckRole(enforcer *casbin.SyncedEnforcer) gin.HandlerFunc {
 		}
 
 		fmt.Printf("%s [INFO] %s %s %s \r\n",
-			tools.CurrentTime(),
+			time.Now().Format(time.RFC3339),
 			c.Request.Method,
 			c.Request.URL.Path,
 			role,

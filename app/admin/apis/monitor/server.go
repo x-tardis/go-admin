@@ -51,7 +51,7 @@ func ServerInfo(c *gin.Context) {
 	cpuDic := make(map[string]interface{})
 	cpuDic["cpuInfo"], _ = cpu.Info()
 	percent, _ := cpu.Percent(0, false)
-	cpuDic["Percent"] = tools.Round(percent[0], 2)
+	cpuDic["Percent"] = infra.Round(percent[0], 2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
 	c.JSON(http.StatusOK, gin.H{
