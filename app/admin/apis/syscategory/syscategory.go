@@ -66,12 +66,12 @@ func GetSysCategory(c *gin.Context) {
 // @Router /api/v1/syscategory [post]
 func InsertSysCategory(c *gin.Context) {
 	var data models.SysCategory
-	err := c.ShouldBindJSON(&data)
-	data.CreateBy = jwtauth.UserIdStr(c)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
+	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -83,9 +83,8 @@ func InsertSysCategory(c *gin.Context) {
 func UpdateSysCategory(c *gin.Context) {
 	var data models.SysCategory
 
-	err := c.BindJSON(&data)
-	if err != nil {
-		servers.Fail(c, -1, "数据解析失败")
+	if err := c.ShouldBindJSON(&data); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 	data.UpdateBy = jwtauth.UserIdStr(c)

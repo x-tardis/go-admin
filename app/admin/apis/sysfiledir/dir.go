@@ -2,7 +2,6 @@ package sysfiledir
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -48,12 +47,12 @@ func GetSysFileDir(c *gin.Context) {
 // @Router /api/v1/sysfiledir [post]
 func InsertSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
-	err := c.ShouldBindJSON(&data)
-	data.CreateBy = jwtauth.UserIdStr(c)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
+	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -65,9 +64,8 @@ func InsertSysFileDir(c *gin.Context) {
 func UpdateSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 
-	err := c.BindWith(&data, binding.JSON)
-	if err != nil {
-		servers.Fail(c, -1, "数据解析失败")
+	if err := c.ShouldBindJSON(&data); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 	data.UpdateBy = jwtauth.UserIdStr(c)

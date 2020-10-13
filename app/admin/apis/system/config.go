@@ -107,12 +107,11 @@ func GetConfigByConfigKey(c *gin.Context) {
 func InsertConfig(c *gin.Context) {
 	var data models.SysConfig
 
-	err := c.BindJSON(&data)
-	data.CreateBy = jwtauth.UserIdStr(c)
-	if err != nil {
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
+	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -133,8 +132,8 @@ func InsertConfig(c *gin.Context) {
 // @Security Bearer
 func UpdateConfig(c *gin.Context) {
 	var data models.SysConfig
-	err := c.BindJSON(&data)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}

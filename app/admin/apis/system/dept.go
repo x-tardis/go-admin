@@ -83,8 +83,7 @@ func GetDept(c *gin.Context) {
 func InsertDept(c *gin.Context) {
 	var data models.SysDept
 
-	err := c.BindJSON(&data)
-	if err != nil {
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
@@ -110,8 +109,8 @@ func InsertDept(c *gin.Context) {
 // @Security Bearer
 func UpdateDept(c *gin.Context) {
 	var data models.SysDept
-	err := c.BindJSON(&data)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}

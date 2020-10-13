@@ -5,8 +5,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/google/uuid"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -176,8 +174,8 @@ func GetSysUserInit(c *gin.Context) {
 // @Router /api/v1/sysUser [post]
 func InsertSysUser(c *gin.Context) {
 	var sysuser models.SysUser
-	err := c.BindWith(&sysuser, binding.JSON)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&sysuser); err != nil {
 		servers.Fail(c, 500, codes.DataParseFailed)
 		return
 	}
@@ -246,7 +244,7 @@ func DeleteSysUser(c *gin.Context) {
 func InsetSysUserAvatar(c *gin.Context) {
 	form, _ := c.MultipartForm()
 	files := form.File["upload[]"]
-	guid := uuid.New().String()
+	guid := infra.GenerateUUID()
 	filPath := "static/uploadfile/" + guid + ".jpg"
 	for _, file := range files {
 		deployed.Logger.Debug(file.Filename)

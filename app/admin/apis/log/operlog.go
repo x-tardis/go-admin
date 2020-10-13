@@ -87,8 +87,7 @@ func GetOperLog(c *gin.Context) {
 func InsertOperLog(c *gin.Context) {
 	var data models.SysOperLog
 
-	err := c.BindJSON(&data)
-	if err != nil {
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}

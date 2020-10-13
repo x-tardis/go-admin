@@ -86,8 +86,8 @@ func GetLoginLog(c *gin.Context) {
 // @Security Bearer
 func InsertLoginLog(c *gin.Context) {
 	var data models.LoginLog
-	err := c.BindJSON(&data)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
@@ -111,8 +111,8 @@ func InsertLoginLog(c *gin.Context) {
 // @Security Bearer
 func UpdateLoginLog(c *gin.Context) {
 	var data models.LoginLog
-	err := c.BindJSON(&data)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}

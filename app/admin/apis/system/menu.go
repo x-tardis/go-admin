@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -116,8 +115,8 @@ func GetMenuTreeelect(c *gin.Context) {
 // @Security Bearer
 func InsertMenu(c *gin.Context) {
 	var data models.Menu
-	err := c.BindWith(&data, binding.JSON)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
@@ -144,13 +143,12 @@ func InsertMenu(c *gin.Context) {
 func UpdateMenu(c *gin.Context) {
 	var data models.Menu
 
-	err := c.BindJSON(&data)
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	if err != nil {
-		servers.Fail(c, -1, codes.UpdatedFail)
+	if err := c.ShouldBindJSON(&data); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	_, err = data.Update(data.MenuId)
+	data.UpdateBy = jwtauth.UserIdStr(c)
+	_, err := data.Update(data.MenuId)
 	if err != nil {
 		servers.Fail(c, 501, err.Error())
 		return

@@ -273,7 +273,6 @@ var WebsocketManager = Manager{
 
 // gin 处理 websocket handler
 func (manager *Manager) WsClient(c *gin.Context) {
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	upGrader := websocket.Upgrader{

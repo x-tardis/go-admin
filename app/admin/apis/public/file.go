@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	imgType "github.com/shamsher31/goimgtype"
 
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -49,7 +49,7 @@ func UploadFile(c *gin.Context) {
 			return
 		}
 		// 上传文件至指定目录
-		guid := uuid.New().String()
+		guid := infra.GenerateUUID()
 		singleFile := "static/uploadfile/" + guid + path.Ext(files.Filename)
 		_ = c.SaveUploadedFile(files, singleFile)
 		fileType, _ := imgType.Get(singleFile)
@@ -66,7 +66,7 @@ func UploadFile(c *gin.Context) {
 		files := c.Request.MultipartForm.File["file"]
 		var multipartFile []FileResponse
 		for _, f := range files {
-			guid := uuid.New().String()
+			guid := infra.GenerateUUID()
 			multipartFileName := "static/uploadfile/" + guid + path.Ext(f.Filename)
 			e := c.SaveUploadedFile(f, multipartFileName)
 			fileType, _ := imgType.Get(multipartFileName)
@@ -86,7 +86,7 @@ func UploadFile(c *gin.Context) {
 		files, _ := c.GetPostForm("file")
 		file2list := strings.Split(files, ",")
 		ddd, _ := base64.StdEncoding.DecodeString(file2list[1])
-		guid := uuid.New().String()
+		guid := infra.GenerateUUID()
 		base64File := "static/uploadfile/" + guid + ".jpg"
 		_ = ioutil.WriteFile(base64File, ddd, 0666)
 		typeStr := strings.Replace(strings.Replace(file2list[0], "data:", "", -1), ";base64", "", -1)

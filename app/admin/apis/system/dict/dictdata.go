@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -109,12 +108,12 @@ func GetDictDataByDictType(c *gin.Context) {
 // @Security Bearer
 func InsertDictData(c *gin.Context) {
 	var data models.DictData
-	err := c.ShouldBindJSON(&data)
-	data.CreateBy = jwtauth.UserIdStr(c)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
+	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -135,12 +134,12 @@ func InsertDictData(c *gin.Context) {
 // @Security Bearer
 func UpdateDictData(c *gin.Context) {
 	var data models.DictData
-	err := c.BindWith(&data, binding.JSON)
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	if err != nil {
+
+	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
+	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.DictCode)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
