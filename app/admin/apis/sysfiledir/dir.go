@@ -7,9 +7,9 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 func GetSysFileDirList(c *gin.Context) {
@@ -83,7 +83,7 @@ func DeleteSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 	data.UpdateBy = jwtauth.UserIdStr(c)
 
-	IDS := tools.IdsStrToIdsIntGroup(c.Param("id"))
+	IDS := infra.ParseIdsGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)

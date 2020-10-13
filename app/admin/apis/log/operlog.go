@@ -7,10 +7,10 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 登录日志列表
@@ -110,7 +110,7 @@ func InsertOperLog(c *gin.Context) {
 func DeleteOperLog(c *gin.Context) {
 	var data models.SysOperLog
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup(c.Param("operId"))
+	IDS := infra.ParseIdsGroup(c.Param("operId"))
 	_, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, "删除失败")

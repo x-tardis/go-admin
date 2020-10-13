@@ -50,7 +50,6 @@ func UploadFile(c *gin.Context) {
 		}
 		// 上传文件至指定目录
 		guid := uuid.New().String()
-
 		singleFile := "static/uploadfile/" + guid + path.Ext(files.Filename)
 		_ = c.SaveUploadedFile(files, singleFile)
 		fileType, _ := imgType.Get(singleFile)

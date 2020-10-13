@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/tools"
+	"github.com/x-tardis/go-admin/pkg/gcontext"
 )
 
 type Response struct {
@@ -56,7 +56,7 @@ func Success(c *gin.Context, opts ...Option) {
 
 // 通常成功数据处理
 func OKWithRequestID(c *gin.Context, data interface{}, msg string) {
-	Success(c, WithData(data), WithMessage(msg), WithRequestId(tools.GenerateMsgIDFromContext(c)))
+	Success(c, WithData(data), WithMessage(msg), WithRequestId(gcontext.GenerateMsgIDFromContext(c)))
 }
 
 func Fail(c *gin.Context, code int, msg string) {

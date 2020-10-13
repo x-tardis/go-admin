@@ -7,17 +7,17 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/service"
 	"github.com/x-tardis/go-admin/common/dto"
+	"github.com/x-tardis/go-admin/pkg/gcontext"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type SysJob struct{}
 
 // RemoveJobForService 调用service实现
 func (e *SysJob) RemoveJobForService(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
-	db, err := tools.GetOrm(c)
+	msgID := gcontext.GenerateMsgIDFromContext(c)
+	db, err := gcontext.GetOrm(c)
 	if err != nil {
 		logger.Errorf("msgID[%s] error:%s", msgID, err)
 		servers.FailWithRequestID(c, http.StatusInternalServerError, err.Error())
@@ -43,8 +43,8 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 
 // StartJobForService 启动job service实现
 func (e *SysJob) StartJobForService(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
-	db, err := tools.GetOrm(c)
+	msgID := gcontext.GenerateMsgIDFromContext(c)
+	db, err := gcontext.GetOrm(c)
 	if err != nil {
 		logger.Errorf("msgID[%s] error:%s", msgID, err)
 		servers.FailWithRequestID(c, http.StatusInternalServerError, err.Error())

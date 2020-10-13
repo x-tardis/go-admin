@@ -7,10 +7,10 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 登录日志列表
@@ -134,7 +134,7 @@ func UpdateLoginLog(c *gin.Context) {
 func DeleteLoginLog(c *gin.Context) {
 	var data models.LoginLog
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup(c.Param("infoId"))
+	IDS := infra.ParseIdsGroup(c.Param("infoId"))
 	_, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, "修改失败")

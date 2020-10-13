@@ -8,10 +8,10 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 配置列表数据
@@ -158,7 +158,7 @@ func DeleteConfig(c *gin.Context) {
 	var data models.SysConfig
 
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroup(c.Param("configId"))
+	IDS := infra.ParseIdsGroup(c.Param("configId"))
 	result, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)

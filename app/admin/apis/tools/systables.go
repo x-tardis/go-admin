@@ -9,9 +9,9 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models/tools"
 	"github.com/x-tardis/go-admin/codes"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	tools2 "github.com/x-tardis/go-admin/tools"
 )
 
 // @Summary 分页列表数据
@@ -270,7 +270,7 @@ func UpdateSysTable(c *gin.Context) {
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
 func DeleteSysTables(c *gin.Context) {
 	var data tools.SysTables
-	IDS := tools2.IdsStrToIdsIntGroup(c.Param("tableId"))
+	IDS := infra.ParseIdsGroup(c.Param("tableId"))
 	_, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)

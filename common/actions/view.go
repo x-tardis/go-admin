@@ -9,21 +9,21 @@ import (
 
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/gcontext"
 	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // ViewAction 通用详情动作
 func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := gcontext.GetOrm(c)
 		if err != nil {
 			logger.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := gcontext.GenerateMsgIDFromContext(c)
 		//查看详情
 		req := control.Generate()
 		err = req.Bind(c)

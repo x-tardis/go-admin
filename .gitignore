@@ -3,6 +3,7 @@
 static/uploadfile
 main.exe
 go-admin
+docs
 temp/
 !temp
 vendor
