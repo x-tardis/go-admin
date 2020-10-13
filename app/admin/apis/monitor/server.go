@@ -9,6 +9,7 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/tools"
 )
 
@@ -32,7 +33,7 @@ func ServerInfo(c *gin.Context) {
 	osDic["compiler"] = runtime.Compiler
 	osDic["version"] = runtime.Version()
 	osDic["numGoroutine"] = runtime.NumGoroutine()
-	osDic["ip"] = tools.GetLocalHost()
+	osDic["ip"] = infra.LanIP()
 	osDic["projectDir"] = tools.GetCurrentPath()
 
 	diskDic := make(map[string]interface{})

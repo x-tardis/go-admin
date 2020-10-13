@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// ParseIdsGroup 解析URL中以','分隔的指量id,
+// ParseIdsGroup 解析URL中以','分隔的批量id,
 func ParseIdsGroup(keys string) []int {
 	ids := strings.Split(keys, ",")
 	IDS := make([]int, 0, len(ids))
