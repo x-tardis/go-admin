@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -86,7 +85,7 @@ func InsertSysFileInfo(c *gin.Context) {
 
 func UpdateSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
-	err := c.BindWith(&data, binding.JSON)
+	err := c.BindJSON(&data)
 	if err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
