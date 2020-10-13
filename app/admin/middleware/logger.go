@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -69,7 +70,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	menuList, _ := menu.Get()
 	sysOperLog := models.SysOperLog{}
 	sysOperLog.OperIp = clientIP
-	sysOperLog.OperLocation = tools.GetLocation(clientIP)
+	sysOperLog.OperLocation = deployed.IPLocation(clientIP)
 	sysOperLog.Status = cast.ToString(statusCode)
 	sysOperLog.OperName = jwtauth.UserName(c)
 	sysOperLog.RequestMethod = c.Request.Method

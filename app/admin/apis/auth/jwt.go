@@ -12,7 +12,6 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 const (
@@ -130,7 +129,7 @@ func loginLogRecord(c *gin.Context, status string, msg string, username string) 
 	if deployed.LoggerConfig.EnabledDB {
 		ua := user_agent.New(c.Request.UserAgent())
 		browserName, browserVersion := ua.Browser()
-		location := tools.GetLocation(c.ClientIP())
+		location := deployed.IPLocation(c.ClientIP())
 		loginLog := models.LoginLog{
 			Ipaddr:        c.ClientIP(),
 			Username:      username,
