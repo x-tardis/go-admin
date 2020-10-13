@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -68,7 +69,6 @@ func GetDictDataList(c *gin.Context) {
 // @Security Bearer
 func GetDictData(c *gin.Context) {
 	var DictData models.DictData
-
 	DictData.DictLabel = c.Request.FormValue("dictLabel")
 	DictData.DictCode = cast.ToInt(c.Param("dictCode"))
 	result, err := DictData.GetByCode()
@@ -88,7 +88,6 @@ func GetDictData(c *gin.Context) {
 // @Security Bearer
 func GetDictDataByDictType(c *gin.Context) {
 	var DictData models.DictData
-
 	DictData.DictType = c.Param("dictType")
 	result, err := DictData.Get()
 	if err != nil {
@@ -110,12 +109,12 @@ func GetDictDataByDictType(c *gin.Context) {
 // @Security Bearer
 func InsertDictData(c *gin.Context) {
 	var data models.DictData
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	err := c.ShouldBindJSON(&data)
+	data.CreateBy = jwtauth.UserIdStr(c)
+	if err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -136,12 +135,12 @@ func InsertDictData(c *gin.Context) {
 // @Security Bearer
 func UpdateDictData(c *gin.Context) {
 	var data models.DictData
-
-	if err := c.BindJSON(&data); err != nil {
+	err := c.BindWith(&data, binding.JSON)
+	data.UpdateBy = jwtauth.UserIdStr(c)
+	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.DictCode)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -160,13 +159,12 @@ func UpdateDictData(c *gin.Context) {
 func DeleteDictData(c *gin.Context) {
 	var data models.DictData
 
-	IDS := infra.ParseIdsGroup(c.Param("dictCode"))
-
 	data.UpdateBy = jwtauth.UserIdStr(c)
+	IDS := infra.ParseIdsGroup(c.Param("dictCode"))
 	result, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.DeletedSuccess)
+	servers.OKWithRequestID(c, result, "删除成功")
 }

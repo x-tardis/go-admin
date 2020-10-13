@@ -14,21 +14,19 @@ import (
 func Get(url string) (string, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	result, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", nil
-	}
+	result, _ := ioutil.ReadAll(resp.Body)
+
 	return string(result), nil
 }
 
@@ -37,21 +35,16 @@ func Get(url string) (string, error) {
 // data：        POST请求提交的数据
 // contentType： 请求体格式，如：application/json
 // content：     请求放回的内容
-func Post(url string, data interface{}, contentType string) (string, error) {
-	jsonStr, err := json.Marshal(data)
-	if err != nil {
-		return "", err
-	}
+func Post(url string, data interface{}, contentType string) string {
 	// 超时时间：5秒
 	client := &http.Client{Timeout: 5 * time.Second}
+	jsonStr, _ := json.Marshal(data)
 	resp, err := client.Post(url, contentType, bytes.NewBuffer(jsonStr))
 	if err != nil {
-		return "", err
+		panic(err)
 	}
 	defer resp.Body.Close()
-	result, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(result), nil
+
+	result, _ := ioutil.ReadAll(resp.Body)
+	return string(result)
 }

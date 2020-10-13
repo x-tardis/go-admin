@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/thinkgos/go-core-package/extos"
 )
 
 type ReplaceHelper struct {
@@ -96,6 +98,16 @@ func GetCurrentPath() string {
 		fmt.Println(err)
 	}
 	return strings.Replace(dir, "\\", "/", -1)
+}
+
+// 如果不存在则新建文件夹
+func IsNotExistMkDir(src string) error {
+	if exist := extos.IsExist(src); !exist {
+		if err := os.MkdirAll(src, os.ModePerm); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func GetDirFiles(dir string) ([]string, error) {

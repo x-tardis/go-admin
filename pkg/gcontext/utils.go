@@ -7,9 +7,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/spf13/cast"
-
-	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
 // GenerateMsgIDFromContext 生成msgID
@@ -17,7 +16,7 @@ func GenerateMsgIDFromContext(c *gin.Context) string {
 	var msgID string
 	data, ok := c.Get("msgID")
 	if !ok {
-		msgID = infra.GenerateUUID()
+		msgID = uuid.New().String()
 		c.Set("msgID", msgID)
 		return msgID
 	}

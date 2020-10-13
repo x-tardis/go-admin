@@ -2,6 +2,7 @@ package sysfiledir
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -64,7 +65,7 @@ func InsertSysFileDir(c *gin.Context) {
 func UpdateSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 
-	err := c.BindJSON(&data)
+	err := c.BindWith(&data, binding.JSON)
 	if err != nil {
 		servers.Fail(c, -1, "数据解析失败")
 		return

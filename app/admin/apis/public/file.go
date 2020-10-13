@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	imgType "github.com/shamsher31/goimgtype"
 
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/tools"
 )
@@ -50,7 +49,7 @@ func UploadFile(c *gin.Context) {
 			return
 		}
 		// 上传文件至指定目录
-		guid := infra.GenerateUUID()
+		guid := uuid.New().String()
 		singleFile := "static/uploadfile/" + guid + path.Ext(files.Filename)
 		_ = c.SaveUploadedFile(files, singleFile)
 		fileType, _ := imgType.Get(singleFile)

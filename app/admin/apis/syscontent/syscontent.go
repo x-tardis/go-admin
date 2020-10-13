@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -68,7 +69,6 @@ func GetSysContent(c *gin.Context) {
 // @Router /api/v1/syscontent [post]
 func InsertSysContent(c *gin.Context) {
 	var data models.SysContent
-
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
 
@@ -86,7 +86,7 @@ func InsertSysContent(c *gin.Context) {
 
 func UpdateSysContent(c *gin.Context) {
 	var data models.SysContent
-	err := c.BindJSON(&data)
+	err := c.BindWith(&data, binding.JSON)
 	if err != nil {
 		servers.Fail(c, -1, "数据解析失败")
 		return

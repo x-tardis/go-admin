@@ -1,14 +1,62 @@
-PROJECT:=go-admin
 
-.PHONY: build
-build:
-	CGO_ENABLED=0 go build -o go-admin main.go
-build-sqlite:
-	go build -tags sqlite3 -o go-admin main.go
-#.PHONY: test
-#test:
-#	go test -v ./... -cover
+# 型号
+model = go-admin
+# 固件版本
+# git describe --tags `git rev-list --tags --max-count=1`
+version = v0.0.1 #`git describe --tags`
+# api版本
+APIversion = v0.0.1
+# 设置固件名称
+firmwareName = go-admin
 
-#.PHONY: docker
-#docker:
-#	docker build . -t go-admin:latest
+execveFile := ${firmwareName}
+
+# 路径相关
+PROJDIR=${CURDIR}
+BINDIR=${CURDIR}/bin
+
+# 编译平台
+platform = CGO_ENABLED=0
+# 编译选项,如tags,多个采用','分开 sqlite3
+opts = -trimpath
+# 编译flags
+path = github.com/thinkgos/sharp/builder
+flags = -ldflags "-X '${path}.BuildTime=`date "+%F %T %z"`' \
+	-X '${path}.GitCommit=`git rev-parse --short=8 HEAD`' \
+	-X '${path}.GitFullCommit=`git rev-parse HEAD`' \
+	-X '${path}.Version=${version}' \
+	-X '${path}.Model=${model}' \
+	-X '${path}.APIVersion=${APIversion}' -s -w"
+
+system:
+	@echo "----> system executable building..."
+	@mkdir -p ${BINDIR}
+	@${platform} go build ${opts} ${flags} -o ${BINDIR}/${execveFile} .
+#	@upx --best --lzma ${BINDIR}/${execveFile}
+	@bzip2 -c ${BINDIR}/${execveFile} > ${BINDIR}/${execveFile}.bz2
+	@echo "----> system executable build successful"
+
+swag:
+	@echo "----> swagger docs building..."
+#	@swag init --parseDependency ${PROJDIR}/api
+	@swag init
+	@echo "----> swagger docs build successful..."
+
+docker:
+	docker build . -t ${model}:latest
+
+clean:
+	@echo "----> cleaning..."
+	@go clean
+	@rm -rf ${BINDIR}/*
+	@echo "----> clean successful"
+
+help:
+	@echo " ------------- How to build ------------- "
+	@echo " make         -- build target for system"
+	@echo " make swag 	 -- build swagger doc"
+	@echo " make clean   -- clean build files"
+	@echo " ------------- How to build ------------- "
+
+.PHONY: system swag docker clean help
+

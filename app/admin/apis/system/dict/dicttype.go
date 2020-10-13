@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
@@ -126,7 +127,7 @@ func InsertDictType(c *gin.Context) {
 // @Security Bearer
 func UpdateDictType(c *gin.Context) {
 	var data models.DictType
-	err := c.BindJSON(&data)
+	err := c.BindWith(&data, binding.JSON)
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())

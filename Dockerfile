@@ -25,5 +25,5 @@ COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 EXPOSE 8000
 
-CMD ["/go-admin","server","-c", "/config/settings.yml"]
+CMD ["/go-admin","server","-c", "/config.yaml"]
 
