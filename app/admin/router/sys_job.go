@@ -9,6 +9,7 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/service/dto"
 	"github.com/x-tardis/go-admin/common/actions"
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
@@ -19,7 +20,7 @@ func init() {
 // 需认证的路由代码
 func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r := v1.Group("/sysjob").
-		Use(authMiddleware.MiddlewareFunc(), middleware.AuthCheckRole(deployed.CasbinEnforcer))
+		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
 	{
 		sysJob := &models.SysJob{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {

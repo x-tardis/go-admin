@@ -28,7 +28,7 @@ func New(driver, source string) (*gorm.DB, error) {
 	case "sqlite3":
 		dialect = newSqlite3(source)
 	default:
-		panic("please select database driver one of [mysql|postgres|mysqlite3], if use sqlite3,build tags with sqlite3!")
+		panic("please select database driver one of [mysql|postgres|sqlite3], if use sqlite3, build tags with sqlite3!")
 	}
 	return gorm.Open(dialect, &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{SingularTable: true},
