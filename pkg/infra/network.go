@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net"
 	"os/exec"
+	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -37,6 +39,14 @@ func ActiveNetwork() (*Network, error) {
 }
 
 func GatewayIP(netCard string) (string, error) {
+	if runtime.GOOS == "windows" {
+		out, err := exec.Command("cmd.exe", "route print -4").Output()
+		if err != nil {
+			return "", err
+		}
+		v := regexp.MustCompile(`0\\.0\\.0\\.0 *(0|128)\\.0\\.0\\.0 *([0-9\\.]*) *([0-9\\.]*) *([0-9]*)`).Find(out)
+		return string(v), nil
+	}
 	arg := fmt.Sprintf("route -n | grep %s | grep UG | awk '{print $2}'", netCard)
 	out, err := exec.Command("/bin/sh", "-c", arg).Output()
 	if err != nil {
