@@ -3,7 +3,6 @@ package tools
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -77,46 +76,4 @@ func FileMonitoringById(ctx context.Context, filePth string, id string, group st
 		}
 		go hookfn(ctx, id, group, line)
 	}
-}
-
-// 获取文件大小
-func GetFileSize(filename string) int64 {
-	var result int64
-	filepath.Walk(filename, func(path string, f os.FileInfo, err error) error {
-		result = f.Size()
-		return nil
-	})
-	return result
-}
-
-// 获取当前路径，比如：E:/abc/data/test
-func GetCurrentPath() string {
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return strings.Replace(dir, "\\", "/", -1)
-}
-
-func GetDirFiles(dir string) ([]string, error) {
-	dirList, err := ioutil.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-
-	filesRet := make([]string, 0)
-
-	for _, file := range dirList {
-		if file.IsDir() {
-			files, err := GetDirFiles(dir + string(os.PathSeparator) + file.Name())
-			if err != nil {
-				return nil, err
-			}
-			filesRet = append(filesRet, files...)
-		} else {
-			filesRet = append(filesRet, dir+string(os.PathSeparator)+file.Name())
-		}
-	}
-
-	return filesRet, nil
 }

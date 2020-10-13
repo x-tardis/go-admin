@@ -10,10 +10,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	imgType "github.com/shamsher31/goimgtype"
+	"github.com/thinkgos/go-core-package/extos"
 
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 type FileResponse struct {
@@ -53,8 +53,9 @@ func UploadFile(c *gin.Context) {
 		singleFile := "static/uploadfile/" + guid + path.Ext(files.Filename)
 		_ = c.SaveUploadedFile(files, singleFile)
 		fileType, _ := imgType.Get(singleFile)
+		fileSize, _ := extos.FileSize(singleFile)
 		fileResponse = FileResponse{
-			Size:     tools.GetFileSize(singleFile),
+			Size:     fileSize,
 			Path:     singleFile,
 			FullPath: urlPrefix + singleFile,
 			Name:     files.Filename,
@@ -71,8 +72,9 @@ func UploadFile(c *gin.Context) {
 			e := c.SaveUploadedFile(f, multipartFileName)
 			fileType, _ := imgType.Get(multipartFileName)
 			if e == nil {
+				fileSize, _ := extos.FileSize(multipartFileName)
 				multipartFile = append(multipartFile, FileResponse{
-					Size:     tools.GetFileSize(multipartFileName),
+					Size:     fileSize,
 					Path:     multipartFileName,
 					FullPath: urlPrefix + multipartFileName,
 					Name:     f.Filename,
@@ -90,8 +92,9 @@ func UploadFile(c *gin.Context) {
 		base64File := "static/uploadfile/" + guid + ".jpg"
 		_ = ioutil.WriteFile(base64File, ddd, 0666)
 		typeStr := strings.Replace(strings.Replace(file2list[0], "data:", "", -1), ";base64", "", -1)
+		fileSize, _ := extos.FileSize(base64File)
 		fileResponse = FileResponse{
-			Size:     tools.GetFileSize(base64File),
+			Size:     fileSize,
 			Path:     base64File,
 			FullPath: urlPrefix + base64File,
 			Name:     "",

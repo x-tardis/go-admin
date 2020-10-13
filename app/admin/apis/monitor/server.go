@@ -2,6 +2,7 @@ package monitor
 
 import (
 	"net/http"
+	"os"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,6 @@ import (
 	"github.com/shirou/gopsutil/mem"
 
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 const (
@@ -34,7 +34,7 @@ func ServerInfo(c *gin.Context) {
 	osDic["version"] = runtime.Version()
 	osDic["numGoroutine"] = runtime.NumGoroutine()
 	osDic["ip"] = infra.LanIP()
-	osDic["projectDir"] = tools.GetCurrentPath()
+	osDic["projectDir"], _ = os.Getwd()
 
 	diskDic := make(map[string]interface{})
 	dis, _ := disk.Usage("/")
