@@ -9,7 +9,6 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-
 	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
@@ -20,45 +19,82 @@ const (
 	GB = 1024 * MB
 )
 
+// Os os信息
+type Os struct {
+	GoOs         string `json:"goOs"`
+	Arch         string `json:"arch"`
+	Mem          int    `json:"mem"`
+	Compiler     string `json:"compiler"`
+	Version      string `json:"version"`
+	NumGoroutine int    `json:"numGoroutine"`
+	Ip           string `json:"ip"`
+	ProjectDir   string `json:"projectDir"`
+}
+type Mem struct {
+	Total float64 `json:"total,string"`
+	Used  float64 `json:"used,string"`
+	Free  float64 `json:"free,string"`
+	Usage float64 `json:"usage,string"`
+}
+
+type Cpu struct {
+	CpuInfo []cpu.InfoStat `json:"cpuInfo"`
+	Percent float64        `json:"percent,string"`
+	CpuNum  int            `json:"cpuNum"`
+}
+
+type Disk struct {
+	Total float64 `json:"total,string"`
+	Free  float64 `json:"free,string"`
+}
+
+type SystemInfo struct {
+	Code int  `json:"code"`
+	Os   Os   `json:"os"`
+	Mem  Mem  `json:"mem"`
+	Cpu  Cpu  `json:"cpu"`
+	Disk Disk `json:"disk"`
+}
+
 // @Summary 系统信息
 // @Description 获取JSON
 // @Tags 系统信息
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/settings/serverInfo [get]
+// @Router /api/v1/setting/serverInfo [get]
 func ServerInfo(c *gin.Context) {
-	osDic := make(map[string]interface{})
-	osDic["goOs"] = runtime.GOOS
-	osDic["arch"] = runtime.GOARCH
-	osDic["mem"] = runtime.MemProfileRate
-	osDic["compiler"] = runtime.Compiler
-	osDic["version"] = runtime.Version()
-	osDic["numGoroutine"] = runtime.NumGoroutine()
-	osDic["ip"] = infra.LanIP()
-	osDic["projectDir"], _ = os.Getwd()
-
-	diskDic := make(map[string]interface{})
+	projectDir, _ := os.Getwd()
 	dis, _ := disk.Usage("/")
-	diskDic["total"] = int(dis.Total) / GB
-	diskDic["free"] = int(dis.Free) / GB
-
-	memDic := make(map[string]interface{})
-	_mem, _ := mem.VirtualMemory()
-	memDic["total"] = int(_mem.Total) / GB
-	memDic["used"] = int(_mem.Used) / GB
-	memDic["free"] = int(_mem.Free) / GB
-	memDic["usage"] = int(_mem.UsedPercent)
-
-	cpuDic := make(map[string]interface{})
-	cpuDic["cpuInfo"], _ = cpu.Info()
+	vmem, _ := mem.VirtualMemory()
 	percent, _ := cpu.Percent(0, false)
-	cpuDic["Percent"] = infra.Round(percent[0], 2)
-	cpuDic["cpuNum"], _ = cpu.Counts(false)
+	cpuInfo, _ := cpu.Info()
+	cpuNum, _ := cpu.Counts(false)
 
-	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"os":   osDic,
-		"mem":  memDic,
-		"cpu":  cpuDic,
-		"disk": diskDic,
+	c.JSON(http.StatusOK, SystemInfo{
+		http.StatusOK,
+		Os{
+			runtime.GOOS,
+			runtime.GOARCH,
+			runtime.MemProfileRate,
+			runtime.Compiler,
+			runtime.Version(),
+			runtime.NumGoroutine(),
+			infra.LanIP(),
+			projectDir,
+		},
+		Mem{
+			infra.Round(float64(vmem.Total)/GB, 2),
+			infra.Round(float64(vmem.Used)/GB, 2),
+			infra.Round(float64(vmem.Free)/GB, 2),
+			infra.Round(vmem.UsedPercent, 2),
+		},
+		Cpu{
+			cpuInfo,
+			infra.Round(percent[0], 2),
+			cpuNum,
+		},
+		Disk{
+			infra.Round(float64(dis.Total)/GB, 2),
+			infra.Round(float64(dis.Free)/GB, 2),
+		},
 	})
 }

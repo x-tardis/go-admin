@@ -45,7 +45,7 @@ func InitRouter() *gin.Engine {
 
 	// 注册系统路由
 	RegisterSys(engine, authMiddleware)
-	// 注册业务路由 TODO: 这里可存放业务路由，里边并无实际路由只有演示代码
+	// 注册业务路由
 	RegisterBusiness(engine, authMiddleware)
 
 	return engine
