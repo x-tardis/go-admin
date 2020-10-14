@@ -13,7 +13,7 @@ import (
 
 	"github.com/thinkgos/sharp/builder"
 
-	"github.com/x-tardis/go-admin/app/admin/router"
+	"github.com/x-tardis/go-admin/app/router"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"

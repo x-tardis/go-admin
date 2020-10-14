@@ -8,7 +8,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/cmd/migrate/migration"
 )
 

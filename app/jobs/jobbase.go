@@ -6,7 +6,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 
-	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/pkg"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
