@@ -2,6 +2,7 @@ package izap
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/natefinch/lumberjack"
@@ -16,6 +17,7 @@ type Config struct {
 	EncodeLevel string `yaml:"encodeLevel" json:"encodeLevel"`
 	InConsole   bool   `yaml:"inConsole" json:"inConsole"` // 是否在console输出
 	Stack       bool   `yaml:"stack" json:"stack"`         // 使能栈调试输出
+	Path        string `yaml:"path" json:"path"`
 	// see lumberjack.Logger
 	FileName   string `yaml:"fileName" json:"fileName"`     // 文件名,空字符使用默认    默认<processname>-lumberjack.log
 	MaxSize    int    `yaml:"maxSize" json:"maxSize"`       // 每个日志文件最大尺寸(MB) 默认100MB,
@@ -28,7 +30,7 @@ type Config struct {
 var Logger = zap.NewNop()
 var Sugar = Logger.Sugar()
 
-func New(cfg Config) *zap.Logger {
+func New(c Config) *zap.Logger {
 	var options []zap.Option
 	var encoder zapcore.Encoder
 
@@ -41,37 +43,37 @@ func New(cfg Config) *zap.Logger {
 		MessageKey:     "msg",
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    toEncodeLevel(cfg.EncodeLevel),
+		EncodeLevel:    toEncodeLevel(c.EncodeLevel),
 		EncodeTime:     zapcore.ISO8601TimeEncoder, // 修改输出时间格式
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
-	if cfg.Format == "json" {
+	if c.Format == "json" {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	} else {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
 
 	writeSyncer := zapcore.AddSync(&lumberjack.Logger{ // 文件切割
-		Filename:   cfg.FileName,
-		MaxSize:    cfg.MaxSize,
-		MaxAge:     cfg.MaxAge,
-		MaxBackups: cfg.MaxBackups,
-		LocalTime:  cfg.LocalTime,
-		Compress:   cfg.Compress,
+		Filename:   filepath.Join(c.Path, c.FileName),
+		MaxSize:    c.MaxSize,
+		MaxAge:     c.MaxAge,
+		MaxBackups: c.MaxBackups,
+		LocalTime:  c.LocalTime,
+		Compress:   c.Compress,
 	})
-	if cfg.InConsole {
+	if c.InConsole {
 		writeSyncer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), writeSyncer)
 	}
 
 	// 设置日志输出等级
-	level := zap.NewAtomicLevelAt(toLevel(cfg.Level))
+	level := zap.NewAtomicLevelAt(toLevel(c.Level))
 	// 初始化core
 	core := zapcore.NewCore(encoder, writeSyncer, level)
 
 	// 添加显示文件名和行号,跳过封装调用层,栈调用,及使能等级
-	if cfg.Stack {
+	if c.Stack {
 		stackLevel := zap.NewAtomicLevel()
 		stackLevel.SetLevel(zap.WarnLevel) // 只显示栈的错误等级
 		options = append(options,

@@ -54,7 +54,7 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	fmt.Println("gen:", string(gen))
 
-	loggerConfig, errs := json.MarshalIndent(deployed.LoggerConfig, "", "   ") //转换成JSON返回的是byte[]
+	loggerConfig, errs := json.MarshalIndent(deployed.ViperLogger(), "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}

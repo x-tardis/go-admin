@@ -12,20 +12,14 @@ application:
   # 数据权限功能开关
   enabledp: false
 logger:
-  # 日志存放路径
-  path: temp/logs
-  # 控制台日志
-  stdout: true
-  # 日志等级
-  level: all
-  # 业务日志开关
-  enabledbus: true
-  # 请求日志开关
-  enabledreq: false
-  # 数据库日志开关 dev模式，将自动开启
+  level: debug  # debug, info, warn, error, dpanic, panic, fatal
+  format: json
+  encodeLevel: LowercaseLevelEncoder
+  inConsole: true
+  Path: temp
+
   enableddb: false
-  # 自动任务日志开关 dev模式，将自动开启
-  enabledjob: false
+
 jwt:
   # token 密钥，生产环境时及的修改
   secret: go-admin

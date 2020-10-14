@@ -38,7 +38,7 @@ func (e *ExecJob) Run() {
 	startTime := time.Now()
 	var obj = jobList[e.InvokeTarget]
 	if obj == nil {
-		deployed.JobLogger.Warning(" ExecJob Run job nil", e)
+		deployed.JobLogger.Warn(" ExecJob Run job nil", e)
 		return
 	}
 	CallExec(obj.(JobsExec), e.Args)

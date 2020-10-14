@@ -9,8 +9,8 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/codes"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -247,7 +247,7 @@ func InsetSysUserAvatar(c *gin.Context) {
 	guid := infra.GenerateUUID()
 	filPath := "static/uploadfile/" + guid + ".jpg"
 	for _, file := range files {
-		deployed.Logger.Debug(file.Filename)
+		izap.Sugar.Debug(file.Filename)
 		// 上传文件至指定目录
 		_ = c.SaveUploadedFile(file, filPath)
 	}

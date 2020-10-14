@@ -14,6 +14,7 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/router"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/textcolor"
 
 	"github.com/gin-gonic/gin"
@@ -61,7 +62,7 @@ func setup(cmd *cobra.Command, args []string) {
 	//4. 接口访问控制加载
 	deployed.SetupCasbin()
 
-	deployed.Logger.Info(`starting api server`)
+	izap.Sugar.Info(`starting api server`)
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -91,11 +92,11 @@ func run(cmd *cobra.Command, args []string) error {
 		// 服务连接
 		if deployed.SslConfig.Enable {
 			if err := srv.ListenAndServeTLS(deployed.SslConfig.Pem, deployed.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
-				deployed.Logger.Fatal("listen: ", err)
+				izap.Sugar.Fatal("listen: ", err)
 			}
 		} else {
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				deployed.Logger.Fatal("listen: ", err)
+				izap.Sugar.Fatal("listen: ", err)
 			}
 		}
 	}()
@@ -118,9 +119,9 @@ func run(cmd *cobra.Command, args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		deployed.Logger.Fatal("Server Shutdown:", err)
+		izap.Sugar.Fatal("Server Shutdown:", err)
 	}
-	deployed.Logger.Println("Server exiting")
+	izap.Sugar.Debug("Server exiting")
 
 	return nil
 }

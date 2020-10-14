@@ -58,7 +58,7 @@ func SetupDatabase(driver, source string) {
 		DB:     rawdb,
 	})
 
-	if LoggerConfig.EnabledDB {
+	if EnabledDB {
 		DB.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 			SlowThreshold: time.Second,
 			Colorful:      true,

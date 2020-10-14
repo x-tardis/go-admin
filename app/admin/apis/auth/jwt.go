@@ -97,7 +97,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	user, role, err := req.GetUser()
 	if err != nil {
 		loginLogRecord(c, "1", "登录失败", req.Username)
-		deployed.RequestLogger.Println(err.Error())
+		deployed.RequestLogger.Debug(err.Error())
 		return nil, jwt.ErrFailedAuthentication
 	}
 	loginLogRecord(c, "0", "登录成功", req.Username)
@@ -127,7 +127,7 @@ func logoutResponse(c *gin.Context, code int) {
 
 // loginLogRecord Write log to database
 func loginLogRecord(c *gin.Context, status string, msg string, username string) {
-	if deployed.LoggerConfig.EnabledDB {
+	if deployed.EnabledDB {
 		ua := user_agent.New(c.Request.UserAgent())
 		browserName, browserVersion := ua.Browser()
 		location := deployed.IPLocation(c.ClientIP())

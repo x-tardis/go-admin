@@ -1,28 +1,26 @@
 package deployed
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
 
-type Log struct {
-	Path       string
-	Level      string
-	Stdout     bool
-	EnabledBUS bool
-	EnabledREQ bool
-	EnabledDB  bool
-	EnabledJOB bool `default:"false"`
-}
+	"github.com/x-tardis/go-admin/pkg/izap"
+)
 
-var LoggerConfig = new(Log)
+func ViperLogger() izap.Config {
+	c := viper.Sub("logger")
+	return izap.Config{
+		Level:       c.GetString("level"),
+		Format:      c.GetString("format"),
+		EncodeLevel: c.GetString("encodeLevel"),
+		InConsole:   c.GetBool("inConsole"),
+		Stack:       c.GetBool("stack"),
+		Path:        c.GetString("path"),
 
-func ViperLogger() *Log {
-	cfg := viper.Sub("logger")
-	return &Log{
-		Path:       cfg.GetString("path"),
-		Level:      cfg.GetString("level"),
-		Stdout:     cfg.GetBool("stdout"),
-		EnabledBUS: cfg.GetBool("enabledbus"),
-		EnabledREQ: cfg.GetBool("enabledreq"),
-		EnabledDB:  cfg.GetBool("enableddb"),
-		EnabledJOB: cfg.GetBool("enabledjob"),
+		FileName:   c.GetString("fileName"),
+		MaxSize:    c.GetInt("maxSize"),
+		MaxAge:     c.GetInt("maxAge"),
+		MaxBackups: c.GetInt("maxBackups"),
+		LocalTime:  c.GetBool("localTime"),
+		Compress:   c.GetBool("compress"),
 	}
 }

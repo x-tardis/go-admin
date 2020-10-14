@@ -17,7 +17,6 @@ require (
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/go-playground/validator/v10 v10.4.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/gogf/gf v1.13.7
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
