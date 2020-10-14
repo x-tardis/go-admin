@@ -7,6 +7,8 @@ import (
 )
 
 func Config(v1 gin.IRouter) {
+	v1.GET("/configKey/:configKey", system.GetConfigByConfigKey)
+	v1.GET("/configList", system.GetConfigList)
 	r := v1.Group("/config")
 	{
 		r.GET("/:configId", system.GetConfig)

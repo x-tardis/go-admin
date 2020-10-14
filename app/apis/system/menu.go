@@ -204,6 +204,7 @@ func GetMenuRole(c *gin.Context) {
 // @Security Bearer
 func GetMenuIDS(c *gin.Context) {
 	var data models.RoleMenu
+
 	data.RoleName = jwtauth.RoleName(c)
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	result, err := data.GetIDS()

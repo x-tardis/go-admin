@@ -6,6 +6,7 @@ import (
 )
 
 func LoginLog(v1 gin.IRouter) {
+	v1.GET("/loginloglist", log.GetLoginLogList)
 	r := v1.Group("/loginlog")
 	{
 		r.GET("/:infoId", log.GetLoginLog)
@@ -14,7 +15,9 @@ func LoginLog(v1 gin.IRouter) {
 		r.DELETE("/:infoId", log.DeleteLoginLog)
 	}
 }
+
 func OperLog(v1 gin.IRouter) {
+	v1.GET("/operloglist", log.GetOperLogList)
 	r := v1.Group("/operlog")
 	{
 		r.GET("/:operId", log.GetOperLog)

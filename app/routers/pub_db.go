@@ -6,7 +6,7 @@ import (
 	"github.com/x-tardis/go-admin/app/apis/tools"
 )
 
-func DB(v1 gin.IRouter) {
+func PubDB(v1 gin.IRouter) {
 	r := v1.Group("/db")
 	{
 		r.GET("/tables/page", tools.GetDBTableList)

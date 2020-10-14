@@ -1,4 +1,4 @@
-package ping
+package system
 
 import (
 	"net/http"

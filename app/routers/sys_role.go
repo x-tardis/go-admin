@@ -6,6 +6,7 @@ import (
 )
 
 func Role(v1 gin.IRouter) {
+	v1.GET("/rolelist", system.GetRoleList)
 	r := v1.Group("/role")
 	{
 		r.GET("/:roleId", system.GetRole)

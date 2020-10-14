@@ -2,6 +2,7 @@ package textcolor
 
 import (
 	"fmt"
+	"runtime"
 )
 
 // 前景 背景 颜色
@@ -62,5 +63,8 @@ func White(msg string) string { return String(msg, 0, 0, TextWhite) }
 
 // String 自定义文件
 func String(msg string, conf, bg, text int) string {
+	if runtime.GOOS == "windows" {
+		return msg
+	}
 	return fmt.Sprintf("%c[%d;%d;%dm%s%c[0m", 0x1B, conf, bg, text, msg, 0x1B)
 }

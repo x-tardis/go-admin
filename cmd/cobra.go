@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/thinkgos/sharp/builder"
 
-	"github.com/x-tardis/go-admin/cmd/api"
 	"github.com/x-tardis/go-admin/cmd/config"
 	"github.com/x-tardis/go-admin/cmd/migrate"
+	"github.com/x-tardis/go-admin/cmd/server"
 	"github.com/x-tardis/go-admin/cmd/version"
 	"github.com/x-tardis/go-admin/pkg/textcolor"
 )
@@ -41,7 +41,7 @@ func tip() {
 }
 
 func init() {
-	rootCmd.AddCommand(api.StartCmd)
+	rootCmd.AddCommand(server.StartCmd)
 	rootCmd.AddCommand(migrate.StartCmd)
 	rootCmd.AddCommand(version.StartCmd)
 	rootCmd.AddCommand(config.StartCmd)

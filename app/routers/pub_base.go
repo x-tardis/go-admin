@@ -8,7 +8,7 @@ import (
 	"github.com/x-tardis/go-admin/app/apis/tools"
 )
 
-func NoCheckRoleBase(v1 gin.IRouter) {
+func PubBase(v1 gin.IRouter) {
 	v1.GET("/monitor/server", monitor.ServerInfo)
 	v1.GET("/getCaptcha", system.GenerateCaptchaHandler)
 	v1.GET("/gen/preview/:tableId", tools.Preview)

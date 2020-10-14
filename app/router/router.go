@@ -11,7 +11,6 @@ import (
 	"github.com/thinkgos/gin-middlewares/gzap"
 
 	"github.com/x-tardis/go-admin/app/apis/auth"
-	"github.com/x-tardis/go-admin/app/apis/ping"
 	"github.com/x-tardis/go-admin/app/apis/system"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/app/routers"
@@ -28,8 +27,9 @@ func InitRouter() *gin.Engine {
 	if deployed.SslConfig.Enable {
 		engine.Use(middleware.Tls(deployed.SslConfig.Domain))
 	}
-	engine.Use(middleware.WithContextDb(middleware.GetGormFromConfig(deployed.Cfg)))
+
 	engine.Use(
+		middleware.WithContextDb(middleware.GetGormFromConfig(deployed.Cfg)),
 		gzap.Logger(deployed.RequestLogger.Desugar()), // logger
 		gzap.Recovery(izap.Logger, false),             // recover
 		OperLog(),                                     // 操作日志写入数据库
@@ -44,66 +44,58 @@ func InitRouter() *gin.Engine {
 	}
 
 	// 注册系统路由
-	InitSysRouter(engine, authMiddleware)
-
-	// 注册业务路由
-	// TODO: 这里可存放业务路由，里边并无实际路由只有演示代码
-	InitBusiness(engine, authMiddleware)
+	RegisterSys(engine, authMiddleware)
+	// 注册业务路由 TODO: 这里可存放业务路由，里边并无实际路由只有演示代码
+	RegisterBusiness(engine, authMiddleware)
 
 	return engine
 }
 
-func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
+func RegisterSys(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	go ws.WebsocketManager.Start()
 	go ws.WebsocketManager.SendService()
 	go ws.WebsocketManager.SendAllService()
 
-	g := r.Group("")
-
-	g.GET("/", system.HelloWorld)
-	g.GET("/info", ping.Ping)
-	g.POST("/login", authMiddleware.LoginHandler)
-	g.GET("/refresh_token", authMiddleware.RefreshHandler) // Refresh time can be longer than token timeout
+	engine.GET("/", system.HelloWorld)
+	engine.GET("/info", system.Ping)
+	engine.POST("/login", authMiddleware.LoginHandler)
+	engine.GET("/refresh_token", authMiddleware.RefreshHandler) // Refresh time can be longer than token timeout
 
 	// 静态文件
-	sysStaticFileRouter(g)
+	StaticFile(engine)
 	// swagger
-	routers.Swagger(g)
+	routers.Swagger(engine)
 
 	// 需要认证
-	wsGroup := r.Group("")
-	wsGroup.Use(authMiddleware.MiddlewareFunc())
+	wsGroup := engine.Group("", authMiddleware.MiddlewareFunc())
 	{
 		wsGroup.GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
 		wsGroup.GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
 	}
 
-	v1 := r.Group("/api/v1")
+	v1Group := engine.Group("/api/v1")
 	{ // 无需认证
-		routers.NoCheckRoleBase(v1)
-
-		routers.DB(v1)
-		routers.SysTable(v1)
-		routers.Public(v1)
-		routers.SysSetting(v1)
+		routers.PubBase(v1Group)
+		routers.PubDB(v1Group)
+		routers.PubSysTable(v1Group)
+		routers.PubPublic(v1Group)
+		routers.PubSysSetting(v1Group)
 	}
 
 	{ // 需要认证
-		v1.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-		routers.Page(v1)
-		routers.Base(v1, authMiddleware)
-		routers.Dept(v1)
-		routers.Dict(v1)
-		routers.SysUser(v1)
-		routers.Role(v1)
-		routers.Config(v1)
-		routers.UserCenter(v1)
-		routers.Post(v1)
-		routers.Menu(v1)
-		routers.LoginLog(v1)
-		routers.OperLog(v1)
+		v1Group.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
+		routers.Base(v1Group, authMiddleware)
+		routers.Dept(v1Group)
+		routers.Dict(v1Group)
+		routers.SysUser(v1Group)
+		routers.Role(v1Group)
+		routers.Config(v1Group)
+		routers.UserCenter(v1Group)
+		routers.Post(v1Group)
+		routers.Menu(v1Group)
+		routers.LoginLog(v1Group)
+		routers.OperLog(v1Group)
 	}
-	return g
 }
 
 func OperLog() gin.HandlerFunc {

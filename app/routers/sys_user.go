@@ -7,6 +7,7 @@ import (
 )
 
 func SysUser(v1 gin.IRouter) {
+	v1.GET("/sysUserList", system.GetSysUserList)
 	r := v1.Group("/sysUser")
 	{
 		r.GET("/:userId", system.GetSysUser)

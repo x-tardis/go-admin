@@ -11,15 +11,13 @@ import (
 	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
-var (
-	routerNoCheckRole = make([]func(r gin.IRouter), 0)
-	routerCheckRole   = make([]func(r gin.IRouter), 0)
-)
+var routerNoCheckRole []func(r gin.IRouter)
+var routerCheckRole []func(r gin.IRouter)
 
 func init() {
 	routerNoCheckRole = append(routerNoCheckRole,
-		routers.SysFileInfo,
-		routers.SysFileDir,
+		routers.PubSysFileInfo,
+		routers.PubSysFileDir,
 	)
 	routerCheckRole = append(routerCheckRole,
 		routers.SysJobRouter,
@@ -29,7 +27,7 @@ func init() {
 }
 
 // 路由示例
-func InitBusiness(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Engine {
+func RegisterBusiness(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Engine {
 	v1 := r.Group("/api/v1")
 	{ // 无需认证的路由
 		for _, f := range routerNoCheckRole {

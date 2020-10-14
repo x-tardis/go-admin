@@ -6,7 +6,7 @@ import (
 	"github.com/x-tardis/go-admin/app/apis/system"
 )
 
-func SysSetting(v1 gin.IRouter) {
+func PubSysSetting(v1 gin.IRouter) {
 	r := v1.Group("/setting")
 	{
 		r.GET("", system.GetSetting)

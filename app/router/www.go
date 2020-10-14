@@ -8,7 +8,7 @@ import (
 	_ "github.com/x-tardis/go-admin/docs"
 )
 
-func sysStaticFileRouter(r *gin.RouterGroup) {
+func StaticFile(r gin.IRouter) {
 	mime.AddExtensionType(".js", "application/javascript")
 	r.Static("/static", "./static")
 	r.Static("/form-generator", "./static/form-generator")

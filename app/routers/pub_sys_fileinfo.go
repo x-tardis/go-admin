@@ -8,7 +8,7 @@ import (
 )
 
 // 无需认证的路由代码
-func SysFileInfo(v1 gin.IRouter) {
+func PubSysFileInfo(v1 gin.IRouter) {
 	v1.GET("/sysfileinfoList", sysfileinfo.GetSysFileInfoList)
 	r := v1.Group("/sysfileinfo")
 	{
@@ -20,7 +20,7 @@ func SysFileInfo(v1 gin.IRouter) {
 }
 
 // 无需认证的路由代码
-func SysFileDir(v1 gin.IRouter) {
+func PubSysFileDir(v1 gin.IRouter) {
 	v1.GET("/sysfiledirList", sysfiledir.GetSysFileDirList)
 	r := v1.Group("/sysfiledir")
 	{

@@ -7,6 +7,7 @@ import (
 )
 
 func Post(v1 gin.IRouter) {
+	v1.GET("/postlist", system.GetPostList)
 	r := v1.Group("/post")
 	{
 		r.GET("/:postId", system.GetPost)

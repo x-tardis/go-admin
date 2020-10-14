@@ -5,7 +5,7 @@ import (
 	"github.com/x-tardis/go-admin/app/apis/tools"
 )
 
-func SysTable(v1 gin.IRouter) {
+func PubSysTable(v1 gin.IRouter) {
 	r := v1.Group("/sys/tables")
 	{
 		r.GET("/page", tools.GetSysTableList)
