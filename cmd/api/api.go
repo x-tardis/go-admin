@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -36,15 +38,10 @@ var StartCmd = &cobra.Command{
 	RunE:         run,
 }
 
-var AppRouters = make([]func(), 0)
-
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yaml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
-
-	//注册路由 fixme 其他应用的路由，在本目录新建文件放在init方法
-	AppRouters = append(AppRouters, router.InitRouter)
 }
 
 func setup(cmd *cobra.Command, args []string) {
@@ -69,23 +66,16 @@ func run(cmd *cobra.Command, args []string) error {
 	if viper.GetString("mode") == infra.ModeProd {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	engine := deployed.Cfg.GetEngine()
-	if engine == nil {
-		engine = gin.New()
-	}
 
-	for _, f := range AppRouters {
-		f()
-	}
+	engine := router.InitRouter()
 
 	srv := &http.Server{
-		Addr:    deployed.ApplicationConfig.Host + ":" + deployed.ApplicationConfig.Port,
-		Handler: deployed.Cfg.GetEngine(),
+		Addr:    net.JoinHostPort(deployed.ApplicationConfig.Host, deployed.ApplicationConfig.Port),
+		Handler: engine,
 	}
 	go func() {
 		jobs.InitJob()
 		jobs.Setup()
-
 	}()
 
 	go func() {
@@ -119,9 +109,9 @@ func run(cmd *cobra.Command, args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		izap.Sugar.Fatal("Server Shutdown:", err)
+		log.Fatal("Server Shutdown:", err)
 	}
-	izap.Sugar.Debug("Server exiting")
+	fmt.Println("Server exiting")
 
 	return nil
 }

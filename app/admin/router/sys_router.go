@@ -3,12 +3,8 @@ package router
 import (
 	"mime"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 
-	log2 "github.com/x-tardis/go-admin/app/admin/apis/log"
 	"github.com/x-tardis/go-admin/app/admin/apis/monitor"
 	"github.com/x-tardis/go-admin/app/admin/apis/ping"
 	"github.com/x-tardis/go-admin/app/admin/apis/public"
@@ -16,25 +12,8 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/apis/system/dict"
 	. "github.com/x-tardis/go-admin/app/admin/apis/tools"
 	_ "github.com/x-tardis/go-admin/docs"
-	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/ws"
 )
-
-func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
-	g := r.Group("")
-	sysBaseRouter(g)
-	// 静态文件
-	sysStaticFileRouter(g)
-	// swagger；注意：生产环境可以注释掉
-	sysSwaggerRouter(g)
-	// 无需认证
-	sysNoCheckRoleRouter(g)
-	// 需要认证
-	sysCheckRoleRouterInit(g, authMiddleware)
-	return g
-}
 
 func sysBaseRouter(r *gin.RouterGroup) {
 	go ws.WebsocketManager.Start()
@@ -51,11 +30,7 @@ func sysStaticFileRouter(r *gin.RouterGroup) {
 	r.Static("/form-generator", "./static/form-generator")
 }
 
-func sysSwaggerRouter(r *gin.RouterGroup) {
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-}
-
-func sysNoCheckRoleRouter(r *gin.RouterGroup) {
+func sysNoCheckRoleRouter(r gin.IRouter) {
 	v1 := r.Group("/api/v1")
 
 	v1.GET("/monitor/server", monitor.ServerInfo)
@@ -81,7 +56,7 @@ func registerDBRouter(api *gin.RouterGroup) {
 	}
 }
 
-func registerSysTableRouter(v1 *gin.RouterGroup) {
+func registerSysTableRouter(v1 gin.IRouter) {
 	systables := v1.Group("/sys/tables")
 	{
 		systables.GET("/page", GetSysTableList)
@@ -96,181 +71,7 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	r.POST("/login", authMiddleware.LoginHandler)
-	// Refresh time can be longer than token timeout
-	r.GET("/refresh_token", authMiddleware.RefreshHandler)
-
-	r.Group("", authMiddleware.MiddlewareFunc()).GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
-
-	r.Group("", authMiddleware.MiddlewareFunc()).GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
-
-	v1 := r.Group("/api/v1")
-
-	registerPageRouter(v1, authMiddleware)
-	registerBaseRouter(v1, authMiddleware)
-	registerDeptRouter(v1, authMiddleware)
-	registerDictRouter(v1, authMiddleware)
-	registerSysUserRouter(v1, authMiddleware)
-	registerRoleRouter(v1, authMiddleware)
-	registerConfigRouter(v1, authMiddleware)
-	registerUserCenterRouter(v1, authMiddleware)
-	registerPostRouter(v1, authMiddleware)
-	registerMenuRouter(v1, authMiddleware)
-	registerLoginLogRouter(v1, authMiddleware)
-	registerOperLogRouter(v1, authMiddleware)
-}
-
-func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	v1auth := v1.Group("").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		v1auth.GET("/getinfo", system.GetInfo)
-		v1auth.GET("/menurole", system.GetMenuRole)
-		v1auth.PUT("/roledatascope", system.UpdateRoleDataScope)
-		v1auth.GET("/roleMenuTreeselect/:roleId", system.GetMenuTreeRoleselect)
-		v1auth.GET("/roleDeptTreeselect/:roleId", system.GetDeptTreeRoleselect)
-
-		v1auth.POST("/logout", authMiddleware.LogoutHandler)
-		v1auth.GET("/menuids", system.GetMenuIDS)
-
-		v1auth.GET("/operloglist", log2.GetOperLogList)
-		v1auth.GET("/configKey/:configKey", system.GetConfigByConfigKey)
-	}
-}
-
-func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	v1auth := v1.Group("").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		v1auth.GET("/deptList", system.GetDeptList)
-		v1auth.GET("/deptTree", system.GetDeptTree)
-		v1auth.GET("/sysUserList", system.GetSysUserList)
-		v1auth.GET("/rolelist", system.GetRoleList)
-		v1auth.GET("/configList", system.GetConfigList)
-		v1auth.GET("/postlist", system.GetPostList)
-		v1auth.GET("/menulist", system.GetMenuList)
-		v1auth.GET("/loginloglist", log2.GetLoginLogList)
-	}
-}
-
-func registerUserCenterRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	user := v1.Group("/user").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		user.GET("/profile", system.GetSysUserProfile)
-		user.POST("/avatar", system.InsetSysUserAvatar)
-		user.PUT("/pwd", system.SysUserUpdatePwd)
-	}
-}
-
-func registerOperLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	operlog := v1.Group("/operlog").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		operlog.GET("/:operId", log2.GetOperLog)
-		operlog.DELETE("/:operId", log2.DeleteOperLog)
-	}
-}
-
-func registerLoginLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	loginlog := v1.Group("/loginlog").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		loginlog.GET("/:infoId", log2.GetLoginLog)
-		loginlog.POST("", log2.InsertLoginLog)
-		loginlog.PUT("", log2.UpdateLoginLog)
-		loginlog.DELETE("/:infoId", log2.DeleteLoginLog)
-	}
-}
-
-func registerPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	post := v1.Group("/post").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		post.GET("/:postId", system.GetPost)
-		post.POST("", system.InsertPost)
-		post.PUT("", system.UpdatePost)
-		post.DELETE("/:postId", system.DeletePost)
-	}
-}
-
-func registerMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	menu := v1.Group("/menu").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		menu.GET("/:id", system.GetMenu)
-		menu.POST("", system.InsertMenu)
-		menu.PUT("", system.UpdateMenu)
-		menu.DELETE("/:id", system.DeleteMenu)
-	}
-}
-
-func registerConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	config := v1.Group("/config").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		config.GET("/:configId", system.GetConfig)
-		config.POST("", system.InsertConfig)
-		config.PUT("", system.UpdateConfig)
-		config.DELETE("/:configId", system.DeleteConfig)
-	}
-}
-
-func registerRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	role := v1.Group("/role").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		role.GET("/:roleId", system.GetRole)
-		role.POST("", system.InsertRole)
-		role.PUT("", system.UpdateRole)
-		role.DELETE("/:roleId", system.DeleteRole)
-	}
-}
-
-func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	sysuser := v1.Group("/sysUser").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		sysuser.GET("/:userId", system.GetSysUser)
-		sysuser.GET("/", system.GetSysUserInit)
-		sysuser.POST("", system.InsertSysUser)
-		sysuser.PUT("", system.UpdateSysUser)
-		sysuser.DELETE("/:userId", system.DeleteSysUser)
-	}
-}
-
-func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	dicts := v1.Group("/dict").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		dicts.GET("/datalist", dict.GetDictDataList)
-		dicts.GET("/typelist", dict.GetDictTypeList)
-		dicts.GET("/typeoptionselect", dict.GetDictTypeOptionSelect)
-
-		dicts.GET("/data/:dictCode", dict.GetDictData)
-		dicts.POST("/data", dict.InsertDictData)
-		dicts.PUT("/data/", dict.UpdateDictData)
-		dicts.DELETE("/data/:dictCode", dict.DeleteDictData)
-
-		dicts.GET("/type/:dictId", dict.GetDictType)
-		dicts.POST("/type", dict.InsertDictType)
-		dicts.PUT("/type", dict.UpdateDictType)
-		dicts.DELETE("/type/:dictId", dict.DeleteDictType)
-	}
-}
-
-func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	dept := v1.Group("/dept").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
-	{
-		dept.GET("/:deptId", system.GetDept)
-		dept.POST("", system.InsertDept)
-		dept.PUT("", system.UpdateDept)
-		dept.DELETE("/:id", system.DeleteDept)
-	}
-}
-func registerSysSettingRouter(v1 *gin.RouterGroup) {
+func registerSysSettingRouter(v1 gin.IRouter) {
 	setting := v1.Group("/setting")
 	{
 		setting.GET("", system.GetSetting)
@@ -279,7 +80,7 @@ func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func registerPublicRouter(v1 *gin.RouterGroup) {
+func registerPublicRouter(v1 gin.IRouter) {
 	p := v1.Group("/public")
 	{
 		p.POST("/uploadFile", public.UploadFile)
