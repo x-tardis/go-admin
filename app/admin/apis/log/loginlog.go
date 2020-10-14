@@ -1,12 +1,11 @@
 package log
 
 import (
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/admin/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/paginator"
@@ -30,16 +29,8 @@ func GetLoginLogList(c *gin.Context) {
 	var pageSize = 10
 	var pageIndex = 1
 
-	size := c.Request.FormValue("pageSize")
-	if size != "" {
-		pageSize, err = strconv.Atoi(size)
-	}
-
-	index := c.Request.FormValue("pageIndex")
-	if index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
-
+	pageSize = cast.ToInt(c.DefaultQuery("pageSize", "10"))
+	pageSize = cast.ToInt(c.DefaultQuery("pageIndex", "1"))
 	data.Username = c.Request.FormValue("username")
 	data.Status = c.Request.FormValue("status")
 	data.Ipaddr = c.Request.FormValue("ipaddr")
@@ -65,6 +56,7 @@ func GetLoginLogList(c *gin.Context) {
 // @Security Bearer
 func GetLoginLog(c *gin.Context) {
 	var LoginLog models.LoginLog
+
 	LoginLog.InfoId = cast.ToInt(c.Param("infoId"))
 	result, err := LoginLog.Get()
 	if err != nil {
@@ -133,12 +125,13 @@ func UpdateLoginLog(c *gin.Context) {
 // @Router /api/v1/loginlog/{infoId} [delete]
 func DeleteLoginLog(c *gin.Context) {
 	var data models.LoginLog
+
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	IDS := infra.ParseIdsGroup(c.Param("infoId"))
 	_, err := data.BatchDelete(IDS)
 	if err != nil {
-		servers.Fail(c, 500, "修改失败")
+		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.Success(c, servers.WithMessage("删除成功"))
+	servers.Success(c, servers.WithMessage(codes.DeletedSuccess))
 }
