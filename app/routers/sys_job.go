@@ -1,27 +1,17 @@
-package router
+package routers
 
 import (
 	"github.com/gin-gonic/gin"
-
-	jwt "github.com/appleboy/gin-jwt/v2"
 
 	"github.com/x-tardis/go-admin/app/apis/sysjob"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/common/actions"
-	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
-func init() {
-	routerCheckRole = append(routerCheckRole, registerSysJobRouter)
-}
-
 // 需认证的路由代码
-func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	r := v1.Group("/sysjob").
-		Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
+func SysJobRouter(v1 gin.IRouter) {
+	r := v1.Group("/sysjob")
 	{
 		sysJob := &models.SysJob{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {

@@ -1,6 +1,6 @@
 //+build noswag
 
-package router
+package routers
 
 import "github.com/gin-gonic/gin"
 

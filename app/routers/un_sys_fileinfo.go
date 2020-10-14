@@ -1,4 +1,4 @@
-package router
+package routers
 
 import (
 	"github.com/gin-gonic/gin"
@@ -8,7 +8,7 @@ import (
 )
 
 // 无需认证的路由代码
-func registerSysFileInfoRouter(v1 *gin.RouterGroup) {
+func SysFileInfo(v1 gin.IRouter) {
 	v1.GET("/sysfileinfoList", sysfileinfo.GetSysFileInfoList)
 	r := v1.Group("/sysfileinfo")
 	{
@@ -20,7 +20,7 @@ func registerSysFileInfoRouter(v1 *gin.RouterGroup) {
 }
 
 // 无需认证的路由代码
-func registerSysFileDirRouter(v1 *gin.RouterGroup) {
+func SysFileDir(v1 gin.IRouter) {
 	v1.GET("/sysfiledirList", sysfiledir.GetSysFileDirList)
 	r := v1.Group("/sysfiledir")
 	{

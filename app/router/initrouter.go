@@ -11,11 +11,15 @@ import (
 	"github.com/thinkgos/gin-middlewares/gzap"
 
 	"github.com/x-tardis/go-admin/app/apis/auth"
+	"github.com/x-tardis/go-admin/app/apis/ping"
+	"github.com/x-tardis/go-admin/app/apis/system"
 	"github.com/x-tardis/go-admin/app/models"
+	"github.com/x-tardis/go-admin/app/routers"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/middleware"
+	"github.com/x-tardis/go-admin/pkg/ws"
 )
 
 func InitRouter() *gin.Engine {
@@ -44,22 +48,61 @@ func InitRouter() *gin.Engine {
 
 	// 注册业务路由
 	// TODO: 这里可存放业务路由，里边并无实际路由只有演示代码
-	InitExamplesRouter(engine, authMiddleware)
+	InitBusiness(engine, authMiddleware)
 
 	return engine
 }
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
+	go ws.WebsocketManager.Start()
+	go ws.WebsocketManager.SendService()
+	go ws.WebsocketManager.SendAllService()
+
 	g := r.Group("")
-	sysBaseRouter(g)
+
+	g.GET("/", system.HelloWorld)
+	g.GET("/info", ping.Ping)
+	g.POST("/login", authMiddleware.LoginHandler)
+	g.GET("/refresh_token", authMiddleware.RefreshHandler) // Refresh time can be longer than token timeout
+
 	// 静态文件
 	sysStaticFileRouter(g)
-	// swagger；注意：生产环境可以注释掉
-	Swagger(g)
-	// 无需认证
-	sysNoCheckRoleRouter(g)
+	// swagger
+	routers.Swagger(g)
+
 	// 需要认证
-	sysCheckRoleRouterInit(g, authMiddleware)
+	wsGroup := r.Group("")
+	wsGroup.Use(authMiddleware.MiddlewareFunc())
+	{
+		wsGroup.GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
+		wsGroup.GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
+	}
+
+	v1 := r.Group("/api/v1")
+	{ // 无需认证
+		routers.NoCheckRoleBase(v1)
+
+		routers.DB(v1)
+		routers.SysTable(v1)
+		routers.Public(v1)
+		routers.SysSetting(v1)
+	}
+
+	{ // 需要认证
+		v1.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
+		routers.Page(v1)
+		routers.Base(v1, authMiddleware)
+		routers.Dept(v1)
+		routers.Dict(v1)
+		routers.SysUser(v1)
+		routers.Role(v1)
+		routers.Config(v1)
+		routers.UserCenter(v1)
+		routers.Post(v1)
+		routers.Menu(v1)
+		routers.LoginLog(v1)
+		routers.OperLog(v1)
+	}
 	return g
 }
 
