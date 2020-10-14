@@ -11,6 +11,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -45,12 +46,12 @@ func NewJWTAuth(key string) (*jwt.GinJWTMiddleware, error) {
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
 			return jwtauth.Identities{
-				cast.ToInt(claims[userIdKey]),
-				cast.ToString(claims[usernameKey]),
-				cast.ToInt(claims[roleIdKey]),
-				cast.ToString(claims[roleNameKey]),
-				cast.ToString(claims[roleKey]),
-				cast.ToString(claims[dataScopeKey]),
+				UserId:    cast.ToInt(claims[userIdKey]),
+				UserName:  cast.ToString(claims[usernameKey]),
+				RoleId:    cast.ToInt(claims[roleIdKey]),
+				RoleName:  cast.ToString(claims[roleNameKey]),
+				RoleKey:   cast.ToString(claims[roleKey]),
+				DataScope: cast.ToString(claims[dataScopeKey]),
 			}
 		},
 		Authenticator: authenticator,
@@ -83,12 +84,12 @@ func NewJWTAuth(key string) (*jwt.GinJWTMiddleware, error) {
 func authenticator(c *gin.Context) (interface{}, error) {
 	var req models.Login
 
-	if err := c.ShouldBind(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		loginLogRecord(c, "1", "数据解析失败", req.Username)
 		return nil, jwt.ErrMissingLoginValues
 	}
 
-	if deployed.ApplicationConfig.Mode != "dev" &&
+	if deployed.ApplicationConfig.Mode == infra.ModeProd &&
 		!deployed.Captcha.Verify(req.UUID, req.Code, true) {
 		loginLogRecord(c, "1", "验证码错误", req.Username)
 		return nil, jwt.ErrFailedAuthentication

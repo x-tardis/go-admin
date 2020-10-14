@@ -12,7 +12,6 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/tools"
 )
 
 // Manager 所有 websocket 信息
@@ -100,7 +99,7 @@ func (c *Client) Write(cxt context.Context) {
 			if err != nil {
 				log.Printf("client [%s] writemessage err: %s", c.Id, err)
 			}
-		case _ = <-c.Context.Done():
+		case <-c.Context.Done():
 			break
 		}
 	}
@@ -157,13 +156,10 @@ func (manager *Manager) Start() {
 
 // 处理单个 client 发送数据
 func (manager *Manager) SendService() {
-	for {
-		select {
-		case data := <-manager.Message:
-			if groupMap, ok := manager.Group[data.Group]; ok {
-				if conn, ok := groupMap[data.Id]; ok {
-					conn.Message <- data.Message
-				}
+	for data := range manager.Message {
+		if groupMap, ok := manager.Group[data.Group]; ok {
+			if conn, ok := groupMap[data.Id]; ok {
+				conn.Message <- data.Message
 			}
 		}
 	}
@@ -171,14 +167,11 @@ func (manager *Manager) SendService() {
 
 // 处理 group 广播数据
 func (manager *Manager) SendGroupService() {
-	for {
-		select {
-		// 发送广播数据到某个组的 channel 变量 Send 中
-		case data := <-manager.GroupMessage:
-			if groupMap, ok := manager.Group[data.Group]; ok {
-				for _, conn := range groupMap {
-					conn.Message <- data.Message
-				}
+	// 发送广播数据到某个组的 channel 变量 Send 中
+	for data := range manager.GroupMessage {
+		if groupMap, ok := manager.Group[data.Group]; ok {
+			for _, conn := range groupMap {
+				conn.Message <- data.Message
 			}
 		}
 	}
@@ -186,13 +179,10 @@ func (manager *Manager) SendGroupService() {
 
 // 处理广播数据
 func (manager *Manager) SendAllService() {
-	for {
-		select {
-		case data := <-manager.BroadCastMessage:
-			for _, v := range manager.Group {
-				for _, conn := range v {
-					conn.Message <- data.Message
-				}
+	for data := range manager.BroadCastMessage {
+		for _, v := range manager.Group {
+			for _, conn := range v {
+				conn.Message <- data.Message
 			}
 		}
 	}
@@ -306,7 +296,7 @@ func (manager *Manager) WsClient(c *gin.Context) {
 	go client.Write(ctx)
 	time.Sleep(time.Second * 15)
 
-	tools.FileMonitoringById(ctx, "temp/logs/job/db-20200820.log", c.Param("id"), c.Param("channel"), SendOne)
+	FileMonitoringById(ctx, "temp/logs/job/db-20200820.log", c.Param("id"), c.Param("channel"), SendOne)
 }
 
 func (manager *Manager) UnWsClient(c *gin.Context) {

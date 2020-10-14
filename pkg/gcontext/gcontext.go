@@ -1,7 +1,6 @@
 package gcontext
 
 import (
-	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -32,11 +31,11 @@ func GetOrm(c *gin.Context) (*gorm.DB, error) {
 	if !exist {
 		return nil, fmt.Errorf("msgID[%s], db connect not exist", msgID)
 	}
-	switch idb.(type) {
+	switch v := idb.(type) {
 	case *gorm.DB:
 		// 新增操作
-		return idb.(*gorm.DB), nil
+		return v, nil
 	default:
-		return nil, errors.New(fmt.Sprintf("msgID[%s], db connect not exist", msgID))
+		return nil, fmt.Errorf("msgID[%s], db connect not exist", msgID)
 	}
 }

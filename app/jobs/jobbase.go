@@ -2,7 +2,6 @@ package jobs
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -16,7 +15,6 @@ var timeFormat = "2006-01-02 15:04:05"
 var retryCount = 3
 
 var jobList map[string]JobsExec
-var lock sync.Mutex
 
 type JobCore struct {
 	InvokeTarget   string
@@ -71,7 +69,7 @@ LOOP:
 			time.Sleep(time.Duration(count) * time.Second)
 			goto LOOP
 		}
-		count = count + 1
+		count++
 	}
 	// 结束时间
 	endTime := time.Now()

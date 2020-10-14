@@ -19,9 +19,9 @@ func InitRouter() {
 		h = gin.New()
 		deployed.Cfg.SetEngine(h)
 	}
-	switch h.(type) {
+	switch v := h.(type) {
 	case *gin.Engine:
-		r = h.(*gin.Engine)
+		r = v
 	default:
 		logger.Fatal("not support other engine")
 		os.Exit(-1)

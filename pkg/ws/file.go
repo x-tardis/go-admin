@@ -1,4 +1,4 @@
-package tools
+package ws
 
 import (
 	"bufio"
