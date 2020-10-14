@@ -8,7 +8,7 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/apis/auth"
 	"github.com/x-tardis/go-admin/app/admin/middleware"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/logger"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	middleware2 "github.com/x-tardis/go-admin/pkg/middleware"
 )
 
@@ -23,7 +23,7 @@ func InitRouter() {
 	case *gin.Engine:
 		r = v
 	default:
-		logger.Fatal("not support other engine")
+		izap.Logger.Fatal("not support other engine")
 		os.Exit(-1)
 	}
 	if deployed.SslConfig.Enable {

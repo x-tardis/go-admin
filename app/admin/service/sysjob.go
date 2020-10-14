@@ -8,7 +8,7 @@ import (
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/service"
-	"github.com/x-tardis/go-admin/pkg/logger"
+	"github.com/x-tardis/go-admin/pkg/izap"
 )
 
 type SysJob struct {
@@ -23,7 +23,7 @@ func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 	data.JobId = c.Id
 	err = e.Orm.Table(data.TableName()).First(&data).Error
 	if err != nil {
-		logger.Errorf("msgID[%s] db error:%s", msgID, err)
+		izap.Sugar.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
 	}
 	cn := jobs.Remove(data.EntryId)
@@ -33,7 +33,7 @@ func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 		if res {
 			err = e.Orm.Table(data.TableName()).Where("entry_id = ?", data.EntryId).Update("entry_id", 0).Error
 			if err != nil {
-				logger.Errorf("msgID[%s] db error:%s", msgID, err)
+				izap.Sugar.Errorf("msgID[%s] db error:%s", msgID, err)
 			}
 			return err
 		}
@@ -51,7 +51,7 @@ func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
 	msgID := e.MsgID
 	err = e.Orm.Table(data.TableName()).First(&data, c.Id).Error
 	if err != nil {
-		logger.Errorf("msgID[%s] db error:%s", msgID, err)
+		izap.Sugar.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
 	}
 	if data.JobType == 1 {
@@ -62,7 +62,7 @@ func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
 		j.Name = data.JobName
 		data.EntryId, err = jobs.AddJob(j)
 		if err != nil {
-			logger.Errorf("msgID[%s] jobs AddJob[HttpJob] error:%s", msgID, err)
+			izap.Sugar.Errorf("msgID[%s] jobs AddJob[HttpJob] error:%s", msgID, err)
 		}
 	} else {
 		var j = &jobs.ExecJob{}
@@ -73,7 +73,7 @@ func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
 		j.Args = data.Args
 		data.EntryId, err = jobs.AddJob(j)
 		if err != nil {
-			logger.Errorf("msgID[%s] jobs AddJob[ExecJob] error:%s", msgID, err)
+			izap.Sugar.Errorf("msgID[%s] jobs AddJob[ExecJob] error:%s", msgID, err)
 		}
 	}
 	if err != nil {
@@ -82,7 +82,7 @@ func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
 
 	err = e.Orm.Table(data.TableName()).Where(c.Id).Updates(&data).Error
 	if err != nil {
-		logger.Errorf("msgID[%s] db error:%s", msgID, err)
+		izap.Sugar.Errorf("msgID[%s] db error:%s", msgID, err)
 	}
 	return err
 }

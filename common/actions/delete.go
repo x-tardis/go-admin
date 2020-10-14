@@ -8,8 +8,8 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/gcontext"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -18,7 +18,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := gcontext.GetOrm(c)
 		if err != nil {
-			logger.Error(err)
+			izap.Sugar.Error(err)
 			return
 		}
 
@@ -27,7 +27,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		req := control.Generate()
 		err = req.Bind(c)
 		if err != nil {
-			logger.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+			izap.Sugar.Errorf("MsgID[%s] Bind error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
 			return
 		}
@@ -47,7 +47,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Delete(object)
 		if db.Error != nil {
-			logger.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+			izap.Sugar.Errorf("MsgID[%s] Delete error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "删除失败")
 			return
 		}

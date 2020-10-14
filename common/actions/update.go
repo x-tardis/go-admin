@@ -8,8 +8,8 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/gcontext"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -18,7 +18,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := gcontext.GetOrm(c)
 		if err != nil {
-			logger.Error(err)
+			izap.Sugar.Error(err)
 			return
 		}
 
@@ -45,7 +45,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
-			logger.Errorf("MsgID[%s] Update error: %s", msgID, err)
+			izap.Sugar.Errorf("MsgID[%s] Update error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "更新失败")
 			return
 		}

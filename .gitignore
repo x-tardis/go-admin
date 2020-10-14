@@ -3,8 +3,7 @@
 go-admin
 docs
 bin
-temp/
-!temp
+temp
 vendor
 static/uploadfile
 config/settings.dev.yml

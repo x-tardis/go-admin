@@ -10,8 +10,8 @@ import (
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/gcontext"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -26,7 +26,7 @@ func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := gcontext.GetOrm(c)
 		if err != nil {
-			logger.Error(err)
+			izap.Sugar.Error(err)
 			return
 		}
 
@@ -35,7 +35,7 @@ func PermissionAction() gin.HandlerFunc {
 		if userId := jwtauth.UserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
-				logger.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
+				izap.Sugar.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
 				servers.FailWithRequestID(c, http.StatusInternalServerError, "权限范围鉴定错误")
 				c.Abort()
 				return

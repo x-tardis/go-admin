@@ -6,7 +6,7 @@ import (
 	"github.com/x-tardis/go-admin/app/admin/models"
 	"github.com/x-tardis/go-admin/common/dto"
 	common "github.com/x-tardis/go-admin/common/models"
-	"github.com/x-tardis/go-admin/pkg/logger"
+	"github.com/x-tardis/go-admin/pkg/izap"
 )
 
 type SysJobSearch struct {
@@ -26,7 +26,7 @@ func (m *SysJobSearch) GetNeedSearch() interface{} {
 func (m *SysJobSearch) Bind(ctx *gin.Context) error {
 	err := ctx.ShouldBind(m)
 	if err != nil {
-		logger.Errorf("MsgID[%s] Bind error: %s", err)
+		izap.Sugar.Errorf("MsgID[%s] Bind error: %s", err)
 	}
 	return err
 }

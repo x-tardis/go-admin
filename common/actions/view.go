@@ -10,7 +10,7 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/gcontext"
-	"github.com/x-tardis/go-admin/pkg/logger"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -19,7 +19,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := gcontext.GetOrm(c)
 		if err != nil {
-			logger.Error(err)
+			izap.Sugar.Error(err)
 			return
 		}
 
@@ -57,7 +57,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 			return
 		}
 		if err != nil {
-			logger.Errorf("MsgID[%s] View error: %s", msgID, err)
+			izap.Sugar.Errorf("MsgID[%s] View error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "查看失败")
 			return
 		}

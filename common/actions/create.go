@@ -8,8 +8,8 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/gcontext"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/logger"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -18,7 +18,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := gcontext.GetOrm(c)
 		if err != nil {
-			logger.Error(err)
+			izap.Sugar.Error(err)
 			return
 		}
 
@@ -39,7 +39,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		object.SetCreateBy(uint(jwtauth.UserId(c)))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
-			logger.Errorf("MsgID[%s] Create error: %s", msgID, err)
+			izap.Sugar.Errorf("MsgID[%s] Create error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "创建失败")
 			return
 		}

@@ -10,7 +10,7 @@ import (
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/gcontext"
-	"github.com/x-tardis/go-admin/pkg/logger"
+	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
@@ -20,7 +20,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 	return func(c *gin.Context) {
 		db, err := gcontext.GetOrm(c)
 		if err != nil {
-			logger.Error(err)
+			izap.Sugar.Error(err)
 			return
 		}
 
@@ -49,7 +49,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			Find(list).Limit(-1).Offset(-1).
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			logger.Errorf("MsgID[%s] Index error: %s", msgID, err)
+			izap.Sugar.Errorf("MsgID[%s] Index error: %s", msgID, err)
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "查询失败")
 			return
 		}

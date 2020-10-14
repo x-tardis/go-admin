@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/x-tardis/go-admin/pkg/logger"
+	"go.uber.org/zap"
+
+	"github.com/x-tardis/go-admin/pkg/izap"
 )
 
 type Config struct {
@@ -55,13 +57,13 @@ func (c *Config) GetEngine() http.Handler {
 }
 
 // SetLogger 设置日志组件
-func (c *Config) SetLogger(l logger.Logger) {
-	logger.DefaultLogger = l
+func (c *Config) SetLogger(l *zap.SugaredLogger) {
+	// logger.DefaultLogger = l
 }
 
 // GetLogger 获取日志组件
-func (c *Config) GetLogger() logger.Logger {
-	return logger.DefaultLogger
+func (c *Config) GetLogger() *zap.SugaredLogger {
+	return izap.Sugar
 }
 
 // SetSaas 设置是否是saas应用
