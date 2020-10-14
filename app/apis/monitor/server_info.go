@@ -30,24 +30,31 @@ type Os struct {
 	Ip           string `json:"ip"`
 	ProjectDir   string `json:"projectDir"`
 }
+
+// Mem mem信息
 type Mem struct {
-	Total float64 `json:"total,string"`
-	Used  float64 `json:"used,string"`
-	Free  float64 `json:"free,string"`
-	Usage float64 `json:"usage,string"`
+	Total       float64 `json:"total,string"`
+	Used        float64 `json:"used,string"`
+	Free        float64 `json:"free,string"`
+	UsedPercent float64 `json:"usedPercent,string"`
 }
 
+// Cpu cpu信息
 type Cpu struct {
 	CpuInfo []cpu.InfoStat `json:"cpuInfo"`
 	Percent float64        `json:"percent,string"`
 	CpuNum  int            `json:"cpuNum"`
 }
 
+// Disk disk信息
 type Disk struct {
-	Total float64 `json:"total,string"`
-	Free  float64 `json:"free,string"`
+	Total       float64 `json:"total,string"`
+	Used        float64 `json:"used,string"`
+	Free        float64 `json:"free,string"`
+	UsedPercent float64 `json:"usedPercent,string"`
 }
 
+// SystemInfo system info
 type SystemInfo struct {
 	Code int  `json:"code"`
 	Os   Os   `json:"os"`
@@ -64,7 +71,7 @@ type SystemInfo struct {
 func ServerInfo(c *gin.Context) {
 	projectDir, _ := os.Getwd()
 	dis, _ := disk.Usage("/")
-	vmem, _ := mem.VirtualMemory()
+	vMem, _ := mem.VirtualMemory()
 	percent, _ := cpu.Percent(0, false)
 	cpuInfo, _ := cpu.Info()
 	cpuNum, _ := cpu.Counts(false)
@@ -82,10 +89,10 @@ func ServerInfo(c *gin.Context) {
 			projectDir,
 		},
 		Mem{
-			infra.Round(float64(vmem.Total)/GB, 2),
-			infra.Round(float64(vmem.Used)/GB, 2),
-			infra.Round(float64(vmem.Free)/GB, 2),
-			infra.Round(vmem.UsedPercent, 2),
+			infra.Round(float64(vMem.Total)/GB, 2),
+			infra.Round(float64(vMem.Used)/GB, 2),
+			infra.Round(float64(vMem.Free)/GB, 2),
+			infra.Round(vMem.UsedPercent, 2),
 		},
 		Cpu{
 			cpuInfo,
@@ -94,7 +101,9 @@ func ServerInfo(c *gin.Context) {
 		},
 		Disk{
 			infra.Round(float64(dis.Total)/GB, 2),
+			infra.Round(float64(dis.Used)/GB, 2),
 			infra.Round(float64(dis.Free)/GB, 2),
+			infra.Round(dis.UsedPercent, 2),
 		},
 	})
 }
