@@ -8,13 +8,6 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-type Jwt struct {
-	Secret  string
-	Timeout int64
-}
-
-var JwtConfig = new(jwtauth.Config)
-
 func ViperJwtDefault() {
 	viper.SetDefault("jwt.realm", "go-admin")
 	viper.SetDefault("jwt.secretKey", "go-admin")

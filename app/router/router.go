@@ -5,6 +5,7 @@ import (
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cast"
@@ -34,7 +35,7 @@ func InitRouter() *gin.Engine {
 		gzap.Recovery(izap.Logger, false),             // recover
 		OperLog(),                                     // 操作日志写入数据库
 		middleware.NoCache(),                          // NoCache is a middleware function that appends headers
-		middleware.Cors(),                             // 跨域处理
+		cors.New(*deployed.CorsConfig),                // 跨域处理
 		middleware.Secure(),                           // Secure is a middleware function that appends security
 	)
 	// the jwt middleware

@@ -25,7 +25,7 @@ func GetDBTableList(c *gin.Context) {
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
-	if deployed.DatabaseConfig.Driver == "sqlite3" || deployed.DatabaseConfig.Driver == "postgres" {
+	if deployed.DbConfig.Driver == "sqlite3" || deployed.DbConfig.Driver == "postgres" {
 		servers.FailWithRequestID(c, http.StatusInternalServerError, "对不起，sqlite3 或 postgres 不支持代码生成")
 		return
 	}

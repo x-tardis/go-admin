@@ -42,7 +42,7 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	fmt.Println("jwt:", string(jwt))
 
-	database, errs := json.MarshalIndent(deployed.DatabaseConfig, "", "   ") //转换成JSON返回的是byte[]
+	database, errs := json.MarshalIndent(deployed.DbConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}

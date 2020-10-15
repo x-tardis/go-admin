@@ -28,7 +28,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 	var count int64
 	table := new(gorm.DB)
 
-	if deployed.DatabaseConfig.Driver == "mysql" {
+	if deployed.DbConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.`COLUMNS`")
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
@@ -55,7 +55,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 		return nil, errors.New("table name cannot be empty！")
 	}
 
-	if deployed.DatabaseConfig.Driver == "mysql" {
+	if deployed.DbConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.columns")
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 

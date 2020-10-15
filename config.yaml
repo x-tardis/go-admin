@@ -49,6 +49,37 @@ jwt:
   timeout: 3600s
   # token 最大刷新时间
   maxRefresh: 3600s
+cors:
+  allowAllOrigins: false
+  allowOrigins:
+    - '*'
+  allowMethods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - UPDATE
+    - PATCH
+  allowHeaders:
+    - Content-Type
+    - X-CSRF-Token
+    - Authorization
+    - authorization
+    - origin
+    - content-type
+    - accept
+  allowCredentials: true
+  exposeHeaders:
+    - Content-Type
+    - Content-Length
+    - Access-Control-Allow-Origin
+    - Access-Control-Allow-Headers
+  maxAge: 300s
+  allowWildcard: false
+  allowBrowserExtensions: false
+  allowWebSockets: true
+  allowFiles: false
 database:
   # 数据库类型 mysql，sqlite3， postgres
   driver: mysql

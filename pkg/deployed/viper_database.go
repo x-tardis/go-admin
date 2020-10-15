@@ -7,8 +7,6 @@ type Database struct {
 	Source string
 }
 
-var DatabaseConfig = new(Database)
-
 func ViperDatabase() *Database {
 	cfg := viper.Sub("database")
 	return &Database{

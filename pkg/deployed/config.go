@@ -4,8 +4,18 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/spf13/viper"
+
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
+
+var DbConfig = new(Database)
+var AppConfig = new(Application)
+var JwtConfig = new(jwtauth.Config)
+var SslConfig = new(Ssl)
+var GenConfig = new(Gen)
+var CorsConfig = new(cors.Config)
 
 // 载入配置文件
 func SetupConfig(path string) {
@@ -14,10 +24,11 @@ func SetupConfig(path string) {
 		log.Fatal(fmt.Sprintf("Parse config file fail: %s", err.Error()))
 	}
 
-	DatabaseConfig = ViperDatabase()
+	DbConfig = ViperDatabase()
 	AppConfig = ViperApplication()
 	JwtConfig = ViperJwt()
 	SslConfig = ViperSsl()
+	CorsConfig = ViperCors()
 	GenConfig = ViperGen()
 }
 

@@ -14,8 +14,6 @@ type Application struct {
 	EnableDP      bool
 }
 
-var AppConfig = new(Application)
-
 func ViperApplication() *Application {
 	return &Application{
 		viper.GetString("mode"),

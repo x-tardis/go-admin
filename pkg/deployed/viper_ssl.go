@@ -9,8 +9,6 @@ type Ssl struct {
 	Domain string
 }
 
-var SslConfig = new(Ssl)
-
 func ViperSsl() *Ssl {
 	cfg := viper.Sub("ssl")
 	if cfg == nil {

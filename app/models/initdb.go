@@ -14,7 +14,7 @@ import (
 func InitDb(db *gorm.DB) (err error) {
 	filePath := "config/db.sql"
 	err = ExecSql(db, filePath)
-	if deployed.DatabaseConfig.Driver == "postgres" {
+	if deployed.DbConfig.Driver == "postgres" {
 		filePath = "config/pg.sql"
 		err = ExecSql(db, filePath)
 	}

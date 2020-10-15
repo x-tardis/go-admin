@@ -7,8 +7,6 @@ type Gen struct {
 	FrontPath string
 }
 
-var GenConfig = new(Gen)
-
 func ViperGen() *Gen {
 	cfg := viper.Sub("gen")
 	return &Gen{

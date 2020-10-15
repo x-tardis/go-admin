@@ -40,7 +40,7 @@ func run(cmd *cobra.Command, args []string) {
 	//2. 设置日志
 	deployed.SetupLogger()
 	//3. 初始化数据库链接
-	deployed.SetupDatabase(deployed.DatabaseConfig.Driver, deployed.DatabaseConfig.Source)
+	deployed.SetupDatabase(deployed.DbConfig.Driver, deployed.DbConfig.Source)
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()
@@ -54,7 +54,7 @@ func run(cmd *cobra.Command, args []string) {
 }
 
 func migrateModel() error {
-	if deployed.DatabaseConfig.Driver == "mysql" {
+	if deployed.DbConfig.Driver == "mysql" {
 		deployed.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
 	err := deployed.DB.Debug().AutoMigrate(&models.Migration{})

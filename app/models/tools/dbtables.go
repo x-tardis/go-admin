@@ -23,7 +23,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	table := new(gorm.DB)
 	var count int64
 
-	if deployed.DatabaseConfig.Driver == "mysql" {
+	if deployed.DbConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.tables")
 		table = table.Where("TABLE_NAME not in (select table_name from " + deployed.GenConfig.DBName + ".sys_tables) ")
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
@@ -45,7 +45,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
 	table := new(gorm.DB)
-	if deployed.DatabaseConfig.Driver == "mysql" {
+	if deployed.DbConfig.Driver == "mysql" {
 		table = deployed.DB.Table("information_schema.tables")
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 		if e.TableName == "" {

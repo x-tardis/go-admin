@@ -53,7 +53,7 @@ func setup(cmd *cobra.Command, args []string) {
 	//2. 设置日志
 	deployed.SetupLogger()
 	//3. 初始化数据库链接
-	deployed.SetupDatabase(deployed.DatabaseConfig.Driver, deployed.DatabaseConfig.Source)
+	deployed.SetupDatabase(deployed.DbConfig.Driver, deployed.DbConfig.Source)
 	//4. 接口访问控制加载
 	deployed.SetupCasbin()
 
