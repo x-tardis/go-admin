@@ -64,7 +64,7 @@ func newDataPermission(tx *gorm.DB, userId interface{}) (*DataPermission, error)
 
 func Permission(tableName string, p *DataPermission) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if !deployed.ApplicationConfig.EnableDP {
+		if !deployed.AppConfig.EnableDP {
 			return db
 		}
 		switch p.DataScope {

@@ -30,7 +30,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	deployed.SetupConfig(configFile)
 
-	application, errs := json.MarshalIndent(deployed.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
+	application, errs := json.MarshalIndent(deployed.AppConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}

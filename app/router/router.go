@@ -38,7 +38,7 @@ func InitRouter() *gin.Engine {
 		middleware.Secure(),                           // Secure is a middleware function that appends security
 	)
 	// the jwt middleware
-	authMiddleware, err := auth.NewJWTAuth(deployed.ApplicationConfig.JwtSecret)
+	authMiddleware, err := auth.NewJWTAuth(deployed.JwtConfig)
 	if err != nil {
 		panic("JWT Init Error")
 	}

@@ -1,30 +1,54 @@
 # dev开发环境 debug测试环境 prod线上环境
 mode: dev
-application:
-  # 服务器ip，默认使用 0.0.0.0
-  host: 0.0.0.0
-  # 服务名称
-  name: testApp
-  # 端口号
-  port: 8000 # 服务端口号
-  readtimeout: 1
-  writertimeout: 2
-  # 数据权限功能开关
-  enabledp: false
+# 服务器ip，默认使用 0.0.0.0
+host: 0.0.0.0
+# 服务名称
+name: testApp
+# 端口号
+port: 8000 # 服务端口号
+readtimeout: 1
+writertimeout: 2
+# 数据权限功能开关
+enabledp: false
+
 logger:
-  level: debug  # debug, info, warn, error, dpanic, panic, fatal
+  # debug, info(默认), warn, error, dpanic, panic, fatal
+  level: debug
+  # 格式: json, console(默认)
   format: json
+  # LowercaseLevelEncoder: 小写编码器(默认) LowercaseColorLevelEncoder: 小写编码器带颜色
+  # CapitalLevelEncoder: 大写编码器 CapitalColorLevelEncoder: 大写编码器带颜色
   encodeLevel: LowercaseLevelEncoder
+  # 是否显示在console
   inConsole: true
+  # 使能栈调式输出
+  stack: false
+  # 保存路径
   Path: temp
 
+  # 文件名,空字符使用默认
+  fileName: go-admin.log
+  # 每个日志文件最大尺寸(MB) 默认100MB
+  maxSize: 0
+  # 日志文件保存天数, 默认0不删除
+  maxAge: 0
+  # 日志文件保存备份数, 默认0都保存
+  maxBackups: 0
+  # 是否格式化时间戳, 默认UTC时间
+  localTime: false
+  # 压缩文件,采用gzip, 默认不压缩
+  compress: false
+  # TODO:
   enableddb: false
-
 jwt:
-  # token 密钥，生产环境时及的修改
-  secret: go-admin
-  # token 过期时间 单位：秒
-  timeout: 3600
+  # 显示给用户看的
+  realm: go-admin
+  # token 密钥，生产环境请及时修改
+  secretKey: go-admin
+  # token 过期时间
+  timeout: 3600s
+  # token 最大刷新时间
+  maxRefresh: 3600s
 database:
   # 数据库类型 mysql，sqlite3， postgres
   driver: mysql

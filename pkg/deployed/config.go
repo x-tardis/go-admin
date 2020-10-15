@@ -15,7 +15,7 @@ func SetupConfig(path string) {
 	}
 
 	DatabaseConfig = ViperDatabase()
-	ApplicationConfig = ViperApplication()
+	AppConfig = ViperApplication()
 	JwtConfig = ViperJwt()
 	SslConfig = ViperSsl()
 	GenConfig = ViperGen()

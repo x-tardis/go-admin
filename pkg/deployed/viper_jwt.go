@@ -1,7 +1,11 @@
 package deployed
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
+
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 type Jwt struct {
@@ -9,12 +13,21 @@ type Jwt struct {
 	Timeout int64
 }
 
-var JwtConfig = new(Jwt)
+var JwtConfig = new(jwtauth.Config)
 
-func ViperJwt() *Jwt {
+func ViperJwtDefault() {
+	viper.SetDefault("jwt.realm", "go-admin")
+	viper.SetDefault("jwt.secretKey", "go-admin")
+	viper.SetDefault("jwt.timeout", 24*7*time.Hour)
+	viper.SetDefault("jwt.maxRefresh", 24*7*time.Hour)
+}
+
+func ViperJwt() *jwtauth.Config {
 	cfg := viper.Sub("jwt")
-	return &Jwt{
-		Secret:  cfg.GetString("secret"),
-		Timeout: cfg.GetInt64("timeout"),
+	return &jwtauth.Config{
+		cfg.GetString("realm"),
+		cfg.GetString("secretKey"),
+		cfg.GetDuration("timeout"),
+		cfg.GetDuration("maxRefresh"),
 	}
 }

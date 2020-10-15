@@ -28,8 +28,7 @@ func init() {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	usage := `start init`
-	fmt.Println(usage)
+	fmt.Println(`start init`)
 
 	viper.BindPFlags(cmd.Flags()) // nolint: errcheck
 	// viper.SetEnvPrefix("oam")

@@ -21,10 +21,10 @@ type Config struct {
 	// see lumberjack.Logger
 	FileName   string `yaml:"fileName" json:"fileName"`     // 文件名,空字符使用默认    默认<processname>-lumberjack.log
 	MaxSize    int    `yaml:"maxSize" json:"maxSize"`       // 每个日志文件最大尺寸(MB) 默认100MB,
-	MaxAge     int    `yaml:"maxAge" json:"maxAge"`         // 日志文件保存天数        默认0不删除
-	MaxBackups int    `yaml:"maxBackups" json:"maxBackups"` // 日志文件保存备份数       默认0都保存
-	LocalTime  bool   `yaml:"localTime" json:"localTime"`   // 是否格式化时间戳        默认UTC时间
-	Compress   bool   `yaml:"compress" json:"compress"`     // 压缩文件,采用gzip      默认不压缩
+	MaxAge     int    `yaml:"maxAge" json:"maxAge"`         // 日志文件保存天数, 默认0不删除
+	MaxBackups int    `yaml:"maxBackups" json:"maxBackups"` // 日志文件保存备份数, 默认0都保存
+	LocalTime  bool   `yaml:"localTime" json:"localTime"`   // 是否格式化时间戳, 默认UTC时间
+	Compress   bool   `yaml:"compress" json:"compress"`     // 压缩文件,采用gzip, 默认不压缩
 }
 
 var Logger = zap.NewNop()

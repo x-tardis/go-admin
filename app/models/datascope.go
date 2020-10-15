@@ -20,7 +20,7 @@ type DataPermission struct {
 
 func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) (*gorm.DB, error) {
 
-	if !deployed.ApplicationConfig.EnableDP {
+	if !deployed.AppConfig.EnableDP {
 		usageStr := `数据权限已经为您` + textcolor.Green(`关闭`) + `，如需开启请参考配置文件字段说明`
 		fmt.Printf("%s\n", usageStr)
 		return table, nil

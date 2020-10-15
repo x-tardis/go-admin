@@ -68,7 +68,7 @@ func run(cmd *cobra.Command, args []string) error {
 	engine := router.InitRouter()
 
 	srv := &http.Server{
-		Addr:    net.JoinHostPort(deployed.ApplicationConfig.Host, deployed.ApplicationConfig.Port),
+		Addr:    net.JoinHostPort(deployed.AppConfig.Host, deployed.AppConfig.Port),
 		Handler: engine,
 	}
 	go func() {
@@ -110,10 +110,10 @@ func tip() {
 	fmt.Println(textcolor.Red(string(content)))
 	fmt.Printf("%s \n\n", `欢迎使用 `+textcolor.Green(`go-admin `+builder.Version)+` 可以使用 `+textcolor.Red(`-h`)+` 查看命令`)
 	fmt.Println(textcolor.Green("Server run at:"))
-	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", deployed.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/ \r\n", infra.LanIP(), deployed.ApplicationConfig.Port)
+	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", deployed.AppConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/ \r\n", infra.LanIP(), deployed.AppConfig.Port)
 	fmt.Println(textcolor.Green("Swagger run at:"))
-	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", deployed.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", infra.LanIP(), deployed.ApplicationConfig.Port)
+	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", deployed.AppConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", infra.LanIP(), deployed.AppConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", time.Now().Format("2006-01-02 15:04:05"))
 }

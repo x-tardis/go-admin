@@ -24,12 +24,12 @@ const (
 	dataScopeKey = "dataScope"
 )
 
-func NewJWTAuth(key string) (*jwt.GinJWTMiddleware, error) {
+func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
-		Realm:      "test zone",
-		Key:        []byte(key),
-		Timeout:    time.Hour,
-		MaxRefresh: time.Hour,
+		Realm:      c.Realm,
+		Key:        []byte(c.SecretKey),
+		Timeout:    c.Timeout,
+		MaxRefresh: c.MaxRefresh,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(jwtauth.Identities); ok {
 				return jwt.MapClaims{
@@ -90,7 +90,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrMissingLoginValues
 	}
 
-	if deployed.ApplicationConfig.Mode == infra.ModeProd &&
+	if deployed.AppConfig.Mode == infra.ModeProd &&
 		!deployed.Captcha.Verify(req.UUID, req.Code, true) {
 		loginLogRecord(c, "1", "验证码错误", req.Username)
 		return nil, jwt.ErrFailedAuthentication
