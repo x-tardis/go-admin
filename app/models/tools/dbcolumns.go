@@ -23,7 +23,7 @@ type DBColumns struct {
 	ColumnComment          string `gorm:"column:COLUMN_COMMENT" json:"columnComment"`
 }
 
-func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, error) {
+func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int64, error) {
 	var doc []DBColumns
 	var count int64
 	table := new(gorm.DB)
@@ -43,7 +43,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 		return nil, 0, err
 	}
 	//table.Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 
 }
 

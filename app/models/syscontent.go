@@ -66,7 +66,7 @@ func (e *SysContent) Get() (SysContent, error) {
 }
 
 // 获取SysContent带分页
-func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int, error) {
+func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int64, error) {
 	var doc []SysContent
 
 	table := deployed.DB.Table(e.TableName())
@@ -96,7 +96,7 @@ func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int, er
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 // 更新SysContent

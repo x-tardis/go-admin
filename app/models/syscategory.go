@@ -60,7 +60,7 @@ func (e *SysCategory) Get() (SysCategory, error) {
 }
 
 // 获取SysCategory带分页
-func (e *SysCategory) GetPage(pageSize int, pageIndex int) ([]SysCategory, int, error) {
+func (e *SysCategory) GetPage(pageSize int, pageIndex int) ([]SysCategory, int64, error) {
 	var doc []SysCategory
 
 	table := deployed.DB.Table(e.TableName())
@@ -86,7 +86,7 @@ func (e *SysCategory) GetPage(pageSize int, pageIndex int) ([]SysCategory, int, 
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 // 更新SysCategory

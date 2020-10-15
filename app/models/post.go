@@ -82,7 +82,7 @@ func (e *Post) GetList() ([]Post, error) {
 	return doc, nil
 }
 
-func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
+func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int64, error) {
 	var doc []Post
 
 	table := deployed.DB.Table(e.TableName())
@@ -112,7 +112,7 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (e *Post) Update(id int) (update Post, err error) {

@@ -47,7 +47,7 @@ func GetDBTableList(c *gin.Context) {
 
 	servers.Success(c, servers.WithData(&paginator.Page{
 		List:      result,
-		Count:     count,
+		Total:     count,
 		PageIndex: pageIndex,
 		PageSize:  pageSize,
 	}))

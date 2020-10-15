@@ -55,7 +55,7 @@ func (e *SysOperLog) Get() (SysOperLog, error) {
 	return doc, nil
 }
 
-func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int, error) {
+func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int64, error) {
 	var doc []SysOperLog
 
 	table := deployed.DB.Table(e.TableName())
@@ -78,7 +78,7 @@ func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int, er
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (e *SysOperLog) Create() (SysOperLog, error) {

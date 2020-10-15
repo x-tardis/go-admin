@@ -18,7 +18,7 @@ type DBTables struct {
 	TableComment   string `gorm:"column:TABLE_COMMENT" json:"tableComment"`
 }
 
-func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error) {
+func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int64, error) {
 	var doc []DBTables
 	table := new(gorm.DB)
 	var count int64
@@ -39,7 +39,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	}
 
 	//table.Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (e *DBTables) Get() (DBTables, error) {

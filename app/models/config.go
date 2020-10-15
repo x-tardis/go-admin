@@ -65,7 +65,7 @@ func (e *SysConfig) Get() (SysConfig, error) {
 	return doc, nil
 }
 
-func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, error) {
+func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int64, error) {
 	var doc []SysConfig
 
 	table := deployed.DB.Table(e.TableName())
@@ -93,7 +93,7 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (e *SysConfig) Update(id int) (update SysConfig, err error) {

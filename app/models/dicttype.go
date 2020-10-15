@@ -85,7 +85,7 @@ func (e *DictType) GetList() ([]DictType, error) {
 	return doc, nil
 }
 
-func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error) {
+func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int64, error) {
 	var doc []DictType
 	var db *gorm.DB
 
@@ -110,7 +110,7 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 		return nil, 0, err
 	}
 	//table.Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (e *DictType) Update(id int) (update DictType, err error) {

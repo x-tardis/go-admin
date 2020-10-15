@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// NewCasbinEnforcer new casbin enforcer
-func NewCasbinEnforcer(m model.Model, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
+// NewCasbinSyncedEnforcer new casbin enforcer
+func NewCasbinSyncedEnforcer(m model.Model, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
 	adapter, err := gormAdapter.NewAdapterByDBUsePrefix(db, "sys_")
 	if err != nil {
 		return nil, err
@@ -22,20 +22,20 @@ func NewCasbinEnforcer(m model.Model, db *gorm.DB) (*casbin.SyncedEnforcer, erro
 	return e, err
 }
 
-// NewCasbinEnforcerFromString new casbin enforcer from text
-func NewCasbinEnforcerFromString(modelText string, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
+// NewCasbinSyncedEnforcerFromString new casbin enforcer from text
+func NewCasbinSyncedEnforcerFromString(modelText string, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
 	md, err := model.NewModelFromString(modelText)
 	if err != nil {
 		return nil, err
 	}
-	return NewCasbinEnforcer(md, db)
+	return NewCasbinSyncedEnforcer(md, db)
 }
 
-// NedwCasbinEnforcerFromFile new casbin enforcer from file
-func NewCasbinEnforcerFromFile(modelPath string, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
+// NewCasbinSyncedEnforcerFromFile new casbin enforcer from file
+func NewCasbinSyncedEnforcerFromFile(modelPath string, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
 	md, err := model.NewModelFromFile(modelPath)
 	if err != nil {
 		return nil, err
 	}
-	return NewCasbinEnforcer(md, db)
+	return NewCasbinSyncedEnforcer(md, db)
 }

@@ -52,7 +52,7 @@ func (e *SysFileInfo) Get() (SysFileInfo, error) {
 }
 
 // 获取SysFileInfo带分页
-func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int, error) {
+func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int64, error) {
 	var doc []SysFileInfo
 
 	table := deployed.DB.Table(e.TableName())
@@ -74,7 +74,7 @@ func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int, 
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 // 更新SysFileInfo

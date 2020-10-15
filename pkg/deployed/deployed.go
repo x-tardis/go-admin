@@ -34,7 +34,7 @@ var CasbinEnforcer *casbin.SyncedEnforcer
 var Cfg cconfig.Conf = cconfig.DefaultConfig()
 
 func SetupCasbin() {
-	e, err := middleware.NewCasbinEnforcerFromString(CasbinModeText, DB)
+	e, err := middleware.NewCasbinSyncedEnforcerFromString(CasbinModeText, DB)
 	if err != nil {
 		panic(err)
 	}

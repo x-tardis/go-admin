@@ -56,7 +56,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 
 		servers.Success(c, servers.WithData(&paginator.Page{
 			List:      list,
-			Count:     int(count),
+			Total:     count,
 			PageIndex: req.GetPageIndex(),
 			PageSize:  req.GetPageSize(),
 		}), servers.WithMessage("查询成功"))

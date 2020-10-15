@@ -46,7 +46,7 @@ func (e *LoginLog) Get() (LoginLog, error) {
 	return doc, nil
 }
 
-func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int, error) {
+func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int64, error) {
 	var doc []LoginLog
 
 	table := deployed.DB.Table(e.TableName())
@@ -66,7 +66,7 @@ func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int, error)
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (e *LoginLog) Create() (LoginLog, error) {

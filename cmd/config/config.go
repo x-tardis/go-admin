@@ -42,6 +42,12 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	fmt.Println("jwt:", string(jwt))
 
+	// cors, errs := json.MarshalIndent(deployed.CorsConfig, "", "   ") //转换成JSON返回的是byte[]
+	// if errs != nil {
+	// 	fmt.Println(errs.Error())
+	// }
+	// fmt.Println("cors:", string(cors))
+
 	database, errs := json.MarshalIndent(deployed.DbConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())

@@ -37,7 +37,6 @@ func Get(url string) (string, error) {
 // contentType： 请求体格式，如：application/json
 // content：     请求放回的内容
 func Post(url string, data interface{}, contentType string) (string, error) {
-	// 超时时间：5秒
 	jsonStr, err := json.Marshal(data)
 	if err != nil {
 		return "", err

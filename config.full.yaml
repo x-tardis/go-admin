@@ -71,14 +71,14 @@ cors:
     - PATCH
   allowHeaders:
     - Content-Type
+    - Content-Length
     - AccessToken
     - Token
     - X-Token
     - Accept
+    - Origin
     - Authorization
-    - Content-Length
     - X-CSRF-Token
-    - X-User-Id"
   allowCredentials: true
   exposeHeaders:
     - Content-Type

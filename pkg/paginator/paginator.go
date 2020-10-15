@@ -2,7 +2,7 @@ package paginator
 
 type Page struct {
 	List      interface{} `json:"list"`
-	Count     int         `json:"count"`
+	Total     int64       `json:"total"`
 	PageIndex int         `json:"pageIndex"`
 	PageSize  int         `json:"pageSize"`
 }

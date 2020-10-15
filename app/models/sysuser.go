@@ -194,7 +194,7 @@ func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
 	return
 }
 
-func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, error) {
+func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int64, error) {
 	var doc []SysUserPage
 	table := deployed.DB.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
 	table = table.Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
@@ -226,7 +226,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 //加密

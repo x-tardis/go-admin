@@ -95,7 +95,7 @@ func (e *DictData) Get() ([]DictData, error) {
 	return doc, nil
 }
 
-func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error) {
+func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int64, error) {
 	var doc []DictData
 
 	table := deployed.DB.Table(e.TableName())
@@ -125,7 +125,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (e *DictData) Update(id int) (update DictData, err error) {

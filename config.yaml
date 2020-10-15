@@ -63,12 +63,14 @@ cors:
     - PATCH
   allowHeaders:
     - Content-Type
-    - X-CSRF-Token
+    - Content-Length
+    - AccessToken
+    - Token
+    - X-Token
+    - Accept
+    - Origin
     - Authorization
-    - authorization
-    - origin
-    - content-type
-    - accept
+    - X-CSRF-Token
   allowCredentials: true
   exposeHeaders:
     - Content-Type

@@ -39,7 +39,7 @@ func (role *SysRole) GetById(tx *gorm.DB, id interface{}) error {
 	return tx.First(role, id).Error
 }
 
-func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error) {
+func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int64, error) {
 	var doc []SysRole
 
 	table := deployed.DB.Table("sys_role")
@@ -69,7 +69,7 @@ func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, count, nil
 }
 
 func (role *SysRole) Get() (SysRole SysRole, err error) {
