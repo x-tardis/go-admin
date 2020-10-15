@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -49,7 +50,7 @@ func GetSysTableList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	servers.Success(c, servers.WithData(mp))
+	servers.JSON(c, http.StatusOK, servers.WithData(mp))
 }
 
 // @Summary 获取配置
@@ -71,7 +72,7 @@ func GetSysTables(c *gin.Context) {
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	servers.Success(c, servers.WithData(mp))
+	servers.JSON(c, http.StatusOK, servers.WithData(mp))
 }
 
 func GetSysTablesInfo(c *gin.Context) {
@@ -87,7 +88,7 @@ func GetSysTablesInfo(c *gin.Context) {
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	servers.Success(c, servers.WithData(mp))
+	servers.JSON(c, http.StatusOK, servers.WithData(mp))
 }
 
 func GetSysTablesTree(c *gin.Context) {
@@ -97,7 +98,7 @@ func GetSysTablesTree(c *gin.Context) {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 添加表结构
@@ -124,7 +125,7 @@ func InsertSysTable(c *gin.Context) {
 			return
 		}
 	}
-	servers.Success(c, servers.WithMessage("添加成功"))
+	servers.JSON(c, http.StatusOK, servers.WithMsg("添加成功"))
 }
 
 func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
@@ -258,7 +259,7 @@ func UpdateSysTable(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(result), servers.WithMessage(codes.UpdatedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithData(result), servers.WithMsg(codes.UpdatedSuccess))
 }
 
 // @Summary 删除表结构
@@ -276,5 +277,5 @@ func DeleteSysTables(c *gin.Context) {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.Success(c, servers.WithMessage(codes.DeletedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
 }

@@ -1,6 +1,7 @@
 package system
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -51,7 +52,7 @@ func GetRoleList(c *gin.Context) {
 		return
 	}
 
-	servers.Success(c, servers.WithData(&paginator.Page{
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
 		List:      result,
 		Total:     count,
 		PageIndex: pageIndex,

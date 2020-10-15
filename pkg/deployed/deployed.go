@@ -19,7 +19,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
-var Verify = password.BCrypt{}
+var Verify = new(password.BCrypt)
 
 // var DriverString = base64Captcha.NewDriverString(46, 140, 2, 2, 4,
 // 	"234567890abcdefghjkmnpqrstuvwxyz", &color.RGBA{240, 240, 246, 246}, []string{"wqy-microhei.ttc"}).ConvertFonts()

@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"net/http"
 	"strconv"
 	"text/template"
 	"time"
@@ -75,7 +76,7 @@ func Preview(c *gin.Context) {
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
 
-	servers.Success(c, servers.WithData(mp))
+	servers.JSON(c, http.StatusOK, servers.WithData(mp))
 }
 
 func GenCodeV3(c *gin.Context) {

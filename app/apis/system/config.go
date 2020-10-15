@@ -1,6 +1,7 @@
 package system
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,7 @@ func GetConfigList(c *gin.Context) {
 		return
 	}
 
-	servers.Success(c, servers.WithData(&paginator.Page{
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
 		List:      result,
 		Total:     count,
 		PageIndex: pageIndex,
@@ -72,7 +73,7 @@ func GetConfig(c *gin.Context) {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 获取配置

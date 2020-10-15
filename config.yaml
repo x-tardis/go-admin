@@ -10,6 +10,8 @@ readtimeout: 1
 writertimeout: 2
 # 数据权限功能开关
 enabledp: false
+  # TODO:
+enableddb: false
 
 logger:
   # debug, info(默认), warn, error, dpanic, panic, fatal
@@ -38,8 +40,7 @@ logger:
   localTime: false
   # 压缩文件,采用gzip, 默认不压缩
   compress: false
-  # TODO:
-  enableddb: false
+
 jwt:
   # 显示给用户看的
   realm: go-admin

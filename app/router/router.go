@@ -58,7 +58,6 @@ func RegisterSys(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	go ws.WebsocketManager.SendAllService()
 
 	engine.GET("/", system.HelloWorld)
-	engine.GET("/info", system.Ping)
 	engine.POST("/login", authMiddleware.LoginHandler)
 	engine.GET("/refresh_token", authMiddleware.RefreshHandler) // Refresh time can be longer than token timeout
 

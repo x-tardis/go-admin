@@ -1,6 +1,8 @@
 package log
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
@@ -29,17 +31,20 @@ func GetLoginLogList(c *gin.Context) {
 	var pageSize = 10
 	var pageIndex = 1
 
-	pageSize = cast.ToInt(c.DefaultQuery("pageSize", "10"))
-	pageSize = cast.ToInt(c.DefaultQuery("pageIndex", "1"))
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageSize")),
+		PageSize:  cast.ToInt(c.Query("pageIndex")),
+	}
+	param.Inspect()
 	data.Username = c.Request.FormValue("username")
 	data.Status = c.Request.FormValue("status")
 	data.Ipaddr = c.Request.FormValue("ipaddr")
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, count, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(&paginator.Page{
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
 		List:      result,
 		Total:     count,
 		PageIndex: pageIndex,
@@ -63,7 +68,7 @@ func GetLoginLog(c *gin.Context) {
 		servers.Fail(c, -1, "抱歉未找到相关信息")
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 添加登录日志
@@ -88,7 +93,7 @@ func InsertLoginLog(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 修改登录日志
@@ -113,7 +118,7 @@ func UpdateLoginLog(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 批量删除登录日志
@@ -133,5 +138,5 @@ func DeleteLoginLog(c *gin.Context) {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.Success(c, servers.WithMessage(codes.DeletedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
 }

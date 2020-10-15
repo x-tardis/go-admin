@@ -1,6 +1,8 @@
 package system
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -19,5 +21,5 @@ import (
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/system/ping [get]
 func Ping(c *gin.Context) {
-	servers.Success(c, servers.WithMessage("pong"))
+	servers.JSON(c, http.StatusOK, servers.WithMsg("pong"))
 }

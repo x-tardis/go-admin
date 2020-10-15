@@ -1,6 +1,7 @@
 package log
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -48,7 +49,7 @@ func GetOperLogList(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(&paginator.Page{
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
 		List:      result,
 		Total:     count,
 		PageIndex: pageIndex,
@@ -71,7 +72,7 @@ func GetOperLog(c *gin.Context) {
 		servers.Fail(c, -1, "抱歉未找到相关信息")
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 添加操作日志
@@ -96,7 +97,7 @@ func InsertOperLog(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 批量删除操作日志
@@ -115,5 +116,5 @@ func DeleteOperLog(c *gin.Context) {
 		servers.Fail(c, 500, "删除失败")
 		return
 	}
-	servers.Success(c, servers.WithMessage("删除成功"))
+	servers.JSON(c, http.StatusOK, servers.WithMsg("删除成功"))
 }

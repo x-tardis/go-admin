@@ -9,6 +9,7 @@ import (
 func PubSysSetting(v1 gin.IRouter) {
 	r := v1.Group("/system")
 	{
+		r.GET("/ping", system.Ping)
 		r.GET("/setting", system.GetSetting)
 		r.POST("/setting", system.CreateSetting)
 		r.GET("/info", monitor.SystemInfo)

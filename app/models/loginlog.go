@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/thinkgos/sharp/core/paginator"
+
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -46,9 +48,7 @@ func (e *LoginLog) Get() (LoginLog, error) {
 	return doc, nil
 }
 
-func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int64, error) {
-	var doc []LoginLog
-
+func (e *LoginLog) GetPage(param paginator.Param) ([]LoginLog, int64, error) {
 	table := deployed.DB.Table(e.TableName())
 	if e.Ipaddr != "" {
 		table = table.Where("ipaddr = ?", e.Ipaddr)
@@ -60,9 +60,12 @@ func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int64, erro
 		table = table.Where("userName = ?", e.Username)
 	}
 
+	var doc []LoginLog
 	var count int64
 
-	if err := table.Order("info_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+	if err := table.Order("info_id desc").
+		Offset((param.PageIndex - 1) * param.PageSize).Limit(param.PageSize).Find(&doc).
+		Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
 	//table.Where("`deleted_at` IS NULL").Count(&count)

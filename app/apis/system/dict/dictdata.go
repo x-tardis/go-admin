@@ -1,6 +1,7 @@
 package dict
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -51,7 +52,7 @@ func GetDictDataList(c *gin.Context) {
 		return
 	}
 
-	servers.Success(c, servers.WithData(&paginator.Page{
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
 		List:      result,
 		Total:     count,
 		PageIndex: pageIndex,
@@ -75,7 +76,7 @@ func GetDictData(c *gin.Context) {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 通过字典类型获取字典数据
@@ -93,7 +94,7 @@ func GetDictDataByDictType(c *gin.Context) {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 添加字典数据
@@ -119,7 +120,7 @@ func InsertDictData(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 修改字典数据
@@ -145,7 +146,7 @@ func UpdateDictData(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 // @Summary 删除字典数据

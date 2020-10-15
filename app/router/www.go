@@ -4,8 +4,6 @@ import (
 	"mime"
 
 	"github.com/gin-gonic/gin"
-
-	_ "github.com/x-tardis/go-admin/docs"
 )
 
 func StaticFile(r gin.IRouter) {

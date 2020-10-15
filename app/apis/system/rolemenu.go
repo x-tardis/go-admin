@@ -26,7 +26,7 @@ func GetRoleMenu(c *gin.Context) {
 		servers.FailWithRequestID(c, http.StatusOK, "抱歉未找到相关信息")
 		return
 	}
-	servers.Success(c, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
 type RoleMenuPost struct {
@@ -35,7 +35,7 @@ type RoleMenuPost struct {
 }
 
 func InsertRoleMenu(c *gin.Context) {
-	servers.Success(c, servers.WithMessage("添加成功"))
+	servers.JSON(c, http.StatusOK, servers.WithMsg("添加成功"))
 }
 
 // @Summary 删除用户菜单数据
@@ -56,5 +56,5 @@ func DeleteRoleMenu(c *gin.Context) {
 		servers.FailWithRequestID(c, http.StatusOK, "删除失败")
 		return
 	}
-	servers.Success(c, servers.WithMessage("删除成功"))
+	servers.JSON(c, http.StatusOK, servers.WithMsg("删除成功"))
 }

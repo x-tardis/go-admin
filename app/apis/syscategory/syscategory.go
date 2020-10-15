@@ -1,6 +1,7 @@
 package syscategory
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -36,7 +37,7 @@ func GetSysCategoryList(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.Success(c, servers.WithData(&paginator.Page{
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
 		List:      result,
 		Total:     count,
 		PageIndex: pageIndex,

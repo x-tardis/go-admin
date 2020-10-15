@@ -1,6 +1,7 @@
 package servers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,11 +9,16 @@ import (
 	"github.com/x-tardis/go-admin/pkg/gcontext"
 )
 
+// Code code interface
+type Code interface {
+	fmt.Stringer
+	Value() int
+}
 type Response struct {
-	Code      int         `json:"code" example:"200"`
-	Data      interface{} `json:"data"`
-	Msg       string      `json:"msg,omitempty"`
-	RequestId string      `json:"requestId,omitempty"`
+	Code   int         `json:"code" example:"200"`
+	Msg    string      `json:"msg,omitempty"`
+	Detail string      `json:"detail,omitempty"` // 错误携带的信息, 用于开发者调试
+	Data   interface{} `json:"data"`
 }
 
 type Option func(r *Response)
@@ -29,20 +35,40 @@ func WithCode(code int) Option {
 	}
 }
 
-func WithMessage(msg string) Option {
+func WithMsg(msg string) Option {
 	return func(r *Response) {
 		r.Msg = msg
 	}
 }
 
-func WithRequestId(requestId string) Option {
+// WithICode Code interface 使应答修改code和msg,用于显示
+func WithICode(code Code) Option {
 	return func(r *Response) {
-		r.RequestId = requestId
+		r.Code = code.Value()
+		r.Msg = code.String()
+	}
+}
+
+// WithDetail detail 开发调试使用
+func WithDetail(detail string) Option {
+	return func(r *Response) {
+		r.Detail = detail
+	}
+}
+
+// WithError err detail为err的stringer
+func WithError(err error) Option {
+	return func(r *Response) {
+		r.Detail = err.Error()
 	}
 }
 
 func JSON(c *gin.Context, httpCode int, opts ...Option) {
-	r := Response{Code: http.StatusOK, Data: "{}"}
+	r := Response{
+		Code: httpCode,
+		Msg:  http.StatusText(httpCode),
+		Data: "{}",
+	}
 
 	for _, opt := range opts {
 		opt(&r)
@@ -50,20 +76,18 @@ func JSON(c *gin.Context, httpCode int, opts ...Option) {
 	c.JSON(httpCode, r)
 }
 
-func Success(c *gin.Context, opts ...Option) {
-	JSON(c, http.StatusOK, opts...)
-}
-
 // 通常成功数据处理
 func OKWithRequestID(c *gin.Context, data interface{}, msg string) {
-	Success(c, WithData(data), WithMessage(msg), WithRequestId(gcontext.GenerateMsgIDFromContext(c)))
+	c.Header("X-Request-Id", gcontext.GenerateMsgIDFromContext(c))
+	JSON(c, http.StatusOK, WithData(data), WithMsg(msg))
 }
 
 func Fail(c *gin.Context, code int, msg string) {
-	Success(c, WithCode(code), WithMessage(msg))
+	JSON(c, http.StatusOK, WithCode(code), WithMsg(msg))
 }
 
 // 失败数据处理
 func FailWithRequestID(c *gin.Context, code int, msg string) {
-	Success(c, WithCode(code), WithMessage(msg))
+	c.Header("X-Request-Id", gcontext.GenerateMsgIDFromContext(c))
+	JSON(c, http.StatusOK, WithCode(code), WithMsg(msg))
 }

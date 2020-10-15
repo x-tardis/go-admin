@@ -9,9 +9,9 @@ import (
 
 // ViperCorsDefault cors 默认值
 func ViperCorsDefault() {
-	viper.SetDefault("cors.allowOrigins", []string{"*"})
+	viper.SetDefault("cors.allowOrigins", []string{})
 	viper.SetDefault("cors.allowMethods", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "UPDATE", "PATCH"})
-	viper.SetDefault("cors.allowHeaders", []string{"Content-Type", "AccessToken", "X-CSRF-Token", "Authorization", "Token", "X-Token", "X-User-Id\""})
+	viper.SetDefault("cors.allowHeaders", []string{"Content-Type", "Content-Length", "AccessToken", "X-CSRF-Token", "Authorization", "Token", "X-Token"})
 	viper.SetDefault("cors.allowCredentials", true)
 	viper.SetDefault("cors.exposeHeaders", []string{"Content-Type", "Content-Length", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers"})
 	viper.SetDefault("cors.maxAge", 300*time.Second)

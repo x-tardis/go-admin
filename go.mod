@@ -48,7 +48,6 @@ require (
 	github.com/thinkgos/sharp v0.3.3
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0
-	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5 // indirect
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect
 	golang.org/x/net v0.0.0-20201009032441-dbdefad45b89 // indirect
 	golang.org/x/tools v0.0.0-20201009162240-fcf82128ed91 // indirect
