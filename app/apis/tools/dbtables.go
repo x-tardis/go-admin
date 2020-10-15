@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models/tools"
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 

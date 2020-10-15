@@ -4,11 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
+	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/paginator"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
