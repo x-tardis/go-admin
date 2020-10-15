@@ -10,14 +10,11 @@ type Ssl struct {
 }
 
 func ViperSsl() *Ssl {
-	cfg := viper.Sub("ssl")
-	if cfg == nil {
-		cfg = viper.New()
-	}
+	c := viper.Sub("ssl")
 	return &Ssl{
-		KeyStr: cfg.GetString("key"),
-		Pem:    cfg.GetString("pem"),
-		Enable: cfg.GetBool("enable"),
-		Domain: cfg.GetString("domain"),
+		KeyStr: c.GetString("key"),
+		Pem:    c.GetString("pem"),
+		Enable: c.GetBool("enable"),
+		Domain: c.GetString("domain"),
 	}
 }

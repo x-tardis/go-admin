@@ -7,10 +7,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/spf13/viper"
 
+	"github.com/x-tardis/go-admin/pkg/database"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-var DbConfig = new(Database)
+var DbConfig = new(database.Database)
 var AppConfig = new(Application)
 var JwtConfig = new(jwtauth.Config)
 var SslConfig = new(Ssl)

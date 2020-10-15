@@ -17,6 +17,12 @@ type Config struct {
 	LogMode  bool   `yaml:"logMode" json:"logMode"`
 }
 
+// Database 数据库配置
+type Database struct {
+	Driver string
+	Source string
+}
+
 func New(driver, source string) (*gorm.DB, error) {
 	var dialect gorm.Dialector
 

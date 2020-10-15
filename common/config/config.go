@@ -46,16 +46,6 @@ func (c *Config) GetDb() *DBConfig {
 	return c.db
 }
 
-// SetEngine 设置路由引擎
-func (c *Config) SetEngine(engine http.Handler) {
-	c.engine = engine
-}
-
-// GetEngine 获取路由引擎
-func (c *Config) GetEngine() http.Handler {
-	return c.engine
-}
-
 // SetLogger 设置日志组件
 func (c *Config) SetLogger(l *zap.SugaredLogger) {
 	// logger.DefaultLogger = l
