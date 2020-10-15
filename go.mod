@@ -15,7 +15,6 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
-	github.com/go-playground/validator/v10 v10.4.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/uuid v1.1.2
@@ -45,7 +44,7 @@ require (
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7
 	github.com/thinkgos/gin-middlewares v0.0.4
-	github.com/thinkgos/go-core-package v0.1.3
+	github.com/thinkgos/go-core-package v0.1.4
 	github.com/thinkgos/sharp v0.3.2
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0

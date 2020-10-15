@@ -7,10 +7,10 @@ import (
 )
 
 func PubSysSetting(v1 gin.IRouter) {
-	r := v1.Group("/setting")
+	r := v1.Group("/system")
 	{
-		r.GET("", system.GetSetting)
-		r.POST("", system.CreateSetting)
-		r.GET("/serverInfo", monitor.ServerInfo)
+		r.GET("/setting", system.GetSetting)
+		r.POST("/setting", system.CreateSetting)
+		r.GET("/info", monitor.SystemInfo)
 	}
 }

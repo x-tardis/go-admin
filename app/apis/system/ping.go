@@ -1,12 +1,12 @@
 package system
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
-// @tags Ping
+// @tags 系统信息
 // @summary ping/pong test
 // @description  ping/pong test
 // @accept json
@@ -17,7 +17,7 @@ import (
 // @failure 404 {object} servers.Response "未找到相关信息"
 // @failure 417 {object} servers.Response "客户端请求头错误"
 // @failure 500 {object} servers.Response "服务器内部错误"
-// @router /info [get]
+// @router /api/v1/system/ping [get]
 func Ping(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "ok"})
+	servers.Success(c, servers.WithMessage("pong"))
 }

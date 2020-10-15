@@ -11,8 +11,8 @@ import (
 type Response struct {
 	Code      int         `json:"code" example:"200"`
 	Data      interface{} `json:"data"`
-	Msg       string      `json:"msg"`
-	RequestId string      `json:"requestId"`
+	Msg       string      `json:"msg,omitempty"`
+	RequestId string      `json:"requestId,omitempty"`
 }
 
 type Option func(r *Response)

@@ -11,19 +11,17 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/thinkgos/go-core-package/lib/textcolor"
 	"github.com/thinkgos/sharp/builder"
 
+	"github.com/x-tardis/go-admin/app/jobs"
 	"github.com/x-tardis/go-admin/app/router"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"
-	"github.com/x-tardis/go-admin/pkg/textcolor"
-
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	"github.com/x-tardis/go-admin/app/jobs"
 )
 
 var configFile string

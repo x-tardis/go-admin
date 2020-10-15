@@ -69,6 +69,7 @@ func NewJWTAuth(key string) (*jwt.GinJWTMiddleware, error) {
 	})
 }
 
+// @tags auth
 // @Summary 登陆
 // @Description 获取token
 // @Description LoginHandler can be used by clients to get a jwt token.
@@ -111,6 +112,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	}, nil
 }
 
+// @tags auth
 // @Summary 退出登录
 // @Description 获取token
 // LoginHandler can be used by clients to get a jwt token.

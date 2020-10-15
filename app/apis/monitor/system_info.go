@@ -9,6 +9,8 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+	"github.com/thinkgos/go-core-package/extmath"
+
 	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
@@ -54,8 +56,8 @@ type Disk struct {
 	UsedPercent float64 `json:"usedPercent,string"`
 }
 
-// SystemInfo system info
-type SystemInfo struct {
+// SystemInfos system info
+type SystemInfos struct {
 	Code int  `json:"code"`
 	Os   Os   `json:"os"`
 	Mem  Mem  `json:"mem"`
@@ -63,12 +65,19 @@ type SystemInfo struct {
 	Disk Disk `json:"disk"`
 }
 
-// @Summary 系统信息
-// @Description 获取JSON
-// @Tags 系统信息
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/setting/serverInfo [get]
-func ServerInfo(c *gin.Context) {
+// @tags 系统信息
+// @summary 系统信息
+// @description 获取系统信息
+// @accept json
+// @produce json
+// @success 200 {object} SystemInfos "成功回复"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 404 {object} servers.Response "未找到相关信息"
+// @failure 417 {object} servers.Response "客户端请求头错误"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/system/info [get]
+func SystemInfo(c *gin.Context) {
 	projectDir, _ := os.Getwd()
 	dis, _ := disk.Usage("/")
 	vMem, _ := mem.VirtualMemory()
@@ -76,7 +85,7 @@ func ServerInfo(c *gin.Context) {
 	cpuInfo, _ := cpu.Info()
 	cpuNum, _ := cpu.Counts(false)
 
-	c.JSON(http.StatusOK, SystemInfo{
+	c.JSON(http.StatusOK, SystemInfos{
 		http.StatusOK,
 		Os{
 			runtime.GOOS,
@@ -89,21 +98,21 @@ func ServerInfo(c *gin.Context) {
 			projectDir,
 		},
 		Mem{
-			infra.Round(float64(vMem.Total)/GB, 2),
-			infra.Round(float64(vMem.Used)/GB, 2),
-			infra.Round(float64(vMem.Free)/GB, 2),
-			infra.Round(vMem.UsedPercent, 2),
+			extmath.Round(float64(vMem.Total)/GB, 2),
+			extmath.Round(float64(vMem.Used)/GB, 2),
+			extmath.Round(float64(vMem.Free)/GB, 2),
+			extmath.Round(vMem.UsedPercent, 2),
 		},
 		Cpu{
 			cpuInfo,
-			infra.Round(percent[0], 2),
+			extmath.Round(percent[0], 2),
 			cpuNum,
 		},
 		Disk{
-			infra.Round(float64(dis.Total)/GB, 2),
-			infra.Round(float64(dis.Used)/GB, 2),
-			infra.Round(float64(dis.Free)/GB, 2),
-			infra.Round(dis.UsedPercent, 2),
+			extmath.Round(float64(dis.Total)/GB, 2),
+			extmath.Round(float64(dis.Used)/GB, 2),
+			extmath.Round(float64(dis.Free)/GB, 2),
+			extmath.Round(dis.UsedPercent, 2),
 		},
 	})
 }

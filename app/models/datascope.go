@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/textcolor"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/textcolor"
 )
 
 type DataPermission struct {

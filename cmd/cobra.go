@@ -6,13 +6,13 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/thinkgos/go-core-package/lib/textcolor"
 	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/cmd/config"
 	"github.com/x-tardis/go-admin/cmd/migrate"
 	"github.com/x-tardis/go-admin/cmd/server"
 	"github.com/x-tardis/go-admin/cmd/version"
-	"github.com/x-tardis/go-admin/pkg/textcolor"
 )
 
 var rootCmd = &cobra.Command{

@@ -17,7 +17,7 @@ import (
 // @Tags 系统信息
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/setting [get]
+// @Router /api/v1/system/setting [get]
 func GetSetting(c *gin.Context) {
 	var s models.SysSetting
 
@@ -43,8 +43,9 @@ func GetSetting(c *gin.Context) {
 // @Router /api/v1/system/setting [post]
 func CreateSetting(c *gin.Context) {
 	var s models.ResponseSystemConfig
+
 	if err := c.ShouldBind(&s); err != nil {
-		servers.FailWithRequestID(c, http.StatusOK, "缺少必要参数")
+		servers.FailWithRequestID(c, http.StatusOK, codes.DataParseFailed)
 		return
 	}
 
@@ -65,5 +66,4 @@ func CreateSetting(c *gin.Context) {
 	}
 
 	servers.OKWithRequestID(c, a, "提交成功")
-
 }
