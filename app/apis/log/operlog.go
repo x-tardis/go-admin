@@ -8,6 +8,7 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
+	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -22,7 +23,7 @@ import (
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/operloglist [get]
+// @Router /api/v1/operlog [get]
 // @Security Bearer
 func GetOperLogList(c *gin.Context) {
 	var data models.SysOperLog
@@ -52,11 +53,11 @@ func GetOperLogList(c *gin.Context) {
 // @Tags 登录日志
 // @Param infoId path int true "infoId"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/operlog/{infoId} [get]
+// @Router /api/v1/operlog/{id} [get]
 // @Security Bearer
 func GetOperLog(c *gin.Context) {
 	var OperLog models.SysOperLog
-	OperLog.OperId = cast.ToInt(c.Param("operId"))
+	OperLog.OperId = cast.ToInt(c.Param("id"))
 	result, err := OperLog.Get()
 	if err != nil {
 		servers.Fail(c, -1, "抱歉未找到相关信息")
@@ -96,15 +97,15 @@ func InsertOperLog(c *gin.Context) {
 // @Param operId path string true "以逗号（,）分割的operId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/operlog/{operId} [delete]
+// @Router /api/v1/operlog/{ids} [delete]
 func DeleteOperLog(c *gin.Context) {
 	var data models.SysOperLog
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := infra.ParseIdsGroup(c.Param("operId"))
-	_, err := data.BatchDelete(IDS)
+	ids := infra.ParseIdsGroup(c.Param("ids"))
+	_, err := data.BatchDelete(ids)
 	if err != nil {
-		servers.Fail(c, 500, "删除失败")
+		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg("删除成功"))
+	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
 }

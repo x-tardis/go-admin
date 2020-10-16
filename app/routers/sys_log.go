@@ -6,21 +6,21 @@ import (
 )
 
 func LoginLog(v1 gin.IRouter) {
-	v1.GET("/loginloglist", log.GetLoginLogList)
 	r := v1.Group("/loginlog")
 	{
-		r.GET("/:infoId", log.GetLoginLog)
+		r.GET("", log.GetLoginLogList)
+		r.GET("/:id", log.GetLoginLog)
 		r.POST("", log.InsertLoginLog)
 		r.PUT("", log.UpdateLoginLog)
-		r.DELETE("/:infoId", log.DeleteLoginLog)
+		r.DELETE("/:ids", log.DeleteLoginLog)
 	}
 }
 
 func OperLog(v1 gin.IRouter) {
-	v1.GET("/operloglist", log.GetOperLogList)
 	r := v1.Group("/operlog")
 	{
-		r.GET("/:operId", log.GetOperLog)
-		r.DELETE("/:operId", log.DeleteOperLog)
+		r.GET("", log.GetOperLogList)
+		r.GET("/:id", log.GetOperLog)
+		r.DELETE("/:ids", log.DeleteOperLog)
 	}
 }
