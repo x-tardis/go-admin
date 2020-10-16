@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -40,13 +41,12 @@ func GetMenuList(c *gin.Context) {
 // @Param menuName query string false "menuName"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/menu [get]
+// @Router /api/v1/menu/{id} [get]
 // @Security Bearer
 func GetMenu(c *gin.Context) {
 	var data models.Menu
-	id, err := strconv.Atoi(c.Param("id"))
-	data.MenuId = id
-	result, err := data.GetByMenuId()
+	id := cast.ToInt(c.Param("id"))
+	result, err := data.GetByMenuId(id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -165,9 +165,9 @@ func UpdateMenu(c *gin.Context) {
 // @Router /api/v1/menu/{id} [delete]
 func DeleteMenu(c *gin.Context) {
 	var data models.Menu
-	id, err := strconv.Atoi(c.Param("id"))
+	id := cast.ToInt(c.Param("id"))
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	err = data.Delete(id)
+	err := data.Delete(id)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

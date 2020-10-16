@@ -2,6 +2,8 @@ package models
 
 import (
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -36,12 +38,12 @@ func (e *Post) Create() (Post, error) {
 	return doc, nil
 }
 
-func (e *Post) Get() (Post, error) {
+func (e *Post) Get(id int) (Post, error) {
 	var doc Post
 
 	table := deployed.DB.Table(e.TableName())
 	if e.PostId != 0 {
-		table = table.Where("post_id = ?", e.PostId)
+		table = table.Where("post_id = ?", id)
 	}
 	if e.PostName != "" {
 		table = table.Where("post_name = ?", e.PostName)
@@ -82,7 +84,7 @@ func (e *Post) GetList() ([]Post, error) {
 	return doc, nil
 }
 
-func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int64, error) {
+func (e *Post) GetPage(param paginator.Param) ([]Post, paginator.Info, error) {
 	var doc []Post
 
 	table := deployed.DB.Table(e.TableName())
@@ -104,15 +106,13 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int64, error) {
 	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_post", table)
 	if err != nil {
-		return nil, 0, err
+		return nil, paginator.Info{}, err
 	}
-	var count int64
-
-	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, ifc, err
 }
 
 func (e *Post) Update(id int) (update Post, err error) {

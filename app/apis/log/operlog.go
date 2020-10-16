@@ -2,7 +2,6 @@ package log
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
@@ -27,33 +26,24 @@ import (
 // @Security Bearer
 func GetOperLogList(c *gin.Context) {
 	var data models.SysOperLog
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
 
-	size := c.Request.FormValue("pageSize")
-	if size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-
-	index := c.Request.FormValue("pageIndex")
-	if index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
+	param.Inspect()
 
 	data.OperName = c.Request.FormValue("operName")
 	data.Status = c.Request.FormValue("status")
 	data.OperIp = c.Request.FormValue("operIp")
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, ifc, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+		Info: ifc,
+		List: result,
 	}))
 }
 

@@ -5,6 +5,8 @@ import (
 	_ "time"
 
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -65,7 +67,7 @@ func (e *SysConfig) Get() (SysConfig, error) {
 	return doc, nil
 }
 
-func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int64, error) {
+func (e *SysConfig) GetPage(param paginator.Param) ([]SysConfig, paginator.Info, error) {
 	var doc []SysConfig
 
 	table := deployed.DB.Table(e.TableName())
@@ -85,15 +87,13 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int64, er
 	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_config", table)
 	if err != nil {
-		return nil, 0, err
+		return nil, paginator.Info{}, err
 	}
-	var count int64
-
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, ifc, nil
 }
 
 func (e *SysConfig) Update(id int) (update SysConfig, err error) {

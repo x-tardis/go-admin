@@ -2,12 +2,12 @@ package system
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
 	"github.com/thinkgos/sharp/core/paginator"
+
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
@@ -26,19 +26,12 @@ import (
 // @Security Bearer
 func GetSysUserList(c *gin.Context) {
 	var data models.SysUser
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
 
-	size := c.Request.FormValue("pageSize")
-	if size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-
-	index := c.Request.FormValue("pageIndex")
-	if index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
+	param.Inspect()
 
 	data.Username = c.Request.FormValue("username")
 	data.Status = c.Request.FormValue("status")
@@ -51,16 +44,15 @@ func GetSysUserList(c *gin.Context) {
 	data.DeptId = cast.ToInt(deptId)
 
 	data.DataScope = jwtauth.UserIdStr(c)
-	result, count, err := data.GetPage(pageSize, pageIndex)
+
+	result, pInfo, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+		Info: pInfo,
+		List: result,
 	}))
 }
 

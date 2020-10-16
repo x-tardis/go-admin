@@ -138,13 +138,9 @@ type MenuRole struct {
 	IsSelect bool `json:"is_select" gorm:"-"`
 }
 
-func (e *Menu) GetByMenuId() (Menu Menu, err error) {
-
+func (e *Menu) GetByMenuId(id int) (Menu Menu, err error) {
 	table := deployed.DB.Table(e.TableName())
-	table = table.Where("menu_id = ?", e.MenuId)
-	if err = table.Find(&Menu).Error; err != nil {
-		return
-	}
+	err = table.Where("menu_id = ?", id).Find(&Menu).Error
 	return
 }
 

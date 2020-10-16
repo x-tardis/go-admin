@@ -2,7 +2,6 @@ package system
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
@@ -27,17 +26,12 @@ import (
 // @Security Bearer
 func GetPostList(c *gin.Context) {
 	var data models.Post
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
 
-	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-
-	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
+	param.Inspect()
 
 	id := c.Request.FormValue("postId")
 	data.PostId = cast.ToInt(id)
@@ -47,16 +41,14 @@ func GetPostList(c *gin.Context) {
 	data.Status = c.Request.FormValue("status")
 
 	data.DataScope = jwtauth.UserIdStr(c)
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, ifc, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+		Info: ifc,
+		List: result,
 	}))
 }
 
@@ -65,12 +57,13 @@ func GetPostList(c *gin.Context) {
 // @Tags 岗位
 // @Param postId path int true "postId"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/post/{postId} [get]
+// @Router /api/v1/post/{id} [get]
 // @Security Bearer
 func GetPost(c *gin.Context) {
 	var Post models.Post
-	Post.PostId = cast.ToInt(c.Param("postId"))
-	result, err := Post.Get()
+
+	id := cast.ToInt(c.Param("id"))
+	result, err := Post.Get(id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -90,7 +83,8 @@ func GetPost(c *gin.Context) {
 // @Security Bearer
 func InsertPost(c *gin.Context) {
 	var data models.Post
-	err := c.Bind(&data)
+
+	err := c.ShouldBindJSON(&data)
 	data.CreateBy = jwtauth.UserIdStr(c)
 	if err != nil {
 		servers.Fail(c, 500, err.Error())
@@ -117,7 +111,7 @@ func InsertPost(c *gin.Context) {
 func UpdatePost(c *gin.Context) {
 	var data models.Post
 
-	err := c.Bind(&data)
+	err := c.ShouldBindJSON(&data)
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -140,9 +134,10 @@ func UpdatePost(c *gin.Context) {
 // @Router /api/v1/post/{postId} [delete]
 func DeletePost(c *gin.Context) {
 	var data models.Post
+
+	ids := infra.ParseIdsGroup(c.Param("ids"))
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := infra.ParseIdsGroup(c.Param("postId"))
-	result, err := data.BatchDelete(IDS)
+	result, err := data.BatchDelete(ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

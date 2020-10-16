@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -95,7 +97,7 @@ func (e *DictData) Get() ([]DictData, error) {
 	return doc, nil
 }
 
-func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int64, error) {
+func (e *DictData) GetPage(param paginator.Param) ([]DictData, paginator.Info, error) {
 	var doc []DictData
 
 	table := deployed.DB.Table(e.TableName())
@@ -117,15 +119,14 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int64, erro
 	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_dict_data", table)
 	if err != nil {
-		return nil, 0, err
+		return nil, paginator.Info{}, err
 	}
-	var count int64
 
-	if err := table.Order("dict_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, ifc, nil
 }
 
 func (e *DictData) Update(id int) (update DictData, err error) {

@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -127,7 +129,6 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 }
 
 func (e *SysUser) GetUserInfo() (SysUserView SysUserView, err error) {
-
 	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
 	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
 	if e.UserId != 0 {
@@ -161,7 +162,6 @@ func (e *SysUser) GetUserInfo() (SysUserView SysUserView, err error) {
 }
 
 func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
-
 	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
 	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
 	if e.UserId != 0 {
@@ -194,7 +194,7 @@ func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
 	return
 }
 
-func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int64, error) {
+func (e *SysUser) GetPage(param paginator.Param) ([]SysUserPage, paginator.Info, error) {
 	var doc []SysUserPage
 	table := deployed.DB.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
 	table = table.Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
@@ -219,14 +219,13 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int64, er
 	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope(e.TableName(), table)
 	if err != nil {
-		return nil, 0, err
+		return nil, paginator.Info{}, err
 	}
-	var count int64
-
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	return doc, count, nil
+	return doc, ifc, nil
 }
 
 //加密

@@ -10,9 +10,9 @@ func Post(v1 gin.IRouter) {
 	v1.GET("/postlist", system.GetPostList)
 	r := v1.Group("/post")
 	{
-		r.GET("/:postId", system.GetPost)
+		r.GET("/:id", system.GetPost)
 		r.POST("", system.InsertPost)
 		r.PUT("", system.UpdatePost)
-		r.DELETE("/:postId", system.DeletePost)
+		r.DELETE("/:ids", system.DeletePost)
 	}
 }
