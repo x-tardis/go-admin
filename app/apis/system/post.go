@@ -22,7 +22,7 @@ import (
 // @Param postId query string false "postId"
 // @Param status query string false "status"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/post [get]
+// @Router /api/v1/posts [get]
 // @Security Bearer
 func GetPostList(c *gin.Context) {
 	var data models.Post
@@ -57,7 +57,7 @@ func GetPostList(c *gin.Context) {
 // @Tags 岗位
 // @Param postId path int true "postId"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/post/{id} [get]
+// @Router /api/v1/posts/{id} [get]
 // @Security Bearer
 func GetPost(c *gin.Context) {
 	var Post models.Post
@@ -79,7 +79,7 @@ func GetPost(c *gin.Context) {
 // @Param data body models.Post true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/post [post]
+// @Router /api/v1/posts [post]
 // @Security Bearer
 func InsertPost(c *gin.Context) {
 	var data models.Post
@@ -106,7 +106,7 @@ func InsertPost(c *gin.Context) {
 // @Param data body models.Post true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/post/ [put]
+// @Router /api/v1/posts [put]
 // @Security Bearer
 func UpdatePost(c *gin.Context) {
 	var data models.Post
@@ -131,7 +131,7 @@ func UpdatePost(c *gin.Context) {
 // @Param id path int true "id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
-// @Router /api/v1/post/{postId} [delete]
+// @Router /api/v1/posts/{ids} [delete]
 func DeletePost(c *gin.Context) {
 	var data models.Post
 

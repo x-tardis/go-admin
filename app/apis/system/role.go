@@ -25,7 +25,7 @@ import (
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/rolelist [get]
+// @Router /api/v1/roles [get]
 // @Security Bearer
 func GetRoleList(c *gin.Context) {
 	var data models.SysRole
@@ -59,12 +59,12 @@ func GetRoleList(c *gin.Context) {
 // @Param roleId path string false "roleId"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/role [get]
+// @Router /api/v1/role/{id} [get]
 // @Security Bearer
 func GetRole(c *gin.Context) {
 	var Role models.SysRole
 
-	roleId := cast.ToInt(c.Param("roleId"))
+	roleId := cast.ToInt(c.Param("id"))
 	Role.RoleId = roleId
 	result, err := Role.Get()
 	menuIds := make([]int, 0)
@@ -86,7 +86,7 @@ func GetRole(c *gin.Context) {
 // @Param data body models.SysRole true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/role [post]
+// @Router /api/v1/roles [post]
 func InsertRole(c *gin.Context) {
 	var data models.SysRole
 	data.CreateBy = jwtauth.UserIdStr(c)
@@ -128,7 +128,7 @@ func InsertRole(c *gin.Context) {
 // @Param data body models.SysRole true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
-// @Router /api/v1/role [put]
+// @Router /api/v1/roles [put]
 func UpdateRole(c *gin.Context) {
 	var data models.SysRole
 	data.UpdateBy = jwtauth.UserIdStr(c)
@@ -196,12 +196,12 @@ func UpdateRoleDataScope(c *gin.Context) {
 // @Param roleId path int true "roleId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/role/{roleId} [delete]
+// @Router /api/v1/roles/{ids} [delete]
 func DeleteRole(c *gin.Context) {
 	var Role models.SysRole
 	Role.UpdateBy = jwtauth.UserIdStr(c)
 
-	IDS := infra.ParseIdsGroup(c.Param("roleId"))
+	IDS := infra.ParseIdsGroup(c.Param("ids"))
 	_, err := Role.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, -1, codes.DeletedFail)

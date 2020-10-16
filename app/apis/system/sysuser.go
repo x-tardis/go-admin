@@ -22,7 +22,7 @@ import (
 // @Param username query string false "username"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/sysUserList [get]
+// @Router /api/v1/users [get]
 // @Security Bearer
 func GetSysUserList(c *gin.Context) {
 	var data models.SysUser
@@ -61,11 +61,11 @@ func GetSysUserList(c *gin.Context) {
 // @Tags 用户
 // @Param userId path int true "用户编码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/sysUser/{userId} [get]
+// @Router /api/v1/users/{id} [get]
 // @Security Bearer
 func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
-	SysUser.UserId = cast.ToInt(c.Param("userId"))
+	SysUser.UserId = cast.ToInt(c.Param("id"))
 	result, err := SysUser.Get()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
@@ -138,7 +138,7 @@ func GetSysUserProfile(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 用户
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/sysUser [get]
+// @Router /api/v1/users [get]
 // @Security Bearer
 func GetSysUserInit(c *gin.Context) {
 	var SysRole models.SysRole
@@ -163,7 +163,7 @@ func GetSysUserInit(c *gin.Context) {
 // @Param data body models.SysUser true "用户数据"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/sysUser [post]
+// @Router /api/v1/users [post]
 func InsertSysUser(c *gin.Context) {
 	var sysuser models.SysUser
 
@@ -189,7 +189,7 @@ func InsertSysUser(c *gin.Context) {
 // @Param data body models.SysUser true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
-// @Router /api/v1/sysuser/{userId} [put]
+// @Router /api/v1/users [put]
 func UpdateSysUser(c *gin.Context) {
 	var data models.SysUser
 	err := c.Bind(&data)
@@ -212,12 +212,13 @@ func UpdateSysUser(c *gin.Context) {
 // @Param userId path int true "userId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/sysuser/{userId} [delete]
+// @Router /api/v1/users/{ids} [delete]
 func DeleteSysUser(c *gin.Context) {
 	var data models.SysUser
+
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := infra.ParseIdsGroup(c.Param("userId"))
-	result, err := data.BatchDelete(IDS)
+	ids := infra.ParseIdsGroup(c.Param("ids"))
+	result, err := data.BatchDelete(ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
