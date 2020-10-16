@@ -146,7 +146,7 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 	var SysRole models.SysRole
 	id, err := strconv.Atoi(c.Param("roleId"))
 	SysRole.RoleId = id
-	result, err := Dept.SetDeptLable()
+	result, err := Dept.SetDeptLabel()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFound)
 		return

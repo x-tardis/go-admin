@@ -10,15 +10,15 @@ import (
 )
 
 type SysDept struct {
-	DeptId   int    `json:"deptId" gorm:"primary_key;auto_increment;"` //部门编码
-	ParentId int    `json:"parentId" gorm:""`                          //上级部门
+	DeptId   int    `json:"deptId" gorm:"primary_key;auto_increment;"` // 部门编码
+	ParentId int    `json:"parentId" gorm:""`                          // 上级部门
 	DeptPath string `json:"deptPath" gorm:"size:255;"`                 //
-	DeptName string `json:"deptName"  gorm:"size:128;"`                //部门名称
-	Sort     int    `json:"sort" gorm:""`                              //排序
-	Leader   string `json:"leader" gorm:"size:128;"`                   //负责人
-	Phone    string `json:"phone" gorm:"size:11;"`                     //手机
-	Email    string `json:"email" gorm:"size:64;"`                     //邮箱
-	Status   string `json:"status" gorm:"size:4;"`                     //状态
+	DeptName string `json:"deptName"  gorm:"size:128;"`                // 部门名称
+	Sort     int    `json:"sort" gorm:""`                              // 排序
+	Leader   string `json:"leader" gorm:"size:128;"`                   // 负责人
+	Phone    string `json:"phone" gorm:"size:11;"`                     // 手机
+	Email    string `json:"email" gorm:"size:64;"`                     // 邮箱
+	Status   string `json:"status" gorm:"size:4;"`                     // 状态
 	CreateBy string `json:"createBy" gorm:"size:64;"`
 	UpdateBy string `json:"updateBy" gorm:"size:64;"`
 	BaseModel
@@ -32,10 +32,58 @@ func (SysDept) TableName() string {
 	return "sys_dept"
 }
 
-type DeptLable struct {
+func DeptTreeList(items []SysDept) []SysDept {
+	tree := make([]SysDept, 0)
+	for _, itm := range items {
+		if itm.ParentId == 0 {
+			tree = append(tree, deepChildrenDept(items, itm))
+		}
+	}
+	return tree
+}
+
+func deepChildrenDept(items []SysDept, item SysDept) SysDept {
+	item.Children = make([]SysDept, 0)
+	for _, itm := range items {
+		if item.DeptId == itm.ParentId {
+			item.Children = append(item.Children, deepChildrenDept(items, itm))
+		}
+	}
+	return item
+}
+
+type DeptLabel struct {
 	Id       int         `gorm:"-" json:"id"`
 	Label    string      `gorm:"-" json:"label"`
-	Children []DeptLable `gorm:"-" json:"children"`
+	Children []DeptLabel `gorm:"-" json:"children"`
+}
+
+func DeptLabelTreeList(items []SysDept) []DeptLabel {
+	tree := make([]DeptLabel, 0)
+	for _, itm := range items {
+		if itm.ParentId == 0 {
+			tree = append(tree, deepChildrenDeptLabel(items, DeptLabel{
+				itm.DeptId,
+				itm.DeptName,
+				make([]DeptLabel, 0),
+			}))
+		}
+	}
+	return tree
+}
+
+func deepChildrenDeptLabel(items []SysDept, dept DeptLabel) DeptLabel {
+	dept.Children = make([]DeptLabel, 0)
+	for _, itm := range items {
+		if dept.Id == itm.ParentId {
+			dept.Children = append(dept.Children, deepChildrenDeptLabel(items, DeptLabel{
+				itm.DeptId,
+				itm.DeptName,
+				make([]DeptLabel, 0),
+			}))
+		}
+	}
+	return dept
 }
 
 func (e *SysDept) Create() (SysDept, error) {
@@ -136,45 +184,10 @@ func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
 
 func (e *SysDept) SetDept(bl bool) ([]SysDept, error) {
 	list, err := e.GetPage(bl)
-
-	m := make([]SysDept, 0)
-	for i := 0; i < len(list); i++ {
-		if list[i].ParentId != 0 {
-			continue
-		}
-		info := Digui(&list, list[i])
-
-		m = append(m, info)
+	if err != nil {
+		return nil, err
 	}
-	return m, err
-}
-
-func Digui(deptlist *[]SysDept, menu SysDept) SysDept {
-	list := *deptlist
-
-	min := make([]SysDept, 0)
-	for j := 0; j < len(list); j++ {
-
-		if menu.DeptId != list[j].ParentId {
-			continue
-		}
-		mi := SysDept{}
-		mi.DeptId = list[j].DeptId
-		mi.ParentId = list[j].ParentId
-		mi.DeptPath = list[j].DeptPath
-		mi.DeptName = list[j].DeptName
-		mi.Sort = list[j].Sort
-		mi.Leader = list[j].Leader
-		mi.Phone = list[j].Phone
-		mi.Email = list[j].Email
-		mi.Status = list[j].Status
-		mi.Children = []SysDept{}
-		ms := Digui(deptlist, mi)
-		min = append(min, ms)
-
-	}
-	menu.Children = min
-	return menu
+	return DeptTreeList(list), nil
 }
 
 func (e *SysDept) Update(id int) (update SysDept, err error) {
@@ -196,8 +209,8 @@ func (e *SysDept) Update(id int) (update SysDept, err error) {
 		return update, errors.New("上级部门不允许修改！")
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 
 	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
@@ -243,38 +256,10 @@ func (e *SysDept) Delete(id int) (success bool, err error) {
 	return
 }
 
-func (dept *SysDept) SetDeptLable() (m []DeptLable, err error) {
-	deptlist, err := dept.GetList()
-
-	m = make([]DeptLable, 0)
-	for i := 0; i < len(deptlist); i++ {
-		if deptlist[i].ParentId != 0 {
-			continue
-		}
-		e := DeptLable{}
-		e.Id = deptlist[i].DeptId
-		e.Label = deptlist[i].DeptName
-		deptsInfo := DiguiDeptLable(&deptlist, e)
-
-		m = append(m, deptsInfo)
+func (dept *SysDept) SetDeptLabel() (m []DeptLabel, err error) {
+	deptList, err := dept.GetList()
+	if err != nil {
+		return nil, err
 	}
-	return
-}
-
-func DiguiDeptLable(deptlist *[]SysDept, dept DeptLable) DeptLable {
-	list := *deptlist
-
-	min := make([]DeptLable, 0)
-	for j := 0; j < len(list); j++ {
-
-		if dept.Id != list[j].ParentId {
-			continue
-		}
-		mi := DeptLable{list[j].DeptId, list[j].DeptName, []DeptLable{}}
-		ms := DiguiDeptLable(deptlist, mi)
-		min = append(min, ms)
-
-	}
-	dept.Children = min
-	return dept
+	return DeptLabelTreeList(deptList), nil
 }
