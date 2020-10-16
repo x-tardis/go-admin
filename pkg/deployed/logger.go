@@ -21,6 +21,6 @@ func SetupLogger() {
 	c.InConsole = false
 	JobLogger = izap.New(c).Sugar()
 	c.FileName = "request.log"
-	c.InConsole = false
+	c.InConsole = true
 	RequestLogger = izap.New(c).Sugar()
 }

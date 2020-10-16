@@ -39,10 +39,69 @@ func (Menu) TableName() string {
 	return "sys_menu"
 }
 
-type MenuLable struct {
+// MenuTreeList 目录树
+func MenuTreeList(items []Menu) []Menu {
+	tree := make([]Menu, 0)
+	for _, itm := range items {
+		if itm.ParentId == 0 {
+			tree = append(tree, deepChildrenMenu(items, itm))
+		}
+	}
+	return tree
+}
+
+// deepChildrenMenu 获得递归子目录
+func deepChildrenMenu(items []Menu, item Menu) Menu {
+	item.Children = make([]Menu, 0)
+	for _, itm := range items {
+		if item.MenuId == itm.ParentId {
+			if itm.MenuType != "F" {
+				itm = deepChildrenMenu(items, itm)
+			}
+			item.Children = append(item.Children, itm)
+		}
+	}
+	return item
+}
+
+type MenuLabel struct {
 	Id       int         `json:"id" gorm:"-"`
 	Label    string      `json:"label" gorm:"-"`
-	Children []MenuLable `json:"children" gorm:"-"`
+	Children []MenuLabel `json:"children" gorm:"-"`
+}
+
+// MenuLabelTreeList 目录Lable树
+func MenuLabelTreeList(items []Menu) []MenuLabel {
+	tree := make([]MenuLabel, 0)
+	for _, itm := range items {
+		if itm.ParentId == 0 {
+			lab := MenuLabel{
+				itm.MenuId,
+				itm.Title,
+				make([]MenuLabel, 0),
+			}
+			tree = append(tree, deepChildrenMenuLabel(items, lab))
+		}
+	}
+	return tree
+}
+
+// deepChildrenMenuLabel 获得递归子目录Lable
+func deepChildrenMenuLabel(items []Menu, item MenuLabel) MenuLabel {
+	for _, itm := range items {
+		if item.Id == itm.ParentId {
+			mi := MenuLabel{
+				itm.MenuId,
+				itm.Title,
+				make([]MenuLabel, 0),
+			}
+			if itm.MenuType != "F" {
+				mi = deepChildrenMenuLabel(items, mi)
+			}
+			item.Children = append(item.Children, mi)
+		}
+	}
+	return item
 }
 
 type Menus struct {
@@ -79,8 +138,6 @@ type MenuRole struct {
 	IsSelect bool `json:"is_select" gorm:"-"`
 }
 
-type MS []Menu
-
 func (e *Menu) GetByMenuId() (Menu Menu, err error) {
 
 	table := deployed.DB.Table(e.TableName())
@@ -92,117 +149,28 @@ func (e *Menu) GetByMenuId() (Menu Menu, err error) {
 }
 
 func (e *Menu) SetMenu() (m []Menu, err error) {
-	menulist, err := e.GetPage()
-
-	m = make([]Menu, 0)
-	for i := 0; i < len(menulist); i++ {
-		if menulist[i].ParentId != 0 {
-			continue
-		}
-		menusInfo := DiguiMenu(&menulist, menulist[i])
-
-		m = append(m, menusInfo)
+	menuList, err := e.GetPage()
+	if err != nil {
+		return nil, err
 	}
-	return
+
+	return MenuTreeList(menuList), nil
 }
 
-func DiguiMenu(menulist *[]Menu, menu Menu) Menu {
-	list := *menulist
-
-	min := make([]Menu, 0)
-	for j := 0; j < len(list); j++ {
-
-		if menu.MenuId != list[j].ParentId {
-			continue
-		}
-		mi := Menu{}
-		mi.MenuId = list[j].MenuId
-		mi.MenuName = list[j].MenuName
-		mi.Title = list[j].Title
-		mi.Icon = list[j].Icon
-		mi.Path = list[j].Path
-		mi.MenuType = list[j].MenuType
-		mi.Action = list[j].Action
-		mi.Permission = list[j].Permission
-		mi.ParentId = list[j].ParentId
-		mi.NoCache = list[j].NoCache
-		mi.Breadcrumb = list[j].Breadcrumb
-		mi.Component = list[j].Component
-		mi.Sort = list[j].Sort
-		mi.Visible = list[j].Visible
-		mi.CreatedAt = list[j].CreatedAt
-		mi.Children = []Menu{}
-
-		if mi.MenuType != "F" {
-			ms := DiguiMenu(menulist, mi)
-			min = append(min, ms)
-
-		} else {
-			min = append(min, mi)
-		}
-
+func (e *Menu) SetMenuLabel() (m []MenuLabel, err error) {
+	menuList, err := e.Get()
+	if err != nil {
+		return nil, err
 	}
-	menu.Children = min
-	return menu
+	return MenuLabelTreeList(menuList), nil
 }
 
-func (e *Menu) SetMenuLable() (m []MenuLable, err error) {
-	menulist, err := e.Get()
-
-	m = make([]MenuLable, 0)
-	for i := 0; i < len(menulist); i++ {
-		if menulist[i].ParentId != 0 {
-			continue
-		}
-		e := MenuLable{}
-		e.Id = menulist[i].MenuId
-		e.Label = menulist[i].Title
-		menusInfo := DiguiMenuLable(&menulist, e)
-
-		m = append(m, menusInfo)
-	}
-	return
-}
-
-func DiguiMenuLable(menulist *[]Menu, menu MenuLable) MenuLable {
-	list := *menulist
-
-	min := make([]MenuLable, 0)
-	for j := 0; j < len(list); j++ {
-
-		if menu.Id != list[j].ParentId {
-			continue
-		}
-		mi := MenuLable{}
-		mi.Id = list[j].MenuId
-		mi.Label = list[j].Title
-		mi.Children = []MenuLable{}
-		if list[j].MenuType != "F" {
-			ms := DiguiMenuLable(menulist, mi)
-			min = append(min, ms)
-		} else {
-			min = append(min, mi)
-		}
-
-	}
-	menu.Children = min
-	return menu
-}
-
-func (e *Menu) SetMenuRole(rolename string) (m []Menu, err error) {
-
+func (e *Menu) SetMenuRole(rolename string) ([]Menu, error) {
 	menulist, err := e.GetByRoleName(rolename)
-
-	m = make([]Menu, 0)
-	for i := 0; i < len(menulist); i++ {
-		if menulist[i].ParentId != 0 {
-			continue
-		}
-		menusInfo := DiguiMenu(&menulist, menulist[i])
-
-		m = append(m, menusInfo)
+	if err != nil {
+		return nil, err
 	}
-	return
+	return MenuTreeList(menulist), nil
 }
 
 func (e *MenuRole) Get() (Menus []MenuRole, err error) {
@@ -290,18 +258,16 @@ func (e *Menu) Create() (id int, err error) {
 
 func InitPaths(menu *Menu) (err error) {
 	parentMenu := new(Menu)
-	if int(menu.ParentId) != 0 {
+	if menu.ParentId != 0 {
 		deployed.DB.Table("sys_menu").Where("menu_id = ?", menu.ParentId).First(parentMenu)
 		if parentMenu.Paths == "" {
-			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
-			return
+			return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 		}
 		menu.Paths = parentMenu.Paths + "/" + cast.ToString(menu.MenuId)
 	} else {
 		menu.Paths = "/0/" + cast.ToString(menu.MenuId)
 	}
-	deployed.DB.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
-	return
+	return deployed.DB.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths).Error
 }
 
 func (e *Menu) Update(id int) (update Menu, err error) {
@@ -315,17 +281,9 @@ func (e *Menu) Update(id int) (update Menu, err error) {
 		return
 	}
 	err = InitPaths(e)
-	if err != nil {
-		return
-	}
 	return
 }
 
-func (e *Menu) Delete(id int) (success bool, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("menu_id = ?", id).Delete(&Menu{}).Error; err != nil {
-		success = false
-		return
-	}
-	success = true
-	return
+func (e *Menu) Delete(id int) error {
+	return deployed.DB.Table(e.TableName()).Where("menu_id = ?", id).Delete(&Menu{}).Error
 }

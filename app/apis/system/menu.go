@@ -59,7 +59,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 	var SysRole models.SysRole
 	id, err := strconv.Atoi(c.Param("roleId"))
 	SysRole.RoleId = id
-	result, err := Menu.SetMenuLable()
+	result, err := Menu.SetMenuLabel()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -90,7 +90,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 // @Security Bearer
 func GetMenuTreeelect(c *gin.Context) {
 	var data models.Menu
-	result, err := data.SetMenuLable()
+	result, err := data.SetMenuLabel()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -168,7 +168,7 @@ func DeleteMenu(c *gin.Context) {
 	var data models.Menu
 	id, err := strconv.Atoi(c.Param("id"))
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	_, err = data.Delete(id)
+	err = data.Delete(id)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
