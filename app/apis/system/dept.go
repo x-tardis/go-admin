@@ -20,7 +20,7 @@ import (
 // @Param id query string false "id"
 // @Param position query string false "position"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/deptList [get]
+// @Router /api/v1/depts [get]
 // @Security Bearer
 func GetDeptList(c *gin.Context) {
 	var Dept models.SysDept
@@ -56,11 +56,12 @@ func GetDeptTree(c *gin.Context) {
 // @Param deptId path string false "deptId"
 // @Param position query string false "position"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/dept/{deptId} [get]
+// @Router /api/v1/depts/{id} [get]
 // @Security Bearer
 func GetDept(c *gin.Context) {
 	var Dept models.SysDept
-	Dept.DeptId = cast.ToInt(c.Param("deptId"))
+
+	Dept.DeptId = cast.ToInt(c.Param("id"))
 	Dept.DataScope = jwtauth.UserIdStr(c)
 	result, err := Dept.Get()
 	if err != nil {
@@ -78,7 +79,7 @@ func GetDept(c *gin.Context) {
 // @Param data body models.SysDept true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/dept [post]
+// @Router /api/v1/depts [post]
 // @Security Bearer
 func InsertDept(c *gin.Context) {
 	var data models.SysDept
@@ -105,7 +106,7 @@ func InsertDept(c *gin.Context) {
 // @Param data body models.SysDept true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/dept [put]
+// @Router /api/v1/depts [put]
 // @Security Bearer
 func UpdateDept(c *gin.Context) {
 	var data models.SysDept
@@ -129,7 +130,7 @@ func UpdateDept(c *gin.Context) {
 // @Param id path int true "id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/dept/{id} [delete]
+// @Router /api/v1/depts/{id} [delete]
 func DeleteDept(c *gin.Context) {
 	var data models.SysDept
 	id, err := strconv.Atoi(c.Param("id"))

@@ -7,9 +7,9 @@ import (
 )
 
 func Menu(v1 gin.IRouter) {
-	v1.GET("/menulist", system.GetMenuList)
-	r := v1.Group("/menu")
+	r := v1.Group("/menus")
 	{
+		r.GET("", system.GetMenuList)
 		r.GET("/:id", system.GetMenu)
 		r.POST("", system.InsertMenu)
 		r.PUT("", system.UpdateMenu)

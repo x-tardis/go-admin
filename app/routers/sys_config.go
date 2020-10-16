@@ -8,12 +8,12 @@ import (
 
 func Config(v1 gin.IRouter) {
 	v1.GET("/configKey/:configKey", system.GetConfigByConfigKey)
-	v1.GET("/configList", system.GetConfigList)
-	r := v1.Group("/config")
+	r := v1.Group("/configs")
 	{
-		r.GET("/:configId", system.GetConfig)
+		r.GET("", system.GetConfigList)
+		r.GET("/:id", system.GetConfig)
 		r.POST("", system.InsertConfig)
 		r.PUT("", system.UpdateConfig)
-		r.DELETE("/:configId", system.DeleteConfig)
+		r.DELETE("/:ids", system.DeleteConfig)
 	}
 }

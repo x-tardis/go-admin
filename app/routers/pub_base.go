@@ -9,7 +9,7 @@ import (
 )
 
 func PubBase(v1 gin.IRouter) {
-	v1.GET("/getCaptcha", system.GenerateCaptchaHandler)
+	v1.GET("/captcha", system.GetCaptcha)
 	v1.GET("/gen/preview/:tableId", tools.Preview)
 	v1.GET("/gen/toproject/:tableId", tools.GenCodeV3)
 	v1.GET("/gen/todb/:tableId", tools.GenMenuAndApi)

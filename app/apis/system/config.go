@@ -23,7 +23,7 @@ import (
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/configList [get]
+// @Router /api/v1/configs [get]
 // @Security Bearer
 func GetConfigList(c *gin.Context) {
 	var data models.SysConfig
@@ -55,11 +55,12 @@ func GetConfigList(c *gin.Context) {
 // @Tags 配置
 // @Param configId path int true "配置编码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/config/{configId} [get]
+// @Router /api/v1/configs/{id} [get]
 // @Security Bearer
 func GetConfig(c *gin.Context) {
 	var Config models.SysConfig
-	Config.ConfigId = cast.ToInt(c.Param("configId"))
+
+	Config.ConfigId = cast.ToInt(c.Param("id"))
 	result, err := Config.Get()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
@@ -95,7 +96,7 @@ func GetConfigByConfigKey(c *gin.Context) {
 // @Param data body models.SysConfig true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/dict/data [post]
+// @Router /api/v1/configs [post]
 // @Security Bearer
 func InsertConfig(c *gin.Context) {
 	var data models.SysConfig
@@ -121,7 +122,7 @@ func InsertConfig(c *gin.Context) {
 // @Param data body models.SysConfig true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/config [put]
+// @Router /api/v1/configs [put]
 // @Security Bearer
 func UpdateConfig(c *gin.Context) {
 	var data models.SysConfig
@@ -145,13 +146,13 @@ func UpdateConfig(c *gin.Context) {
 // @Param configId path int true "configId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/config/{configId} [delete]
+// @Router /api/v1/configs/{ids} [delete]
 func DeleteConfig(c *gin.Context) {
 	var data models.SysConfig
 
 	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := infra.ParseIdsGroup(c.Param("configId"))
-	result, err := data.BatchDelete(IDS)
+	ids := infra.ParseIdsGroup(c.Param("ids"))
+	result, err := data.BatchDelete(ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

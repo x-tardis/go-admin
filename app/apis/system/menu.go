@@ -19,7 +19,7 @@ import (
 // @Param menuName query string false "menuName"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/menulist [get]
+// @Router /api/v1/menus [get]
 // @Security Bearer
 func GetMenuList(c *gin.Context) {
 	var Menu models.Menu
@@ -41,7 +41,7 @@ func GetMenuList(c *gin.Context) {
 // @Param menuName query string false "menuName"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/menu/{id} [get]
+// @Router /api/v1/menus/{id} [get]
 // @Security Bearer
 func GetMenu(c *gin.Context) {
 	var data models.Menu
@@ -110,7 +110,7 @@ func GetMenuTreeelect(c *gin.Context) {
 // @Param IsDel formData string true "IsDel"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/menu [post]
+// @Router /api/v1/menus [post]
 // @Security Bearer
 func InsertMenu(c *gin.Context) {
 	var data models.Menu
@@ -137,7 +137,7 @@ func InsertMenu(c *gin.Context) {
 // @Param data body models.Menu true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
-// @Router /api/v1/menu/{id} [put]
+// @Router /api/v1/menus/{id} [put]
 // @Security Bearer
 func UpdateMenu(c *gin.Context) {
 	var data models.Menu
@@ -162,7 +162,7 @@ func UpdateMenu(c *gin.Context) {
 // @Param id path int true "id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/menu/{id} [delete]
+// @Router /api/v1/menus/{id} [delete]
 func DeleteMenu(c *gin.Context) {
 	var data models.Menu
 	id := cast.ToInt(c.Param("id"))
