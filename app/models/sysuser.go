@@ -29,7 +29,6 @@ type UserName struct {
 }
 
 type PassWord struct {
-	// 密码
 	Password string `gorm:"size:128" json:"password"`
 }
 

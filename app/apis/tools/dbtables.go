@@ -2,9 +2,9 @@ package tools
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models/tools"
@@ -22,33 +22,27 @@ import (
 // @Router /api/v1/db/tables/page [get]
 func GetDBTableList(c *gin.Context) {
 	var data tools.DBTables
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
+
 	if deployed.DbConfig.Driver == "sqlite3" || deployed.DbConfig.Driver == "postgres" {
 		servers.FailWithRequestID(c, http.StatusInternalServerError, "对不起，sqlite3 或 postgres 不支持代码生成")
 		return
 	}
 
-	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-
-	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
+	param.Inspect()
 
 	data.TableName = c.Request.FormValue("tableName")
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, ifc, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+		Info: ifc,
+		List: result,
 	}))
 }

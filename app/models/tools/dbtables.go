@@ -3,6 +3,8 @@ package tools
 import (
 	"errors"
 
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -18,28 +20,25 @@ type DBTables struct {
 	TableComment   string `gorm:"column:TABLE_COMMENT" json:"tableComment"`
 }
 
-func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int64, error) {
+func (e *DBTables) GetPage(params paginator.Param) ([]DBTables, paginator.Info, error) {
 	var doc []DBTables
-	table := new(gorm.DB)
-	var count int64
 
-	if deployed.DbConfig.Driver == "mysql" {
-		table = deployed.DB.Table("information_schema.tables")
-		table = table.Where("TABLE_NAME not in (select table_name from " + deployed.GenConfig.DBName + ".sys_tables) ")
-		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
-
-		if e.TableName != "" {
-			table = table.Where("TABLE_NAME = ?", e.TableName)
-		}
-		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-			return nil, 0, err
-		}
-	} else {
-		return nil, 0, errors.New("目前只支持mysql数据库")
+	if deployed.DbConfig.Driver != "mysql" {
+		return nil, paginator.Info{}, errors.New("目前只支持mysql数据库")
 	}
 
-	//table.Count(&count)
-	return doc, count, nil
+	table := deployed.DB.Table("information_schema.tables")
+	table = table.Where("TABLE_NAME not in (select table_name from " + deployed.GenConfig.DBName + ".sys_tables) ")
+	table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
+
+	if e.TableName != "" {
+		table = table.Where("TABLE_NAME = ?", e.TableName)
+	}
+	ifc, err := iorm.QueryPages(table, params, &doc)
+	if err != nil {
+		return nil, ifc, err
+	}
+	return doc, ifc, err
 }
 
 func (e *DBTables) Get() (DBTables, error) {

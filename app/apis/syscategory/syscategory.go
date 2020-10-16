@@ -2,7 +2,6 @@ package syscategory
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
@@ -17,31 +16,25 @@ import (
 
 func GetSysCategoryList(c *gin.Context) {
 	var data models.SysCategory
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
 
-	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
+	param.Inspect()
 
 	data.Name = c.Request.FormValue("name")
 	data.Status = c.Request.FormValue("status")
 
 	data.DataScope = jwtauth.UserIdStr(c)
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, ifc, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
+		Info: ifc,
+		List: result,
 	}))
 }
 

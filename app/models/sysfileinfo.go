@@ -1,6 +1,9 @@
 package models
 
 import (
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
+
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -52,7 +55,7 @@ func (e *SysFileInfo) Get() (SysFileInfo, error) {
 }
 
 // 获取SysFileInfo带分页
-func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int64, error) {
+func (e *SysFileInfo) GetPage(param paginator.Param) ([]SysFileInfo, paginator.Info, error) {
 	var doc []SysFileInfo
 
 	table := deployed.DB.Table(e.TableName())
@@ -66,15 +69,13 @@ func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int64
 	//dataPermission.UserId=cast.ToInt(e.DataScope)
 	//table, err := dataPermission.GetDataScope(e.TableName(), table)
 	//if err != nil {
-	//	return nil, 0, err
+	//	return nil, paginator.Info{}, err
 	//}
-	var count int64
-
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, ifc, err
 }
 
 // 更新SysFileInfo

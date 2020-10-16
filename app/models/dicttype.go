@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -85,7 +87,7 @@ func (e *DictType) GetList() ([]DictType, error) {
 	return doc, nil
 }
 
-func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int64, error) {
+func (e *DictType) GetPage(param paginator.Param) ([]DictType, paginator.Info, error) {
 	var doc []DictType
 	var db *gorm.DB
 
@@ -102,15 +104,14 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int64, erro
 	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope("sys_dict_type", table)
 	if err != nil {
-		return nil, 0, err
+		return nil, paginator.Info{}, err
 	}
-	var count int64
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, nil
 	}
-	//table.Count(&count)
-	return doc, count, nil
+	return doc, ifc, nil
 }
 
 func (e *DictType) Update(id int) (update DictType, err error) {

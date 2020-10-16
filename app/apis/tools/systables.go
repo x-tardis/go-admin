@@ -2,11 +2,11 @@ package tools
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/core/paginator"
 
 	"github.com/x-tardis/go-admin/app/models/tools"
 	"github.com/x-tardis/go-admin/codes"
@@ -25,32 +25,25 @@ import (
 // @Router /api/v1/sys/tables/page [get]
 func GetSysTableList(c *gin.Context) {
 	var data tools.SysTables
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
 
-	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-
-	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
+	param.Inspect()
 
 	data.TBName = c.Request.FormValue("tableName")
 	data.TableComment = c.Request.FormValue("tableComment")
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, ifc, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
 
-	servers.JSON(c, http.StatusOK, servers.WithData(mp))
+	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
+		Info: ifc,
+		List: result,
+	}))
 }
 
 // @Summary 获取配置

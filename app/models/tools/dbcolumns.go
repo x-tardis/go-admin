@@ -3,6 +3,8 @@ package tools
 import (
 	"errors"
 
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -23,9 +25,9 @@ type DBColumns struct {
 	ColumnComment          string `gorm:"column:COLUMN_COMMENT" json:"columnComment"`
 }
 
-func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int64, error) {
+func (e *DBColumns) GetPage(param paginator.Param) ([]DBColumns, paginator.Info, error) {
 	var doc []DBColumns
-	var count int64
+
 	table := new(gorm.DB)
 
 	if deployed.DbConfig.Driver == "mysql" {
@@ -33,18 +35,17 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int64, er
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
 		if e.TableName != "" {
-			return nil, 0, errors.New("table name cannot be empty！")
+			return nil, paginator.Info{}, errors.New("table name cannot be empty！")
 		}
 
 		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	//table.Count(&count)
-	return doc, count, nil
-
+	return doc, ifc, err
 }
 
 func (e *DBColumns) GetList() ([]DBColumns, error) {

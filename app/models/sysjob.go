@@ -71,7 +71,8 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}, list interf
 
 	var count int64
 
-	if err := table.Scopes(DataScopes(e.TableName(), userid), iorm.Paginate(paginator.Param{pageIndex, pageSize})).
+	if err := table.Scopes(DataScopes(e.TableName(), userid),
+		iorm.Paginate(paginator.Param{pageIndex, pageSize})).
 		Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return 0, err
 	}

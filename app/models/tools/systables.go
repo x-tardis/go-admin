@@ -3,6 +3,9 @@ package tools
 import (
 	"strings"
 
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
+
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -53,7 +56,7 @@ type Params struct {
 	TreeName       string `gorm:"-" json:"treeName"`
 }
 
-func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, error) {
+func (e *SysTables) GetPage(param paginator.Param) ([]SysTables, paginator.Info, error) {
 	var doc []SysTables
 
 	table := deployed.DB.Table("sys_tables")
@@ -65,13 +68,11 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, erro
 		table = table.Where("table_comment = ?", e.TableComment)
 	}
 
-	var count int64
-
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, int(count), nil
+	return doc, ifc, nil
 }
 
 func (e *SysTables) Get() (SysTables, error) {

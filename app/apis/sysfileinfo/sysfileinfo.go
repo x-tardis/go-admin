@@ -18,23 +18,13 @@ import (
 func GetSysFileInfoList(c *gin.Context) {
 	var data models.SysFileInfo
 	var err error
-	var pageSize = 10
-	var pageIndex = 1
 
-	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-	if err != nil {
-		servers.Fail(c, -1, err.Error())
-		return
-	}
-	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
-	if err != nil {
-		servers.Fail(c, -1, err.Error())
-		return
-	}
+	param.Inspect()
+
 	if pid := c.Request.FormValue("pId"); pid != "" {
 		data.PId, err = strconv.Atoi(pid)
 	}
@@ -43,17 +33,14 @@ func GetSysFileInfoList(c *gin.Context) {
 		return
 	}
 
-	data.DataScope = jwtauth.UserIdStr(c)
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, ifc, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
+		Info: ifc,
+		List: result,
 	}))
 }
 

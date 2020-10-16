@@ -2,6 +2,8 @@ package models
 
 import (
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -66,7 +68,7 @@ func (e *SysContent) Get() (SysContent, error) {
 }
 
 // 获取SysContent带分页
-func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int64, error) {
+func (e *SysContent) GetPage(param paginator.Param) ([]SysContent, paginator.Info, error) {
 	var doc []SysContent
 
 	table := deployed.DB.Table(e.TableName())
@@ -88,15 +90,13 @@ func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int64, 
 	dataPermission.UserId = cast.ToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope(e.TableName(), table)
 	if err != nil {
-		return nil, 0, err
+		return nil, paginator.Info{}, err
 	}
-	var count int64
-
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	ifc, err := iorm.QueryPages(table, param, &doc)
+	if err != nil {
+		return nil, ifc, err
 	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, ifc, err
 }
 
 // 更新SysContent
