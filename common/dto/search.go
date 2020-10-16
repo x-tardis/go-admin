@@ -73,13 +73,3 @@ func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
 		return db
 	}
 }
-
-func Paginate(pageSize, pageIndex int) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		offset := (pageIndex - 1) * pageSize
-		if offset < 0 {
-			offset = 0
-		}
-		return db.Offset(offset).Limit(pageSize)
-	}
-}

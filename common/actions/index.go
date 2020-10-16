@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
 	"github.com/thinkgos/sharp/core/paginator"
@@ -40,10 +41,11 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		//数据权限检查
 		p := GetPermissionFromContext(c)
 
+		pageParam := req.GetPaginatorParam()
 		err = db.WithContext(c).Model(object).
 			Scopes(
 				dto.MakeCondition(req.GetNeedSearch()),
-				dto.Paginate(req.GetPageSize(), req.GetPageIndex()),
+				iorm.Paginate(pageParam),
 				Permission(object.TableName(), p),
 			).
 			Find(list).Limit(-1).Offset(-1).
@@ -57,8 +59,8 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
 			List:      list,
 			Total:     count,
-			PageIndex: req.GetPageIndex(),
-			PageSize:  req.GetPageSize(),
+			PageIndex: pageParam.PageIndex,
+			PageSize:  pageParam.PageSize,
 		}), servers.WithMsg("查询成功"))
 		c.Next()
 	}

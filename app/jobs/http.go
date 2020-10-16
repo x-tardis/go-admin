@@ -15,7 +15,7 @@ type HttpJob struct {
 	Base
 }
 
-//http 任务接口
+// http 任务接口
 func (h *HttpJob) Run() {
 	startTime := time.Now()
 	var count = 0
@@ -38,7 +38,7 @@ LOOP:
 
 	// 执行时间
 	latencyTime := endTime.Sub(startTime)
-	//TODO: 待完善部分
+	// TODO: 待完善部分
 
 	deployed.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
 }

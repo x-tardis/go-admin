@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/sharp/core/paginator"
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/common/dto"
@@ -10,13 +11,13 @@ import (
 )
 
 type SysJobSearch struct {
-	dto.Pagination `search:"-"`
-	JobId          int    `form:"jobId" search:"type:exact;column:job_id;table:sys_job"`
-	JobName        string `form:"jobName" search:"type:icontains;column:job_name;table:sys_job"`
-	JobGroup       string `form:"jobGroup" search:"type:exact;column:job_group;table:sys_job"`
-	CronExpression string `form:"cronExpression" search:"type:exact;column:cron_expression;table:sys_job"`
-	InvokeTarget   string `form:"invokeTarget" search:"type:exact;column:invoke_target;table:sys_job"`
-	Status         int    `form:"status" search:"type:exact;column:status;table:sys_job"`
+	paginator.Param `search:"-"`
+	JobId           int    `form:"jobId" search:"type:exact;column:job_id;table:sys_job"`
+	JobName         string `form:"jobName" search:"type:icontains;column:job_name;table:sys_job"`
+	JobGroup        string `form:"jobGroup" search:"type:exact;column:job_group;table:sys_job"`
+	CronExpression  string `form:"cronExpression" search:"type:exact;column:cron_expression;table:sys_job"`
+	InvokeTarget    string `form:"invokeTarget" search:"type:exact;column:invoke_target;table:sys_job"`
+	Status          int    `form:"status" search:"type:exact;column:status;table:sys_job"`
 }
 
 func (m *SysJobSearch) GetNeedSearch() interface{} {
@@ -34,6 +35,11 @@ func (m *SysJobSearch) Bind(ctx *gin.Context) error {
 func (m *SysJobSearch) Generate() dto.Index {
 	o := *m
 	return &o
+}
+
+func (m *SysJobSearch) GetPaginatorParam() paginator.Param {
+	m.Param.Inspect()
+	return m.Param
 }
 
 type SysJobControl struct {

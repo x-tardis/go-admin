@@ -1,8 +1,8 @@
 package jobs
 
 type Job interface {
-	Run()
 	Expression() string
+	Run()
 }
 
 type JobExec interface {
