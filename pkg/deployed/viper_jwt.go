@@ -18,9 +18,9 @@ func ViperJwtDefault() {
 func ViperJwt() *jwtauth.Config {
 	cfg := viper.Sub("jwt")
 	return &jwtauth.Config{
-		cfg.GetString("realm"),
-		cfg.GetString("secretKey"),
-		cfg.GetDuration("timeout"),
-		cfg.GetDuration("maxRefresh"),
+		Realm:      cfg.GetString("realm"),
+		SecretKey:  cfg.GetString("secretKey"),
+		Timeout:    cfg.GetDuration("timeout"),
+		MaxRefresh: cfg.GetDuration("maxRefresh"),
 	}
 }
