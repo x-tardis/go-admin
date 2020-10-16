@@ -45,7 +45,7 @@ require (
 	github.com/swaggo/swag v1.6.7
 	github.com/thinkgos/gin-middlewares v0.0.4
 	github.com/thinkgos/go-core-package v0.1.4
-	github.com/thinkgos/sharp v0.3.3
+	github.com/thinkgos/sharp v0.3.4
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect

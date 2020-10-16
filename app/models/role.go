@@ -3,7 +3,8 @@ package models
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
-	"gorm.io/gorm"
+	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/iorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -35,11 +36,7 @@ type MenuIdList struct {
 	MenuId int `json:"menuId"`
 }
 
-func (role *SysRole) GetById(tx *gorm.DB, id interface{}) error {
-	return tx.First(role, id).Error
-}
-
-func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int64, error) {
+func (role *SysRole) GetPage(param paginator.Param) ([]SysRole, paginator.Info, error) {
 	var doc []SysRole
 
 	table := deployed.DB.Table("sys_role")
@@ -61,15 +58,11 @@ func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int64, err
 	dataPermission.UserId = cast.ToInt(role.DataScope)
 	table, err := dataPermission.GetDataScope("sys_role", table)
 	if err != nil {
-		return nil, 0, err
+		return nil, paginator.Info{}, err
 	}
-	var count int64
 
-	if err := table.Order("role_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
-	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	ifc, err := iorm.QueryPages(table.Order("role_sort"), param, &doc)
+	return doc, ifc, err
 }
 
 func (role *SysRole) Get() (SysRole SysRole, err error) {
@@ -83,7 +76,6 @@ func (role *SysRole) Get() (SysRole SysRole, err error) {
 	if err = table.First(&SysRole).Error; err != nil {
 		return
 	}
-
 	return
 }
 
@@ -103,10 +95,12 @@ func (role *SysRole) GetList() (SysRole []SysRole, err error) {
 }
 
 // 获取角色对应的菜单ids
-func (role *SysRole) GetRoleMeunId() ([]int, error) {
+func (*SysRole) GetRoleMenuId(roleId int) ([]int, error) {
 	menuIds := make([]int, 0)
 	menuList := make([]MenuIdList, 0)
-	if err := deployed.DB.Table("sys_role_menu").Select("sys_role_menu.menu_id").Where("role_id = ? ", role.RoleId).Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id =?  and parent_id is not null)", role.RoleId).Find(&menuList).Error; err != nil {
+	if err := deployed.DB.Table("sys_role_menu").Select("sys_role_menu.menu_id").Where("role_id = ? ", roleId).
+		Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id =?  and parent_id is not null)", roleId).
+		Find(&menuList).Error; err != nil {
 		return nil, err
 	}
 
@@ -139,7 +133,10 @@ type DeptIdList struct {
 func (role *SysRole) GetRoleDeptId() ([]int, error) {
 	deptIds := make([]int, 0)
 	deptList := make([]DeptIdList, 0)
-	if err := deployed.DB.Table("sys_role_dept").Select("sys_role_dept.dept_id").Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").Where("role_id = ? ", role.RoleId).Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", role.RoleId).Find(&deptList).Error; err != nil {
+	if err := deployed.DB.Table("sys_role_dept").Select("sys_role_dept.dept_id").
+		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").Where("role_id = ? ", role.RoleId).
+		Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", role.RoleId).
+		Find(&deptList).Error; err != nil {
 		return nil, err
 	}
 

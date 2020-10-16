@@ -534,8 +534,8 @@ github.com/thinkgos/go-core-package v0.1.4 h1:Qmxj5ghoN8ud7yrqf9JLdcsWbbjskNG0Fo
 github.com/thinkgos/go-core-package v0.1.4/go.mod h1:NjJN3f1yZvDU8IKb/2f1njngCYml8t6DZ+X+//tm21M=
 github.com/thinkgos/http-middlewares v0.0.2/go.mod h1:s/f8p6tbtHt6XnzIqbMDuH//mshACjvZyAmLUjzd4j8=
 github.com/thinkgos/render v0.1.4/go.mod h1:RdXQ6xuI7VSOgQXHajuzahdca5Jq7H7pH4/UDRXTn10=
-github.com/thinkgos/sharp v0.3.3 h1:ElbVtCsdbX+jbmb+/yl+s5GgUF+p/0RM/wC9/p/EOl8=
-github.com/thinkgos/sharp v0.3.3/go.mod h1:xqab8ZlZ+mao8/x8va0iNDYpZBbKEAUEyLWCQcu6rzo=
+github.com/thinkgos/sharp v0.3.4 h1:sMoKGTKgoBvSARncShMoeWbGxdZlS0kn/d/pNo9vZ5Q=
+github.com/thinkgos/sharp v0.3.4/go.mod h1:xqab8ZlZ+mao8/x8va0iNDYpZBbKEAUEyLWCQcu6rzo=
 github.com/tidwall/gjson v1.6.0 h1:9VEQWz6LLMUsUl6PueE49ir4Ka6CzLymOAZDxpFsTDc=
 github.com/tidwall/gjson v1.6.0/go.mod h1:P256ACg0Mn+j1RXIDXoss50DeIABTYK1PULOJHhxOls=
 github.com/tidwall/match v1.0.1 h1:PnKP62LPNxHKTwvHHZZzdOAOCtsJTjo6dZLCwpKm5xc=

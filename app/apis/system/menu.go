@@ -58,7 +58,6 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 	var Menu models.Menu
 	var SysRole models.SysRole
 	id, err := strconv.Atoi(c.Param("roleId"))
-	SysRole.RoleId = id
 	result, err := Menu.SetMenuLabel()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
@@ -66,7 +65,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 	}
 	menuIds := make([]int, 0)
 	if id != 0 {
-		menuIds, err = SysRole.GetRoleMeunId()
+		menuIds, err = SysRole.GetRoleMenuId(id)
 		if err != nil {
 			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 			return

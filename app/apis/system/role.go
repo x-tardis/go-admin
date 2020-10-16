@@ -2,7 +2,6 @@ package system
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
@@ -31,32 +30,26 @@ import (
 func GetRoleList(c *gin.Context) {
 	var data models.SysRole
 	var err error
-	var pageSize = 10
-	var pageIndex = 1
 
-	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = strconv.Atoi(size)
+	param := paginator.Param{
+		PageIndex: cast.ToInt(c.Query("pageIndex")),
+		PageSize:  cast.ToInt(c.Query("pageSize")),
 	}
-
-	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = strconv.Atoi(index)
-	}
+	param.Inspect()
 
 	data.RoleKey = c.Request.FormValue("roleKey")
 	data.RoleName = c.Request.FormValue("roleName")
 	data.Status = c.Request.FormValue("status")
 	data.DataScope = jwtauth.UserIdStr(c)
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, count, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+		Info: count,
+		List: result,
 	}))
 }
 
@@ -70,10 +63,12 @@ func GetRoleList(c *gin.Context) {
 // @Security Bearer
 func GetRole(c *gin.Context) {
 	var Role models.SysRole
-	Role.RoleId = cast.ToInt(c.Param("roleId"))
+
+	roleId := cast.ToInt(c.Param("roleId"))
+	Role.RoleId = roleId
 	result, err := Role.Get()
 	menuIds := make([]int, 0)
-	menuIds, err = Role.GetRoleMeunId()
+	menuIds, err = Role.GetRoleMenuId(roleId)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
