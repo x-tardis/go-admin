@@ -19,7 +19,7 @@ func GetSysFileDirList(c *gin.Context) {
 	SysFileDir.DataScope = jwtauth.UserIdStr(c)
 	result, err := SysFileDir.SetSysFileDir()
 	if err != nil {
-		servers.Fail(c, -1, "抱歉未找到相关信息")
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
 	servers.OKWithRequestID(c, result, "")
@@ -30,7 +30,7 @@ func GetSysFileDir(c *gin.Context) {
 	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
 	if err != nil {
-		servers.Fail(c, -1, "抱歉未找到相关信息")
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
 	servers.OKWithRequestID(c, result, "")
@@ -81,7 +81,7 @@ func DeleteSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 	data.UpdateBy = jwtauth.UserIdStr(c)
 
-	IDS := infra.ParseIdsGroup(c.Param("id"))
+	IDS := infra.ParseIdsGroup(c.Param("ids"))
 	_, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)

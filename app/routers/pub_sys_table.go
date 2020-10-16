@@ -11,11 +11,11 @@ func PubSysTable(v1 gin.IRouter) {
 		r.GET("/page", tools.GetSysTableList)
 		tablesInfo := r.Group("/info")
 		{
+			tablesInfo.GET("", tools.GetSysTablesInfo)
+			tablesInfo.GET("/:id", tools.GetSysTables)
 			tablesInfo.POST("", tools.InsertSysTable)
 			tablesInfo.PUT("", tools.UpdateSysTable)
-			tablesInfo.DELETE("/:tableId", tools.DeleteSysTables)
-			tablesInfo.GET("/:tableId", tools.GetSysTables)
-			tablesInfo.GET("", tools.GetSysTablesInfo)
+			tablesInfo.DELETE("/:ids", tools.DeleteSysTables)
 		}
 	}
 }

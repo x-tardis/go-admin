@@ -10,10 +10,13 @@ import (
 
 func PubBase(v1 gin.IRouter) {
 	v1.GET("/captcha", system.GetCaptcha)
-	v1.GET("/gen/preview/:tableId", tools.Preview)
-	v1.GET("/gen/toproject/:tableId", tools.GenCodeV3)
-	v1.GET("/gen/todb/:tableId", tools.GenMenuAndApi)
-	v1.GET("/gen/tabletree", tools.GetSysTablesTree)
 	v1.GET("/menuTreeselect", system.GetMenuTreeelect)
 	v1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
+	r := v1.Group("/gen")
+	{
+		r.GET("/preview/:tableId", tools.Preview)
+		r.GET("/toproject/:tableId", tools.GenCodeV3)
+		r.GET("/todb/:tableId", tools.GenMenuAndApi)
+		r.GET("/tabletree", tools.GetSysTablesTree)
+	}
 }

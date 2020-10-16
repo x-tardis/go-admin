@@ -58,11 +58,11 @@ func GetSysTableList(c *gin.Context) {
 // @Tags 工具 - 生成表
 // @Param configKey path int true "configKey"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/sys/tables/info/{tableId} [get]
+// @Router /api/v1/sys/tables/info/{id} [get]
 // @Security Bearer
 func GetSysTables(c *gin.Context) {
 	var data tools.SysTables
-	data.TableId = cast.ToInt(c.Param("tableId"))
+	data.TableId = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
@@ -268,11 +268,11 @@ func UpdateSysTable(c *gin.Context) {
 // @Param tableId path int true "tableId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/sys/tables/info/{tableId} [delete]
+// @Router /api/v1/sys/tables/info/{ids} [delete]
 func DeleteSysTables(c *gin.Context) {
 	var data tools.SysTables
-	IDS := infra.ParseIdsGroup(c.Param("tableId"))
-	_, err := data.BatchDelete(IDS)
+	ids := infra.ParseIdsGroup(c.Param("ids"))
+	_, err := data.BatchDelete(ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

@@ -9,17 +9,11 @@ import (
 // 需认证的路由代码
 func SysCategory(v1 gin.IRouter) {
 	r := v1.Group("/syscategory")
-
 	{
+		r.GET("", syscategory.GetSysCategoryList)
 		r.GET("/:id", syscategory.GetSysCategory)
 		r.POST("", syscategory.InsertSysCategory)
 		r.PUT("", syscategory.UpdateSysCategory)
 		r.DELETE("/:id", syscategory.DeleteSysCategory)
 	}
-
-	l := v1.Group("")
-	{
-		l.GET("/syscategoryList", syscategory.GetSysCategoryList)
-	}
-
 }

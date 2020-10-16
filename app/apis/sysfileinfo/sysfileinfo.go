@@ -105,7 +105,7 @@ func DeleteSysFileInfo(c *gin.Context) {
 	var data models.SysFileInfo
 	data.UpdateBy = jwtauth.UserIdStr(c)
 
-	IDS := infra.ParseIdsGroup(c.Param("id"))
+	IDS := infra.ParseIdsGroup(c.Param("ids"))
 	_, err := data.BatchDelete(IDS)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)

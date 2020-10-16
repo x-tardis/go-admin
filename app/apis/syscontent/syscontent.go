@@ -66,7 +66,7 @@ func GetSysContent(c *gin.Context) {
 // @Param data body models.SysContent true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/syscontent [post]
+// @Router /api/v1/syscontents [post]
 func InsertSysContent(c *gin.Context) {
 	var data models.SysContent
 
