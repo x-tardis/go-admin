@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -157,5 +158,5 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	} else {
 		sysOperLog.Status = "1"
 	}
-	_, _ = sysOperLog.Create()
+	new(models.CallSysOperLog).Create(context.Background(), sysOperLog) // nolint: errcheck
 }

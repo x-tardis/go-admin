@@ -232,6 +232,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{PType: "p", V0: "admin", V1: "/api/v1/loginlog", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/loginlog/:id", V2: "DELETE"},
 			{PType: "p", V0: "admin", V1: "/api/v1/operlog", V2: "GET"},
+			{PType: "p", V0: "admin", V1: "/api/v1/operlog/:id", V2: "DELETE"},
 			{PType: "p", V0: "admin", V1: "/api/v1/getinfo", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/roledatascope", V2: "PUT"},
 			{PType: "p", V0: "admin", V1: "/api/v1/roleDeptTreeselect/:id", V2: "GET"},

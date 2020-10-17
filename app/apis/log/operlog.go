@@ -5,14 +5,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
+
+type OperLog struct{}
 
 // @Summary 登录日志列表
 // @Description 获取JSON
@@ -25,19 +27,15 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/operlog [get]
 // @Security Bearer
-func GetOperLogList(c *gin.Context) {
-	var data models.SysOperLog
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+func (OperLog) QueryPage(c *gin.Context) {
+	qp := models.SysOperLogQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	data.OperName = c.Request.FormValue("operName")
-	data.Status = c.Request.FormValue("status")
-	data.OperIp = c.Request.FormValue("operIp")
-	result, ifc, err := data.GetPage(param)
+	result, ifc, err := new(models.CallSysOperLog).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -55,15 +53,14 @@ func GetOperLogList(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/operlog/{id} [get]
 // @Security Bearer
-func GetOperLog(c *gin.Context) {
-	var OperLog models.SysOperLog
-	OperLog.OperId = cast.ToInt(c.Param("id"))
-	result, err := OperLog.Get()
+func (OperLog) Get(c *gin.Context) {
+	id := cast.ToInt(c.Param("id"))
+	item, err := new(models.CallSysOperLog).Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, -1, "抱歉未找到相关信息")
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 添加操作日志
@@ -76,14 +73,14 @@ func GetOperLog(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/operlog [post]
 // @Security Bearer
-func InsertOperLog(c *gin.Context) {
-	var data models.SysOperLog
+func (OperLog) Create(c *gin.Context) {
+	var item models.SysOperLog
 
-	if err := c.ShouldBindJSON(&data); err != nil {
+	if err := c.ShouldBindJSON(&item); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	result, err := data.Create()
+	result, err := new(models.CallSysOperLog).Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -98,11 +95,18 @@ func InsertOperLog(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/operlog/{ids} [delete]
-func DeleteOperLog(c *gin.Context) {
-	var data models.SysOperLog
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	ids := infra.ParseIdsGroup(c.Param("ids"))
-	_, err := data.BatchDelete(ids)
+func (OperLog) BatchDelete(c *gin.Context) {
+	var err error
+
+	action := c.Param("ids")
+	switch action {
+	case "clean":
+		err = new(models.CallSysOperLog).Clean(gcontext.Context(c))
+	default: // ids
+		ids := infra.ParseIdsGroup(action)
+		err = new(models.CallSysOperLog).BatchDelete(gcontext.Context(c), ids)
+	}
+
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

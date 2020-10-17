@@ -18,10 +18,12 @@ func LoginLog(v1 gin.IRouter) {
 }
 
 func OperLog(v1 gin.IRouter) {
+	ctl := new(log.OperLog)
+
 	r := v1.Group("/operlog")
 	{
-		r.GET("", log.GetOperLogList)
-		r.GET("/:id", log.GetOperLog)
-		r.DELETE("/:ids", log.DeleteOperLog)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }

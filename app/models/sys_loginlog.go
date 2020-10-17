@@ -92,9 +92,7 @@ func (CallLoginLog) Update(_ context.Context, id int, up LoginLog) (item LoginLo
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据,只修改非零的数据
-	if err = deployed.DB.Scopes(LoginLogDB()).Model(&item).Updates(&up).Error; err != nil {
-		return
-	}
+	err = deployed.DB.Scopes(LoginLogDB()).Model(&item).Updates(&up).Error
 	return
 }
 
