@@ -24,7 +24,7 @@ type LoginLog struct {
 	Params        string    `json:"params" gorm:"-"`                           //
 	Remark        string    `json:"remark" gorm:"size:255;"`                   //备注
 	Msg           string    `json:"msg" gorm:"size:255;"`
-	BaseModel
+	Model
 }
 
 func (LoginLog) TableName() string {

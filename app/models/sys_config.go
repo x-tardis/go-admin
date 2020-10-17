@@ -14,15 +14,15 @@ import (
 )
 
 type SysConfig struct {
-	BaseModel
-	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` // 编码
+	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` // 主键
 	ConfigName  string `json:"configName" gorm:"size:128;"`                 // 参数名称
 	ConfigKey   string `json:"configKey" gorm:"size:128;"`                  // 参数键名
 	ConfigValue string `json:"configValue" gorm:"size:255;"`                // 参数键值
 	ConfigType  string `json:"configType" gorm:"size:64;"`                  // 是否系统内置
 	Remark      string `json:"remark" gorm:"size:128;"`                     // 备注
-	CreateBy    string `json:"createBy" gorm:"size:128;"`
-	UpdateBy    string `json:"updateBy" gorm:"size:128;"`
+	Creator     string `json:"creator" gorm:"size:128;"`                    // 创建者
+	Updator     string `json:"updator" gorm:"size:128;"`                    // 更新者
+	Model
 
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params"  gorm:"-"`
@@ -96,7 +96,7 @@ func (CallSysConfig) QueryPage(ctx context.Context, qp SysConfigQueryParam) ([]S
 func (CallSysConfig) Create(ctx context.Context, item SysConfig) (SysConfig, error) {
 	var i int64
 
-	item.CreateBy = jwtauth.FromUserIdStr(ctx)
+	item.Creator = jwtauth.FromUserIdStr(ctx)
 	deployed.DB.Scopes(SysConfigDB()).Where("config_name=? or config_key = ?", item.ConfigName, item.ConfigKey).Count(&i)
 	if i > 0 {
 		return item, iorm.ErrObjectAlreadyExist
@@ -110,7 +110,7 @@ func (CallSysConfig) Create(ctx context.Context, item SysConfig) (SysConfig, err
 }
 
 func (CallSysConfig) Update(ctx context.Context, id int, item SysConfig) (update SysConfig, err error) {
-	item.UpdateBy = jwtauth.FromUserIdStr(ctx)
+	item.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(SysConfigDB()).Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}

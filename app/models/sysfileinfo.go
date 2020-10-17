@@ -20,7 +20,7 @@ type SysFileInfo struct {
 	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"` // 编辑人
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params"  gorm:"-"`
-	BaseModel
+	Model
 }
 
 func (SysFileInfo) TableName() string {

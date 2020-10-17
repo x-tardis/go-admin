@@ -34,7 +34,7 @@ type SysOperLog struct {
 	Remark        string    `json:"remark" gorm:"size:255;"`         // 备注
 	LatencyTime   string    `json:"latencyime" gorm:"size:128;"`     // 耗时
 	UserAgent     string    `json:"userAgent" gorm:"size:255;"`      // ua
-	BaseModel
+	Model
 }
 
 func (SysOperLog) TableName() string {

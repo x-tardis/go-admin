@@ -43,7 +43,7 @@ type SysTables struct {
 	Params              Params       `gorm:"-" json:"params"`
 	Columns             []SysColumns `gorm:"-" json:"columns"`
 
-	models.BaseModel
+	models.Model
 }
 
 func (SysTables) TableName() string {

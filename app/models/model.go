@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type BaseModel struct {
+type Model struct {
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"deletedAt"`

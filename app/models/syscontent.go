@@ -21,7 +21,7 @@ type SysContent struct {
 	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"`                // 更新者
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params"  gorm:"-"`
-	BaseModel
+	Model
 }
 
 func (SysContent) TableName() string {

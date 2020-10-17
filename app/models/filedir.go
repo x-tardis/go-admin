@@ -17,7 +17,7 @@ type SysFileDir struct {
 	Children  []SysFileDir `json:"children" gorm:"-"`
 	DataScope string       `json:"dataScope" gorm:"-"`
 	Params    string       `json:"params"  gorm:"-"`
-	BaseModel
+	Model
 }
 
 func (SysFileDir) TableName() string {

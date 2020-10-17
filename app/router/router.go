@@ -79,7 +79,7 @@ func RegisterSys(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 		routers.PubDB(v1Group)
 		routers.PubSysTable(v1Group)
 		routers.PubPublic(v1Group)
-		routers.PubSysSetting(v1Group)
+		routers.PubSystem(v1Group)
 	}
 
 	{ // 需要认证

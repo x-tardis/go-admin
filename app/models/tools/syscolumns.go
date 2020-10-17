@@ -44,7 +44,7 @@ type SysColumns struct {
 	CreateBy           string       `gorm:"column:create_by;size:128;" json:"createBy"`
 	UpdateBy           string       `gorm:"column:update_By;size:128;" json:"updateBy"`
 
-	models.BaseModel
+	models.Model
 }
 
 func (SysColumns) TableName() string {
