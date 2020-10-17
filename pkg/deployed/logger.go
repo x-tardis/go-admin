@@ -12,7 +12,7 @@ var RequestLogger *zap.SugaredLogger
 var EnabledDB bool
 
 func SetupLogger() {
-	EnabledDB = viper.GetBool("enableddb")
+	EnabledDB = viper.GetBool("enabledb")
 	c := ViperLogger()
 	c.FileName = "bus.log"
 	logger := izap.New(c)

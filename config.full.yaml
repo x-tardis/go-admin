@@ -10,6 +10,8 @@ readtimeout: 1
 writertimeout: 2
 # 数据权限功能开关
 enabledp: false
+enabledb: true
+
 ssl:
   # https对应的域名
   domain: localhost:8000
@@ -19,6 +21,7 @@ ssl:
   key: keystring
   # ssl 证书路径
   pem: temp/pem.pem
+
 logger:
   # debug, info(默认), warn, error, dpanic, panic, fatal
   level: debug
@@ -28,7 +31,7 @@ logger:
   # CapitalLevelEncoder: 大写编码器 CapitalColorLevelEncoder: 大写编码器带颜色
   encodeLevel: LowercaseLevelEncoder
   # 是否显示在console
-  inConsole: false
+  inConsole: true
   # 使能栈调式输出
   stack: false
   # 保存路径
@@ -46,8 +49,7 @@ logger:
   localTime: false
   # 压缩文件,采用gzip, 默认不压缩
   compress: false
-  # TODO:
-  enableddb: false
+
 jwt:
   # 显示给用户看的
   realm: go-admin

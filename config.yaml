@@ -11,7 +11,7 @@ writertimeout: 2
 # 数据权限功能开关
 enabledp: false
   # TODO:
-enableddb: false
+enabledb: true
 
 logger:
   # debug, info(默认), warn, error, dpanic, panic, fatal

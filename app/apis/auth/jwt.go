@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -133,6 +134,8 @@ func logoutResponse(c *gin.Context, code int) {
 
 // loginLogRecord Write log to database
 func loginLogRecord(c *gin.Context, status string, msg string, username string) {
+	log.Println("------------>   ", deployed.EnabledDB)
+
 	if deployed.EnabledDB {
 		ua := user_agent.New(c.Request.UserAgent())
 		browserName, browserVersion := ua.Browser()
@@ -149,6 +152,7 @@ func loginLogRecord(c *gin.Context, status string, msg string, username string) 
 			Msg:           msg,
 			Platform:      ua.Platform(),
 		}
-		loginLog.Create() // nolint: errcheck
+		_, err := new(models.CallLoginLog).Create(context.Background(), loginLog) // nolint: errcheck
+		log.Println(err)
 	}
 }

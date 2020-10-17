@@ -5,14 +5,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
+
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
+
+type LoginLog struct{}
 
 // @Summary 登录日志列表
 // @Description 获取JSON
@@ -25,30 +28,22 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/loginlog [get]
 // @Security Bearer
-func GetLoginLogList(c *gin.Context) {
-	var data models.LoginLog
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageSize")),
-		PageSize:  cast.ToInt(c.Query("pageIndex")),
+func (LoginLog) QueryPage(c *gin.Context) {
+	qp := models.LoginLogQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
-	data.Username = c.Request.FormValue("username")
-	data.Status = c.Request.FormValue("status")
-	data.Ipaddr = c.Request.FormValue("ipaddr")
-	result, count, err := data.GetPage(param)
+	qp.Inspect()
+
+	result, ifc, err := new(models.CallLoginLog).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
-		List:      result,
-		Total:     count,
-		PageIndex: pageIndex,
-		PageSize:  pageSize,
+	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+		Info: ifc,
+		List: result,
 	}))
 }
 
@@ -59,11 +54,9 @@ func GetLoginLogList(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/loginlog/{id} [get]
 // @Security Bearer
-func GetLoginLog(c *gin.Context) {
-	var LoginLog models.LoginLog
-
-	LoginLog.InfoId = cast.ToInt(c.Param("id"))
-	result, err := LoginLog.Get()
+func (LoginLog) Get(c *gin.Context) {
+	id := cast.ToInt(c.Param("id"))
+	result, err := new(models.CallLoginLog).Get(id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -81,14 +74,15 @@ func GetLoginLog(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/loginlog [post]
 // @Security Bearer
-func InsertLoginLog(c *gin.Context) {
-	var data models.LoginLog
+func (LoginLog) Create(c *gin.Context) {
+	var item models.LoginLog
 
-	if err := c.ShouldBindJSON(&data); err != nil {
+	if err := c.ShouldBindJSON(&item); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	result, err := data.Create()
+
+	result, err := new(models.CallLoginLog).Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -106,14 +100,14 @@ func InsertLoginLog(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/loginlog [put]
 // @Security Bearer
-func UpdateLoginLog(c *gin.Context) {
-	var data models.LoginLog
+func (LoginLog) Update(c *gin.Context) {
+	var up models.LoginLog
 
-	if err := c.ShouldBindJSON(&data); err != nil {
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	result, err := data.Update(data.InfoId)
+	result, err := new(models.CallLoginLog).Update(gcontext.Context(c), up.InfoId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -128,12 +122,18 @@ func UpdateLoginLog(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/loginlog/{ids} [delete]
-func DeleteLoginLog(c *gin.Context) {
-	var data models.LoginLog
+func (LoginLog) BatchDelete(c *gin.Context) {
+	var err error
 
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	ids := infra.ParseIdsGroup(c.Param("ids"))
-	_, err := data.BatchDelete(ids)
+	action := c.Param("ids")
+	switch action {
+	case "clean":
+		err = new(models.CallLoginLog).Clean(gcontext.Context(c))
+	default: // ids
+		ids := infra.ParseIdsGroup(action)
+		err = new(models.CallLoginLog).BatchDelete(gcontext.Context(c), ids)
+	}
+
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

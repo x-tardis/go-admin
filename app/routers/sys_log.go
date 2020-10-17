@@ -6,13 +6,14 @@ import (
 )
 
 func LoginLog(v1 gin.IRouter) {
+	ctl := new(log.LoginLog)
 	r := v1.Group("/loginlog")
 	{
-		r.GET("", log.GetLoginLogList)
-		r.GET("/:id", log.GetLoginLog)
-		r.POST("", log.InsertLoginLog)
-		r.PUT("", log.UpdateLoginLog)
-		r.DELETE("/:ids", log.DeleteLoginLog)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }
 

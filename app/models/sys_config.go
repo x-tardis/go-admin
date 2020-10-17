@@ -28,14 +28,6 @@ type SysConfig struct {
 	Params    string `json:"params"  gorm:"-"`
 }
 
-// SysConfigQueryParam 查询参数
-type SysConfigQueryParam struct {
-	ConfigName string `form:"configName"`
-	ConfigKey  string `form:"configKey"`
-	ConfigType string `form:"configType"`
-	paginator.Param
-}
-
 func (SysConfig) TableName() string {
 	return "sys_config"
 }
@@ -46,6 +38,13 @@ func SysConfigDB() func(db *gorm.DB) *gorm.DB {
 	}
 }
 
+// SysConfigQueryParam 查询参数
+type SysConfigQueryParam struct {
+	ConfigName string `form:"configName"`
+	ConfigKey  string `form:"configKey"`
+	ConfigType string `form:"configType"`
+	paginator.Param
+}
 type CallSysConfig struct{}
 
 // 获取 Config
