@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
 
@@ -72,9 +73,8 @@ func GetSysUser(c *gin.Context) {
 		return
 	}
 	var SysRole models.SysRole
-	var Post models.Post
 	roles, err := SysRole.GetList()
-	posts, err := Post.GetList()
+	posts, _, err := new(models.CallPost).QueryPage(gcontext.Context(c), models.PostQueryParam{})
 
 	postIds := make([]int, 0)
 	postIds = append(postIds, result.PostId)
@@ -99,20 +99,19 @@ func GetSysUser(c *gin.Context) {
 // @Security Bearer
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
-	userId := jwtauth.UserIdStr(c)
-	SysUser.UserId = cast.ToInt(userId)
+
+	SysUser.UserId = jwtauth.UserId(c)
 	result, err := SysUser.Get()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
 	var SysRole models.SysRole
-	var Post models.Post
 	var Dept models.SysDept
 	//获取角色列表
 	roles, err := SysRole.GetList()
 	//获取职位列表
-	posts, err := Post.GetList()
+	posts, _, err := new(models.CallPost).QueryPage(gcontext.Context(c), models.PostQueryParam{})
 	//获取部门列表
 	Dept.DeptId = result.DeptId
 	dept, err := Dept.Get()
@@ -142,9 +141,9 @@ func GetSysUserProfile(c *gin.Context) {
 // @Security Bearer
 func GetSysUserInit(c *gin.Context) {
 	var SysRole models.SysRole
-	var Post models.Post
+
 	roles, err := SysRole.GetList()
-	posts, err := Post.GetList()
+	posts, _, err := new(models.CallPost).QueryPage(gcontext.Context(c), models.PostQueryParam{})
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
