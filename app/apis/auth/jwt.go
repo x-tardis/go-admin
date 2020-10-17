@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -45,7 +46,7 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			return jwtauth.Identities{
+			identity := jwtauth.Identities{
 				UserId:    cast.ToInt(claims[userIdKey]),
 				UserName:  cast.ToString(claims[usernameKey]),
 				RoleId:    cast.ToInt(claims[roleIdKey]),
@@ -53,6 +54,9 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 				RoleKey:   cast.ToString(claims[roleKey]),
 				DataScope: cast.ToString(claims[dataScopeKey]),
 			}
+			ctx := context.WithValue(c.Request.Context(), jwt.IdentityKey, identity)
+			c.Request = c.Request.WithContext(ctx)
+			return identity
 		},
 		Authenticator: authenticator,
 		Authorizator: func(data interface{}, c *gin.Context) bool {

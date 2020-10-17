@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
-	"github.com/x-tardis/go-admin/pkg/gcontext"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -24,13 +24,13 @@ type DataPermission struct {
 
 func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := gcontext.GetOrm(c)
+		db, err := middleware.GetOrm(c)
 		if err != nil {
 			izap.Sugar.Error(err)
 			return
 		}
 
-		msgID := gcontext.GenerateMsgIDFromContext(c)
+		msgID := middleware.GenerateMsgIDFromContext(c)
 		var p = new(DataPermission)
 		if userId := jwtauth.UserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)

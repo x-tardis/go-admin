@@ -5,14 +5,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
+
+type Config struct{}
 
 // @Summary 配置列表数据
 // @Description 获取JSON
@@ -25,20 +27,15 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configs [get]
 // @Security Bearer
-func GetConfigList(c *gin.Context) {
-	var data models.SysConfig
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+func (Config) QueryPage(c *gin.Context) {
+	qp := models.SysConfigQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	data.ConfigKey = c.Request.FormValue("configKey")
-	data.ConfigName = c.Request.FormValue("configName")
-	data.ConfigType = c.Request.FormValue("configType")
-	data.DataScope = jwtauth.UserIdStr(c)
-	result, ifc, err := data.GetPage(param)
+	result, ifc, err := new(models.CallSysConfig).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -57,16 +54,14 @@ func GetConfigList(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configs/{id} [get]
 // @Security Bearer
-func GetConfig(c *gin.Context) {
-	var Config models.SysConfig
-
-	Config.ConfigId = cast.ToInt(c.Param("id"))
-	result, err := Config.Get()
+func (Config) Get(c *gin.Context) {
+	id := cast.ToInt(c.Param("id"))
+	item, err := new(models.CallSysConfig).Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 获取配置
@@ -74,18 +69,16 @@ func GetConfig(c *gin.Context) {
 // @Tags 配置
 // @Param configKey path int true "configKey"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/configKey/{configKey} [get]
+// @Router /api/v1/configKey/{key} [get]
 // @Security Bearer
-func GetConfigByConfigKey(c *gin.Context) {
-	var Config models.SysConfig
-	Config.ConfigKey = c.Param("configKey")
-	result, err := Config.Get()
+func (Config) GetWithKey(c *gin.Context) {
+	key := c.Param("key")
+	item, err := new(models.CallSysConfig).GetWithKey(gcontext.Context(c), key)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-
-	servers.OKWithRequestID(c, result, result.ConfigValue)
+	servers.OKWithRequestID(c, item, item.ConfigValue)
 }
 
 // @Summary 添加配置
@@ -98,15 +91,15 @@ func GetConfigByConfigKey(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/configs [post]
 // @Security Bearer
-func InsertConfig(c *gin.Context) {
+func (Config) Create(c *gin.Context) {
 	var data models.SysConfig
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
-	result, err := data.Create()
+
+	result, err := new(models.CallSysConfig).Create(gcontext.Context(c), data)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -124,15 +117,15 @@ func InsertConfig(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/configs [put]
 // @Security Bearer
-func UpdateConfig(c *gin.Context) {
+func (Config) Update(c *gin.Context) {
 	var data models.SysConfig
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	result, err := data.Update(data.ConfigId)
+
+	result, err := new(models.CallSysConfig).Update(gcontext.Context(c), data.ConfigId, data)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -147,15 +140,12 @@ func UpdateConfig(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/configs/{ids} [delete]
-func DeleteConfig(c *gin.Context) {
-	var data models.SysConfig
-
-	data.UpdateBy = jwtauth.UserIdStr(c)
+func (Config) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	result, err := data.BatchDelete(ids)
+	err := new(models.CallSysConfig).BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.DeletedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
 }

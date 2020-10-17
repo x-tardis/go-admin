@@ -7,8 +7,8 @@ import (
 
 	"github.com/x-tardis/go-admin/app/service"
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/pkg/gcontext"
 	"github.com/x-tardis/go-admin/pkg/izap"
+	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -16,8 +16,8 @@ type SysJob struct{}
 
 // RemoveJobForService 调用service实现
 func (e *SysJob) RemoveJobForService(c *gin.Context) {
-	msgID := gcontext.GenerateMsgIDFromContext(c)
-	db, err := gcontext.GetOrm(c)
+	msgID := middleware.GenerateMsgIDFromContext(c)
+	db, err := middleware.GetOrm(c)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] error:%s", msgID, err)
 		servers.FailWithRequestID(c, http.StatusInternalServerError, err.Error())
@@ -43,8 +43,8 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 
 // StartJobForService 启动job service实现
 func (e *SysJob) StartJobForService(c *gin.Context) {
-	msgID := gcontext.GenerateMsgIDFromContext(c)
-	db, err := gcontext.GetOrm(c)
+	msgID := middleware.GenerateMsgIDFromContext(c)
+	db, err := middleware.GetOrm(c)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] error:%s", msgID, err)
 		servers.FailWithRequestID(c, http.StatusInternalServerError, err.Error())

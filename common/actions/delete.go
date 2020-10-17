@@ -7,22 +7,22 @@ import (
 
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
-	"github.com/x-tardis/go-admin/pkg/gcontext"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 // DeleteAction 通用删除动作
 func DeleteAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := gcontext.GetOrm(c)
+		db, err := middleware.GetOrm(c)
 		if err != nil {
 			izap.Sugar.Error(err)
 			return
 		}
 
-		msgID := gcontext.GenerateMsgIDFromContext(c)
+		msgID := middleware.GenerateMsgIDFromContext(c)
 		//删除操作
 		req := control.Generate()
 		err = req.Bind(c)

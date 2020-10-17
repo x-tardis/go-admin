@@ -7,13 +7,14 @@ import (
 )
 
 func Config(v1 gin.IRouter) {
-	v1.GET("/configKey/:configKey", system.GetConfigByConfigKey)
+	ctl := new(system.Config)
+	v1.GET("/configKey/:key", ctl.GetWithKey)
 	r := v1.Group("/configs")
 	{
-		r.GET("", system.GetConfigList)
-		r.GET("/:id", system.GetConfig)
-		r.POST("", system.InsertConfig)
-		r.PUT("", system.UpdateConfig)
-		r.DELETE("/:ids", system.DeleteConfig)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }

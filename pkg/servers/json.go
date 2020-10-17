@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/pkg/gcontext"
+	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
 // Code code interface
@@ -78,7 +78,7 @@ func JSON(c *gin.Context, httpCode int, opts ...Option) {
 
 // 通常成功数据处理
 func OKWithRequestID(c *gin.Context, data interface{}, msg string) {
-	c.Header("X-Request-Id", gcontext.GenerateMsgIDFromContext(c))
+	c.Header("X-Request-Id", middleware.GenerateMsgIDFromContext(c))
 	JSON(c, http.StatusOK, WithData(data), WithMsg(msg))
 }
 
@@ -88,6 +88,6 @@ func Fail(c *gin.Context, code int, msg string) {
 
 // 失败数据处理
 func FailWithRequestID(c *gin.Context, code int, msg string) {
-	c.Header("X-Request-Id", gcontext.GenerateMsgIDFromContext(c))
+	c.Header("X-Request-Id", middleware.GenerateMsgIDFromContext(c))
 	JSON(c, http.StatusOK, WithCode(code), WithMsg(msg))
 }

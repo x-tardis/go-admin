@@ -1,6 +1,7 @@
 package jwtauth
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -36,6 +37,10 @@ func Identity(c *gin.Context) (Identities, bool) {
 	return Identities{}, false
 }
 
+func FromIdentity(ctx context.Context) Identities {
+	return ctx.Value(jwt.IdentityKey).(Identities)
+}
+
 func UserId(c *gin.Context) int {
 	if data, ok := Identity(c); ok {
 		return data.UserId
@@ -43,8 +48,15 @@ func UserId(c *gin.Context) int {
 	return 0
 }
 
+func FromUserId(ctx context.Context) int {
+	return FromIdentity(ctx).UserId
+}
 func UserIdStr(c *gin.Context) string {
 	return cast.ToString(UserId(c))
+}
+
+func FromUserIdStr(ctx context.Context) string {
+	return cast.ToString(FromIdentity(ctx).UserId)
 }
 
 func UserName(c *gin.Context) string {

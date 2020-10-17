@@ -9,23 +9,24 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/thinkgos/sharp/core/paginator"
+
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
-	"github.com/x-tardis/go-admin/pkg/gcontext"
 	"github.com/x-tardis/go-admin/pkg/izap"
+	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 // IndexAction 通用查询动作
 func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := gcontext.GetOrm(c)
+		db, err := middleware.GetOrm(c)
 		if err != nil {
 			izap.Sugar.Error(err)
 			return
 		}
 
-		msgID := gcontext.GenerateMsgIDFromContext(c)
+		msgID := middleware.GenerateMsgIDFromContext(c)
 		list := f()
 		object := m.Generate()
 		req := d.Generate()
