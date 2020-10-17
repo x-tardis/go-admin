@@ -7,12 +7,13 @@ import (
 )
 
 func Post(v1 gin.IRouter) {
+	ctl := new(system.Post)
 	r := v1.Group("/posts")
 	{
-		r.GET("", system.GetPostList)
-		r.GET("/:id", system.GetPost)
-		r.POST("", system.InsertPost)
-		r.PUT("", system.UpdatePost)
-		r.DELETE("/:ids", system.DeletePost)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }

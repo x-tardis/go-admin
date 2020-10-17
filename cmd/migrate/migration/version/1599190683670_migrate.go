@@ -269,9 +269,9 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list5 := []models.Post{
-			{PostId: 1, PostName: "首席执行官", PostCode: "CEO", Sort: 0, Status: "0", Remark: "首席执行官", CreateBy: "1", UpdateBy: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{PostId: 2, PostName: "首席技术执行官", PostCode: "CTO", Sort: 2, Status: "0", Remark: "首席技术执行官", CreateBy: "1", UpdateBy: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{PostId: 3, PostName: "首席运营官", PostCode: "COO", Sort: 3, Status: "0", Remark: "测试工程师", CreateBy: "1", UpdateBy: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{PostId: 1, PostName: "首席执行官", PostCode: "CEO", Sort: 0, Status: "0", Remark: "首席执行官", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{PostId: 2, PostName: "首席技术执行官", PostCode: "CTO", Sort: 2, Status: "0", Remark: "首席技术执行官", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{PostId: 3, PostName: "首席运营官", PostCode: "COO", Sort: 3, Status: "0", Remark: "测试工程师", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list6 := []models.SysRole{

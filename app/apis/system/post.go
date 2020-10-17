@@ -5,14 +5,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
+
+type Post struct{}
 
 // @Summary 岗位列表数据
 // @Description 获取JSON
@@ -24,51 +26,40 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/posts [get]
 // @Security Bearer
-func GetPostList(c *gin.Context) {
-	var data models.Post
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+func (Post) QueryPage(c *gin.Context) {
+	qp := models.PostQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, http.StatusBadRequest, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	id := c.Request.FormValue("postId")
-	data.PostId = cast.ToInt(id)
-
-	data.PostCode = c.Request.FormValue("postCode")
-	data.PostName = c.Request.FormValue("postName")
-	data.Status = c.Request.FormValue("status")
-
-	data.DataScope = jwtauth.UserIdStr(c)
-	result, ifc, err := data.GetPage(param)
+	items, ifc, err := new(models.CallPost).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
 		Info: ifc,
-		List: result,
+		List: items,
 	}))
 }
 
 // @Summary 获取岗位信息
 // @Description 获取JSON
 // @Tags 岗位
-// @Param postId path int true "postId"
+// @Param id path int true "post id"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/posts/{id} [get]
 // @Security Bearer
-func GetPost(c *gin.Context) {
-	var Post models.Post
-
+func (Post) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	result, err := Post.Get(id)
+	item, err := new(models.CallPost).Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.OKWithRequestID(c, item, "")
 }
 
 // @Summary 添加岗位
@@ -81,16 +72,16 @@ func GetPost(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/posts [post]
 // @Security Bearer
-func InsertPost(c *gin.Context) {
-	var data models.Post
+func (Post) Create(c *gin.Context) {
+	var item models.Post
 
-	err := c.ShouldBindJSON(&data)
-	data.CreateBy = jwtauth.UserIdStr(c)
+	err := c.ShouldBindJSON(&item)
 	if err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	result, err := data.Create()
+
+	result, err := new(models.CallPost).Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -108,21 +99,20 @@ func InsertPost(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/posts [put]
 // @Security Bearer
-func UpdatePost(c *gin.Context) {
-	var data models.Post
+func (Post) Update(c *gin.Context) {
+	var up models.Post
 
-	err := c.ShouldBindJSON(&data)
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	err := c.ShouldBindJSON(&up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	result, err := data.Update(data.PostId)
+	item, err := new(models.CallPost).Update(gcontext.Context(c), up.PostId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
+	servers.OKWithRequestID(c, item, codes.UpdatedSuccess)
 }
 
 // @Summary 删除岗位
@@ -132,15 +122,12 @@ func UpdatePost(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
 // @Router /api/v1/posts/{ids} [delete]
-func DeletePost(c *gin.Context) {
-	var data models.Post
-
+func (Post) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	result, err := data.BatchDelete(ids)
+	err := new(models.CallPost).BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.DeletedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
 }

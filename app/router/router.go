@@ -133,7 +133,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 		sysOperLog.OperName = "-"
 	} else if strings.Contains(reqUri, "/api/v1/logout") {
 		sysOperLog.BusinessType = "11"
-	} else if strings.Contains(reqUri, "/api/v1/getCaptcha") {
+	} else if strings.Contains(reqUri, "/api/v1/captcha") {
 		sysOperLog.BusinessType = "12"
 		sysOperLog.Title = "验证码"
 	} else {
@@ -151,7 +151,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	}
 	b, _ := c.Get("body")
 	sysOperLog.OperParam, _ = jsoniter.MarshalToString(b)
-	sysOperLog.CreateBy = jwtauth.UserName(c)
+	sysOperLog.Creator = jwtauth.UserName(c)
 	sysOperLog.OperTime = time.Now()
 	sysOperLog.LatencyTime = (latencyTime).String()
 	sysOperLog.UserAgent = c.Request.UserAgent()

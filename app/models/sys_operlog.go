@@ -29,11 +29,11 @@ type SysOperLog struct {
 	Status        string    `json:"status" gorm:"size:4;"`           // 操作状态
 	OperTime      time.Time `json:"operTime" gorm:"type:timestamp;"` // 操作时间
 	JsonResult    string    `json:"jsonResult" gorm:"size:255;"`     // 返回数据
-	CreateBy      string    `json:"createBy" gorm:"size:128;"`       // 创建人
-	UpdateBy      string    `json:"updateBy" gorm:"size:128;"`       // 更新者
 	Remark        string    `json:"remark" gorm:"size:255;"`         // 备注
 	LatencyTime   string    `json:"latencyime" gorm:"size:128;"`     // 耗时
 	UserAgent     string    `json:"userAgent" gorm:"size:255;"`      // ua
+	Creator       string    `json:"creator" gorm:"size:128;"`        // 创建人
+	Updator       string    `json:"updator" gorm:"size:128;"`        // 更新者
 	Model
 
 	DataScope string `json:"dataScope" gorm:"-"` // 数据
@@ -92,8 +92,8 @@ func (CallSysOperLog) QueryPage(_ context.Context, qp SysOperLogQueryParam) ([]S
 }
 
 func (CallSysOperLog) Create(_ context.Context, item SysOperLog) (SysOperLog, error) {
-	item.CreateBy = "0"
-	item.UpdateBy = "0"
+	item.Creator = "0"
+	item.Updator = "0"
 	err := deployed.DB.Scopes(SysOperLogDB()).Create(&item).Error
 	return item, err
 }
