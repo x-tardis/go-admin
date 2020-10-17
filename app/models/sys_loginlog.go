@@ -14,17 +14,17 @@ import (
 type LoginLog struct {
 	InfoId        int       `json:"infoId" gorm:"primary_key;auto_increment;"` // 主键
 	Username      string    `json:"username" gorm:"size:128;"`                 // 用户名
-	Status        string    `json:"status" gorm:"size:4;"`                     // 状态
-	Ipaddr        string    `json:"ipaddr" gorm:"size:255;"`                   // ip地址
-	LoginLocation string    `json:"loginLocation" gorm:"size:255;"`            // 归属地
+	Status        string    `json:"status" gorm:"size:4;"`                     // 登录状态
+	Ipaddr        string    `json:"ipaddr" gorm:"size:255;"`                   // 登录ip地址
+	LoginLocation string    `json:"loginLocation" gorm:"size:255;"`            // 登录ip归属地
 	Browser       string    `json:"browser" gorm:"size:255;"`                  // 浏览器
-	Os            string    `json:"os" gorm:"size:255;"`                       // 系统
-	Platform      string    `json:"platform" gorm:"size:255;"`                 // 固件
+	Os            string    `json:"os" gorm:"size:255;"`                       // 操作系统
+	Platform      string    `json:"platform" gorm:"size:255;"`                 // 系统平台
 	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;"`          // 登录时间
+	Remark        string    `json:"remark" gorm:"size:255;"`                   // 备注
+	Msg           string    `json:"msg" gorm:"size:255;"`                      // 登录信息
 	Creator       string    `json:"creator" gorm:"size:128;"`                  // 创建人
 	Updator       string    `json:"updator" gorm:"size:128;"`                  // 更新者
-	Remark        string    `json:"remark" gorm:"size:255;"`                   // 备注
-	Msg           string    `json:"msg" gorm:"size:255;"`
 	Model
 
 	DataScope string `json:"dataScope" gorm:"-"` // 数据

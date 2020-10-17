@@ -118,13 +118,15 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	menu.Path = reqUri
 	menu.Action = reqMethod
 	menuList, _ := menu.Get()
-	sysOperLog := models.SysOperLog{}
-	sysOperLog.OperIp = clientIP
-	sysOperLog.OperLocation = deployed.IPLocation(clientIP)
-	sysOperLog.Status = cast.ToString(statusCode)
-	sysOperLog.OperName = jwtauth.UserName(c)
-	sysOperLog.RequestMethod = c.Request.Method
-	sysOperLog.OperUrl = reqUri
+	sysOperLog := models.SysOperLog{
+		OperIp:        clientIP,
+		OperLocation:  deployed.IPLocation(clientIP),
+		Status:        cast.ToString(statusCode),
+		OperName:      jwtauth.UserName(c),
+		RequestMethod: c.Request.Method,
+		OperUrl:       reqUri,
+	}
+
 	if reqUri == "/login" {
 		sysOperLog.BusinessType = "10"
 		sysOperLog.Title = "用户登录"

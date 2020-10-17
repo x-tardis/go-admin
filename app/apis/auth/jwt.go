@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 const (
@@ -36,7 +36,7 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 			if v, ok := data.(jwtauth.Identities); ok {
 				return jwt.MapClaims{
 					userIdKey:    v.UserId,
-					usernameKey:  v.UserName,
+					usernameKey:  v.Username,
 					roleIdKey:    v.RoleId,
 					roleNameKey:  v.RoleName,
 					roleKey:      v.RoleKey,
@@ -49,13 +49,13 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 			claims := jwt.ExtractClaims(c)
 			identity := jwtauth.Identities{
 				UserId:    cast.ToInt(claims[userIdKey]),
-				UserName:  cast.ToString(claims[usernameKey]),
+				Username:  cast.ToString(claims[usernameKey]),
 				RoleId:    cast.ToInt(claims[roleIdKey]),
 				RoleName:  cast.ToString(claims[roleNameKey]),
 				RoleKey:   cast.ToString(claims[roleKey]),
 				DataScope: cast.ToString(claims[dataScopeKey]),
 			}
-			ctx := context.WithValue(c.Request.Context(), jwt.IdentityKey, identity)
+			ctx := context.WithValue(c.Request.Context(), jwtauth.IdentityKey{}, identity)
 			c.Request = c.Request.WithContext(ctx)
 			return identity
 		},
@@ -65,7 +65,7 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 			return ok
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(http.StatusOK, gin.H{"code": code, "msg": message})
+			servers.JSON(c, http.StatusOK, servers.WithCode(code), servers.WithMsg(message))
 		},
 		LogoutResponse: logoutResponse,
 		TokenLookup:    "header: Authorization, query: token, cookie: jwt",
@@ -91,25 +91,25 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	var req models.Login
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		loginLogRecord(c, "1", "数据解析失败", req.Username)
+		loginLogRecord(c, false, "数据解析失败", req.Username)
 		return nil, jwt.ErrMissingLoginValues
 	}
 
 	if deployed.AppConfig.Mode == infra.ModeProd &&
 		!deployed.Captcha.Verify(req.UUID, req.Code, true) {
-		loginLogRecord(c, "1", "验证码错误", req.Username)
+		loginLogRecord(c, false, "验证码错误", req.Username)
 		return nil, jwt.ErrFailedAuthentication
 	}
 	user, role, err := req.GetUser()
 	if err != nil {
-		loginLogRecord(c, "1", "登录失败", req.Username)
+		loginLogRecord(c, false, "登录失败", req.Username)
 		deployed.RequestLogger.Debug(err.Error())
 		return nil, jwt.ErrFailedAuthentication
 	}
-	loginLogRecord(c, "0", "登录成功", req.Username)
+	loginLogRecord(c, true, "登录成功", req.Username)
 	return jwtauth.Identities{
 		UserId:    user.UserId,
-		UserName:  user.Username,
+		Username:  user.Username,
 		RoleId:    role.RoleId,
 		RoleName:  role.RoleName,
 		RoleKey:   role.RoleKey,
@@ -128,31 +128,33 @@ func authenticator(c *gin.Context) (interface{}, error) {
 // @Router /logout [post]
 // @Security Bearer
 func logoutResponse(c *gin.Context, code int) {
-	loginLogRecord(c, "0", "退出成功", jwtauth.UserName(c))
-	c.JSON(http.StatusOK, gin.H{"code": code, "msg": "退出成功"})
+	loginLogRecord(c, true, "退出成功", jwtauth.UserName(c))
+	servers.JSON(c, http.StatusOK, servers.WithMsg("退出成功"))
 }
 
 // loginLogRecord Write log to database
-func loginLogRecord(c *gin.Context, status string, msg string, username string) {
-	log.Println("------------>   ", deployed.EnabledDB)
-
+func loginLogRecord(c *gin.Context, success bool, msg string, username string) {
+	status := "0"
+	if !success {
+		status = "1"
+	}
 	if deployed.EnabledDB {
 		ua := user_agent.New(c.Request.UserAgent())
 		browserName, browserVersion := ua.Browser()
 		location := deployed.IPLocation(c.ClientIP())
 		loginLog := models.LoginLog{
-			Ipaddr:        c.ClientIP(),
 			Username:      username,
-			LoginLocation: location,
-			LoginTime:     time.Now(),
 			Status:        status,
-			Remark:        c.Request.UserAgent(),
+			Ipaddr:        c.ClientIP(),
+			LoginLocation: location,
 			Browser:       browserName + " " + browserVersion,
 			Os:            ua.OS(),
-			Msg:           msg,
 			Platform:      ua.Platform(),
+			LoginTime:     time.Now(),
+			Remark:        c.Request.UserAgent(),
+			Msg:           msg,
 		}
-		_, err := new(models.CallLoginLog).Create(context.Background(), loginLog) // nolint: errcheck
-		log.Println(err)
+
+		new(models.CallLoginLog).Create(context.Background(), loginLog) // nolint: errcheck
 	}
 }

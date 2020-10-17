@@ -16,9 +16,9 @@ import (
 
 type OperLog struct{}
 
+// @Tags 操作日志
 // @Summary 登录日志列表
 // @Description 获取JSON
-// @Tags 登录日志
 // @Param status query string false "status"
 // @Param dictCode query string false "dictCode"
 // @Param dictType query string false "dictType"
@@ -46,9 +46,9 @@ func (OperLog) QueryPage(c *gin.Context) {
 	}))
 }
 
+// @Tags 操作日志
 // @Summary 通过编码获取登录日志
 // @Description 获取JSON
-// @Tags 登录日志
 // @Param infoId path int true "infoId"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/operlog/{id} [get]
@@ -63,9 +63,9 @@ func (OperLog) Get(c *gin.Context) {
 	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
+// @Tags 操作日志
 // @Summary 添加操作日志
 // @Description 获取JSON
-// @Tags 操作日志
 // @Accept  application/json
 // @Product application/json
 // @Param data body models.SysOperLog true "data"
@@ -88,9 +88,9 @@ func (OperLog) Create(c *gin.Context) {
 	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }
 
+// @Tags 操作日志
 // @Summary 批量删除操作日志
 // @Description 删除数据
-// @Tags 操作日志
 // @Param operId path string true "以逗号（,）分割的operId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"

@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cast"
 )
 
+type IdentityKey struct{}
+
 // Config jwt 配置信息
 type Config struct {
 	Realm      string        `yaml:"realm" json:"realm"`
@@ -21,7 +23,7 @@ type Config struct {
 // Identities jwt identity
 type Identities struct {
 	UserId    int
-	UserName  string
+	Username  string
 	RoleId    int
 	RoleName  string
 	RoleKey   string
@@ -37,10 +39,6 @@ func Identity(c *gin.Context) (Identities, bool) {
 	return Identities{}, false
 }
 
-func FromIdentity(ctx context.Context) Identities {
-	return ctx.Value(jwt.IdentityKey).(Identities)
-}
-
 func UserId(c *gin.Context) int {
 	if data, ok := Identity(c); ok {
 		return data.UserId
@@ -48,20 +46,13 @@ func UserId(c *gin.Context) int {
 	return 0
 }
 
-func FromUserId(ctx context.Context) int {
-	return FromIdentity(ctx).UserId
-}
 func UserIdStr(c *gin.Context) string {
 	return cast.ToString(UserId(c))
 }
 
-func FromUserIdStr(ctx context.Context) string {
-	return cast.ToString(FromIdentity(ctx).UserId)
-}
-
 func UserName(c *gin.Context) string {
 	if data, ok := Identity(c); ok {
-		return data.UserName
+		return data.Username
 	}
 	return ""
 }
@@ -92,4 +83,35 @@ func DataScope(c *gin.Context) string {
 		return data.DataScope
 	}
 	return ""
+}
+
+func FromIdentity(ctx context.Context) Identities {
+	return ctx.Value(IdentityKey{}).(Identities)
+}
+
+func FromUserId(ctx context.Context) int {
+	return FromIdentity(ctx).UserId
+}
+func FromUserIdStr(ctx context.Context) string {
+	return cast.ToString(FromIdentity(ctx).UserId)
+}
+
+func FromUserName(ctx context.Context) string {
+	return FromIdentity(ctx).Username
+}
+
+func FromRoleName(ctx context.Context) string {
+	return FromIdentity(ctx).RoleName
+}
+
+func FromRoleKey(ctx context.Context) string {
+	return FromIdentity(ctx).RoleKey
+}
+
+func FromRoleId(ctx context.Context) int {
+	return FromIdentity(ctx).RoleId
+}
+
+func FromDataScope(ctx context.Context) string {
+	return FromIdentity(ctx).DataScope
 }
