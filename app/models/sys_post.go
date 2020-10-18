@@ -46,15 +46,21 @@ type PostQueryParam struct {
 
 type CallPost struct{}
 
-func (CallPost) Create(ctx context.Context, item Post) (Post, error) {
-	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(PostDB()).Create(&item).Error
-	return item, err
-}
-
-func (CallPost) Get(_ context.Context, id int) (item Post, err error) {
-	err = deployed.DB.Scopes(PostDB()).
-		Where("post_id = ?", id).First(&item).Error
+func (CallPost) Query(_ context.Context, qp PostQueryParam) (items []Post, err error) {
+	db := deployed.DB.Scopes(PostDB())
+	if qp.PostId != 0 {
+		db = db.Where("post_id=?", qp.PostId)
+	}
+	if qp.PostName != "" {
+		db = db.Where("post_name=?", qp.PostName)
+	}
+	if qp.PostCode != "" {
+		db = db.Where("post_code=?", qp.PostCode)
+	}
+	if qp.Status != "" {
+		db = db.Where("status=?", qp.Status)
+	}
+	err = db.Find(&items).Error
 	return
 }
 
@@ -71,12 +77,10 @@ func (CallPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, pagin
 	if qp.PostCode != "" {
 		db = db.Where("post_code=?", qp.PostCode)
 	}
-
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)
 	}
 
-	// TODO: 有些地方不需要数据权限控制
 	dataScope := jwtauth.FromUserId(ctx)
 	// 数据权限控制
 	dataPermission := new(DataPermission)
@@ -88,6 +92,18 @@ func (CallPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, pagin
 
 	ifc, err := iorm.QueryPages(db, qp.Param, &items)
 	return items, ifc, err
+}
+
+func (CallPost) Create(ctx context.Context, item Post) (Post, error) {
+	item.Creator = jwtauth.FromUserIdStr(ctx)
+	err := deployed.DB.Scopes(PostDB()).Create(&item).Error
+	return item, err
+}
+
+func (CallPost) Get(_ context.Context, id int) (item Post, err error) {
+	err = deployed.DB.Scopes(PostDB()).
+		Where("post_id = ?", id).First(&item).Error
+	return
 }
 
 func (CallPost) Update(ctx context.Context, id int, up Post) (item Post, err error) {

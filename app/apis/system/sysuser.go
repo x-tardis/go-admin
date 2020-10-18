@@ -74,7 +74,7 @@ func GetSysUser(c *gin.Context) {
 	}
 	var SysRole models.SysRole
 	roles, err := SysRole.GetList()
-	posts, _, err := new(models.CallPost).QueryPage(gcontext.Context(c), models.PostQueryParam{})
+	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
 
 	postIds := make([]int, 0)
 	postIds = append(postIds, result.PostId)
@@ -111,7 +111,7 @@ func GetSysUserProfile(c *gin.Context) {
 	//获取角色列表
 	roles, err := SysRole.GetList()
 	//获取职位列表
-	posts, _, err := new(models.CallPost).QueryPage(gcontext.Context(c), models.PostQueryParam{})
+	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
 	//获取部门列表
 	Dept.DeptId = result.DeptId
 	dept, err := Dept.Get()
@@ -143,7 +143,7 @@ func GetSysUserInit(c *gin.Context) {
 	var SysRole models.SysRole
 
 	roles, err := SysRole.GetList()
-	posts, _, err := new(models.CallPost).QueryPage(gcontext.Context(c), models.PostQueryParam{})
+	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
