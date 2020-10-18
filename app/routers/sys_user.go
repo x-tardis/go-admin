@@ -6,7 +6,7 @@ import (
 	"github.com/x-tardis/go-admin/app/apis/system"
 )
 
-func SysUser(v1 gin.IRouter) {
+func User(v1 gin.IRouter) {
 	// v1.GET("/sysUser", system.GetSysUserInit)
 	r := v1.Group("/users")
 	{

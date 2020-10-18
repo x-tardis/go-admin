@@ -1,14 +1,15 @@
 package models
 
 import (
+	"context"
 	"errors"
 
-	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 type DictType struct {
@@ -29,125 +30,119 @@ func (DictType) TableName() string {
 	return "sys_dict_type"
 }
 
-func (e *DictType) Create() (DictType, error) {
-	var doc DictType
-
-	var i int64
-	deployed.DB.Table(e.TableName()).Where("dict_name=? or dict_type = ?", e.DictName, e.DictType).Count(&i)
-	if i > 0 {
-		return doc, errors.New("字典名称或者字典类型已经存在！")
+func DictTypeDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(DictType{})
 	}
-
-	result := deployed.DB.Table(e.TableName()).Create(&e)
-	if result.Error != nil {
-		err := result.Error
-		return doc, err
-	}
-	doc = *e
-	return doc, nil
 }
 
-func (e *DictType) Get() (DictType, error) {
-	var doc DictType
-
-	table := deployed.DB.Table(e.TableName())
-	if e.DictId != 0 {
-		table = table.Where("dict_id = ?", e.DictId)
-	}
-	if e.DictName != "" {
-		table = table.Where("dict_name = ?", e.DictName)
-	}
-	if e.DictType != "" {
-		table = table.Where("dict_type = ?", e.DictType)
-	}
-
-	if err := table.First(&doc).Error; err != nil {
-		return doc, err
-	}
-	return doc, nil
+type DictTypeQueryParam struct {
+	DictId   int    `form:"dictId"`
+	DictName string `form:"dictName"`
+	DictType string `form:"dictType"`
+	paginator.Param
 }
 
-func (e *DictType) GetList() ([]DictType, error) {
-	var doc []DictType
+type CallDictType struct{}
 
-	table := deployed.DB.Table(e.TableName())
-	if e.DictId != 0 {
-		table = table.Where("dict_id = ?", e.DictId)
+func (CallDictType) Query(_ context.Context, qp DictTypeQueryParam) ([]DictType, error) {
+	var item []DictType
+
+	db := deployed.DB.Scopes(DictTypeDB())
+	if qp.DictId != 0 {
+		db = db.Where("dict_id=?", qp.DictId)
 	}
-	if e.DictName != "" {
-		table = table.Where("dict_name = ?", e.DictName)
+	if qp.DictName != "" {
+		db = db.Where("dict_name=?", qp.DictName)
 	}
-	if e.DictType != "" {
-		table = table.Where("dict_type = ?", e.DictType)
+	if qp.DictType != "" {
+		db = db.Where("dict_type=?", qp.DictType)
 	}
 
-	if err := table.Find(&doc).Error; err != nil {
-		return doc, err
-	}
-	return doc, nil
+	err := db.Find(&item).Error
+	return item, err
 }
 
-func (e *DictType) GetPage(param paginator.Param) ([]DictType, paginator.Info, error) {
-	var doc []DictType
-	var db *gorm.DB
+func (CallDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictType, paginator.Info, error) {
+	var items []DictType
 
-	table := deployed.DB.Table(e.TableName())
-	if e.DictId != 0 {
-		db = db.Where("dict_id = ?", e.DictId)
+	db := deployed.DB.Scopes(DictTypeDB())
+	if qp.DictId != 0 {
+		db = db.Where("dict_id = ?", qp.DictId)
 	}
-	if e.DictName != "" {
-		db = db.Where("dict_name = ?", e.DictName)
+	if qp.DictName != "" {
+		db = db.Where("dict_name = ?", qp.DictName)
+	}
+	if qp.DictType != "" {
+		db = db.Where("dict_type = ?", qp.DictType)
 	}
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId = cast.ToInt(e.DataScope)
-	table, err := dataPermission.GetDataScope("sys_dict_type", table)
+	dataPermission.UserId = jwtauth.FromUserId(ctx)
+	db, err := dataPermission.GetDataScope("sys_dict_type", db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}
 
-	ifc, err := iorm.QueryPages(table, param, &doc)
-	if err != nil {
-		return nil, ifc, nil
-	}
-	return doc, ifc, nil
+	ifc, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, ifc, err
 }
 
-func (e *DictType) Update(id int) (update DictType, err error) {
-	if err = deployed.DB.Table(e.TableName()).First(&update, id).Error; err != nil {
+func (CallDictType) Get(_ context.Context, dictId int, dictName string) (item DictType, err error) {
+	db := deployed.DB.Scopes(DictTypeDB())
+	if dictId != 0 {
+		db = db.Where("dict_id = ?", dictId)
+	}
+	if dictName != "" {
+		db = db.Where("dict_name = ?", dictName)
+	}
+	err = db.First(&item).Error
+	return
+}
+
+func (CallDictType) Create(ctx context.Context, item DictType) (DictType, error) {
+	var i int64
+
+	item.Creator = jwtauth.FromUserIdStr(ctx)
+	deployed.DB.Scopes(DictTypeDB()).
+		Where("dict_name=? or dict_type=?", item.DictName, item.DictType).
+		Count(&i)
+	if i > 0 {
+		return item, errors.New("字典名称或者字典类型已经存在！")
+	}
+
+	err := deployed.DB.Scopes(DictTypeDB()).Create(&item).Error
+	return item, err
+}
+
+func (CallDictType) Update(ctx context.Context, id int, up DictType) (item DictType, err error) {
+	up.Updator = jwtauth.FromUserIdStr(ctx)
+
+	if err = deployed.DB.Scopes(DictTypeDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
-	if e.DictName != "" && e.DictName != update.DictName {
-		return update, errors.New("名称不允许修改！")
+	if up.DictName != "" && up.DictName != item.DictName {
+		return item, errors.New("名称不允许修改！")
 	}
 
-	if e.DictType != "" && e.DictType != update.DictType {
-		return update, errors.New("类型不允许修改！")
+	if up.DictType != "" && up.DictType != item.DictType {
+		return item, errors.New("类型不允许修改！")
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-		return
-	}
+	err = deployed.DB.Scopes(DictTypeDB()).Model(&item).Updates(&up).Error
 	return
 }
 
-func (e *DictType) Delete(id int) (success bool, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("dict_id = ?", id).Delete(&DictData{}).Error; err != nil {
-		success = false
-		return
-	}
-	success = true
-	return
+func (CallDictType) Delete(_ context.Context, id int) error {
+	return deployed.DB.Scopes(DictTypeDB()).
+		Where("dict_id=?", id).Delete(&DictData{}).Error
 }
 
-func (e *DictType) BatchDelete(id []int) (Result bool, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("dict_id in (?)", id).Delete(&DictType{}).Error; err != nil {
-		return
-	}
-	Result = true
-	return
+func (CallDictType) BatchDelete(_ context.Context, ids []int) error {
+	return deployed.DB.Scopes(DictTypeDB()).
+		Where("dict_id in (?)", ids).Delete(&DictType{}).Error
 }

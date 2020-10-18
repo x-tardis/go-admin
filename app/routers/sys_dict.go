@@ -7,21 +7,22 @@ import (
 )
 
 func Dict(v1 *gin.RouterGroup) {
-	ctl := new(dict.DictData)
+	ctlType := new(dict.DictType)
+	ctlData := new(dict.DictData)
 	r := v1.Group("/dict")
 	{
-		r.GET("/data", ctl.QueryPage)
-		r.GET("/data/:dictCode", ctl.Get)
-		r.POST("/data", ctl.Create)
-		r.PUT("/data", ctl.Update)
-		r.DELETE("/data/:dictCode", ctl.BatchDelete)
+		r.GET("/data", ctlData.QueryPage)
+		r.GET("/data/:dictCode", ctlData.Get)
+		r.POST("/data", ctlData.Create)
+		r.PUT("/data", ctlData.Update)
+		r.DELETE("/data/:dictCode", ctlData.BatchDelete)
 
-		r.GET("/typelist", dict.GetDictTypeList)
-		r.GET("/type/:dictId", dict.GetDictType)
-		r.POST("/type", dict.InsertDictType)
-		r.PUT("/type", dict.UpdateDictType)
-		r.DELETE("/type/:dictId", dict.DeleteDictType)
+		r.GET("/type", ctlType.QueryPage)
+		r.GET("/type/:dictId", ctlType.Get)
+		r.POST("/type", ctlType.Create)
+		r.PUT("/type", ctlType.Update)
+		r.DELETE("/type/:dictId", ctlType.BatchDelete)
 
-		r.GET("/typeoptionselect", dict.GetDictTypeOptionSelect)
+		r.GET("/typeoptionselect", ctlType.GetOptionSelect)
 	}
 }
