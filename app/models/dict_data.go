@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
@@ -25,8 +24,8 @@ type DictData struct {
 	Status    string `gorm:"size:4;" json:"status"`                                   // 状态
 	Default   string `gorm:"size:8;" json:"default"`                                  //
 	Remark    string `gorm:"size:255;" json:"remark"`                                 // 备注
-	CreateBy  string `gorm:"size:64;" json:"createBy"`                                //
-	UpdateBy  string `gorm:"size:64;" json:"updateBy"`                                //
+	Creator   string `gorm:"size:64;" json:"creator"`                                 //
+	Updator   string `gorm:"size:64;" json:"updator"`                                 //
 	Model
 
 	Params    string `gorm:"-" json:"params"`
@@ -43,38 +42,74 @@ func DictDataDB() func(db *gorm.DB) *gorm.DB {
 	}
 }
 
+type DictDataQueryParam struct {
+	DictCode  int    `form:"dictCode"`
+	DictLabel string `form:"dictLabel"`
+	DictType  string `form:"dictType"`
+	Status    string `form:"status"`
+	paginator.Param
+}
+
 type CallDictData struct{}
 
-func (e *DictData) Create() (DictData, error) {
-	var doc DictData
+func (CallDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictData, paginator.Info, error) {
+	var items []DictData
 
+	db := deployed.DB.Scopes(DictDataDB())
+	if qp.DictCode != 0 {
+		db = db.Where("dict_code = ?", qp.DictCode)
+	}
+	if qp.DictType != "" {
+		db = db.Where("dict_type = ?", qp.DictType)
+	}
+	if qp.DictLabel != "" {
+		db = db.Where("dict_label = ?", qp.DictLabel)
+	}
+	if qp.Status != "" {
+		db = db.Where("status = ?", qp.Status)
+	}
+
+	// 数据权限控制
+	dataPermission := new(DataPermission)
+	dataPermission.UserId = jwtauth.FromUserId(ctx)
+	db, err := dataPermission.GetDataScope("sys_dict_data", db)
+	if err != nil {
+		return nil, paginator.Info{}, err
+	}
+
+	ifc, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, ifc, err
+}
+
+func (CallDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 	var i int64
-	if err := deployed.DB.Table(e.TableName()).
-		Where("dict_type = ?", e.DictType).
-		Where("dict_label=? or (dict_label=? and dict_value = ?)", e.DictLabel, e.DictLabel, e.DictValue).
+
+	item.Creator = jwtauth.FromUserIdStr(ctx)
+	if err := deployed.DB.Scopes(DictDataDB()).
+		Where("dict_type = ?", item.DictType).
+		Where("dict_label=? or (dict_label=? and dict_value=?)", item.DictLabel, item.DictLabel, item.DictValue).
 		Count(&i).Error; err != nil {
-		return doc, err
+		return item, err
 	}
 	if i > 0 {
-		return doc, errors.New("字典标签或者字典键值已经存在！")
+		return item, errors.New("字典标签或者字典键值已经存在！")
 	}
 
-	result := deployed.DB.Table(e.TableName()).Create(&e)
+	result := deployed.DB.Scopes(DictDataDB()).Create(&item)
 	if result.Error != nil {
 		err := result.Error
-		return doc, err
+		return item, err
 	}
-	doc = *e
-	return doc, nil
+	return item, nil
 }
 
 func (CallDictData) Get(_ context.Context, dictCode int, dictLabel string) (item DictData, err error) {
 	db := deployed.DB.Scopes(DictDataDB())
 	if dictCode != 0 {
-		db = db.Where("dict_code = ?", dictCode)
+		db = db.Where("dict_code=?", dictCode)
 	}
 	if dictLabel != "" {
-		db = db.Where("dict_label = ?", dictLabel)
+		db = db.Where("dict_label=?", dictLabel)
 	}
 	err = db.First(&item).Error
 	return
@@ -87,40 +122,8 @@ func (CallDictData) GetWithType(_ context.Context, dictType string) (items []Dic
 	return
 }
 
-func (e *DictData) GetPage(param paginator.Param) ([]DictData, paginator.Info, error) {
-	var doc []DictData
-
-	table := deployed.DB.Table(e.TableName())
-	if e.DictCode != 0 {
-		table = table.Where("dict_code = ?", e.DictCode)
-	}
-	if e.DictType != "" {
-		table = table.Where("dict_type = ?", e.DictType)
-	}
-	if e.DictLabel != "" {
-		table = table.Where("dict_label = ?", e.DictLabel)
-	}
-	if e.Status != "" {
-		table = table.Where("status = ?", e.Status)
-	}
-
-	// 数据权限控制
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = cast.ToInt(e.DataScope)
-	table, err := dataPermission.GetDataScope("sys_dict_data", table)
-	if err != nil {
-		return nil, paginator.Info{}, err
-	}
-
-	ifc, err := iorm.QueryPages(table, param, doc)
-	if err != nil {
-		return nil, ifc, err
-	}
-	return doc, ifc, nil
-}
-
 func (CallDictData) Update(ctx context.Context, id int, up DictData) (item DictData, err error) {
-	up.UpdateBy = jwtauth.FromUserIdStr(ctx)
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(DictDataDB()).
 		Where("dict_code = ?", id).First(&item).Error; err != nil {
 		return

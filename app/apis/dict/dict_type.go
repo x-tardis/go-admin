@@ -98,7 +98,7 @@ func InsertDictType(c *gin.Context) {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
+	data.Creator = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -124,7 +124,7 @@ func UpdateDictType(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.DictId)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -142,7 +142,7 @@ func UpdateDictType(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [delete]
 func DeleteDictType(c *gin.Context) {
 	var data models.DictType
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	IDS := infra.ParseIdsGroup(c.Param("dictId"))
 	result, err := data.BatchDelete(IDS)
 	if err != nil {

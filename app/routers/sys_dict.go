@@ -10,10 +10,10 @@ func Dict(v1 *gin.RouterGroup) {
 	ctl := new(dict.DictData)
 	r := v1.Group("/dict")
 	{
-		r.GET("/datalist", ctl.QueryPage)
+		r.GET("/data", ctl.QueryPage)
 		r.GET("/data/:dictCode", ctl.Get)
 		r.POST("/data", ctl.Create)
-		r.PUT("/data/", ctl.Update)
+		r.PUT("/data", ctl.Update)
 		r.DELETE("/data/:dictCode", ctl.BatchDelete)
 
 		r.GET("/typelist", dict.GetDictTypeList)

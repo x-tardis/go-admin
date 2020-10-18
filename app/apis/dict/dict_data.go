@@ -12,7 +12,6 @@ import (
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -21,31 +20,24 @@ type DictData struct{}
 // @Summary 字典数据列表
 // @Description 获取JSON
 // @Tags 字典数据
-// @Param status query string false "status"
-// @Param dictCode query string false "dictCode"
+// @Param dictCode query int false "dictCode"
 // @Param dictType query string false "dictType"
+// @Param dictLabel query string false "dictLabel"
+// @Param status query string false "status"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/dict/data/list [get]
+// @Router /api/v1/dict/data [get]
 // @Security Bearer
 func (DictData) QueryPage(c *gin.Context) {
-	var data models.DictData
-	var err error
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+	qp := models.DictDataQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	data.DictLabel = c.Request.FormValue("dictLabel")
-	data.Status = c.Request.FormValue("status")
-	data.DictType = c.Request.FormValue("dictType")
-	id := c.Request.FormValue("dictCode")
-	data.DictCode = cast.ToInt(id)
-	data.DataScope = jwtauth.UserIdStr(c)
-	result, ifc, err := data.GetPage(param)
+	result, ifc, err := new(models.CallDictData).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -103,14 +95,13 @@ func (DictData) GetWithType(c *gin.Context) {
 // @Router /api/v1/dict/data [post]
 // @Security Bearer
 func (DictData) Create(c *gin.Context) {
-	var data models.DictData
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	item := models.DictData{}
+	if err := c.ShouldBindJSON(&item); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
-	result, err := data.Create()
+
+	result, err := new(models.CallDictData).Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
