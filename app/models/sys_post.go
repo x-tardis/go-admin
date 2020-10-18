@@ -81,10 +81,9 @@ func (CallPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, pagin
 		db = db.Where("status=?", qp.Status)
 	}
 
-	dataScope := jwtauth.FromUserId(ctx)
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId = dataScope
+	dataPermission.UserId = jwtauth.FromUserId(ctx)
 	db, err := dataPermission.GetDataScope("sys_post", db)
 	if err != nil {
 		return nil, paginator.Info{}, err
@@ -102,7 +101,7 @@ func (CallPost) Create(ctx context.Context, item Post) (Post, error) {
 
 func (CallPost) Get(_ context.Context, id int) (item Post, err error) {
 	err = deployed.DB.Scopes(PostDB()).
-		Where("post_id = ?", id).First(&item).Error
+		Where("post_id=?", id).First(&item).Error
 	return
 }
 

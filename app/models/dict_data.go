@@ -13,7 +13,7 @@ import (
 )
 
 type DictData struct {
-	DictCode  int    `gorm:"primary_key;auto_increment;" json:"dictCode" example:"1"` // 字典编码
+	DictCode  int    `gorm:"primary_key;auto_increment;" json:"dictCode" example:"1"` // 主键
 	DictSort  int    `gorm:"" json:"dictSort"`                                        // 显示顺序
 	DictLabel string `gorm:"size:128;" json:"dictLabel"`                              // 数据标签
 	DictValue string `gorm:"size:255;" json:"dictValue"`                              // 数据键值
@@ -24,8 +24,8 @@ type DictData struct {
 	Status    string `gorm:"size:4;" json:"status"`                                   // 状态
 	Default   string `gorm:"size:8;" json:"default"`                                  //
 	Remark    string `gorm:"size:255;" json:"remark"`                                 // 备注
-	Creator   string `gorm:"size:64;" json:"creator"`                                 //
-	Updator   string `gorm:"size:64;" json:"updator"`                                 //
+	Creator   string `gorm:"size:64;" json:"creator"`                                 // 创建者
+	Updator   string `gorm:"size:64;" json:"updator"`                                 // 更新者
 	Model
 
 	Params    string `gorm:"-" json:"params"`

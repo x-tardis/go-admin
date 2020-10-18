@@ -57,6 +57,8 @@ func (CallLoginLog) Get(id int) (item LoginLog, err error) {
 }
 
 func (CallLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {
+	var items []LoginLog
+
 	db := deployed.DB.Scopes(LoginLogDB())
 	if qp.Ipaddr != "" {
 		db = db.Where("ipaddr=?", qp.Ipaddr)
@@ -69,13 +71,8 @@ func (CallLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]Login
 	}
 	db = db.Order("info_id desc")
 
-	var items []LoginLog
-
 	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	if err != nil {
-		return nil, ifc, err
-	}
-	return items, ifc, nil
+	return items, ifc, err
 }
 
 func (CallLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {

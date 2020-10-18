@@ -85,10 +85,7 @@ func (CallSysConfig) QueryPage(ctx context.Context, qp SysConfigQueryParam) ([]S
 	}
 
 	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	if err != nil {
-		return nil, ifc, err
-	}
-	return items, ifc, nil
+	return items, ifc, err
 }
 
 // Config 创建
@@ -96,7 +93,9 @@ func (CallSysConfig) Create(ctx context.Context, item SysConfig) (SysConfig, err
 	var i int64
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	deployed.DB.Scopes(SysConfigDB()).Where("config_name=? or config_key = ?", item.ConfigName, item.ConfigKey).Count(&i)
+	deployed.DB.Scopes(SysConfigDB()).
+		Where("config_name=? or config_key = ?", item.ConfigName, item.ConfigKey).
+		Count(&i)
 	if i > 0 {
 		return item, iorm.ErrObjectAlreadyExist
 	}
@@ -110,23 +109,21 @@ func (CallSysConfig) Create(ctx context.Context, item SysConfig) (SysConfig, err
 
 func (CallSysConfig) Update(ctx context.Context, id int, item SysConfig) (update SysConfig, err error) {
 	item.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(SysConfigDB()).Where("config_id = ?", id).First(&update).Error; err != nil {
+	if err = deployed.DB.Scopes(SysConfigDB()).
+		Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	if item.ConfigName != "" && item.ConfigName != update.ConfigName {
 		return update, errors.New("参数名称不允许修改！")
 	}
-
 	if item.ConfigKey != "" && item.ConfigKey != update.ConfigKey {
 		return update, errors.New("参数键名不允许修改！")
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	if err = deployed.DB.Scopes(SysConfigDB()).Model(&update).Updates(&item).Error; err != nil {
-		return
-	}
+	err = deployed.DB.Scopes(SysConfigDB()).Model(&update).Updates(&item).Error
 	return
 }
 

@@ -13,17 +13,17 @@ import (
 )
 
 type DictType struct {
-	DictId   int    `gorm:"primary_key;auto_increment;" json:"dictId"`
-	DictName string `gorm:"size:128;" json:"dictName"` //字典名称
-	DictType string `gorm:"size:128;" json:"dictType"` //字典类型
-	Status   string `gorm:"size:4;" json:"status"`     //状态
-	Creator  string `gorm:"size:11;" json:"creator"`   //创建者
-	Updator  string `gorm:"size:11;" json:"updator"`   //更新者
-	Remark   string `gorm:"size:255;" json:"remark"`   //备注
+	DictId   int    `gorm:"primary_key;auto_increment;" json:"dictId"` // 主键
+	DictName string `gorm:"size:128;" json:"dictName"`                 // 字典名称
+	DictType string `gorm:"size:128;" json:"dictType"`                 // 字典类型
+	Status   string `gorm:"size:4;" json:"status"`                     // 状态
+	Creator  string `gorm:"size:11;" json:"creator"`                   // 创建者
+	Updator  string `gorm:"size:11;" json:"updator"`                   // 更新者
+	Remark   string `gorm:"size:255;" json:"remark"`                   // 备注
 	Model
 
-	DataScope string `gorm:"-" json:"dataScope"` //
-	Params    string `gorm:"-" json:"params"`    //
+	DataScope string `gorm:"-" json:"dataScope"`
+	Params    string `gorm:"-" json:"params"`
 }
 
 func (DictType) TableName() string {
@@ -68,13 +68,13 @@ func (CallDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]Dic
 
 	db := deployed.DB.Scopes(DictTypeDB())
 	if qp.DictId != 0 {
-		db = db.Where("dict_id = ?", qp.DictId)
+		db = db.Where("dict_id=?", qp.DictId)
 	}
 	if qp.DictName != "" {
-		db = db.Where("dict_name = ?", qp.DictName)
+		db = db.Where("dict_name=?", qp.DictName)
 	}
 	if qp.DictType != "" {
-		db = db.Where("dict_type = ?", qp.DictType)
+		db = db.Where("dict_type=?", qp.DictType)
 	}
 
 	// 数据权限控制
@@ -92,10 +92,10 @@ func (CallDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]Dic
 func (CallDictType) Get(_ context.Context, dictId int, dictName string) (item DictType, err error) {
 	db := deployed.DB.Scopes(DictTypeDB())
 	if dictId != 0 {
-		db = db.Where("dict_id = ?", dictId)
+		db = db.Where("dict_id=?", dictId)
 	}
 	if dictName != "" {
-		db = db.Where("dict_name = ?", dictName)
+		db = db.Where("dict_name=?", dictName)
 	}
 	err = db.First(&item).Error
 	return
@@ -131,8 +131,8 @@ func (CallDictType) Update(ctx context.Context, id int, up DictType) (item DictT
 		return item, errors.New("类型不允许修改！")
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	err = deployed.DB.Scopes(DictTypeDB()).Model(&item).Updates(&up).Error
 	return
 }
