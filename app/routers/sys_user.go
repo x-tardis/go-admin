@@ -7,14 +7,20 @@ import (
 )
 
 func User(v1 gin.IRouter) {
-	// v1.GET("/sysUser", system.GetSysUserInit)
+	ctl := new(system.User)
 	r := v1.Group("/users")
 	{
-		r.GET("", system.GetSysUserList)
-		r.GET("/:id", system.GetSysUser)
-		r.GET("/", system.GetSysUserInit)
-		r.POST("", system.InsertSysUser)
-		r.PUT("", system.UpdateSysUser)
-		r.DELETE("/:ids", system.DeleteSysUser)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.GET("/", ctl.GetInit)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
+	}
+	rx := v1.Group("/user")
+	{
+		rx.GET("/profile", ctl.GetProfile)
+		rx.POST("/avatar", ctl.UploadAvatar)
+		rx.PUT("/pwd", ctl.UpdatePassword)
 	}
 }

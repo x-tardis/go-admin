@@ -6,13 +6,14 @@ import (
 )
 
 func Dept(v1 gin.IRouter) {
-	v1.GET("/deptTree", system.GetDeptTree)
+	ctl := new(system.Dept)
+	v1.GET("/deptTree", ctl.GetTree)
 	r := v1.Group("/depts")
 	{
-		r.GET("", system.GetDeptList)
-		r.GET("/:id", system.GetDept)
-		r.POST("", system.InsertDept)
-		r.PUT("", system.UpdateDept)
-		r.DELETE("/:id", system.DeleteDept)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:id", ctl.Delete)
 	}
 }

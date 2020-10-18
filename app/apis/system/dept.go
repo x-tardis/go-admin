@@ -13,6 +13,8 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
+type Dept struct{}
+
 // @Summary 分页部门列表数据
 // @Description 分页列表
 // @Tags 部门
@@ -22,7 +24,7 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/depts [get]
 // @Security Bearer
-func GetDeptList(c *gin.Context) {
+func (Dept) QueryPage(c *gin.Context) {
 	var Dept models.SysDept
 
 	Dept.DeptName = c.Request.FormValue("deptName")
@@ -37,7 +39,7 @@ func GetDeptList(c *gin.Context) {
 	servers.OKWithRequestID(c, result, "")
 }
 
-func GetDeptTree(c *gin.Context) {
+func (Dept) GetTree(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
@@ -58,7 +60,7 @@ func GetDeptTree(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/depts/{id} [get]
 // @Security Bearer
-func GetDept(c *gin.Context) {
+func (Dept) Get(c *gin.Context) {
 	var Dept models.SysDept
 
 	Dept.DeptId = cast.ToInt(c.Param("id"))
@@ -81,7 +83,7 @@ func GetDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/depts [post]
 // @Security Bearer
-func InsertDept(c *gin.Context) {
+func (Dept) Create(c *gin.Context) {
 	var data models.SysDept
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -108,7 +110,7 @@ func InsertDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/depts [put]
 // @Security Bearer
-func UpdateDept(c *gin.Context) {
+func (Dept) Update(c *gin.Context) {
 	var data models.SysDept
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -131,7 +133,7 @@ func UpdateDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/depts/{id} [delete]
-func DeleteDept(c *gin.Context) {
+func (Dept) Delete(c *gin.Context) {
 	var data models.SysDept
 	id, err := strconv.Atoi(c.Param("id"))
 	_, err = data.Delete(id)

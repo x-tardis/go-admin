@@ -29,7 +29,7 @@ type DictType struct{}
 // @Security Bearer
 func (DictType) QueryPage(c *gin.Context) {
 	qp := models.DictTypeQueryParam{}
-	if err := c.ShouldBindQuery(qp); err != nil {
+	if err := c.ShouldBindQuery(&qp); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}

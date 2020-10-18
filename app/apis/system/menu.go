@@ -13,6 +13,8 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
+type Menu struct{}
+
 // @Summary Menu列表数据
 // @Description 获取JSON
 // @Tags 菜单
@@ -21,7 +23,7 @@ import (
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menus [get]
 // @Security Bearer
-func GetMenuList(c *gin.Context) {
+func (Menu) QueryPage(c *gin.Context) {
 	var Menu models.Menu
 	Menu.MenuName = c.Request.FormValue("menuName")
 	Menu.Visible = c.Request.FormValue("visible")
@@ -43,7 +45,7 @@ func GetMenuList(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menus/{id} [get]
 // @Security Bearer
-func GetMenu(c *gin.Context) {
+func (Menu) Get(c *gin.Context) {
 	var data models.Menu
 	id := cast.ToInt(c.Param("id"))
 	result, err := data.GetByMenuId(id)
@@ -52,6 +54,84 @@ func GetMenu(c *gin.Context) {
 		return
 	}
 	servers.OKWithRequestID(c, result, "")
+}
+
+// @Summary 创建菜单
+// @Description 获取JSON
+// @Tags 菜单
+// @Accept  application/x-www-form-urlencoded
+// @Product application/x-www-form-urlencoded
+// @Param menuName formData string true "menuName"
+// @Param Path formData string false "Path"
+// @Param Action formData string true "Action"
+// @Param Permission formData string true "Permission"
+// @Param ParentId formData string true "ParentId"
+// @Param IsDel formData string true "IsDel"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/menus [post]
+// @Security Bearer
+func (Menu) Create(c *gin.Context) {
+	var data models.Menu
+
+	if err := c.ShouldBindJSON(&data); err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
+	data.CreateBy = jwtauth.UserIdStr(c)
+	result, err := data.Create()
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
+	servers.OKWithRequestID(c, result, "")
+}
+
+// @Summary 修改菜单
+// @Description 获取JSON
+// @Tags 菜单
+// @Accept  application/x-www-form-urlencoded
+// @Product application/x-www-form-urlencoded
+// @Param id path int true "id"
+// @Param data body models.Menu true "body"
+// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @Router /api/v1/menus/{id} [put]
+// @Security Bearer
+func (Menu) Update(c *gin.Context) {
+	var data models.Menu
+
+	if err := c.ShouldBindJSON(&data); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
+	data.UpdateBy = jwtauth.UserIdStr(c)
+	_, err := data.Update(data.MenuId)
+	if err != nil {
+		servers.Fail(c, 501, err.Error())
+		return
+	}
+	servers.OKWithRequestID(c, "", "修改成功")
+
+}
+
+// @Summary 删除菜单
+// @Description 删除数据
+// @Tags 菜单
+// @Param id path int true "id"
+// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Router /api/v1/menus/{id} [delete]
+func (Menu) Delete(c *gin.Context) {
+	var data models.Menu
+	id := cast.ToInt(c.Param("id"))
+	data.UpdateBy = jwtauth.UserIdStr(c)
+	err := data.Delete(id)
+	if err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
+		return
+	}
+	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
@@ -95,84 +175,6 @@ func GetMenuTreeelect(c *gin.Context) {
 		return
 	}
 	servers.OKWithRequestID(c, result, "")
-}
-
-// @Summary 创建菜单
-// @Description 获取JSON
-// @Tags 菜单
-// @Accept  application/x-www-form-urlencoded
-// @Product application/x-www-form-urlencoded
-// @Param menuName formData string true "menuName"
-// @Param Path formData string false "Path"
-// @Param Action formData string true "Action"
-// @Param Permission formData string true "Permission"
-// @Param ParentId formData string true "ParentId"
-// @Param IsDel formData string true "IsDel"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/menus [post]
-// @Security Bearer
-func InsertMenu(c *gin.Context) {
-	var data models.Menu
-
-	if err := c.ShouldBindJSON(&data); err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
-		return
-	}
-	data.CreateBy = jwtauth.UserIdStr(c)
-	result, err := data.Create()
-	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
-		return
-	}
-	servers.OKWithRequestID(c, result, "")
-}
-
-// @Summary 修改菜单
-// @Description 获取JSON
-// @Tags 菜单
-// @Accept  application/x-www-form-urlencoded
-// @Product application/x-www-form-urlencoded
-// @Param id path int true "id"
-// @Param data body models.Menu true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
-// @Router /api/v1/menus/{id} [put]
-// @Security Bearer
-func UpdateMenu(c *gin.Context) {
-	var data models.Menu
-
-	if err := c.ShouldBindJSON(&data); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
-		return
-	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	_, err := data.Update(data.MenuId)
-	if err != nil {
-		servers.Fail(c, 501, err.Error())
-		return
-	}
-	servers.OKWithRequestID(c, "", "修改成功")
-
-}
-
-// @Summary 删除菜单
-// @Description 删除数据
-// @Tags 菜单
-// @Param id path int true "id"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/menus/{id} [delete]
-func DeleteMenu(c *gin.Context) {
-	var data models.Menu
-	id := cast.ToInt(c.Param("id"))
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	err := data.Delete(id)
-	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
-		return
-	}
-	servers.OKWithRequestID(c, "", "删除成功")
 }
 
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）

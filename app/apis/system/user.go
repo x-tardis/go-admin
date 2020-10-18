@@ -17,6 +17,8 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
+type User struct{}
+
 // @Summary 列表用户信息数据
 // @Description 获取JSON
 // @Tags 用户
@@ -25,7 +27,7 @@ import (
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/users [get]
 // @Security Bearer
-func GetSysUserList(c *gin.Context) {
+func (User) QueryPage(c *gin.Context) {
 	var data models.SysUser
 
 	param := paginator.Param{
@@ -64,7 +66,7 @@ func GetSysUserList(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/users/{id} [get]
 // @Security Bearer
-func GetSysUser(c *gin.Context) {
+func (User) Get(c *gin.Context) {
 	var SysUser models.SysUser
 	SysUser.UserId = cast.ToInt(c.Param("id"))
 	result, err := SysUser.Get()
@@ -97,7 +99,7 @@ func GetSysUser(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/profile [get]
 // @Security Bearer
-func GetSysUserProfile(c *gin.Context) {
+func (User) GetProfile(c *gin.Context) {
 	var SysUser models.SysUser
 
 	SysUser.UserId = jwtauth.UserId(c)
@@ -139,7 +141,7 @@ func GetSysUserProfile(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/users [get]
 // @Security Bearer
-func GetSysUserInit(c *gin.Context) {
+func (User) GetInit(c *gin.Context) {
 	var SysRole models.SysRole
 
 	roles, err := SysRole.GetList()
@@ -163,7 +165,7 @@ func GetSysUserInit(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/users [post]
-func InsertSysUser(c *gin.Context) {
+func (User) Create(c *gin.Context) {
 	var sysuser models.SysUser
 
 	if err := c.ShouldBindJSON(&sysuser); err != nil {
@@ -189,7 +191,7 @@ func InsertSysUser(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/users [put]
-func UpdateSysUser(c *gin.Context) {
+func (User) Update(c *gin.Context) {
 	var data models.SysUser
 	err := c.Bind(&data)
 	if err != nil {
@@ -212,7 +214,7 @@ func UpdateSysUser(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/users/{ids} [delete]
-func DeleteSysUser(c *gin.Context) {
+func (User) BatchDelete(c *gin.Context) {
 	var data models.SysUser
 
 	data.UpdateBy = jwtauth.UserIdStr(c)
@@ -233,7 +235,7 @@ func DeleteSysUser(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/user/profileAvatar [post]
-func InsetSysUserAvatar(c *gin.Context) {
+func (User) UploadAvatar(c *gin.Context) {
 	form, _ := c.MultipartForm()
 	files := form.File["upload[]"]
 	guid := infra.GenerateUUID()
@@ -251,7 +253,7 @@ func InsetSysUserAvatar(c *gin.Context) {
 	servers.OKWithRequestID(c, filPath, codes.UpdatedSuccess)
 }
 
-func SysUserUpdatePwd(c *gin.Context) {
+func (User) UpdatePassword(c *gin.Context) {
 	var pwd models.SysUserPwd
 	err := c.Bind(&pwd)
 	if err != nil {

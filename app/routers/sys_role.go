@@ -6,12 +6,13 @@ import (
 )
 
 func Role(v1 gin.IRouter) {
+	ctl := new(system.Role)
 	r := v1.Group("/roles")
 	{
-		r.GET("", system.GetRoleList)
-		r.GET("/:id", system.GetRole)
-		r.POST("", system.InsertRole)
-		r.PUT("", system.UpdateRole)
-		r.DELETE("/:ids", system.DeleteRole)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }

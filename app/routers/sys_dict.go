@@ -22,7 +22,6 @@ func Dict(v1 *gin.RouterGroup) {
 		r.POST("/type", ctlType.Create)
 		r.PUT("/type", ctlType.Update)
 		r.DELETE("/type/:dictId", ctlType.BatchDelete)
-
 		r.GET("/typeoptionselect", ctlType.GetOptionSelect)
 	}
 }

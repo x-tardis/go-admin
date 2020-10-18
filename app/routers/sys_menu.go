@@ -7,12 +7,13 @@ import (
 )
 
 func Menu(v1 gin.IRouter) {
+	ctl := new(system.Menu)
 	r := v1.Group("/menus")
 	{
-		r.GET("", system.GetMenuList)
-		r.GET("/:id", system.GetMenu)
-		r.POST("", system.InsertMenu)
-		r.PUT("", system.UpdateMenu)
-		r.DELETE("/:id", system.DeleteMenu)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:id", ctl.Delete)
 	}
 }

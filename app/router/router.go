@@ -91,7 +91,6 @@ func RegisterSys(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 		routers.User(v1Group)
 		routers.Role(v1Group)
 		routers.Config(v1Group)
-		routers.UserCenter(v1Group)
 		routers.Post(v1Group)
 		routers.Menu(v1Group)
 		routers.LoginLog(v1Group)

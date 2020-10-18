@@ -16,6 +16,8 @@ import (
 	"github.com/x-tardis/go-admin/app/models"
 )
 
+type Role struct{}
+
 // @Summary 角色列表数据
 // @Description Get JSON
 // @Tags 角色/Role
@@ -27,7 +29,7 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/roles [get]
 // @Security Bearer
-func GetRoleList(c *gin.Context) {
+func (Role) QueryPage(c *gin.Context) {
 	var data models.SysRole
 	var err error
 
@@ -61,7 +63,7 @@ func GetRoleList(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/role/{id} [get]
 // @Security Bearer
-func GetRole(c *gin.Context) {
+func (Role) Get(c *gin.Context) {
 	var Role models.SysRole
 
 	roleId := cast.ToInt(c.Param("id"))
@@ -87,7 +89,7 @@ func GetRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/roles [post]
-func InsertRole(c *gin.Context) {
+func (Role) Create(c *gin.Context) {
 	var data models.SysRole
 	data.CreateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
@@ -129,7 +131,7 @@ func InsertRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/roles [put]
-func UpdateRole(c *gin.Context) {
+func (Role) Update(c *gin.Context) {
 	var data models.SysRole
 	data.UpdateBy = jwtauth.UserIdStr(c)
 	err := c.Bind(&data)
@@ -164,6 +166,33 @@ func UpdateRole(c *gin.Context) {
 	servers.OKWithRequestID(c, result, "修改成功")
 }
 
+// @Summary 删除用户角色
+// @Description 删除数据
+// @Tags 角色/Role
+// @Param roleId path int true "roleId"
+// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Router /api/v1/roles/{ids} [delete]
+func (Role) BatchDelete(c *gin.Context) {
+	var Role models.SysRole
+	Role.UpdateBy = jwtauth.UserIdStr(c)
+
+	IDS := infra.ParseIdsGroup(c.Param("ids"))
+	_, err := Role.BatchDelete(IDS)
+	if err != nil {
+		servers.Fail(c, -1, codes.DeletedFail)
+		return
+	}
+
+	err = deployed.CasbinEnforcer.LoadPolicy()
+	if err != nil {
+		servers.Fail(c, -1, err.Error())
+		return
+	}
+
+	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
+}
+
 func UpdateRoleDataScope(c *gin.Context) {
 	var data models.SysRole
 	data.UpdateBy = jwtauth.UserIdStr(c)
@@ -188,31 +217,4 @@ func UpdateRoleDataScope(c *gin.Context) {
 		}
 	}
 	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
-}
-
-// @Summary 删除用户角色
-// @Description 删除数据
-// @Tags 角色/Role
-// @Param roleId path int true "roleId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/roles/{ids} [delete]
-func DeleteRole(c *gin.Context) {
-	var Role models.SysRole
-	Role.UpdateBy = jwtauth.UserIdStr(c)
-
-	IDS := infra.ParseIdsGroup(c.Param("ids"))
-	_, err := Role.BatchDelete(IDS)
-	if err != nil {
-		servers.Fail(c, -1, codes.DeletedFail)
-		return
-	}
-
-	err = deployed.CasbinEnforcer.LoadPolicy()
-	if err != nil {
-		servers.Fail(c, -1, err.Error())
-		return
-	}
-
-	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
 }
