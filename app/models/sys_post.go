@@ -76,6 +76,7 @@ func (CallPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, pagin
 		db = db.Where("status=?", qp.Status)
 	}
 
+	// TODO: 有些地方不需要数据权限控制
 	dataScope := jwtauth.FromUserId(ctx)
 	// 数据权限控制
 	dataPermission := new(DataPermission)

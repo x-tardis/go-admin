@@ -3,24 +3,25 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/app/apis/system/dict"
+	"github.com/x-tardis/go-admin/app/apis/dict"
 )
 
 func Dict(v1 *gin.RouterGroup) {
+	ctl := new(dict.DictData)
 	r := v1.Group("/dict")
 	{
-		r.GET("/datalist", dict.GetDictDataList)
+		r.GET("/datalist", ctl.QueryPage)
+		r.GET("/data/:dictCode", ctl.Get)
+		r.POST("/data", ctl.Create)
+		r.PUT("/data/", ctl.Update)
+		r.DELETE("/data/:dictCode", ctl.BatchDelete)
+
 		r.GET("/typelist", dict.GetDictTypeList)
-		r.GET("/typeoptionselect", dict.GetDictTypeOptionSelect)
-
-		r.GET("/data/:dictCode", dict.GetDictData)
-		r.POST("/data", dict.InsertDictData)
-		r.PUT("/data/", dict.UpdateDictData)
-		r.DELETE("/data/:dictCode", dict.DeleteDictData)
-
 		r.GET("/type/:dictId", dict.GetDictType)
 		r.POST("/type", dict.InsertDictType)
 		r.PUT("/type", dict.UpdateDictType)
 		r.DELETE("/type/:dictId", dict.DeleteDictType)
+
+		r.GET("/typeoptionselect", dict.GetDictTypeOptionSelect)
 	}
 }

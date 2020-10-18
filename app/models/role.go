@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
+	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -13,12 +14,12 @@ type SysRole struct {
 	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"` // 角色编码
 	RoleName  string `json:"roleName" gorm:"size:128;"`                // 角色名称
 	Status    string `json:"status" gorm:"size:4;"`                    //
-	RoleKey   string `json:"roleKey" gorm:"size:128;"`                 //角色代码
-	RoleSort  int    `json:"roleSort" gorm:""`                         //角色排序
+	RoleKey   string `json:"roleKey" gorm:"size:128;"`                 // 角色代码
+	RoleSort  int    `json:"roleSort" gorm:""`                         // 角色排序
 	Flag      string `json:"flag" gorm:"size:128;"`                    //
 	CreateBy  string `json:"createBy" gorm:"size:128;"`                //
 	UpdateBy  string `json:"updateBy" gorm:"size:128;"`                //
-	Remark    string `json:"remark" gorm:"size:255;"`                  //备注
+	Remark    string `json:"remark" gorm:"size:255;"`                  // 备注
 	Admin     bool   `json:"admin" gorm:"size:4;"`
 	DataScope string `json:"dataScope" gorm:"size:128;"`
 	Model
@@ -30,6 +31,12 @@ type SysRole struct {
 
 func (SysRole) TableName() string {
 	return "sys_role"
+}
+
+func RoleDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(SysRole{})
+	}
 }
 
 type MenuIdList struct {
@@ -147,7 +154,7 @@ func (role *SysRole) GetRoleDeptId() ([]int, error) {
 	return deptIds, nil
 }
 
-//修改
+// 修改
 func (role *SysRole) Update(id int) (update SysRole, err error) {
 	if err = deployed.DB.Table(role.TableName()).First(&update, id).Error; err != nil {
 		return
@@ -161,15 +168,15 @@ func (role *SysRole) Update(id int) (update SysRole, err error) {
 		return update, errors.New("角色标识不允许修改！")
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = deployed.DB.Table(role.TableName()).Model(&update).Updates(&role).Error; err != nil {
 		return
 	}
 	return
 }
 
-//批量删除
+// 批量删除
 func (role *SysRole) BatchDelete(id []int) (Result bool, err error) {
 	tx := deployed.DB.Begin()
 

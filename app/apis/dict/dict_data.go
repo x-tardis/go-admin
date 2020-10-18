@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
 
@@ -14,6 +15,8 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
+
+type DictData struct{}
 
 // @Summary 字典数据列表
 // @Description 获取JSON
@@ -26,7 +29,7 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data/list [get]
 // @Security Bearer
-func GetDictDataList(c *gin.Context) {
+func (DictData) QueryPage(c *gin.Context) {
 	var data models.DictData
 	var err error
 
@@ -61,11 +64,10 @@ func GetDictDataList(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data/{dictCode} [get]
 // @Security Bearer
-func GetDictData(c *gin.Context) {
-	var DictData models.DictData
-	DictData.DictLabel = c.Request.FormValue("dictLabel")
-	DictData.DictCode = cast.ToInt(c.Param("dictCode"))
-	result, err := DictData.GetByCode()
+func (DictData) Get(c *gin.Context) {
+	dictLabel := c.Query("dictLabel")
+	dictCode := cast.ToInt(c.Param("dictCode"))
+	result, err := new(models.CallDictData).Get(gcontext.Context(c), dictCode, dictLabel)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -80,10 +82,9 @@ func GetDictData(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/databyType/{dictType} [get]
 // @Security Bearer
-func GetDictDataByDictType(c *gin.Context) {
-	var DictData models.DictData
-	DictData.DictType = c.Param("dictType")
-	result, err := DictData.Get()
+func (DictData) GetWithType(c *gin.Context) {
+	dictType := c.Param("dictType")
+	result, err := new(models.CallDictData).GetWithType(gcontext.Context(c), dictType)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -101,7 +102,7 @@ func GetDictDataByDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data [post]
 // @Security Bearer
-func InsertDictData(c *gin.Context) {
+func (DictData) Create(c *gin.Context) {
 	var data models.DictData
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -127,15 +128,15 @@ func InsertDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data [put]
 // @Security Bearer
-func UpdateDictData(c *gin.Context) {
-	var data models.DictData
+func (DictData) Update(c *gin.Context) {
+	var up models.DictData
 
-	if err := c.ShouldBindJSON(&data); err != nil {
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	result, err := data.Update(data.DictCode)
+
+	result, err := new(models.CallDictData).Update(gcontext.Context(c), up.DictCode, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -150,15 +151,12 @@ func UpdateDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/data/{dictCode} [delete]
-func DeleteDictData(c *gin.Context) {
-	var data models.DictData
-
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	IDS := infra.ParseIdsGroup(c.Param("dictCode"))
-	result, err := data.BatchDelete(IDS)
+func (DictData) BatchDelete(c *gin.Context) {
+	ids := infra.ParseIdsGroup(c.Param("dictCode"))
+	err := new(models.CallDictData).BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.OKWithRequestID(c, result, "删除成功")
+	servers.JSON(c, http.StatusOK, servers.WithMsg("删除成功"))
 }
