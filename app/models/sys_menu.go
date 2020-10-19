@@ -143,8 +143,8 @@ func deepChildrenMenuLabel(items []Menu, item MenuLabel) MenuLabel {
 // 	Visible  string `json:"visible" gorm:"column:visible"`
 // 	Children []Menu `json:"children" gorm:"-"`
 //
-// 	Creator  string `json:"creator" gorm:"column:create_by"`
-// 	Updator  string `json:"updator" gorm:"column:update_by"`
+// 	Creator  string `json:"creator" gorm:"column:creator"`
+// 	Updator  string `json:"updator" gorm:"column:updator"`
 // 	DataScope string `json:"dataScope" gorm:"-"`
 // 	Params    string `json:"params" gorm:"-"`
 // 	Model

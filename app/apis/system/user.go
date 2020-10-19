@@ -13,7 +13,6 @@ import (
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -168,14 +167,13 @@ func (User) Create(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/users [put]
 func (User) Update(c *gin.Context) {
-	var data models.SysUser
-	err := c.Bind(&data)
-	if err != nil {
+	up := models.SysUser{}
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	data.Updator = jwtauth.UserIdStr(c)
-	result, err := data.Update(data.UserId)
+
+	result, err := new(models.CallUser).Update(gcontext.Context(c), up.UserId, up)
 	if err != nil {
 		servers.Fail(c, -1, codes.UpdatedFail)
 		return
@@ -207,7 +205,7 @@ func (User) BatchDelete(c *gin.Context) {
 // @Param file formData file true "file"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/user/profileAvatar [post]
+// @Router /api/v1/user/avatar [post]
 func (User) UploadAvatar(c *gin.Context) {
 	form, _ := c.MultipartForm()
 	files := form.File["upload[]"]
@@ -218,12 +216,13 @@ func (User) UploadAvatar(c *gin.Context) {
 		// 上传文件至指定目录
 		_ = c.SaveUploadedFile(file, filPath)
 	}
-	sysuser := models.SysUser{}
-	sysuser.UserId = jwtauth.UserId(c)
-	sysuser.Avatar = "/" + filPath
-	sysuser.Updator = jwtauth.UserIdStr(c)
-	sysuser.Update(sysuser.UserId)
-	servers.OKWithRequestID(c, filPath, codes.UpdatedSuccess)
+	avatar := "/" + filPath
+	err := new(models.CallUser).UpdateAvatar(gcontext.Context(c), avatar)
+	if err != nil {
+		servers.Fail(c, -1, codes.UpdatedFail)
+		return
+	}
+	servers.OKWithRequestID(c, avatar, codes.UpdatedSuccess)
 }
 
 func (User) UpdatePassword(c *gin.Context) {

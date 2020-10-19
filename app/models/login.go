@@ -1,29 +1,28 @@
 package models
 
 import (
+	"context"
+
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type Login struct {
-	Username string `form:"UserName" json:"username" binding:"required"`
-	Password string `form:"Password" json:"password" binding:"required"`
-	Code     string `form:"Code" json:"code" binding:"required"`
-	UUID     string `form:"UUID" json:"uuid" binding:"required"`
+	Username string `form:"username" json:"username" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
+	Code     string `form:"code" json:"code" binding:"required"`
+	UUID     string `form:"uuid" json:"uuid" binding:"required"`
 }
 
-func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
-	e = deployed.DB.Table("sys_user").Where("username = ? ", u.Username).Find(&user).Error
-	if e != nil {
+func (u *Login) GetUser() (user SysUser, role SysRole, err error) {
+	user, err = new(CallUser).GetWithName(context.Background(), u.Username)
+	if err != nil {
 		return
 	}
-
-	e = deployed.Verify.Compare(u.Password, "", user.Password)
-	if e != nil {
+	// check password
+	err = deployed.Verify.Compare(u.Password, "", user.Password)
+	if err != nil {
 		return
 	}
-	e = deployed.DB.Table("sys_role").Where("role_id = ? ", user.RoleId).First(&role).Error
-	if e != nil {
-		return
-	}
+	role, err = new(CallRole).Get(context.Background(), user.RoleId)
 	return
 }

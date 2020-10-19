@@ -145,11 +145,10 @@ func (CallDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (item
 		// 数据权限控制
 		dataPermission := new(DataPermission)
 		dataPermission.UserId = jwtauth.FromUserId(ctx)
-		tableper, err := dataPermission.GetDataScope("sys_dept", db)
+		db, err = dataPermission.GetDataScope("sys_dept", db)
 		if err != nil {
 			return nil, err
 		}
-		db = tableper
 	}
 
 	err = db.Order("sort").Find(&items).Error
@@ -217,13 +216,11 @@ func (CallDept) Update(ctx context.Context, id int, up SysDept) (item SysDept, e
 }
 
 func (CallDept) Delete(_ context.Context, id int) error {
-	user := SysUser{}
-	user.DeptId = id
-	userlist, err := user.GetList()
+	userList, err := new(CallUser).GetWithDeptId(id)
 	if err != nil {
 		return err
 	}
-	if len(userlist) <= 0 {
+	if len(userList) > 0 {
 		return errors.New("当前部门存在用户，不能删除！")
 	}
 

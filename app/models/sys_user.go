@@ -13,59 +13,30 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-// User
-type User struct {
-	// key
-	IdentityKey string
-	// 用户名
-	UserName  string
-	FirstName string
-	LastName  string
-	// 角色
-	Role string
-}
-
-type UserName struct {
-	Username string `gorm:"size:64" json:"username"`
-}
-
-type PassWord struct {
-	Password string `gorm:"size:128" json:"password"`
-}
-
-type LoginM struct {
-	UserName
-	PassWord
-}
-
-type SysUserId struct {
-	UserId int `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 编码
-}
-
 type SysUserB struct {
-	NickName string `gorm:"size:128" json:"nickName"` // 昵称
-	Phone    string `gorm:"size:11" json:"phone"`     // 手机号
-	RoleId   int    `gorm:"" json:"roleId"`           // 角色编码
-	Salt     string `gorm:"size:255" json:"salt"`     // 盐
-	Avatar   string `gorm:"size:255" json:"avatar"`   // 头像
-	Sex      string `gorm:"size:255" json:"sex"`      // 性别
-	Email    string `gorm:"size:128" json:"email"`    // 邮箱
-	DeptId   int    `gorm:"" json:"deptId"`           // 部门编码
-	PostId   int    `gorm:"" json:"postId"`           // 职位编码
-	Remark   string `gorm:"size:255" json:"remark"`   // 备注
-	Status   string `gorm:"size:4;" json:"status"`
-	Creator  string `gorm:"size:128" json:"creator"` //
-	Updator  string `gorm:"size:128" json:"updator"` //
+}
+
+type SysUser struct {
+	UserId   int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 编码
+	Username string `gorm:"size:64" json:"username"`                   // 用户名
+	Password string `gorm:"size:128" json:"password"`                  // 密码
+	NickName string `gorm:"size:128" json:"nickName"`                  // 昵称
+	Phone    string `gorm:"size:11" json:"phone"`                      // 手机号
+	RoleId   int    `gorm:"" json:"roleId"`                            // 角色编码
+	Salt     string `gorm:"size:255" json:"salt"`                      // 盐
+	Avatar   string `gorm:"size:255" json:"avatar"`                    // 头像
+	Sex      string `gorm:"size:255" json:"sex"`                       // 性别
+	Email    string `gorm:"size:128" json:"email"`                     // 邮箱
+	DeptId   int    `gorm:"" json:"deptId"`                            // 部门编码
+	PostId   int    `gorm:"" json:"postId"`                            // 职位编码
+	Remark   string `gorm:"size:255" json:"remark"`                    // 备注
+	Status   string `gorm:"size:4;" json:"status"`                     // 状态
+	Creator  string `gorm:"size:128" json:"creator"`                   // 创建者
+	Updator  string `gorm:"size:128" json:"updator"`                   // 更新者
 	Model
 
 	DataScope string `gorm:"-" json:"dataScope"`
 	Params    string `gorm:"-" json:"params"`
-}
-
-type SysUser struct {
-	SysUserId
-	LoginM
-	SysUserB
 }
 
 func (SysUser) TableName() string {
@@ -78,23 +49,14 @@ func UserDB() func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-type UpdateUserPwd struct {
-	OldPassword string `json:"oldPassword"`
-	NewPassword string `json:"newPassword"`
-}
-
 type SysUserPage struct {
-	SysUserId
-	SysUserB
-	LoginM
+	SysUser
 	DeptName string `gorm:"-" json:"deptName"`
 }
 
 type SysUserView struct {
-	SysUserId
-	SysUserB
-	LoginM
-	RoleName string `gorm:"column:role_name"  json:"role_name"`
+	SysUser
+	RoleName string `gorm:"column:role_name"  json:"roleName"`
 }
 
 type UserQueryParam struct {
@@ -106,11 +68,16 @@ type UserQueryParam struct {
 	paginator.Param
 }
 
+type UpdateUserPwd struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
 type CallUser struct{}
 
 // 获取用户数据
 func (sf CallUser) Get(ctx context.Context, id int) (SysUserView, error) {
-	item, err := sf.getUserInfo(ctx, id)
+	item, err := sf.get(ctx, id)
 	if err != nil {
 		return SysUserView{}, err
 	}
@@ -123,36 +90,18 @@ func (sf CallUser) GetUserInfo(ctx context.Context) (SysUserView, error) {
 	return sf.Get(ctx, jwtauth.FromUserId(ctx))
 }
 
-func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
-	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
-	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
-	if e.UserId != 0 {
-		table = table.Where("user_id = ?", e.UserId)
-	}
+func (CallUser) GetWithName(_ context.Context, name string) (item SysUser, err error) {
+	err = deployed.DB.Scopes(UserDB()).
+		Where("username=? ", name).First(&item).Error
+	return
+}
 
-	if e.Username != "" {
-		table = table.Where("username = ?", e.Username)
-	}
-
-	if e.Password != "" {
-		table = table.Where("password = ?", e.Password)
-	}
-
-	if e.RoleId != 0 {
-		table = table.Where("role_id = ?", e.RoleId)
-	}
-
-	if e.DeptId != 0 {
-		table = table.Where("dept_id = ?", e.DeptId)
-	}
-
-	if e.PostId != 0 {
-		table = table.Where("post_id = ?", e.PostId)
-	}
-
-	if err = table.Find(&SysUserView).Error; err != nil {
-		return
-	}
+func (CallUser) GetWithDeptId(id int) (items []SysUserView, err error) {
+	err = deployed.DB.Scopes(UserDB()).
+		Select([]string{"sys_user.*", "sys_role.role_name"}).
+		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
+		Where("dept_id=?", id).
+		Find(&items).Error
 	return
 }
 
@@ -188,20 +137,6 @@ func (CallUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]SysUserPage
 	return items, info, err
 }
 
-// 加密
-func (e *SysUser) Encrypt() error {
-	if e.Password == "" {
-		return nil
-	}
-
-	hash, err := deployed.Verify.Hash(e.Password, "")
-	if err != nil {
-		return err
-	}
-	e.Password = hash
-	return nil
-}
-
 // 添加
 func (CallUser) Create(ctx context.Context, item SysUser) (SysUser, error) {
 	var count int64
@@ -223,35 +158,46 @@ func (CallUser) Create(ctx context.Context, item SysUser) (SysUser, error) {
 	return item, err
 }
 
-// 修改
-func (e *SysUser) Update(id int) (update SysUser, err error) {
-	if e.Password != "" {
-		if err = e.Encrypt(); err != nil {
-			return
-		}
-	}
-	if err = deployed.DB.Table(e.TableName()).First(&update, id).Error; err != nil {
-		return
-	}
-	if e.RoleId == 0 {
-		e.RoleId = update.RoleId
-	}
-
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
-	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-		return
-	}
-	return
-}
-
 func (CallUser) BatchDelete(id []int) error {
 	return deployed.DB.Scopes(UserDB()).
 		Where("user_id in (?)", id).Delete(&SysUser{}).Error
 }
 
+// 修改
+func (CallUser) Update(ctx context.Context, id int, up SysUser) (item SysUser, err error) {
+	if err = deployed.DB.Scopes(UserDB()).First(&item, id).Error; err != nil {
+		return
+	}
+
+	up.Updator = jwtauth.FromUserIdStr(ctx)
+	if up.RoleId == 0 {
+		up.RoleId = item.RoleId
+	}
+	if up.Password != "" {
+		up.Password, err = deployed.Verify.Hash(up.Password, "")
+		if err != nil {
+			return
+		}
+	}
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
+	err = deployed.DB.Table(up.TableName()).
+		Model(&item).Updates(&up).Error
+	return
+}
+
+func (CallUser) UpdateAvatar(ctx context.Context, avatar string) error {
+	id := jwtauth.FromUserId(ctx)
+	return deployed.DB.Scopes(UserDB()).
+		Where("user_id=?", id).
+		Updates(map[string]interface{}{
+			"avatar":  avatar,
+			"updator": cast.ToString(id),
+		}).Error
+}
+
 func (sf CallUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
-	item, err := sf.getUserInfo(ctx, jwtauth.FromUserId(ctx))
+	item, err := sf.get(ctx, jwtauth.FromUserId(ctx))
 	if err != nil {
 		return errors.New("获取用户数据失败(代码202)")
 	}
@@ -274,7 +220,7 @@ func (sf CallUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error 
 	return nil
 }
 
-func (CallUser) getUserInfo(_ context.Context, id int) (item SysUserView, err error) {
+func (CallUser) get(_ context.Context, id int) (item SysUserView, err error) {
 	err = deployed.DB.Scopes(UserDB()).
 		Select([]string{"sys_user.*", "sys_role.role_name"}).
 		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
