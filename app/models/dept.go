@@ -22,8 +22,8 @@ type SysDept struct {
 	Phone    string `json:"phone" gorm:"size:11;"`                     // 手机
 	Email    string `json:"email" gorm:"size:64;"`                     // 邮箱
 	Status   string `json:"status" gorm:"size:4;"`                     // 状态
-	CreateBy string `json:"createBy" gorm:"size:64;"`
-	UpdateBy string `json:"updateBy" gorm:"size:64;"`
+	Creator  string `json:"creator" gorm:"size:64;"`
+	Updator  string `json:"updator" gorm:"size:64;"`
 	Model
 
 	DataScope string    `json:"dataScope" gorm:"-"`
@@ -163,7 +163,7 @@ func (CallDept) Get(_ context.Context, id int) (item SysDept, err error) {
 }
 
 func (CallDept) Create(ctx context.Context, item SysDept) (SysDept, error) {
-	item.CreateBy = jwtauth.FromUserIdStr(ctx)
+	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := deployed.DB.Scopes(DeptDB()).Create(&item).Error
 	if err != nil {
 		return item, err
@@ -187,7 +187,7 @@ func (CallDept) Create(ctx context.Context, item SysDept) (SysDept, error) {
 }
 
 func (CallDept) Update(ctx context.Context, id int, up SysDept) (item SysDept, err error) {
-	up.UpdateBy = jwtauth.FromUserIdStr(ctx)
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(DeptDB()).
 		Where("dept_id=?", id).First(&item).Error; err != nil {
 		return

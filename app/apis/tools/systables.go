@@ -126,7 +126,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.CreateBy = jwtauth.UserIdStr(c)
+	data.Creator = jwtauth.UserIdStr(c)
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get()
@@ -150,7 +150,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	if err != nil {
 		return tools.SysTables{}, err
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
+	data.Creator = jwtauth.UserIdStr(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -246,7 +246,7 @@ func UpdateSysTable(c *gin.Context) {
 		return
 	}
 
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.Update()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())

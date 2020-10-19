@@ -65,7 +65,7 @@ func InsertSysCategory(c *gin.Context) {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
+	data.Creator = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -81,7 +81,7 @@ func UpdateSysCategory(c *gin.Context) {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -92,7 +92,7 @@ func UpdateSysCategory(c *gin.Context) {
 
 func DeleteSysCategory(c *gin.Context) {
 	var data models.SysCategory
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 
 	IDS := infra.ParseIdsGroup(c.Param("id"))
 	_, err := data.BatchDelete(IDS)

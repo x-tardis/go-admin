@@ -23,8 +23,8 @@ type SysJob struct {
 	Concurrent     int    `json:"concurrent" gorm:"size:1;"`               // 是否并发
 	Status         int    `json:"status" gorm:"size:1;"`                   // 状态
 	EntryId        int    `json:"entry_id" gorm:"size:11;"`                // job启动时返回的id
-	CreateBy       string `json:"createBy" gorm:"size:128;"`               //
-	UpdateBy       string `json:"updateBy" gorm:"size:128;"`               //
+	Creator        string `json:"creator" gorm:"size:128;"`                //
+	Updator        string `json:"updator" gorm:"size:128;"`                //
 	Model
 
 	DataScope string `json:"dataScope" gorm:"-"`
@@ -44,11 +44,11 @@ func (e *SysJob) GetId() interface{} {
 }
 
 func (e *SysJob) SetCreateBy(createBy uint) {
-	e.CreateBy = strconv.Itoa(int(createBy))
+	e.Creator = strconv.Itoa(int(createBy))
 }
 
 func (e *SysJob) SetUpdateBy(updateBy uint) {
-	e.UpdateBy = strconv.Itoa(int(updateBy))
+	e.Updator = strconv.Itoa(int(updateBy))
 }
 
 // 创建SysJob

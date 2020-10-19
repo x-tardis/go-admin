@@ -25,7 +25,7 @@ func RoleDeptDB() func(db *gorm.DB) *gorm.DB {
 }
 
 func (rm *SysRoleDept) Insert(roleId int, deptIds []int) (bool, error) {
-	//ORM不支持批量插入所以需要拼接 sql 串
+	// ORM不支持批量插入所以需要拼接 sql 串
 	sql := "INSERT INTO `sys_role_dept` (`role_id`,`dept_id`) VALUES "
 
 	for i := 0; i < len(deptIds); i++ {
@@ -51,5 +51,4 @@ func (rm *SysRoleDept) DeleteRoleDept(roleId int) (bool, error) {
 	}
 
 	return true, nil
-
 }

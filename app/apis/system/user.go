@@ -168,7 +168,7 @@ func (User) Create(c *gin.Context) {
 		return
 	}
 
-	sysuser.CreateBy = jwtauth.UserIdStr(c)
+	sysuser.Creator = jwtauth.UserIdStr(c)
 	id, err := sysuser.Insert()
 	if err != nil {
 		servers.Fail(c, 500, codes.CreatedFail)
@@ -193,7 +193,7 @@ func (User) Update(c *gin.Context) {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.UserId)
 	if err != nil {
 		servers.Fail(c, -1, codes.UpdatedFail)
@@ -212,7 +212,7 @@ func (User) Update(c *gin.Context) {
 func (User) BatchDelete(c *gin.Context) {
 	var data models.SysUser
 
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	result, err := data.BatchDelete(ids)
 	if err != nil {
@@ -243,7 +243,7 @@ func (User) UploadAvatar(c *gin.Context) {
 	sysuser := models.SysUser{}
 	sysuser.UserId = jwtauth.UserId(c)
 	sysuser.Avatar = "/" + filPath
-	sysuser.UpdateBy = jwtauth.UserIdStr(c)
+	sysuser.Updator = jwtauth.UserIdStr(c)
 	sysuser.Update(sysuser.UserId)
 	servers.OKWithRequestID(c, filPath, codes.UpdatedSuccess)
 }

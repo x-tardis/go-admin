@@ -41,8 +41,8 @@ type SysColumns struct {
 	FkCol              []SysColumns `gorm:"-" json:"fkCol"`
 	FkLabelId          string       `gorm:"" json:"fkLabelId"`
 	FkLabelName        string       `gorm:"size:255;" json:"fkLabelName"`
-	CreateBy           string       `gorm:"column:create_by;size:128;" json:"createBy"`
-	UpdateBy           string       `gorm:"column:update_By;size:128;" json:"updateBy"`
+	Creator            string       `gorm:"column:creator;size:128;" json:"creator"`
+	Updator            string       `gorm:"column:updator;size:128;" json:"updator"`
 
 	models.Model
 }

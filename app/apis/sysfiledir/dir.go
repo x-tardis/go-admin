@@ -52,7 +52,7 @@ func InsertSysFileDir(c *gin.Context) {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
+	data.Creator = jwtauth.UserIdStr(c)
 	result, err := data.Create()
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -68,7 +68,7 @@ func UpdateSysFileDir(c *gin.Context) {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.Update(data.Id)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
@@ -79,7 +79,7 @@ func UpdateSysFileDir(c *gin.Context) {
 
 func DeleteSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 
 	IDS := infra.ParseIdsGroup(c.Param("ids"))
 	_, err := data.BatchDelete(IDS)

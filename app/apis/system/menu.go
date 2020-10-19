@@ -201,7 +201,7 @@ func GetMenuIDS(c *gin.Context) {
 	var data models.RoleMenu
 
 	data.RoleName = jwtauth.RoleName(c)
-	data.UpdateBy = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.GetIDS()
 	if err != nil {
 		servers.Fail(c, 500, codes.GetFail)

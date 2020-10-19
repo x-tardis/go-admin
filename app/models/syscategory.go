@@ -9,17 +9,18 @@ import (
 )
 
 type SysCategory struct {
-	Id        int    `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // 分类Id
-	Name      string `json:"name" gorm:"type:varchar(255);"`                    // 名称
-	Img       string `json:"img" gorm:"type:varchar(255);"`                     // 图片
-	Sort      string `json:"sort" gorm:"type:int(4);"`                          // 排序
-	Status    string `json:"status" gorm:"type:int(1);"`                        // 状态
-	Remark    string `json:"remark" gorm:"type:varchar(255);"`                  // 备注
-	CreateBy  string `json:"createBy" gorm:"type:varchar(64);"`                 // 创建者
-	UpdateBy  string `json:"updateBy" gorm:"type:varchar(64);"`                 // 更新者
+	Id      int    `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // 分类Id
+	Name    string `json:"name" gorm:"type:varchar(255);"`                    // 名称
+	Img     string `json:"img" gorm:"type:varchar(255);"`                     // 图片
+	Sort    string `json:"sort" gorm:"type:int(4);"`                          // 排序
+	Status  string `json:"status" gorm:"type:int(1);"`                        // 状态
+	Remark  string `json:"remark" gorm:"type:varchar(255);"`                  // 备注
+	Creator string `json:"creator" gorm:"type:varchar(64);"`                  // 创建者
+	Updator string `json:"updator" gorm:"type:varchar(64);"`                  // 更新者
+	Model
+
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params"  gorm:"-"`
-	Model
 }
 
 func (SysCategory) TableName() string {
