@@ -11,8 +11,8 @@ import (
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
-// sys_operlog
-type SysOperLog struct {
+// OperLog
+type OperLog struct {
 	OperId        int       `json:"operId" gorm:"primary_key;AUTO_INCREMENT"` // 日志编码
 	Title         string    `json:"title" gorm:"size:255;"`                   // 操作模块
 	BusinessType  string    `json:"businessType" gorm:"size:128;"`            // 操作类型
@@ -40,17 +40,17 @@ type SysOperLog struct {
 	Params    string `json:"params" gorm:"-"`    // 参数
 }
 
-func (SysOperLog) TableName() string {
+func (OperLog) TableName() string {
 	return "sys_operlog"
 }
 
-func SysOperLogDB() func(db *gorm.DB) *gorm.DB {
+func OperLogDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(SysOperLog{})
+		return db.Model(OperLog{})
 	}
 }
 
-type SysOperLogQueryParam struct {
+type OperLogQueryParam struct {
 	Title        string `form:"title"`        // 操作模块
 	OperName     string `form:"operName"`     // 操作人员
 	OperIp       string `form:"operIp"`       // 客户端ip
@@ -59,18 +59,20 @@ type SysOperLogQueryParam struct {
 	paginator.Param
 }
 
-type CallSysOperLog struct{}
+type cOperLog struct{}
 
-func (CallSysOperLog) Get(_ context.Context, id int) (item SysOperLog, err error) {
-	err = deployed.DB.Scopes(SysOperLogDB()).
+var COperLog = new(cOperLog)
+
+func (cOperLog) Get(_ context.Context, id int) (item OperLog, err error) {
+	err = deployed.DB.Scopes(OperLogDB()).
 		Where("oper_id=?", id).First(&item).Error
 	return
 }
 
-func (CallSysOperLog) QueryPage(_ context.Context, qp SysOperLogQueryParam) ([]SysOperLog, paginator.Info, error) {
-	var items []SysOperLog
+func (cOperLog) QueryPage(_ context.Context, qp OperLogQueryParam) ([]OperLog, paginator.Info, error) {
+	var items []OperLog
 
-	db := deployed.DB.Scopes(SysOperLogDB())
+	db := deployed.DB.Scopes(OperLogDB())
 	if qp.Title != "" {
 		db = db.Where("title=?", qp.Title)
 	}
@@ -91,29 +93,29 @@ func (CallSysOperLog) QueryPage(_ context.Context, qp SysOperLogQueryParam) ([]S
 	return items, info, err
 }
 
-func (CallSysOperLog) Create(_ context.Context, item SysOperLog) (SysOperLog, error) {
+func (cOperLog) Create(_ context.Context, item OperLog) (OperLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
-	err := deployed.DB.Scopes(SysOperLogDB()).Create(&item).Error
+	err := deployed.DB.Scopes(OperLogDB()).Create(&item).Error
 	return item, err
 }
 
-func (CallSysOperLog) Update(id int, up SysOperLog) (item SysOperLog, err error) {
-	if err = deployed.DB.Scopes(SysOperLogDB()).First(&item, id).Error; err != nil {
+func (cOperLog) Update(id int, up OperLog) (item OperLog, err error) {
+	if err = deployed.DB.Scopes(OperLogDB()).First(&item, id).Error; err != nil {
 		return
 	}
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Scopes(SysOperLogDB()).Model(&item).Updates(&up).Error
+	err = deployed.DB.Scopes(OperLogDB()).Model(&item).Updates(&up).Error
 	return
 }
 
-func (CallSysOperLog) BatchDelete(_ context.Context, id []int) error {
-	return deployed.DB.Scopes(SysOperLogDB()).
-		Where(" oper_id in (?)", id).Delete(&SysOperLog{}).Error
+func (cOperLog) BatchDelete(_ context.Context, id []int) error {
+	return deployed.DB.Scopes(OperLogDB()).
+		Where(" oper_id in (?)", id).Delete(&OperLog{}).Error
 }
 
-func (CallSysOperLog) Clean(_ context.Context) error {
-	return deployed.DB.Scopes(SysOperLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
-		Delete(&SysOperLog{}).Error
+func (cOperLog) Clean(_ context.Context) error {
+	return deployed.DB.Scopes(OperLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
+		Delete(&OperLog{}).Error
 }

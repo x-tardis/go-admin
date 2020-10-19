@@ -12,7 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-type SysRole struct {
+type Role struct {
 	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"` // 角色编码
 	RoleName  string `json:"roleName" gorm:"size:128;"`                // 角色名称
 	RoleKey   string `json:"roleKey" gorm:"size:128;"`                 // 角色代码
@@ -31,13 +31,13 @@ type SysRole struct {
 	DeptIds []int  `json:"deptIds" gorm:"-"`
 }
 
-func (SysRole) TableName() string {
+func (Role) TableName() string {
 	return "sys_role"
 }
 
 func RoleDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(SysRole{})
+		return db.Model(Role{})
 	}
 }
 
@@ -48,17 +48,19 @@ type RoleQueryParam struct {
 	paginator.Param
 }
 
-type CallRole struct{}
+type cRole struct{}
 
-func (CallRole) Query(_ context.Context) (item []SysRole, err error) {
+var CRole = new(cRole)
+
+func (cRole) Query(_ context.Context) (item []Role, err error) {
 	err = deployed.DB.Scopes(RoleDB()).
 		Order("sort").
 		Find(&item).Error
 	return
 }
 
-func (CallRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]SysRole, paginator.Info, error) {
-	var items []SysRole
+func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginator.Info, error) {
+	var items []Role
 
 	db := deployed.DB.Scopes(RoleDB())
 	if qp.RoleName != "" {
@@ -84,21 +86,21 @@ func (CallRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]SysRole, pa
 	return items, info, err
 }
 
-func (CallRole) GetWithName(_ context.Context, name string) (item SysRole, err error) {
+func (cRole) GetWithName(_ context.Context, name string) (item Role, err error) {
 	err = deployed.DB.Scopes(RoleDB()).
 		Where("role_name=?", name).
 		First(&item).Error
 	return
 }
 
-func (CallRole) Get(_ context.Context, id int) (item SysRole, err error) {
+func (cRole) Get(_ context.Context, id int) (item Role, err error) {
 	err = deployed.DB.Scopes(RoleDB()).
 		Where("role_id=?", id).
 		First(&item).Error
 	return
 }
 
-func (CallRole) Create(ctx context.Context, item SysRole) (SysRole, error) {
+func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	var i int64
 
 	deployed.DB.Table(item.TableName()).
@@ -114,7 +116,7 @@ func (CallRole) Create(ctx context.Context, item SysRole) (SysRole, error) {
 }
 
 // 修改
-func (CallRole) Update(ctx context.Context, id int, up SysRole) (item SysRole, err error) {
+func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(RoleDB()).First(&item, id).Error; err != nil {
 		return
@@ -135,7 +137,7 @@ func (CallRole) Update(ctx context.Context, id int, up SysRole) (item SysRole, e
 }
 
 // 批量删除
-func (CallRole) BatchDelete(_ context.Context, id []int) error {
+func (cRole) BatchDelete(_ context.Context, id []int) error {
 	tx := deployed.DB.Begin()
 
 	defer func() {
@@ -148,7 +150,7 @@ func (CallRole) BatchDelete(_ context.Context, id []int) error {
 		return err
 	}
 	// 查询角色
-	var roles []SysRole
+	var roles []Role
 	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", id).Find(&roles).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -165,7 +167,7 @@ func (CallRole) BatchDelete(_ context.Context, id []int) error {
 	}
 
 	// 删除角色
-	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", id).Unscoped().Delete(&SysRole{}).Error; err != nil {
+	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", id).Unscoped().Delete(&Role{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -191,7 +193,7 @@ type MenuIdList struct {
 }
 
 // 获取角色对应的菜单ids
-func (CallRole) GetMenuIds(roleId int) ([]int, error) {
+func (cRole) GetMenuIds(roleId int) ([]int, error) {
 	var menuList []MenuIdList
 
 	if err := deployed.DB.Scopes(RoleMenuDB()).
@@ -212,7 +214,7 @@ type DeptIdList struct {
 	DeptId int `json:"DeptId"`
 }
 
-func (CallRole) GetDeptIds(_ context.Context, roleId int) ([]int, error) {
+func (cRole) GetDeptIds(_ context.Context, roleId int) ([]int, error) {
 	var deptList []DeptIdList
 
 	if err := deployed.DB.Scopes(RoleDeptDB()).

@@ -36,7 +36,7 @@ func (LoginLog) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	result, info, err := new(models.CallLoginLog).QueryPage(gcontext.Context(c), qp)
+	result, info, err := models.CLoginLog.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -56,7 +56,7 @@ func (LoginLog) QueryPage(c *gin.Context) {
 // @Security Bearer
 func (LoginLog) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	result, err := new(models.CallLoginLog).Get(id)
+	result, err := models.CLoginLog.Get(id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -82,7 +82,7 @@ func (LoginLog) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := new(models.CallLoginLog).Create(gcontext.Context(c), item)
+	result, err := models.CLoginLog.Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -107,7 +107,7 @@ func (LoginLog) Update(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	result, err := new(models.CallLoginLog).Update(gcontext.Context(c), up.InfoId, up)
+	result, err := models.CLoginLog.Update(gcontext.Context(c), up.InfoId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -128,10 +128,10 @@ func (LoginLog) BatchDelete(c *gin.Context) {
 	action := c.Param("ids")
 	switch action {
 	case "clean":
-		err = new(models.CallLoginLog).Clean(gcontext.Context(c))
+		err = models.CLoginLog.Clean(gcontext.Context(c))
 	default: // ids
 		ids := infra.ParseIdsGroup(action)
-		err = new(models.CallLoginLog).BatchDelete(gcontext.Context(c), ids)
+		err = models.CLoginLog.BatchDelete(gcontext.Context(c), ids)
 	}
 
 	if err != nil {

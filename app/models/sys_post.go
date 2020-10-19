@@ -44,9 +44,11 @@ type PostQueryParam struct {
 	paginator.Param
 }
 
-type CallPost struct{}
+type cPost struct{}
 
-func (CallPost) Query(_ context.Context, qp PostQueryParam) (items []Post, err error) {
+var CPost = new(cPost)
+
+func (cPost) Query(_ context.Context, qp PostQueryParam) (items []Post, err error) {
 	db := deployed.DB.Scopes(PostDB())
 	if qp.PostId != 0 {
 		db = db.Where("post_id=?", qp.PostId)
@@ -64,7 +66,7 @@ func (CallPost) Query(_ context.Context, qp PostQueryParam) (items []Post, err e
 	return
 }
 
-func (CallPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginator.Info, error) {
+func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginator.Info, error) {
 	var items []Post
 
 	db := deployed.DB.Scopes(PostDB())
@@ -93,19 +95,19 @@ func (CallPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, pagin
 	return items, info, err
 }
 
-func (CallPost) Create(ctx context.Context, item Post) (Post, error) {
+func (cPost) Create(ctx context.Context, item Post) (Post, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := deployed.DB.Scopes(PostDB()).Create(&item).Error
 	return item, err
 }
 
-func (CallPost) Get(_ context.Context, id int) (item Post, err error) {
+func (cPost) Get(_ context.Context, id int) (item Post, err error) {
 	err = deployed.DB.Scopes(PostDB()).
 		Where("post_id=?", id).First(&item).Error
 	return
 }
 
-func (CallPost) Update(ctx context.Context, id int, up Post) (item Post, err error) {
+func (cPost) Update(ctx context.Context, id int, up Post) (item Post, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(PostDB()).First(&item, id).Error; err != nil {
 		return
@@ -117,12 +119,12 @@ func (CallPost) Update(ctx context.Context, id int, up Post) (item Post, err err
 	return
 }
 
-func (CallPost) Delete(_ context.Context, id int) (err error) {
+func (cPost) Delete(_ context.Context, id int) (err error) {
 	return deployed.DB.Scopes(PostDB()).
 		Where("post_id=?", id).Delete(&Post{}).Error
 }
 
-func (CallPost) BatchDelete(_ context.Context, id []int) error {
+func (cPost) BatchDelete(_ context.Context, id []int) error {
 	return deployed.DB.Scopes(PostDB()).
 		Where("post_id in (?)", id).Delete(&Post{}).Error
 }

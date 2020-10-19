@@ -93,7 +93,7 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
 		tx.Rollback()
 		return false, err
 	}
-	var role SysRole
+	var role Role
 	if err := tx.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		tx.Rollback()
 		return false, err
@@ -128,7 +128,7 @@ func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
 		tx.Rollback()
 		return false, err
 	}
-	var role []SysRole
+	var role []Role
 	if err := tx.Table("sys_role").Where("role_id in (?)", roleIds).Find(&role).Error; err != nil {
 		tx.Rollback()
 		return false, err
@@ -150,7 +150,7 @@ func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
 
 func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	var (
-		role            SysRole
+		role            Role
 		menu            []Menu
 		casbinRuleQueue []CasbinRule // casbinRule 待插入队列
 	)

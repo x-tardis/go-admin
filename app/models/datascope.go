@@ -24,12 +24,12 @@ func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, err
 		fmt.Printf("%s\n", `数据权限已经为您`+textcolor.Green(`关闭`)+`，如需开启请参考配置文件字段说明`)
 		return db, nil
 	}
-	user, err := new(CallUser).Get(context.Background(), e.UserId)
+	user, err := new(cUser).Get(context.Background(), e.UserId)
 	if err != nil {
 		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
 	}
 
-	role, err := new(CallRole).Get(context.Background(), user.RoleId)
+	role, err := new(cRole).Get(context.Background(), user.RoleId)
 	if err != nil {
 		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
 	}
@@ -51,12 +51,12 @@ func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, err
 
 func DataScopes(tableName string, userid int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		user, err := new(CallUser).Get(context.Background(), userid)
+		user, err := new(cUser).Get(context.Background(), userid)
 		if err != nil {
 			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
 			return db
 		}
-		role, err := new(CallRole).Get(context.Background(), user.RoleId)
+		role, err := new(cRole).Get(context.Background(), user.RoleId)
 		if err != nil {
 			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
 			return db

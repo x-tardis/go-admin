@@ -31,7 +31,7 @@ func (Dept) QueryPage(c *gin.Context) {
 		return
 	}
 
-	tree, err := new(models.CallDept).QueryTree(gcontext.Context(c), qp, true)
+	tree, err := models.CDept.QueryTree(gcontext.Context(c), qp, true)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -55,7 +55,7 @@ func (Dept) QueryTree(c *gin.Context) {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	result, err := new(models.CallDept).QueryTree(gcontext.Context(c), qp, false)
+	result, err := models.CDept.QueryTree(gcontext.Context(c), qp, false)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -73,7 +73,7 @@ func (Dept) QueryTree(c *gin.Context) {
 // @Security Bearer
 func (Dept) Get(c *gin.Context) {
 	deptId := cast.ToInt(c.Param("id"))
-	item, err := new(models.CallDept).Get(gcontext.Context(c), deptId)
+	item, err := models.CDept.Get(gcontext.Context(c), deptId)
 	if err != nil {
 		servers.Fail(c, 404, codes.NotFound)
 		return
@@ -86,18 +86,18 @@ func (Dept) Get(c *gin.Context) {
 // @Tags 部门
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysDept true "data"
+// @Param data body models.Dept true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/depts [post]
 // @Security Bearer
 func (Dept) Create(c *gin.Context) {
-	newItem := models.SysDept{}
+	newItem := models.Dept{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	result, err := new(models.CallDept).Create(gcontext.Context(c), newItem)
+	result, err := models.CDept.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -111,19 +111,19 @@ func (Dept) Create(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param id path int true "id"
-// @Param data body models.SysDept true "body"
+// @Param data body models.Dept true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/depts [put]
 // @Security Bearer
 func (Dept) Update(c *gin.Context) {
-	up := models.SysDept{}
+	up := models.Dept{}
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 
-	result, err := new(models.CallDept).Update(gcontext.Context(c), up.DeptId, up)
+	result, err := models.CDept.Update(gcontext.Context(c), up.DeptId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -141,7 +141,7 @@ func (Dept) Update(c *gin.Context) {
 func (Dept) Delete(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	// TODO: bug 删除不到部门
-	if err := new(models.CallDept).Delete(gcontext.Context(c), id); err != nil {
+	if err := models.CDept.Delete(gcontext.Context(c), id); err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
@@ -149,7 +149,7 @@ func (Dept) Delete(c *gin.Context) {
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
-	result, err := new(models.CallDept).QueryLabelTree(gcontext.Context(c))
+	result, err := models.CDept.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFound)
 		return
@@ -157,7 +157,7 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 	roleId := cast.ToInt(c.Param("roleId"))
 	menuIds := make([]int, 0)
 	if roleId != 0 {
-		menuIds, err = new(models.CallRole).GetDeptIds(gcontext.Context(c), roleId)
+		menuIds, err = models.CRole.GetDeptIds(gcontext.Context(c), roleId)
 		if err != nil {
 			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 			return

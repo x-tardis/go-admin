@@ -45,7 +45,7 @@ func (rm *SysRoleDept) DeleteRoleDept(roleId int) (bool, error) {
 	if err := deployed.DB.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
 		return false, err
 	}
-	var role SysRole
+	var role Role
 	if err := deployed.DB.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		return false, err
 	}

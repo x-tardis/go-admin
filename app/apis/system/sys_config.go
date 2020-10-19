@@ -28,14 +28,14 @@ type Config struct{}
 // @Router /api/v1/configs [get]
 // @Security Bearer
 func (Config) QueryPage(c *gin.Context) {
-	qp := models.SysConfigQueryParam{}
+	qp := models.ConfigQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 	qp.Inspect()
 
-	result, info, err := new(models.CallSysConfig).QueryPage(gcontext.Context(c), qp)
+	result, info, err := models.CConfig.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -56,7 +56,7 @@ func (Config) QueryPage(c *gin.Context) {
 // @Security Bearer
 func (Config) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	item, err := new(models.CallSysConfig).Get(gcontext.Context(c), id)
+	item, err := models.CConfig.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -73,7 +73,7 @@ func (Config) Get(c *gin.Context) {
 // @Security Bearer
 func (Config) GetWithKey(c *gin.Context) {
 	key := c.Param("key")
-	item, err := new(models.CallSysConfig).GetWithKey(gcontext.Context(c), key)
+	item, err := models.CConfig.GetWithKey(gcontext.Context(c), key)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -86,20 +86,20 @@ func (Config) GetWithKey(c *gin.Context) {
 // @Tags 配置
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysConfig true "data"
+// @Param data body models.Config true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/configs [post]
 // @Security Bearer
 func (Config) Create(c *gin.Context) {
-	var data models.SysConfig
+	var data models.Config
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
 
-	result, err := new(models.CallSysConfig).Create(gcontext.Context(c), data)
+	result, err := models.CConfig.Create(gcontext.Context(c), data)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -112,20 +112,20 @@ func (Config) Create(c *gin.Context) {
 // @Tags 配置
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysConfig true "body"
+// @Param data body models.Config true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/configs [put]
 // @Security Bearer
 func (Config) Update(c *gin.Context) {
-	var data models.SysConfig
+	var data models.Config
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 
-	result, err := new(models.CallSysConfig).Update(gcontext.Context(c), data.ConfigId, data)
+	result, err := models.CConfig.Update(gcontext.Context(c), data.ConfigId, data)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -142,7 +142,7 @@ func (Config) Update(c *gin.Context) {
 // @Router /api/v1/configs/{ids} [delete]
 func (Config) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	err := new(models.CallSysConfig).BatchDelete(gcontext.Context(c), ids)
+	err := models.CConfig.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

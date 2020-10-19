@@ -33,7 +33,7 @@ func GetInfo(c *gin.Context) {
 		mp["buttons"] = list
 	}
 
-	user, err := new(models.CallUser).GetUserInfo(gcontext.Context(c))
+	user, err := models.CUser.GetUserInfo(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, 500, err.Error())
 		return

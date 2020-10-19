@@ -34,7 +34,7 @@ func (User) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	items, info, err := new(models.CallUser).QueryPage(gcontext.Context(c), qp)
+	items, info, err := models.CUser.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -54,13 +54,13 @@ func (User) QueryPage(c *gin.Context) {
 // @Security Bearer
 func (User) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	result, err := new(models.CallUser).Get(gcontext.Context(c), id)
+	result, err := models.CUser.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	roles, err := new(models.CallRole).Query(gcontext.Context(c))
-	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
+	roles, err := models.CRole.Query(gcontext.Context(c))
+	posts, err := models.CPost.Query(gcontext.Context(c), models.PostQueryParam{})
 
 	postIds := make([]int, 0)
 	postIds = append(postIds, result.PostId)
@@ -84,18 +84,18 @@ func (User) Get(c *gin.Context) {
 // @Router /api/v1/user/profile [get]
 // @Security Bearer
 func (User) GetProfile(c *gin.Context) {
-	result, err := new(models.CallUser).GetUserInfo(gcontext.Context(c))
+	result, err := models.CUser.GetUserInfo(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
 
 	//获取角色列表
-	roles, err := new(models.CallRole).Query(gcontext.Context(c))
+	roles, err := models.CRole.Query(gcontext.Context(c))
 	//获取职位列表
-	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
+	posts, err := models.CPost.Query(gcontext.Context(c), models.PostQueryParam{})
 	//获取部门列表
-	dept, err := new(models.CallDept).Get(gcontext.Context(c), result.DeptId)
+	dept, err := models.CDept.Get(gcontext.Context(c), result.DeptId)
 
 	postIds := make([]int, 0)
 	postIds = append(postIds, result.PostId)
@@ -121,8 +121,8 @@ func (User) GetProfile(c *gin.Context) {
 // @Router /api/v1/users [get]
 // @Security Bearer
 func (User) GetInit(c *gin.Context) {
-	roles, err := new(models.CallRole).Query(gcontext.Context(c))
-	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
+	roles, err := models.CRole.Query(gcontext.Context(c))
+	posts, err := models.CPost.Query(gcontext.Context(c), models.PostQueryParam{})
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -138,18 +138,18 @@ func (User) GetInit(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysUser true "用户数据"
+// @Param data body models.User true "用户数据"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/users [post]
 func (User) Create(c *gin.Context) {
-	newItem := models.SysUser{}
+	newItem := models.User{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, 500, codes.DataParseFailed)
 		return
 	}
 
-	_, err := new(models.CallUser).Create(gcontext.Context(c), newItem)
+	_, err := models.CUser.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, 500, codes.CreatedFail)
 		return
@@ -162,18 +162,18 @@ func (User) Create(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysUser true "body"
+// @Param data body models.User true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/users [put]
 func (User) Update(c *gin.Context) {
-	up := models.SysUser{}
+	up := models.User{}
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 
-	result, err := new(models.CallUser).Update(gcontext.Context(c), up.UserId, up)
+	result, err := models.CUser.Update(gcontext.Context(c), up.UserId, up)
 	if err != nil {
 		servers.Fail(c, -1, codes.UpdatedFail)
 		return
@@ -190,7 +190,7 @@ func (User) Update(c *gin.Context) {
 // @Router /api/v1/users/{ids} [delete]
 func (User) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	err := new(models.CallUser).BatchDelete(ids)
+	err := models.CUser.BatchDelete(ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
@@ -217,7 +217,7 @@ func (User) UploadAvatar(c *gin.Context) {
 		_ = c.SaveUploadedFile(file, filPath)
 	}
 	avatar := "/" + filPath
-	err := new(models.CallUser).UpdateAvatar(gcontext.Context(c), avatar)
+	err := models.CUser.UpdateAvatar(gcontext.Context(c), avatar)
 	if err != nil {
 		servers.Fail(c, -1, codes.UpdatedFail)
 		return
@@ -232,7 +232,7 @@ func (User) UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	err := new(models.CallUser).UpdatePassword(gcontext.Context(c), upPwd)
+	err := models.CUser.UpdatePassword(gcontext.Context(c), upPwd)
 	if err != nil {
 		servers.Fail(c, http.StatusOK, "密码更新失败")
 		return

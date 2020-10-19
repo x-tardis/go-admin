@@ -28,14 +28,14 @@ type OperLog struct{}
 // @Router /api/v1/operlog [get]
 // @Security Bearer
 func (OperLog) QueryPage(c *gin.Context) {
-	qp := models.SysOperLogQueryParam{}
+	qp := models.OperLogQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 	qp.Inspect()
 
-	result, info, err := new(models.CallSysOperLog).QueryPage(gcontext.Context(c), qp)
+	result, info, err := models.COperLog.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -55,7 +55,7 @@ func (OperLog) QueryPage(c *gin.Context) {
 // @Security Bearer
 func (OperLog) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	item, err := new(models.CallSysOperLog).Get(gcontext.Context(c), id)
+	item, err := models.COperLog.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -68,19 +68,19 @@ func (OperLog) Get(c *gin.Context) {
 // @Description 获取JSON
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysOperLog true "data"
+// @Param data body models.OperLog true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/operlog [post]
 // @Security Bearer
 func (OperLog) Create(c *gin.Context) {
-	var item models.SysOperLog
+	var item models.OperLog
 
 	if err := c.ShouldBindJSON(&item); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	result, err := new(models.CallSysOperLog).Create(gcontext.Context(c), item)
+	result, err := models.COperLog.Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -101,10 +101,10 @@ func (OperLog) BatchDelete(c *gin.Context) {
 	action := c.Param("ids")
 	switch action {
 	case "clean":
-		err = new(models.CallSysOperLog).Clean(gcontext.Context(c))
+		err = models.COperLog.Clean(gcontext.Context(c))
 	default: // ids
 		ids := infra.ParseIdsGroup(action)
-		err = new(models.CallSysOperLog).BatchDelete(gcontext.Context(c), ids)
+		err = models.COperLog.BatchDelete(gcontext.Context(c), ids)
 	}
 
 	if err != nil {

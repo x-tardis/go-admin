@@ -12,7 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-type SysDept struct {
+type Dept struct {
 	DeptId   int    `json:"deptId" gorm:"primary_key;auto_increment;"` // 部门编码
 	ParentId int    `json:"parentId" gorm:""`                          // 上级部门
 	DeptPath string `json:"deptPath" gorm:"size:255;"`                 //
@@ -26,19 +26,25 @@ type SysDept struct {
 	Updator  string `json:"updator" gorm:"size:64;"`
 	Model
 
-	DataScope string    `json:"dataScope" gorm:"-"`
-	Params    string    `json:"params" gorm:"-"`
-	Children  []SysDept `json:"children" gorm:"-"`
+	DataScope string `json:"dataScope" gorm:"-"`
+	Params    string `json:"params" gorm:"-"`
+	Children  []Dept `json:"children" gorm:"-"`
 }
 
-func (SysDept) TableName() string {
+func (Dept) TableName() string {
 	return "sys_dept"
 }
 
 func DeptDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(SysDept{})
+		return db.Model(Dept{})
 	}
+}
+
+type DeptLabel struct {
+	Id       int         `gorm:"-" json:"id"`
+	Label    string      `gorm:"-" json:"label"`
+	Children []DeptLabel `gorm:"-" json:"children"`
 }
 
 type DeptQueryParam struct {
@@ -48,8 +54,12 @@ type DeptQueryParam struct {
 	Status   string `form:"status"`
 }
 
-func toDeptTree(items []SysDept) []SysDept {
-	tree := make([]SysDept, 0)
+type cDept struct{}
+
+var CDept = new(cDept)
+
+func toDeptTree(items []Dept) []Dept {
+	tree := make([]Dept, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
 			tree = append(tree, deepChildrenDept(items, itm))
@@ -58,8 +68,8 @@ func toDeptTree(items []SysDept) []SysDept {
 	return tree
 }
 
-func deepChildrenDept(items []SysDept, item SysDept) SysDept {
-	item.Children = make([]SysDept, 0)
+func deepChildrenDept(items []Dept, item Dept) Dept {
+	item.Children = make([]Dept, 0)
 	for _, itm := range items {
 		if item.DeptId == itm.ParentId {
 			item.Children = append(item.Children, deepChildrenDept(items, itm))
@@ -68,15 +78,7 @@ func deepChildrenDept(items []SysDept, item SysDept) SysDept {
 	return item
 }
 
-type DeptLabel struct {
-	Id       int         `gorm:"-" json:"id"`
-	Label    string      `gorm:"-" json:"label"`
-	Children []DeptLabel `gorm:"-" json:"children"`
-}
-
-type CallDept struct{}
-
-func toDeptLabelTree(items []SysDept) []DeptLabel {
+func toDeptLabelTree(items []Dept) []DeptLabel {
 	tree := make([]DeptLabel, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
@@ -90,7 +92,7 @@ func toDeptLabelTree(items []SysDept) []DeptLabel {
 	return tree
 }
 
-func deepChildrenDeptLabel(items []SysDept, dept DeptLabel) DeptLabel {
+func deepChildrenDeptLabel(items []Dept, dept DeptLabel) DeptLabel {
 	dept.Children = make([]DeptLabel, 0)
 	for _, itm := range items {
 		if dept.Id == itm.ParentId {
@@ -104,7 +106,7 @@ func deepChildrenDeptLabel(items []SysDept, dept DeptLabel) DeptLabel {
 	return dept
 }
 
-func (sf CallDept) QueryLabelTree(ctx context.Context) ([]DeptLabel, error) {
+func (sf cDept) QueryLabelTree(ctx context.Context) ([]DeptLabel, error) {
 	items, err := sf.Query(ctx)
 	if err != nil {
 		return nil, err
@@ -112,7 +114,7 @@ func (sf CallDept) QueryLabelTree(ctx context.Context) ([]DeptLabel, error) {
 	return toDeptLabelTree(items), nil
 }
 
-func (sf CallDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([]SysDept, error) {
+func (sf cDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([]Dept, error) {
 	list, err := sf.QueryPage(ctx, qp, bl)
 	if err != nil {
 		return nil, err
@@ -120,13 +122,13 @@ func (sf CallDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([
 	return toDeptTree(list), nil
 }
 
-func (CallDept) Query(_ context.Context) (items []SysDept, err error) {
+func (cDept) Query(_ context.Context) (items []Dept, err error) {
 	err = deployed.DB.Scopes(DeptDB()).
 		Order("sort").Find(&items).Error
 	return
 }
 
-func (CallDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items []SysDept, err error) {
+func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items []Dept, err error) {
 	db := deployed.DB.Scopes(DeptDB())
 	if qp.DeptId != 0 {
 		db = db.Where("dept_id=?", qp.DeptId)
@@ -155,13 +157,13 @@ func (CallDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (item
 	return items, err
 }
 
-func (CallDept) Get(_ context.Context, id int) (item SysDept, err error) {
+func (cDept) Get(_ context.Context, id int) (item Dept, err error) {
 	err = deployed.DB.Scopes(DeptDB()).
 		Where("dept_id=?", id).First(&item).Error
 	return
 }
 
-func (CallDept) Create(ctx context.Context, item SysDept) (SysDept, error) {
+func (cDept) Create(ctx context.Context, item Dept) (Dept, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := deployed.DB.Scopes(DeptDB()).Create(&item).Error
 	if err != nil {
@@ -172,7 +174,7 @@ func (CallDept) Create(ctx context.Context, item SysDept) (SysDept, error) {
 	if item.ParentId == 0 {
 		deptPath = "/0" + deptPath
 	} else {
-		var parentDept SysDept
+		var parentDept Dept
 		deployed.DB.Scopes(DeptDB()).
 			Where("dept_id=?", item.ParentId).First(&parentDept)
 		deptPath = parentDept.DeptPath + deptPath
@@ -185,7 +187,7 @@ func (CallDept) Create(ctx context.Context, item SysDept) (SysDept, error) {
 	return item, err
 }
 
-func (CallDept) Update(ctx context.Context, id int, up SysDept) (item SysDept, err error) {
+func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(DeptDB()).
 		Where("dept_id=?", id).First(&item).Error; err != nil {
@@ -197,7 +199,7 @@ func (CallDept) Update(ctx context.Context, id int, up SysDept) (item SysDept, e
 		deptPath = "/0" + deptPath
 
 	} else {
-		var parentDept SysDept
+		var parentDept Dept
 		deployed.DB.Scopes(DeptDB()).
 			Where("dept_id=?", up.ParentId).First(&parentDept)
 		deptPath = parentDept.DeptPath + deptPath
@@ -215,8 +217,8 @@ func (CallDept) Update(ctx context.Context, id int, up SysDept) (item SysDept, e
 	return
 }
 
-func (CallDept) Delete(_ context.Context, id int) error {
-	userList, err := new(CallUser).GetWithDeptId(id)
+func (cDept) Delete(_ context.Context, id int) error {
+	userList, err := new(cUser).GetWithDeptId(id)
 	if err != nil {
 		return err
 	}
@@ -235,7 +237,7 @@ func (CallDept) Delete(_ context.Context, id int) error {
 		}
 	}()
 
-	if err := tx.Scopes(DeptDB()).Where("dept_id=?", id).Delete(&SysDept{}).Error; err != nil {
+	if err := tx.Scopes(DeptDB()).Where("dept_id=?", id).Delete(&Dept{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

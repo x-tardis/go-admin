@@ -155,6 +155,6 @@ func loginLogRecord(c *gin.Context, success bool, msg string, username string) {
 			Msg:           msg,
 		}
 
-		new(models.CallLoginLog).Create(context.Background(), loginLog) // nolint: errcheck
+		models.CLoginLog.Create(context.Background(), loginLog) // nolint: errcheck
 	}
 }

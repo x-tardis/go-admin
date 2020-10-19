@@ -254,7 +254,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{PType: "p", V0: "admin", V1: "/api/v1/syssetting/:id", V2: "DELETE"},
 		}
 
-		list3 := []models.SysDept{
+		list3 := []models.Dept{
 			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "0", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "0", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DeptId: 8, ParentId: 1, DeptPath: "/0/1/8", DeptName: "运维部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "0", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
@@ -262,7 +262,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{DeptId: 10, ParentId: 1, DeptPath: "/0/1/10", DeptName: "人力资源", Sort: 3, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "1", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list4 := []models.SysConfig{
+		list4 := []models.Config{
 			{ConfigId: 1, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{ConfigId: 2, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{ConfigId: 3, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
@@ -274,7 +274,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{PostId: 3, PostName: "首席运营官", PostCode: "COO", Sort: 3, Status: "0", Remark: "测试工程师", Creator: "1", Updator: "1", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list6 := []models.SysRole{
+		list6 := []models.Role{
 			{1, "系统管理员", "admin", "0", 1, "", "", true, "", "1", "", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
 		}
 
@@ -291,7 +291,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{DictId: 10, DictName: "通知状态", DictType: "sys_notice_status", Status: "0", Creator: "1", Updator: "", Remark: "通知状态列表", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list8 := []models.SysUser{
+		list8 := []models.User{
 			{1, "admin", "$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2", "zhangwj", "13818888888", 1, "", "", "0", "1@qq.com", 1, 1, "1", "1", "", "0", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", ""},
 		}
 
@@ -329,7 +329,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{DictCode: 31, DictSort: 0, DictLabel: "获取验证码", DictValue: "12", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "0", Default: "", Creator: "1", Updator: "1", Remark: "获取验证码", Model: models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list10 := []models.SysSetting{
+		list10 := []models.Setting{
 			{1, "go-admin管理系统", "https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 

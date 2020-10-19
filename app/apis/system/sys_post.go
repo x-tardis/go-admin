@@ -34,7 +34,7 @@ func (Post) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	items, info, err := new(models.CallPost).QueryPage(gcontext.Context(c), qp)
+	items, info, err := models.CPost.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -54,7 +54,7 @@ func (Post) QueryPage(c *gin.Context) {
 // @Security Bearer
 func (Post) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	item, err := new(models.CallPost).Get(gcontext.Context(c), id)
+	item, err := models.CPost.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -81,7 +81,7 @@ func (Post) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := new(models.CallPost).Create(gcontext.Context(c), item)
+	result, err := models.CPost.Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -107,7 +107,7 @@ func (Post) Update(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	item, err := new(models.CallPost).Update(gcontext.Context(c), up.PostId, up)
+	item, err := models.CPost.Update(gcontext.Context(c), up.PostId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -124,7 +124,7 @@ func (Post) Update(c *gin.Context) {
 // @Router /api/v1/posts/{ids} [delete]
 func (Post) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	err := new(models.CallPost).BatchDelete(gcontext.Context(c), ids)
+	err := models.CPost.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

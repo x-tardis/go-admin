@@ -35,7 +35,7 @@ func (DictType) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	items, info, err := new(models.CallDictType).QueryPage(gcontext.Context(c), qp)
+	items, info, err := models.CDictType.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -62,7 +62,7 @@ func (DictType) GetOptionSelect(c *gin.Context) {
 		return
 	}
 
-	items, err := new(models.CallDictType).Query(gcontext.Context(c), qp)
+	items, err := models.CDictType.Query(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -80,7 +80,7 @@ func (DictType) GetOptionSelect(c *gin.Context) {
 func (DictType) Get(c *gin.Context) {
 	dictName := c.Query("dictName")
 	dictId := cast.ToInt(c.Param("dictId"))
-	item, err := new(models.CallDictType).Get(gcontext.Context(c), dictId, dictName)
+	item, err := models.CDictType.Get(gcontext.Context(c), dictId, dictName)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -105,7 +105,7 @@ func (DictType) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := new(models.CallDictType).Create(gcontext.Context(c), item)
+	result, err := models.CDictType.Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -129,7 +129,7 @@ func (DictType) Update(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	item, err := new(models.CallDictType).Update(gcontext.Context(c), up.DictId, up)
+	item, err := models.CDictType.Update(gcontext.Context(c), up.DictId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -146,7 +146,7 @@ func (DictType) Update(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [delete]
 func (DictType) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("dictId"))
-	err := new(models.CallDictType).BatchDelete(gcontext.Context(c), ids)
+	err := models.CDictType.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

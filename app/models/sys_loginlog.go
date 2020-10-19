@@ -48,15 +48,17 @@ type LoginLogQueryParam struct {
 	paginator.Param
 }
 
-type CallLoginLog struct{}
+type cLoginLog struct{}
 
-func (CallLoginLog) Get(id int) (item LoginLog, err error) {
+var CLoginLog = new(cLoginLog)
+
+func (cLoginLog) Get(id int) (item LoginLog, err error) {
 	err = deployed.DB.Scopes(LoginLogDB()).
 		Where("info_id = ?", id).First(&item).Error
 	return
 }
 
-func (CallLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {
+func (cLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {
 	var items []LoginLog
 
 	db := deployed.DB.Scopes(LoginLogDB())
@@ -75,14 +77,14 @@ func (CallLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]Login
 	return items, info, err
 }
 
-func (CallLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {
+func (cLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
 	err := deployed.DB.Scopes(LoginLogDB()).Create(&item).Error
 	return item, err
 }
 
-func (CallLoginLog) Update(_ context.Context, id int, up LoginLog) (item LoginLog, err error) {
+func (cLoginLog) Update(_ context.Context, id int, up LoginLog) (item LoginLog, err error) {
 	if err = deployed.DB.Scopes(LoginLogDB()).First(&item, id).Error; err != nil {
 		return
 	}
@@ -94,13 +96,13 @@ func (CallLoginLog) Update(_ context.Context, id int, up LoginLog) (item LoginLo
 }
 
 // BatchDelete 批量删除id
-func (CallLoginLog) BatchDelete(_ context.Context, id []int) error {
+func (cLoginLog) BatchDelete(_ context.Context, id []int) error {
 	return deployed.DB.Scopes(LoginLogDB()).
 		Where("info_id in (?)", id).Delete(&LoginLog{}).Error
 }
 
 // Clean 清空日志
-func (CallLoginLog) Clean(_ context.Context) error {
+func (cLoginLog) Clean(_ context.Context) error {
 	return deployed.DB.Scopes(LoginLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
 		Delete(&LoginLog{}).Error
 }

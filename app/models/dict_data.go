@@ -50,9 +50,11 @@ type DictDataQueryParam struct {
 	paginator.Param
 }
 
-type CallDictData struct{}
+type cDictData struct{}
 
-func (CallDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictData, paginator.Info, error) {
+var CDictData = new(cDictData)
+
+func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictData, paginator.Info, error) {
 	var items []DictData
 
 	db := deployed.DB.Scopes(DictDataDB())
@@ -81,7 +83,7 @@ func (CallDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]Dic
 	return items, info, err
 }
 
-func (CallDictData) Create(ctx context.Context, item DictData) (DictData, error) {
+func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 	var i int64
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
@@ -103,7 +105,7 @@ func (CallDictData) Create(ctx context.Context, item DictData) (DictData, error)
 	return item, nil
 }
 
-func (CallDictData) Get(_ context.Context, dictCode int, dictLabel string) (item DictData, err error) {
+func (cDictData) Get(_ context.Context, dictCode int, dictLabel string) (item DictData, err error) {
 	db := deployed.DB.Scopes(DictDataDB())
 	if dictCode != 0 {
 		db = db.Where("dict_code=?", dictCode)
@@ -115,14 +117,14 @@ func (CallDictData) Get(_ context.Context, dictCode int, dictLabel string) (item
 	return
 }
 
-func (CallDictData) GetWithType(_ context.Context, dictType string) (items []DictData, err error) {
+func (cDictData) GetWithType(_ context.Context, dictType string) (items []DictData, err error) {
 	err = deployed.DB.Scopes(DictDataDB()).
 		Where("dict_type = ?", dictType).
 		Order("dict_sort").Find(&items).Error
 	return
 }
 
-func (CallDictData) Update(ctx context.Context, id int, up DictData) (item DictData, err error) {
+func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(DictDataDB()).
 		Where("dict_code = ?", id).First(&item).Error; err != nil {
@@ -143,12 +145,12 @@ func (CallDictData) Update(ctx context.Context, id int, up DictData) (item DictD
 	return
 }
 
-func (CallDictData) Delete(_ context.Context, id int) error {
+func (cDictData) Delete(_ context.Context, id int) error {
 	return deployed.DB.Scopes(DictDataDB()).
 		Where("dict_code = ?", id).Delete(&DictData{}).Error
 }
 
-func (CallDictData) BatchDelete(_ context.Context, id []int) error {
+func (cDictData) BatchDelete(_ context.Context, id []int) error {
 	return deployed.DB.Scopes(DictDataDB()).
 		Where("dict_code in (?)", id).Delete(&DictData{}).Error
 }

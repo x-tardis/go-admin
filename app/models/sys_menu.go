@@ -63,7 +63,9 @@ type MenuLabel struct {
 	Children []MenuLabel `json:"children" gorm:"-"`
 }
 
-type CallMenu struct{}
+type cMenu struct{}
+
+var CMenu = new(cMenu)
 
 // toMenuTree 目录树
 func toMenuTree(items []Menu) []Menu {
@@ -168,7 +170,7 @@ func deepChildrenMenuLabel(items []Menu, item MenuLabel) MenuLabel {
 // 	return
 // }
 
-func (sf CallMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, err error) {
+func (sf cMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, err error) {
 	items, err := sf.QueryPage(ctx, qp)
 	if err != nil {
 		return nil, err
@@ -176,7 +178,7 @@ func (sf CallMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, 
 	return toMenuTree(items), nil
 }
 
-func (sf CallMenu) QueryTreeWithRoleName(ctx context.Context, roleName string) ([]Menu, error) {
+func (sf cMenu) QueryTreeWithRoleName(ctx context.Context, roleName string) ([]Menu, error) {
 	items, err := sf.QueryWithRoleName(ctx, roleName)
 	if err != nil {
 		return nil, err
@@ -184,7 +186,7 @@ func (sf CallMenu) QueryTreeWithRoleName(ctx context.Context, roleName string) (
 	return toMenuTree(items), nil
 }
 
-func (CallMenu) QueryWithRoleName(_ context.Context, roleName string) (items []Menu, err error) {
+func (cMenu) QueryWithRoleName(_ context.Context, roleName string) (items []Menu, err error) {
 	err = deployed.DB.Scopes(MenuDB()).
 		Select("sys_menu.*").
 		Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id").
@@ -193,7 +195,7 @@ func (CallMenu) QueryWithRoleName(_ context.Context, roleName string) (items []M
 	return
 }
 
-func (sf CallMenu) QueryLabelTree(ctx context.Context) (m []MenuLabel, err error) {
+func (sf cMenu) QueryLabelTree(ctx context.Context) (m []MenuLabel, err error) {
 	items, err := sf.Query(ctx, MenuQueryParam{})
 	if err != nil {
 		return nil, err
@@ -201,7 +203,7 @@ func (sf CallMenu) QueryLabelTree(ctx context.Context) (m []MenuLabel, err error
 	return toMenuLabelTree(items), nil
 }
 
-func (CallMenu) Query(_ context.Context, qp MenuQueryParam) (items []Menu, err error) {
+func (cMenu) Query(_ context.Context, qp MenuQueryParam) (items []Menu, err error) {
 	db := deployed.DB.Scopes(MenuDB())
 	if qp.MenuName != "" {
 		db = db.Where("menu_name=?", qp.MenuName)
@@ -219,7 +221,7 @@ func (CallMenu) Query(_ context.Context, qp MenuQueryParam) (items []Menu, err e
 	return
 }
 
-func (CallMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, err error) {
+func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, err error) {
 	db := deployed.DB.Scopes(MenuDB())
 	if qp.MenuName != "" {
 		db = db.Where("menu_name=?", qp.MenuName)
@@ -246,11 +248,11 @@ func (CallMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu,
 	return
 }
 
-func (CallMenu) Get(ctx context.Context, id int) (item Menu, err error) {
+func (cMenu) Get(ctx context.Context, id int) (item Menu, err error) {
 	err = deployed.DB.Scopes(MenuDB()).Where("menu_id=?", id).Find(&item).Error
 	return
 }
-func (CallMenu) Create(ctx context.Context, item Menu) (Menu, error) {
+func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := deployed.DB.Scopes(MenuDB()).Create(&item).Error
 	if err != nil {
@@ -260,7 +262,7 @@ func (CallMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 	return item, err
 }
 
-func (CallMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
+func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(MenuDB()).First(&item, id).Error; err != nil {
 		return
@@ -275,7 +277,7 @@ func (CallMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err err
 	return
 }
 
-func (CallMenu) Delete(_ context.Context, id int) error {
+func (cMenu) Delete(_ context.Context, id int) error {
 	return deployed.DB.Scopes(MenuDB()).
 		Where("menu_id=?", id).Delete(&Menu{}).Error
 }

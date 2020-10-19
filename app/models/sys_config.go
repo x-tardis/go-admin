@@ -13,7 +13,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-type SysConfig struct {
+type Config struct {
 	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` // 主键
 	ConfigName  string `json:"configName" gorm:"size:128;"`                 // 参数名称
 	ConfigKey   string `json:"configKey" gorm:"size:128;"`                  // 参数键名
@@ -28,43 +28,46 @@ type SysConfig struct {
 	Params    string `json:"params"  gorm:"-"`
 }
 
-func (SysConfig) TableName() string {
+func (Config) TableName() string {
 	return "sys_config"
 }
 
-func SysConfigDB() func(db *gorm.DB) *gorm.DB {
+func ConfigDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(SysConfig{})
+		return db.Model(Config{})
 	}
 }
 
-// SysConfigQueryParam 查询参数
-type SysConfigQueryParam struct {
+// ConfigQueryParam 查询参数
+type ConfigQueryParam struct {
 	ConfigName string `form:"configName"`
 	ConfigKey  string `form:"configKey"`
 	ConfigType string `form:"configType"`
 	paginator.Param
 }
-type CallSysConfig struct{}
+
+type cConfig struct{}
+
+var CConfig = new(cConfig)
 
 // 获取 Config
-func (CallSysConfig) GetWithKey(_ context.Context, key string) (item SysConfig, err error) {
-	err = deployed.DB.Scopes(SysConfigDB()).
+func (cConfig) GetWithKey(_ context.Context, key string) (item Config, err error) {
+	err = deployed.DB.Scopes(ConfigDB()).
 		Where("config_key = ?", key).First(&item).Error
 	return
 }
 
 // 获取 Config
-func (CallSysConfig) Get(_ context.Context, id int) (item SysConfig, err error) {
-	err = deployed.DB.Scopes(SysConfigDB()).
+func (cConfig) Get(_ context.Context, id int) (item Config, err error) {
+	err = deployed.DB.Scopes(ConfigDB()).
 		Where("config_id = ?", id).First(&item).Error
 	return
 }
 
-func (CallSysConfig) QueryPage(ctx context.Context, qp SysConfigQueryParam) ([]SysConfig, paginator.Info, error) {
-	var items []SysConfig
+func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, paginator.Info, error) {
+	var items []Config
 
-	db := deployed.DB.Scopes(SysConfigDB())
+	db := deployed.DB.Scopes(ConfigDB())
 
 	if qp.ConfigName != "" {
 		db = db.Where("config_name=?", qp.ConfigName)
@@ -89,27 +92,27 @@ func (CallSysConfig) QueryPage(ctx context.Context, qp SysConfigQueryParam) ([]S
 }
 
 // Config 创建
-func (CallSysConfig) Create(ctx context.Context, item SysConfig) (SysConfig, error) {
+func (cConfig) Create(ctx context.Context, item Config) (Config, error) {
 	var i int64
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	deployed.DB.Scopes(SysConfigDB()).
+	deployed.DB.Scopes(ConfigDB()).
 		Where("config_name=? or config_key = ?", item.ConfigName, item.ConfigKey).
 		Count(&i)
 	if i > 0 {
 		return item, iorm.ErrObjectAlreadyExist
 	}
 
-	result := deployed.DB.Scopes(SysConfigDB()).Create(&item)
+	result := deployed.DB.Scopes(ConfigDB()).Create(&item)
 	if err := result.Error; err != nil {
 		return item, err
 	}
 	return item, nil
 }
 
-func (CallSysConfig) Update(ctx context.Context, id int, item SysConfig) (update SysConfig, err error) {
+func (cConfig) Update(ctx context.Context, id int, item Config) (update Config, err error) {
 	item.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(SysConfigDB()).
+	if err = deployed.DB.Scopes(ConfigDB()).
 		Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
@@ -123,16 +126,16 @@ func (CallSysConfig) Update(ctx context.Context, id int, item SysConfig) (update
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Scopes(SysConfigDB()).Model(&update).Updates(&item).Error
+	err = deployed.DB.Scopes(ConfigDB()).Model(&update).Updates(&item).Error
 	return
 }
 
-func (CallSysConfig) Delete(_ context.Context, id int) (err error) {
-	return deployed.DB.Scopes(SysConfigDB()).
-		Where("config_id = ?", id).Delete(&SysConfig{}).Error
+func (cConfig) Delete(_ context.Context, id int) (err error) {
+	return deployed.DB.Scopes(ConfigDB()).
+		Where("config_id = ?", id).Delete(&Config{}).Error
 }
 
-func (CallSysConfig) BatchDelete(_ context.Context, id []int) error {
-	return deployed.DB.Scopes(SysConfigDB()).
-		Where("config_id in (?)", id).Delete(&SysConfig{}).Error
+func (cConfig) BatchDelete(_ context.Context, id []int) error {
+	return deployed.DB.Scopes(ConfigDB()).
+		Where("config_id in (?)", id).Delete(&Config{}).Error
 }

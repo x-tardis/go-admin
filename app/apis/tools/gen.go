@@ -219,7 +219,6 @@ func GenMenuAndApi(c *gin.Context) {
 	}
 
 	now := time.Now()
-	callMenu := models.CallMenu{}
 	table := tools.SysTables{
 		TableId: id,
 	}
@@ -245,7 +244,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	Mmenu, err = callMenu.Create(gcontext.Context(c), Mmenu)
+	Mmenu, err = models.CMenu.Create(gcontext.Context(c), Mmenu)
 
 	Cmenu := models.Menu{
 		MenuName:   tab.TBName,
@@ -268,7 +267,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	Cmenu, err = callMenu.Create(gcontext.Context(c), Cmenu)
+	Cmenu, err = models.CMenu.Create(gcontext.Context(c), Cmenu)
 
 	MList := models.Menu{
 		MenuName:   "",
@@ -290,7 +289,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	MList, err = callMenu.Create(gcontext.Context(c), MList)
+	MList, err = models.CMenu.Create(gcontext.Context(c), MList)
 
 	MCreate := models.Menu{
 		MenuName:   "",
@@ -312,7 +311,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	MCreate, err = callMenu.Create(gcontext.Context(c), MCreate)
+	MCreate, err = models.CMenu.Create(gcontext.Context(c), MCreate)
 
 	MUpdate := models.Menu{
 		MenuName:   "",
@@ -334,7 +333,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	MUpdate, err = callMenu.Create(gcontext.Context(c), MUpdate)
+	MUpdate, err = models.CMenu.Create(gcontext.Context(c), MUpdate)
 
 	MDelete := models.Menu{
 		MenuName:   "",
@@ -356,7 +355,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	MDelete, err = callMenu.Create(gcontext.Context(c), MDelete)
+	MDelete, err = models.CMenu.Create(gcontext.Context(c), MDelete)
 
 	var InterfaceId = 63
 	Amenu := models.Menu{
@@ -378,7 +377,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	Amenu, err = callMenu.Create(gcontext.Context(c), Amenu)
+	Amenu, err = models.CMenu.Create(gcontext.Context(c), Amenu)
 
 	AList := models.Menu{
 		MenuName: "",
@@ -399,7 +398,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	AList, err = callMenu.Create(gcontext.Context(c), AList)
+	AList, err = models.CMenu.Create(gcontext.Context(c), AList)
 
 	AGet := models.Menu{
 		MenuName: "",
@@ -420,7 +419,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	AGet, err = callMenu.Create(gcontext.Context(c), AGet)
+	AGet, err = models.CMenu.Create(gcontext.Context(c), AGet)
 
 	ACreate := models.Menu{
 		MenuName: "",
@@ -441,7 +440,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	ACreate, err = callMenu.Create(gcontext.Context(c), ACreate)
+	ACreate, err = models.CMenu.Create(gcontext.Context(c), ACreate)
 
 	AUpdate := models.Menu{
 		MenuName: "",
@@ -462,7 +461,7 @@ func GenMenuAndApi(c *gin.Context) {
 			UpdatedAt: now,
 		},
 	}
-	AUpdate, err = callMenu.Create(gcontext.Context(c), AUpdate)
+	AUpdate, err = models.CMenu.Create(gcontext.Context(c), AUpdate)
 
 	ADelete := models.Menu{
 		MenuName: "",
@@ -484,7 +483,7 @@ func GenMenuAndApi(c *gin.Context) {
 		},
 	}
 
-	ADelete, err = callMenu.Create(gcontext.Context(c), ADelete)
+	ADelete, err = models.CMenu.Create(gcontext.Context(c), ADelete)
 
 	servers.OKWithRequestID(c, "", "数据生成成功！")
 }

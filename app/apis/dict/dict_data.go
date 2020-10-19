@@ -36,7 +36,7 @@ func (DictData) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	result, info, err := new(models.CallDictData).QueryPage(gcontext.Context(c), qp)
+	result, info, err := models.CDictData.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -58,7 +58,7 @@ func (DictData) QueryPage(c *gin.Context) {
 func (DictData) Get(c *gin.Context) {
 	dictLabel := c.Query("dictLabel")
 	dictCode := cast.ToInt(c.Param("dictCode"))
-	result, err := new(models.CallDictData).Get(gcontext.Context(c), dictCode, dictLabel)
+	result, err := models.CDictData.Get(gcontext.Context(c), dictCode, dictLabel)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -75,7 +75,7 @@ func (DictData) Get(c *gin.Context) {
 // @Security Bearer
 func (DictData) GetWithType(c *gin.Context) {
 	dictType := c.Param("dictType")
-	result, err := new(models.CallDictData).GetWithType(gcontext.Context(c), dictType)
+	result, err := models.CDictData.GetWithType(gcontext.Context(c), dictType)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -100,7 +100,7 @@ func (DictData) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := new(models.CallDictData).Create(gcontext.Context(c), item)
+	result, err := models.CDictData.Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -126,7 +126,7 @@ func (DictData) Update(c *gin.Context) {
 		return
 	}
 
-	result, err := new(models.CallDictData).Update(gcontext.Context(c), up.DictCode, up)
+	result, err := models.CDictData.Update(gcontext.Context(c), up.DictCode, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -143,7 +143,7 @@ func (DictData) Update(c *gin.Context) {
 // @Router /api/v1/dict/data/{dictCode} [delete]
 func (DictData) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("dictCode"))
-	err := new(models.CallDictData).BatchDelete(gcontext.Context(c), ids)
+	err := models.CDictData.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

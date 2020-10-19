@@ -19,7 +19,7 @@ type SysSetting struct{}
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [get]
 func (SysSetting) Get(c *gin.Context) {
-	item, err := new(models.CallSysSetting).Get()
+	item, err := models.CSetting.Get()
 	if err != nil {
 		servers.Fail(c, 500, codes.GetFail)
 		return
@@ -30,19 +30,19 @@ func (SysSetting) Get(c *gin.Context) {
 // @Tags 系统设置
 // @Summary 更新设置
 // @Description 更新设置
-// @Param data body models.SysUser true "body"
+// @Param data body models.User true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [post]
 func (SysSetting) Update(c *gin.Context) {
-	var up models.UpSysSetting
+	var up models.UpSetting
 
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.FailWithRequestID(c, http.StatusOK, codes.DataParseFailed)
 		return
 	}
 
-	a, err := new(models.CallSysSetting).Update(models.SysSetting{
+	a, err := models.CSetting.Update(models.Setting{
 		Logo: up.Logo,
 		Name: up.Name,
 	})

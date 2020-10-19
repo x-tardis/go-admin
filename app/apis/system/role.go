@@ -37,7 +37,7 @@ func (Role) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	items, count, err := new(models.CallRole).QueryPage(gcontext.Context(c), qp)
+	items, count, err := models.CRole.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -58,7 +58,7 @@ func (Role) QueryPage(c *gin.Context) {
 // @Router /api/v1/role/{id} [get]
 // @Security Bearer
 func (Role) Get(c *gin.Context) {
-	call := new(models.CallRole)
+	call := models.CRole
 	id := cast.ToInt(c.Param("id"))
 	result, err := call.Get(gcontext.Context(c), id)
 	menuIds := make([]int, 0)
@@ -77,18 +77,18 @@ func (Role) Get(c *gin.Context) {
 // @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysRole true "data"
+// @Param data body models.Role true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/roles [post]
 func (Role) Create(c *gin.Context) {
-	newItem := models.SysRole{}
+	newItem := models.Role{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, 500, codes.DataParseFailed)
 		return
 	}
 
-	item, err := new(models.CallRole).Create(gcontext.Context(c), newItem)
+	item, err := models.CRole.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -117,19 +117,19 @@ func (Role) Create(c *gin.Context) {
 // @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysRole true "body"
+// @Param data body models.Role true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/roles [put]
 func (Role) Update(c *gin.Context) {
-	up := models.SysRole{}
+	up := models.Role{}
 
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 
-	item, err := new(models.CallRole).Update(gcontext.Context(c), up.RoleId, up)
+	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -166,7 +166,7 @@ func (Role) Update(c *gin.Context) {
 // @Router /api/v1/roles/{ids} [delete]
 func (Role) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	err := new(models.CallRole).BatchDelete(gcontext.Context(c), ids)
+	err := models.CRole.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, -1, codes.DeletedFail)
 		return
@@ -182,13 +182,13 @@ func (Role) BatchDelete(c *gin.Context) {
 }
 
 func UpdateRoleDataScope(c *gin.Context) {
-	up := models.SysRole{}
+	up := models.Role{}
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
 
-	item, err := new(models.CallRole).Update(gcontext.Context(c), up.RoleId, up)
+	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 
 	var t models.SysRoleDept
 	_, err = t.DeleteRoleDept(up.RoleId)

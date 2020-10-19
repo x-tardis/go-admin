@@ -13,10 +13,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-type SysUserB struct {
-}
-
-type SysUser struct {
+type User struct {
 	UserId   int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 编码
 	Username string `gorm:"size:64" json:"username"`                   // 用户名
 	Password string `gorm:"size:128" json:"password"`                  // 密码
@@ -39,23 +36,23 @@ type SysUser struct {
 	Params    string `gorm:"-" json:"params"`
 }
 
-func (SysUser) TableName() string {
+func (User) TableName() string {
 	return "sys_user"
 }
 
 func UserDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(SysUser{})
+		return db.Model(User{})
 	}
 }
 
-type SysUserPage struct {
-	SysUser
+type UserPage struct {
+	User
 	DeptName string `gorm:"-" json:"deptName"`
 }
 
-type SysUserView struct {
-	SysUser
+type UserView struct {
+	User
 	RoleName string `gorm:"column:role_name"  json:"roleName"`
 }
 
@@ -73,30 +70,32 @@ type UpdateUserPwd struct {
 	NewPassword string `json:"newPassword"`
 }
 
-type CallUser struct{}
+type cUser struct{}
+
+var CUser = new(cUser)
 
 // 获取用户数据
-func (sf CallUser) Get(ctx context.Context, id int) (SysUserView, error) {
+func (sf cUser) Get(ctx context.Context, id int) (UserView, error) {
 	item, err := sf.get(ctx, id)
 	if err != nil {
-		return SysUserView{}, err
+		return UserView{}, err
 	}
 	item.Password = ""
 	return item, err
 }
 
 // 获取用户数据
-func (sf CallUser) GetUserInfo(ctx context.Context) (SysUserView, error) {
+func (sf cUser) GetUserInfo(ctx context.Context) (UserView, error) {
 	return sf.Get(ctx, jwtauth.FromUserId(ctx))
 }
 
-func (CallUser) GetWithName(_ context.Context, name string) (item SysUser, err error) {
+func (cUser) GetWithName(_ context.Context, name string) (item User, err error) {
 	err = deployed.DB.Scopes(UserDB()).
 		Where("username=? ", name).First(&item).Error
 	return
 }
 
-func (CallUser) GetWithDeptId(id int) (items []SysUserView, err error) {
+func (cUser) GetWithDeptId(id int) (items []UserView, err error) {
 	err = deployed.DB.Scopes(UserDB()).
 		Select([]string{"sys_user.*", "sys_role.role_name"}).
 		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
@@ -105,8 +104,8 @@ func (CallUser) GetWithDeptId(id int) (items []SysUserView, err error) {
 	return
 }
 
-func (CallUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]SysUserPage, paginator.Info, error) {
-	var items []SysUserPage
+func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, paginator.Info, error) {
+	var items []UserPage
 
 	db := deployed.DB.Scopes(UserDB()).
 		Select("sys_user.*,sys_dept.dept_name").
@@ -138,7 +137,7 @@ func (CallUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]SysUserPage
 }
 
 // 添加
-func (CallUser) Create(ctx context.Context, item SysUser) (SysUser, error) {
+func (cUser) Create(ctx context.Context, item User) (User, error) {
 	var count int64
 	var err error
 
@@ -158,13 +157,13 @@ func (CallUser) Create(ctx context.Context, item SysUser) (SysUser, error) {
 	return item, err
 }
 
-func (CallUser) BatchDelete(id []int) error {
+func (cUser) BatchDelete(id []int) error {
 	return deployed.DB.Scopes(UserDB()).
-		Where("user_id in (?)", id).Delete(&SysUser{}).Error
+		Where("user_id in (?)", id).Delete(&User{}).Error
 }
 
 // 修改
-func (CallUser) Update(ctx context.Context, id int, up SysUser) (item SysUser, err error) {
+func (cUser) Update(ctx context.Context, id int, up User) (item User, err error) {
 	if err = deployed.DB.Scopes(UserDB()).First(&item, id).Error; err != nil {
 		return
 	}
@@ -186,7 +185,7 @@ func (CallUser) Update(ctx context.Context, id int, up SysUser) (item SysUser, e
 	return
 }
 
-func (CallUser) UpdateAvatar(ctx context.Context, avatar string) error {
+func (cUser) UpdateAvatar(ctx context.Context, avatar string) error {
 	id := jwtauth.FromUserId(ctx)
 	return deployed.DB.Scopes(UserDB()).
 		Where("user_id=?", id).
@@ -196,7 +195,7 @@ func (CallUser) UpdateAvatar(ctx context.Context, avatar string) error {
 		}).Error
 }
 
-func (sf CallUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
+func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
 	item, err := sf.get(ctx, jwtauth.FromUserId(ctx))
 	if err != nil {
 		return errors.New("获取用户数据失败(代码202)")
@@ -220,7 +219,7 @@ func (sf CallUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error 
 	return nil
 }
 
-func (CallUser) get(_ context.Context, id int) (item SysUserView, err error) {
+func (cUser) get(_ context.Context, id int) (item UserView, err error) {
 	err = deployed.DB.Scopes(UserDB()).
 		Select([]string{"sys_user.*", "sys_role.role_name"}).
 		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").

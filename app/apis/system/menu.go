@@ -33,7 +33,7 @@ func (Menu) QueryTree(c *gin.Context) {
 		return
 	}
 
-	tree, err := new(models.CallMenu).QueryTree(gcontext.Context(c), qp)
+	tree, err := models.CMenu.QueryTree(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -51,7 +51,7 @@ func (Menu) QueryTree(c *gin.Context) {
 // @Security Bearer
 func (Menu) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	item, err := new(models.CallMenu).Get(gcontext.Context(c), id)
+	item, err := models.CMenu.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -81,7 +81,7 @@ func (Menu) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := new(models.CallMenu).Create(gcontext.Context(c), item)
+	result, err := models.CMenu.Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -107,7 +107,7 @@ func (Menu) Update(c *gin.Context) {
 		return
 	}
 
-	_, err := new(models.CallMenu).Update(gcontext.Context(c), up.MenuId, up)
+	_, err := models.CMenu.Update(gcontext.Context(c), up.MenuId, up)
 	if err != nil {
 		servers.Fail(c, 501, err.Error())
 		return
@@ -124,7 +124,7 @@ func (Menu) Update(c *gin.Context) {
 // @Router /api/v1/menus/{id} [delete]
 func (Menu) Delete(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	err := new(models.CallMenu).Delete(gcontext.Context(c), id)
+	err := models.CMenu.Delete(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
@@ -134,14 +134,14 @@ func (Menu) Delete(c *gin.Context) {
 
 func GetMenuTreeRoleselect(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("roleId"))
-	result, err := new(models.CallMenu).QueryLabelTree(gcontext.Context(c))
+	result, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
 	menuIds := make([]int, 0)
 	if id != 0 {
-		menuIds, err = new(models.CallRole).GetMenuIds(id)
+		menuIds, err = models.CRole.GetMenuIds(id)
 		if err != nil {
 			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 			return
@@ -164,7 +164,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 // @Router /api/v1/menuTreeselect [get]
 // @Security Bearer
 func GetMenuTreeselect(c *gin.Context) {
-	result, err := new(models.CallMenu).QueryLabelTree(gcontext.Context(c))
+	result, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -181,7 +181,7 @@ func GetMenuTreeselect(c *gin.Context) {
 // @Router /api/v1/menurole [get]
 // @Security Bearer
 func GetMenuRole(c *gin.Context) {
-	items, err := new(models.CallMenu).QueryTreeWithRoleName(gcontext.Context(c), jwtauth.RoleKey(c))
+	items, err := models.CMenu.QueryTreeWithRoleName(gcontext.Context(c), jwtauth.RoleKey(c))
 	if err != nil {
 		servers.Fail(c, 500, codes.GetFail)
 		return

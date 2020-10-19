@@ -13,8 +13,8 @@ type Login struct {
 	UUID     string `form:"uuid" json:"uuid" binding:"required"`
 }
 
-func (u *Login) GetUser() (user SysUser, role SysRole, err error) {
-	user, err = new(CallUser).GetWithName(context.Background(), u.Username)
+func (u *Login) GetUser() (user User, role Role, err error) {
+	user, err = new(cUser).GetWithName(context.Background(), u.Username)
 	if err != nil {
 		return
 	}
@@ -23,6 +23,6 @@ func (u *Login) GetUser() (user SysUser, role SysRole, err error) {
 	if err != nil {
 		return
 	}
-	role, err = new(CallRole).Get(context.Background(), user.RoleId)
+	role, err = new(cRole).Get(context.Background(), user.RoleId)
 	return
 }

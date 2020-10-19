@@ -114,12 +114,12 @@ func OperLog() gin.HandlerFunc {
 // 写入操作日志表
 // 该方法后续即将弃用
 func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration) {
-	menuList, _ := new(models.CallMenu).Query(gcontext.Context(c), models.MenuQueryParam{
+	menuList, _ := models.CMenu.Query(gcontext.Context(c), models.MenuQueryParam{
 		Path:   reqUri,
 		Action: reqMethod,
 	})
 
-	sysOperLog := models.SysOperLog{
+	sysOperLog := models.OperLog{
 		OperIp:        clientIP,
 		OperLocation:  deployed.IPLocation(clientIP),
 		Status:        cast.ToString(statusCode),
@@ -161,5 +161,5 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	} else {
 		sysOperLog.Status = "1"
 	}
-	new(models.CallSysOperLog).Create(context.Background(), sysOperLog) // nolint: errcheck
+	models.COperLog.Create(context.Background(), sysOperLog) // nolint: errcheck
 }
