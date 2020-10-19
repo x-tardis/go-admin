@@ -27,7 +27,7 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.LoginLog),
 		new(models.OperLog),
 		new(models.RoleMenu),
-		new(models.SysRoleDept),
+		new(models.RoleDept),
 		new(models.User),
 		new(models.Role),
 		new(models.Post),
@@ -38,7 +38,7 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.Setting),
 		new(models.SysFileDir),
 		new(models.SysFileInfo),
-		new(models.SysCategory),
+		new(models.Category),
 		new(models.SysContent),
 	)
 	if err != nil {

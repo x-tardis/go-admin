@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
@@ -14,7 +15,9 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
-func GetSysContentList(c *gin.Context) {
+type Content struct{}
+
+func (Content) QueryPage(c *gin.Context) {
 	var data models.SysContent
 
 	param := paginator.Param{
@@ -39,7 +42,7 @@ func GetSysContentList(c *gin.Context) {
 	}))
 }
 
-func GetSysContent(c *gin.Context) {
+func (Content) Get(c *gin.Context) {
 	var data models.SysContent
 	data.Id = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
@@ -59,7 +62,7 @@ func GetSysContent(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/syscontents [post]
-func InsertSysContent(c *gin.Context) {
+func (Content) Create(c *gin.Context) {
 	var data models.SysContent
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -75,7 +78,7 @@ func InsertSysContent(c *gin.Context) {
 	servers.OKWithRequestID(c, result, "")
 }
 
-func UpdateSysContent(c *gin.Context) {
+func (Content) Update(c *gin.Context) {
 	var data models.SysContent
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -91,12 +94,9 @@ func UpdateSysContent(c *gin.Context) {
 	servers.OKWithRequestID(c, result, "")
 }
 
-func DeleteSysContent(c *gin.Context) {
-	var data models.SysContent
-	data.Updator = jwtauth.UserIdStr(c)
-
-	IDS := infra.ParseIdsGroup(c.Param("id"))
-	_, err := data.BatchDelete(IDS)
+func (Content) BatchDelete(c *gin.Context) {
+	ids := infra.ParseIdsGroup(c.Param("ids"))
+	err := models.CContent.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return

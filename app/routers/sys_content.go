@@ -8,12 +8,13 @@ import (
 
 // 需认证的路由代码
 func SysContent(v1 gin.IRouter) {
+	ctl := new(syscontent.Content)
 	r := v1.Group("/syscontents")
 	{
-		r.GET("", syscontent.GetSysContentList)
-		r.GET("/:id", syscontent.GetSysContent)
-		r.POST("", syscontent.InsertSysContent)
-		r.PUT("", syscontent.UpdateSysContent)
-		r.DELETE("/:id", syscontent.DeleteSysContent)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }

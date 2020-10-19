@@ -1,9 +1,12 @@
 package models
 
 import (
+	"context"
+
 	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
+	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -28,6 +31,16 @@ type SysContent struct {
 func (SysContent) TableName() string {
 	return "sys_content"
 }
+
+func ContentDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(SysContent{})
+	}
+}
+
+type cContent struct{}
+
+var CContent = new(cContent)
 
 // 创建SysContent
 func (e *SysContent) Create() (SysContent, error) {
@@ -106,8 +119,8 @@ func (e *SysContent) Update(id int) (update SysContent, err error) {
 		return
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
@@ -115,20 +128,13 @@ func (e *SysContent) Update(id int) (update SysContent, err error) {
 }
 
 // 删除SysContent
-func (e *SysContent) Delete(id int) (success bool, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).Delete(&SysContent{}).Error; err != nil {
-		success = false
-		return
-	}
-	success = true
-	return
+func (cContent) Delete(_ context.Context, id int) error {
+	return deployed.DB.Scopes(ContentDB()).
+		Where("id = ?", id).Delete(&SysContent{}).Error
 }
 
-//批量删除
-func (e *SysContent) BatchDelete(id []int) (Result bool, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("id in (?)", id).Delete(&SysContent{}).Error; err != nil {
-		return
-	}
-	Result = true
-	return
+// 批量删除
+func (cContent) BatchDelete(_ context.Context, ids []int) error {
+	return deployed.DB.Scopes(ContentDB()).
+		Where("id in (?)", ids).Delete(&SysContent{}).Error
 }

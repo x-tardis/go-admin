@@ -190,14 +190,13 @@ func UpdateRoleDataScope(c *gin.Context) {
 
 	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 
-	var t models.SysRoleDept
-	_, err = t.DeleteRoleDept(up.RoleId)
+	err = models.CRoleDept.DeleteRoleDept(up.RoleId)
 	if err != nil {
 		servers.Fail(c, -1, codes.CreatedFail)
 		return
 	}
 	if up.DataScope == "2" {
-		_, err := t.Insert(up.RoleId, up.DeptIds)
+		err := models.CRoleDept.Create(up.RoleId, up.DeptIds)
 		if err != nil {
 			servers.Fail(c, -1, codes.CreatedFail)
 			return

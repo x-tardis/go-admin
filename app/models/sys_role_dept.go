@@ -9,22 +9,26 @@ import (
 )
 
 //sys_role_dept
-type SysRoleDept struct {
+type RoleDept struct {
 	RoleId int `gorm:""`
 	DeptId int `gorm:""`
 }
 
-func (SysRoleDept) TableName() string {
+func (RoleDept) TableName() string {
 	return "sys_role_dept"
 }
 
 func RoleDeptDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(SysRoleDept{})
+		return db.Model(RoleDept{})
 	}
 }
 
-func (rm *SysRoleDept) Insert(roleId int, deptIds []int) (bool, error) {
+type cRoleDept struct{}
+
+var CRoleDept = new(cRoleDept)
+
+func (cRoleDept) Create(roleId int, deptIds []int) error {
 	// ORM不支持批量插入所以需要拼接 sql 串
 	sql := "INSERT INTO `sys_role_dept` (`role_id`,`dept_id`) VALUES "
 
@@ -38,17 +42,10 @@ func (rm *SysRoleDept) Insert(roleId int, deptIds []int) (bool, error) {
 	}
 	deployed.DB.Exec(sql)
 
-	return true, nil
+	return nil
 }
 
-func (rm *SysRoleDept) DeleteRoleDept(roleId int) (bool, error) {
-	if err := deployed.DB.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
-		return false, err
-	}
-	var role Role
-	if err := deployed.DB.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
-		return false, err
-	}
-
-	return true, nil
+func (cRoleDept) DeleteRoleDept(roleId int) error {
+	return deployed.DB.Scopes(RoleDeptDB()).
+		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
 }
