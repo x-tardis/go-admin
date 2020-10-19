@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -16,25 +17,28 @@ import (
 type Menu struct{}
 
 // @Summary Menu列表数据
-// @Description 获取JSON
+// @Description 获取Menu tree
 // @Tags 菜单
 // @Param menuName query string false "menuName"
+// @Param visible query string false "visible"
+// @Param title query string false "title"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menus [get]
 // @Security Bearer
-func (Menu) QueryPage(c *gin.Context) {
-	var Menu models.Menu
-	Menu.MenuName = c.Request.FormValue("menuName")
-	Menu.Visible = c.Request.FormValue("visible")
-	Menu.Title = c.Request.FormValue("title")
-	Menu.DataScope = jwtauth.UserIdStr(c)
-	result, err := Menu.SetMenu()
+func (Menu) QueryTree(c *gin.Context) {
+	qp := models.MenuQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
+
+	tree, err := new(models.CallMenu).QueryTree(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(tree))
 }
 
 // @Summary Menu列表数据
@@ -46,19 +50,18 @@ func (Menu) QueryPage(c *gin.Context) {
 // @Router /api/v1/menus/{id} [get]
 // @Security Bearer
 func (Menu) Get(c *gin.Context) {
-	var data models.Menu
 	id := cast.ToInt(c.Param("id"))
-	result, err := data.GetByMenuId(id)
+	item, err := new(models.CallMenu).Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
+// @Tags 菜单
 // @Summary 创建菜单
 // @Description 获取JSON
-// @Tags 菜单
 // @Accept  application/x-www-form-urlencoded
 // @Product application/x-www-form-urlencoded
 // @Param menuName formData string true "menuName"
@@ -72,14 +75,13 @@ func (Menu) Get(c *gin.Context) {
 // @Router /api/v1/menus [post]
 // @Security Bearer
 func (Menu) Create(c *gin.Context) {
-	var data models.Menu
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	item := models.Menu{}
+	if err := c.ShouldBindJSON(&item); err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
-	result, err := data.Create()
+
+	result, err := new(models.CallMenu).Create(gcontext.Context(c), item)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -87,46 +89,42 @@ func (Menu) Create(c *gin.Context) {
 	servers.OKWithRequestID(c, result, "")
 }
 
+// @Tags 菜单
 // @Summary 修改菜单
 // @Description 获取JSON
-// @Tags 菜单
-// @Accept  application/x-www-form-urlencoded
-// @Product application/x-www-form-urlencoded
+// @Accept  application/json
+// @Product application/json
 // @Param id path int true "id"
 // @Param data body models.Menu true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
-// @Router /api/v1/menus/{id} [put]
+// @Router /api/v1/menus [put]
 // @Security Bearer
 func (Menu) Update(c *gin.Context) {
-	var data models.Menu
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	up := models.Menu{}
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	_, err := data.Update(data.MenuId)
+
+	_, err := new(models.CallMenu).Update(gcontext.Context(c), up.MenuId, up)
 	if err != nil {
 		servers.Fail(c, 501, err.Error())
 		return
 	}
 	servers.OKWithRequestID(c, "", "修改成功")
-
 }
 
-// @Summary 删除菜单
-// @Description 删除数据
 // @Tags 菜单
+// @Summary 删除菜单
+// @Description 删除菜单
 // @Param id path int true "id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/menus/{id} [delete]
 func (Menu) Delete(c *gin.Context) {
-	var data models.Menu
 	id := cast.ToInt(c.Param("id"))
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	err := data.Delete(id)
+	err := new(models.CallMenu).Delete(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
@@ -135,10 +133,9 @@ func (Menu) Delete(c *gin.Context) {
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
-	var Menu models.Menu
 	var SysRole models.SysRole
 	id, err := strconv.Atoi(c.Param("roleId"))
-	result, err := Menu.SetMenuLabel()
+	result, err := new(models.CallMenu).QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -167,9 +164,8 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/menuTreeselect [get]
 // @Security Bearer
-func GetMenuTreeelect(c *gin.Context) {
-	var data models.Menu
-	result, err := data.SetMenuLabel()
+func GetMenuTreeselect(c *gin.Context) {
+	result, err := new(models.CallMenu).QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -186,13 +182,12 @@ func GetMenuTreeelect(c *gin.Context) {
 // @Router /api/v1/menurole [get]
 // @Security Bearer
 func GetMenuRole(c *gin.Context) {
-	var Menu models.Menu
-	result, err := Menu.SetMenuRole(jwtauth.RoleKey(c))
+	items, err := new(models.CallMenu).QueryTreeWithRoleName(gcontext.Context(c), jwtauth.RoleKey(c))
 	if err != nil {
 		servers.Fail(c, 500, codes.GetFail)
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(items))
 }
 
 // @Summary 获取角色对应的菜单id数组

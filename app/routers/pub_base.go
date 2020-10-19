@@ -10,7 +10,7 @@ import (
 
 func PubBase(v1 gin.IRouter) {
 	v1.GET("/captcha", system.GetCaptcha)
-	v1.GET("/menuTreeselect", system.GetMenuTreeelect)
+	v1.GET("/menuTreeselect", system.GetMenuTreeselect)
 	v1.GET("/dict/databytype/:dictType", new(dict.DictData).GetWithType)
 	r := v1.Group("/gen")
 	{

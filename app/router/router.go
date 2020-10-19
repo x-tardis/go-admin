@@ -11,6 +11,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cast"
 	"github.com/thinkgos/gin-middlewares/gzap"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/apis/auth"
 	"github.com/x-tardis/go-admin/app/apis/system"
@@ -113,10 +114,11 @@ func OperLog() gin.HandlerFunc {
 // 写入操作日志表
 // 该方法后续即将弃用
 func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration) {
-	menu := models.Menu{}
-	menu.Path = reqUri
-	menu.Action = reqMethod
-	menuList, _ := menu.Get()
+	menuList, _ := new(models.CallMenu).Query(gcontext.Context(c), models.MenuQueryParam{
+		Path:   reqUri,
+		Action: reqMethod,
+	})
+
 	sysOperLog := models.SysOperLog{
 		OperIp:        clientIP,
 		OperLocation:  deployed.IPLocation(clientIP),

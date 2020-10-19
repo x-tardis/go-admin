@@ -10,7 +10,7 @@ func Menu(v1 gin.IRouter) {
 	ctl := new(system.Menu)
 	r := v1.Group("/menus")
 	{
-		r.GET("", ctl.QueryPage)
+		r.GET("", ctl.QueryTree)
 		r.GET("/:id", ctl.Get)
 		r.POST("", ctl.Create)
 		r.PUT("", ctl.Update)

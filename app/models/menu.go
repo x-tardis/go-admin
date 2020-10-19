@@ -1,11 +1,14 @@
 package models
 
 import (
+	"context"
 	"errors"
 
 	"github.com/spf13/cast"
+	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 type Menu struct {
@@ -39,8 +42,30 @@ func (Menu) TableName() string {
 	return "sys_menu"
 }
 
-// MenuTreeList 目录树
-func MenuTreeList(items []Menu) []Menu {
+func MenuDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(Menu{})
+	}
+}
+
+type MenuQueryParam struct {
+	MenuName string `form:"menuName"`
+	Path     string `form:"path"`
+	Action   string `form:"action"`
+	MenuType string `form:"menuType"`
+	Visible  string `form:"visible"`
+	Title    string `form:"title"`
+}
+type MenuLabel struct {
+	Id       int         `json:"id" gorm:"-"`
+	Label    string      `json:"label" gorm:"-"`
+	Children []MenuLabel `json:"children" gorm:"-"`
+}
+
+type CallMenu struct{}
+
+// toMenuTree 目录树
+func toMenuTree(items []Menu) []Menu {
 	tree := make([]Menu, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
@@ -64,14 +89,8 @@ func deepChildrenMenu(items []Menu, item Menu) Menu {
 	return item
 }
 
-type MenuLabel struct {
-	Id       int         `json:"id" gorm:"-"`
-	Label    string      `json:"label" gorm:"-"`
-	Children []MenuLabel `json:"children" gorm:"-"`
-}
-
-// MenuLabelTreeList 目录Lable树
-func MenuLabelTreeList(items []Menu) []MenuLabel {
+// toMenuLabelTree 目录Label树
+func toMenuLabelTree(items []Menu) []MenuLabel {
 	tree := make([]MenuLabel, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
@@ -104,158 +123,167 @@ func deepChildrenMenuLabel(items []Menu, item MenuLabel) MenuLabel {
 	return item
 }
 
-type Menus struct {
-	MenuId     int    `json:"menuId" gorm:"column:menu_id;primary_key;"`
-	MenuName   string `json:"menuName" gorm:"column:menu_name"`
-	Title      string `json:"title" gorm:"column:title"`
-	Icon       string `json:"icon" gorm:"column:icon"`
-	Path       string `json:"path" gorm:"column:path"`
-	MenuType   string `json:"menuType" gorm:"column:menu_type"`
-	Action     string `json:"action" gorm:"column:action"`
-	Permission string `json:"permission" gorm:"column:permission"`
-	ParentId   int    `json:"parentId" gorm:"column:parent_id"`
-	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
-	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
-	Component  string `json:"component" gorm:"column:component"`
-	Sort       int    `json:"sort" gorm:"column:sort"`
+//
+// type Menus struct {
+// 	MenuId     int    `json:"menuId" gorm:"column:menu_id;primary_key;"`
+// 	MenuName   string `json:"menuName" gorm:"column:menu_name"`
+// 	Title      string `json:"title" gorm:"column:title"`
+// 	Icon       string `json:"icon" gorm:"column:icon"`
+// 	Path       string `json:"path" gorm:"column:path"`
+// 	MenuType   string `json:"menuType" gorm:"column:menu_type"`
+// 	Action     string `json:"action" gorm:"column:action"`
+// 	Permission string `json:"permission" gorm:"column:permission"`
+// 	ParentId   int    `json:"parentId" gorm:"column:parent_id"`
+// 	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
+// 	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
+// 	Component  string `json:"component" gorm:"column:component"`
+// 	Sort       int    `json:"sort" gorm:"column:sort"`
+//
+// 	Visible  string `json:"visible" gorm:"column:visible"`
+// 	Children []Menu `json:"children" gorm:"-"`
+//
+// 	CreateBy  string `json:"createBy" gorm:"column:create_by"`
+// 	UpdateBy  string `json:"updateBy" gorm:"column:update_by"`
+// 	DataScope string `json:"dataScope" gorm:"-"`
+// 	Params    string `json:"params" gorm:"-"`
+// 	Model
+// }
+//
+// func (Menus) TableName() string {
+// 	return "sys_menu"
+// }
 
-	Visible  string `json:"visible" gorm:"column:visible"`
-	Children []Menu `json:"children" gorm:"-"`
+// type MenuRole struct {
+// 	Menus
+// 	IsSelect bool `json:"is_select" gorm:"-"`
+// }
+//
+// func (*MenuRole) Get(menuName string) (items []MenuRole, err error) {
+// 	db := deployed.DB.Scopes(MenuDB())
+// 	if menuName != "" {
+// 		db = db.Where("menu_name = ?", menuName)
+// 	}
+// 	err = db.Order("sort").Find(&items).Error
+// 	return
+// }
 
-	CreateBy  string `json:"createBy" gorm:"column:create_by"`
-	UpdateBy  string `json:"updateBy" gorm:"column:update_by"`
-	DataScope string `json:"dataScope" gorm:"-"`
-	Params    string `json:"params" gorm:"-"`
-	Model
-}
-
-func (Menus) TableName() string {
-	return "sys_menu"
-}
-
-type MenuRole struct {
-	Menus
-	IsSelect bool `json:"is_select" gorm:"-"`
-}
-
-func (e *Menu) GetByMenuId(id int) (Menu Menu, err error) {
-	table := deployed.DB.Table(e.TableName())
-	err = table.Where("menu_id = ?", id).Find(&Menu).Error
-	return
-}
-
-func (e *Menu) SetMenu() (m []Menu, err error) {
-	menuList, err := e.GetPage()
+func (sf CallMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, err error) {
+	items, err := sf.QueryPage(ctx, qp)
 	if err != nil {
 		return nil, err
 	}
-
-	return MenuTreeList(menuList), nil
+	return toMenuTree(items), nil
 }
 
-func (e *Menu) SetMenuLabel() (m []MenuLabel, err error) {
-	menuList, err := e.Get()
+func (sf CallMenu) QueryTreeWithRoleName(ctx context.Context, roleName string) ([]Menu, error) {
+	items, err := sf.QueryWithRoleName(ctx, roleName)
 	if err != nil {
 		return nil, err
 	}
-	return MenuLabelTreeList(menuList), nil
+	return toMenuTree(items), nil
 }
 
-func (e *Menu) SetMenuRole(rolename string) ([]Menu, error) {
-	menulist, err := e.GetByRoleName(rolename)
+func (CallMenu) QueryWithRoleName(_ context.Context, roleName string) (items []Menu, err error) {
+	err = deployed.DB.Scopes(MenuDB()).
+		Select("sys_menu.*").
+		Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id").
+		Where("sys_role_menu.role_name=? and menu_type in ('M','C')", roleName).
+		Order("sort").Find(&items).Error
+	return
+}
+
+func (sf CallMenu) QueryLabelTree(ctx context.Context) (m []MenuLabel, err error) {
+	items, err := sf.Query(ctx, MenuQueryParam{})
 	if err != nil {
 		return nil, err
 	}
-	return MenuTreeList(menulist), nil
+	return toMenuLabelTree(items), nil
 }
 
-func (e *MenuRole) Get() (Menus []MenuRole, err error) {
-	table := deployed.DB.Table(e.TableName())
-	if e.MenuName != "" {
-		table = table.Where("menu_name = ?", e.MenuName)
+func (CallMenu) Query(_ context.Context, qp MenuQueryParam) (items []Menu, err error) {
+	db := deployed.DB.Scopes(MenuDB())
+	if qp.MenuName != "" {
+		db = db.Where("menu_name=?", qp.MenuName)
 	}
-	if err = table.Order("sort").Find(&Menus).Error; err != nil {
-		return
+	if qp.Path != "" {
+		db = db.Where("path=?", qp.Path)
 	}
+	if qp.Action != "" {
+		db = db.Where("action=?", qp.Action)
+	}
+	if qp.MenuType != "" {
+		db = db.Where("menu_type=?", qp.MenuType)
+	}
+	err = db.Order("sort").Find(&items).Error
 	return
 }
 
-func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
-	table := deployed.DB.Table(e.TableName()).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
-	table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", rolename)
-	if err = table.Order("sort").Find(&Menus).Error; err != nil {
-		return
+func (CallMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, err error) {
+	db := deployed.DB.Scopes(MenuDB())
+	if qp.MenuName != "" {
+		db = db.Where("menu_name=?", qp.MenuName)
 	}
-	return
-}
-
-func (e *Menu) Get() (Menus []Menu, err error) {
-	table := deployed.DB.Table(e.TableName())
-	if e.MenuName != "" {
-		table = table.Where("menu_name = ?", e.MenuName)
+	if qp.Title != "" {
+		db = db.Where("title=?", qp.Title)
 	}
-	if e.Path != "" {
-		table = table.Where("path = ?", e.Path)
+	if qp.Visible != "" {
+		db = db.Where("visible=?", qp.Visible)
 	}
-	if e.Action != "" {
-		table = table.Where("action = ?", e.Action)
-	}
-	if e.MenuType != "" {
-		table = table.Where("menu_type = ?", e.MenuType)
-	}
-
-	if err = table.Order("sort").Find(&Menus).Error; err != nil {
-		return
-	}
-	return
-}
-
-func (e *Menu) GetPage() (Menus []Menu, err error) {
-	table := deployed.DB.Table(e.TableName())
-	if e.MenuName != "" {
-		table = table.Where("menu_name = ?", e.MenuName)
-	}
-	if e.Title != "" {
-		table = table.Where("title = ?", e.Title)
-	}
-	if e.Visible != "" {
-		table = table.Where("visible = ?", e.Visible)
-	}
-	if e.MenuType != "" {
-		table = table.Where("menu_type = ?", e.MenuType)
+	if qp.MenuType != "" {
+		db = db.Where("menu_type=?", qp.MenuType)
 	}
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId = cast.ToInt(e.DataScope)
-	table, err = dataPermission.GetDataScope("sys_menu", table)
+	dataPermission.UserId = jwtauth.FromUserId(ctx)
+	db, err = dataPermission.GetDataScope("sys_menu", db)
 	if err != nil {
 		return nil, err
 	}
-	if err = table.Order("sort").Find(&Menus).Error; err != nil {
-		return
-	}
+
+	err = db.Order("sort").Find(&items).Error
 	return
 }
 
-func (e *Menu) Create() (id int, err error) {
-	result := deployed.DB.Table(e.TableName()).Create(&e)
-	if result.Error != nil {
-		err = result.Error
-		return
-	}
-	err = InitPaths(e)
-	if err != nil {
-		return
-	}
-	id = e.MenuId
+func (CallMenu) Get(ctx context.Context, id int) (item Menu, err error) {
+	err = deployed.DB.Scopes(MenuDB()).Where("menu_id=?", id).Find(&item).Error
 	return
+}
+func (CallMenu) Create(ctx context.Context, item Menu) (Menu, error) {
+	item.CreateBy = jwtauth.FromUserIdStr(ctx)
+	err := deployed.DB.Scopes(MenuDB()).Create(&item).Error
+	if err != nil {
+		return item, err
+	}
+	err = InitPaths(&item)
+	return item, err
+}
+
+func (CallMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
+	up.UpdateBy = jwtauth.FromUserIdStr(ctx)
+	if err = deployed.DB.Scopes(MenuDB()).First(&item, id).Error; err != nil {
+		return
+	}
+
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
+	if err = deployed.DB.Scopes(MenuDB()).Model(&item).Updates(&up).Error; err != nil {
+		return
+	}
+	err = InitPaths(&up)
+	return
+}
+
+func (CallMenu) Delete(_ context.Context, id int) error {
+	return deployed.DB.Scopes(MenuDB()).
+		Where("menu_id=?", id).Delete(&Menu{}).Error
 }
 
 func InitPaths(menu *Menu) (err error) {
 	parentMenu := new(Menu)
 	if menu.ParentId != 0 {
-		deployed.DB.Table("sys_menu").Where("menu_id = ?", menu.ParentId).First(parentMenu)
+		deployed.DB.Scopes(MenuDB()).
+			Where("menu_id = ?", menu.ParentId).First(parentMenu)
 		if parentMenu.Paths == "" {
 			return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 		}
@@ -263,23 +291,6 @@ func InitPaths(menu *Menu) (err error) {
 	} else {
 		menu.Paths = "/0/" + cast.ToString(menu.MenuId)
 	}
-	return deployed.DB.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths).Error
-}
-
-func (e *Menu) Update(id int) (update Menu, err error) {
-	if err = deployed.DB.Table(e.TableName()).First(&update, id).Error; err != nil {
-		return
-	}
-
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
-	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-		return
-	}
-	err = InitPaths(e)
-	return
-}
-
-func (e *Menu) Delete(id int) error {
-	return deployed.DB.Table(e.TableName()).Where("menu_id = ?", id).Delete(&Menu{}).Error
+	return deployed.DB.Scopes(MenuDB()).
+		Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths).Error
 }
