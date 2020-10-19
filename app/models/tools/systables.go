@@ -68,11 +68,11 @@ func (e *SysTables) GetPage(param paginator.Param) ([]SysTables, paginator.Info,
 		table = table.Where("table_comment = ?", e.TableComment)
 	}
 
-	ifc, err := iorm.QueryPages(table, param, &doc)
+	info, err := iorm.QueryPages(table, param, &doc)
 	if err != nil {
-		return nil, ifc, err
+		return nil, info, err
 	}
-	return doc, ifc, nil
+	return doc, info, nil
 }
 
 func (e *SysTables) Get() (SysTables, error) {

@@ -25,9 +25,7 @@ func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, err
 		fmt.Printf("%s\n", usageStr)
 		return db, nil
 	}
-	SysUser := new(SysUser)
-	SysUser.UserId = e.UserId
-	user, err := SysUser.Get()
+	user, err := new(CallUser).Get(context.Background(), e.UserId)
 	if err != nil {
 		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
 	}
@@ -54,9 +52,7 @@ func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, err
 
 func DataScopes(tableName string, userid int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		SysUser := new(SysUser)
-		SysUser.UserId = userid
-		user, err := SysUser.Get()
+		user, err := new(CallUser).Get(context.Background(), userid)
 		if err != nil {
 			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
 			return db

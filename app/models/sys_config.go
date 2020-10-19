@@ -84,8 +84,8 @@ func (CallSysConfig) QueryPage(ctx context.Context, qp SysConfigQueryParam) ([]S
 		return nil, paginator.Info{}, err
 	}
 
-	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	return items, ifc, err
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
 // Config 创建

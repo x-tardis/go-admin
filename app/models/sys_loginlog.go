@@ -71,8 +71,8 @@ func (CallLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]Login
 	}
 	db = db.Order("info_id desc")
 
-	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	return items, ifc, err
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
 func (CallLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {

@@ -35,13 +35,13 @@ func (OperLog) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	result, ifc, err := new(models.CallSysOperLog).QueryPage(gcontext.Context(c), qp)
+	result, info, err := new(models.CallSysOperLog).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
-		Info: ifc,
+		Info: info,
 		List: result,
 	}))
 }

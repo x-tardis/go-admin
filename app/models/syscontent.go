@@ -93,11 +93,11 @@ func (e *SysContent) GetPage(param paginator.Param) ([]SysContent, paginator.Inf
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}
-	ifc, err := iorm.QueryPages(table, param, &doc)
+	info, err := iorm.QueryPages(table, param, &doc)
 	if err != nil {
-		return nil, ifc, err
+		return nil, info, err
 	}
-	return doc, ifc, err
+	return doc, info, err
 }
 
 // 更新SysContent

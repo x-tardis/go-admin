@@ -72,11 +72,11 @@ func (e *SysFileInfo) GetPage(param paginator.Param) ([]SysFileInfo, paginator.I
 	//if err != nil {
 	//	return nil, paginator.Info{}, err
 	//}
-	ifc, err := iorm.QueryPages(table, param, &doc)
+	info, err := iorm.QueryPages(table, param, &doc)
 	if err != nil {
-		return nil, ifc, err
+		return nil, info, err
 	}
-	return doc, ifc, err
+	return doc, info, err
 }
 
 // 更新SysFileInfo

@@ -83,11 +83,11 @@ func (e *SysCategory) GetPage(param paginator.Param) ([]SysCategory, paginator.I
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}
-	ifc, err := iorm.QueryPages(table, param, &doc)
+	info, err := iorm.QueryPages(table, param, &doc)
 	if err != nil {
-		return nil, ifc, nil
+		return nil, info, nil
 	}
-	return doc, ifc, nil
+	return doc, info, nil
 }
 
 // 更新SysCategory

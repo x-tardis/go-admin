@@ -34,13 +34,13 @@ func (Post) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	items, ifc, err := new(models.CallPost).QueryPage(gcontext.Context(c), qp)
+	items, info, err := new(models.CallPost).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
-		Info: ifc,
+		Info: info,
 		List: items,
 	}))
 }

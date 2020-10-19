@@ -28,34 +28,21 @@ type User struct{}
 // @Router /api/v1/users [get]
 // @Security Bearer
 func (User) QueryPage(c *gin.Context) {
-	var data models.SysUser
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+	qp := models.UserQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	data.Username = c.Request.FormValue("username")
-	data.Status = c.Request.FormValue("status")
-	data.Phone = c.Request.FormValue("phone")
-
-	postId := c.Request.FormValue("postId")
-	data.PostId = cast.ToInt(postId)
-
-	deptId := c.Request.FormValue("deptId")
-	data.DeptId = cast.ToInt(deptId)
-
-	data.DataScope = jwtauth.UserIdStr(c)
-
-	result, pInfo, err := data.GetPage(param)
+	items, info, err := new(models.CallUser).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
-		Info: pInfo,
-		List: result,
+		Info: info,
+		List: items,
 	}))
 }
 
@@ -67,9 +54,8 @@ func (User) QueryPage(c *gin.Context) {
 // @Router /api/v1/users/{id} [get]
 // @Security Bearer
 func (User) Get(c *gin.Context) {
-	var SysUser models.SysUser
-	SysUser.UserId = cast.ToInt(c.Param("id"))
-	result, err := SysUser.Get()
+	id := cast.ToInt(c.Param("id"))
+	result, err := new(models.CallUser).Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -99,10 +85,7 @@ func (User) Get(c *gin.Context) {
 // @Router /api/v1/user/profile [get]
 // @Security Bearer
 func (User) GetProfile(c *gin.Context) {
-	var SysUser models.SysUser
-
-	SysUser.UserId = jwtauth.UserId(c)
-	result, err := SysUser.Get()
+	result, err := new(models.CallUser).GetUserInfo(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -161,20 +144,18 @@ func (User) GetInit(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/users [post]
 func (User) Create(c *gin.Context) {
-	var sysuser models.SysUser
-
-	if err := c.ShouldBindJSON(&sysuser); err != nil {
+	newItem := models.SysUser{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, 500, codes.DataParseFailed)
 		return
 	}
 
-	sysuser.Creator = jwtauth.UserIdStr(c)
-	id, err := sysuser.Insert()
+	_, err := new(models.CallUser).Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, 500, codes.CreatedFail)
 		return
 	}
-	servers.OKWithRequestID(c, id, codes.CreatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.CreatedSuccess))
 }
 
 // @Summary 修改用户数据
@@ -210,16 +191,13 @@ func (User) Update(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/users/{ids} [delete]
 func (User) BatchDelete(c *gin.Context) {
-	var data models.SysUser
-
-	data.Updator = jwtauth.UserIdStr(c)
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	result, err := data.BatchDelete(ids)
+	err := new(models.CallUser).BatchDelete(ids)
 	if err != nil {
 		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.DeletedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
 }
 
 // @Summary 修改头像
@@ -249,14 +227,16 @@ func (User) UploadAvatar(c *gin.Context) {
 }
 
 func (User) UpdatePassword(c *gin.Context) {
-	var pwd models.SysUserPwd
-	err := c.Bind(&pwd)
-	if err != nil {
+	upPwd := models.UpdateUserPwd{}
+	if err := c.ShouldBindJSON(&upPwd); err != nil {
 		servers.Fail(c, 500, codes.UpdatedFail)
 		return
 	}
-	sysuser := models.SysUser{}
-	sysuser.UserId = jwtauth.UserId(c)
-	sysuser.SetPwd(pwd)
+
+	err := new(models.CallUser).UpdatePassword(gcontext.Context(c), upPwd)
+	if err != nil {
+		servers.Fail(c, http.StatusOK, "密码更新失败")
+		return
+	}
 	servers.OKWithRequestID(c, "", "密码修改成功")
 }

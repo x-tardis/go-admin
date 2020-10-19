@@ -87,8 +87,8 @@ func (CallSysOperLog) QueryPage(_ context.Context, qp SysOperLogQueryParam) ([]S
 		db = db.Where("business_type=?", qp.BusinessType)
 	}
 
-	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	return items, ifc, err
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
 func (CallSysOperLog) Create(_ context.Context, item SysOperLog) (SysOperLog, error) {

@@ -41,11 +41,11 @@ func (e *DBColumns) GetPage(param paginator.Param) ([]DBColumns, paginator.Info,
 		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
 
-	ifc, err := iorm.QueryPages(table, param, &doc)
+	info, err := iorm.QueryPages(table, param, &doc)
 	if err != nil {
-		return nil, ifc, err
+		return nil, info, err
 	}
-	return doc, ifc, err
+	return doc, info, err
 }
 
 func (e *DBColumns) GetList() ([]DBColumns, error) {

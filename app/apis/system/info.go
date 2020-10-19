@@ -2,6 +2,7 @@ package system
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -32,9 +33,7 @@ func GetInfo(c *gin.Context) {
 		mp["buttons"] = list
 	}
 
-	sysuser := models.SysUser{}
-	sysuser.UserId = jwtauth.UserId(c)
-	user, err := sysuser.Get()
+	user, err := new(models.CallUser).GetUserInfo(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, 500, err.Error())
 		return

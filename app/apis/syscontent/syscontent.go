@@ -28,13 +28,13 @@ func GetSysContentList(c *gin.Context) {
 	data.Status = c.Request.FormValue("status")
 
 	data.DataScope = jwtauth.UserIdStr(c)
-	result, ifc, err := data.GetPage(param)
+	result, info, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
-		Info: ifc,
+		Info: info,
 		List: result,
 	}))
 }

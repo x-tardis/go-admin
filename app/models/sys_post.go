@@ -89,8 +89,8 @@ func (CallPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, pagin
 		return nil, paginator.Info{}, err
 	}
 
-	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	return items, ifc, err
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
 func (CallPost) Create(ctx context.Context, item Post) (Post, error) {

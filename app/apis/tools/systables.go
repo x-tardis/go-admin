@@ -34,14 +34,14 @@ func GetSysTableList(c *gin.Context) {
 
 	data.TBName = c.Request.FormValue("tableName")
 	data.TableComment = c.Request.FormValue("tableComment")
-	result, ifc, err := data.GetPage(param)
+	result, info, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
-		Info: ifc,
+		Info: info,
 		List: result,
 	}))
 }

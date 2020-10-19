@@ -1,8 +1,8 @@
 package models
 
 import (
+	"context"
 	"errors"
-	"strings"
 
 	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/core/paginator"
@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 // User
@@ -77,7 +78,7 @@ func UserDB() func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-type SysUserPwd struct {
+type UpdateUserPwd struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`
 }
@@ -96,74 +97,30 @@ type SysUserView struct {
 	RoleName string `gorm:"column:role_name"  json:"role_name"`
 }
 
-// 获取用户数据
-func (e *SysUser) Get() (SysUserView SysUserView, err error) {
-
-	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
-	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
-	if e.UserId != 0 {
-		table = table.Where("user_id = ?", e.UserId)
-	}
-
-	if e.Username != "" {
-		table = table.Where("username = ?", e.Username)
-	}
-
-	if e.Password != "" {
-		table = table.Where("password = ?", e.Password)
-	}
-
-	if e.RoleId != 0 {
-		table = table.Where("role_id = ?", e.RoleId)
-	}
-
-	if e.DeptId != 0 {
-		table = table.Where("dept_id = ?", e.DeptId)
-	}
-
-	if e.PostId != 0 {
-		table = table.Where("post_id = ?", e.PostId)
-	}
-
-	if err = table.First(&SysUserView).Error; err != nil {
-		return
-	}
-
-	SysUserView.Password = ""
-	return
+type UserQueryParam struct {
+	Username string `form:"username"`
+	Status   string `form:"status"`
+	Phone    string `form:"phone"`
+	PostId   int    `form:"postId"`
+	DeptId   int    `form:"deptId"`
+	paginator.Param
 }
 
-func (e *SysUser) GetUserInfo() (SysUserView SysUserView, err error) {
-	table := deployed.DB.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
-	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
-	if e.UserId != 0 {
-		table = table.Where("user_id = ?", e.UserId)
-	}
+type CallUser struct{}
 
-	if e.Username != "" {
-		table = table.Where("username = ?", e.Username)
+// 获取用户数据
+func (sf CallUser) Get(ctx context.Context, id int) (SysUserView, error) {
+	item, err := sf.getUserInfo(ctx, id)
+	if err != nil {
+		return SysUserView{}, err
 	}
+	item.Password = ""
+	return item, err
+}
 
-	if e.Password != "" {
-		table = table.Where("password = ?", e.Password)
-	}
-
-	if e.RoleId != 0 {
-		table = table.Where("role_id = ?", e.RoleId)
-	}
-
-	if e.DeptId != 0 {
-		table = table.Where("dept_id = ?", e.DeptId)
-	}
-
-	if e.PostId != 0 {
-		table = table.Where("post_id = ?", e.PostId)
-	}
-
-	if err = table.First(&SysUserView).Error; err != nil {
-		return
-	}
-	return
+// 获取用户数据
+func (sf CallUser) GetUserInfo(ctx context.Context) (SysUserView, error) {
+	return sf.Get(ctx, jwtauth.FromUserId(ctx))
 }
 
 func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
@@ -199,38 +156,36 @@ func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
 	return
 }
 
-func (e *SysUser) GetPage(param paginator.Param) ([]SysUserPage, paginator.Info, error) {
-	var doc []SysUserPage
-	table := deployed.DB.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
-	table = table.Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
+func (CallUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]SysUserPage, paginator.Info, error) {
+	var items []SysUserPage
 
-	if e.Username != "" {
-		table = table.Where("username = ?", e.Username)
-	}
-	if e.Status != "" {
-		table = table.Where("sys_user.status = ?", e.Status)
-	}
+	db := deployed.DB.Scopes(UserDB()).
+		Select("sys_user.*,sys_dept.dept_name").
+		Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
 
-	if e.Phone != "" {
-		table = table.Where("sys_user.phone = ?", e.Phone)
+	if qp.Username != "" {
+		db = db.Where("username=?", qp.Username)
 	}
-
-	if e.DeptId != 0 {
-		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+cast.ToString(e.DeptId)+"%")
+	if qp.Status != "" {
+		db = db.Where("sys_user.status=?", qp.Status)
+	}
+	if qp.Phone != "" {
+		db = db.Where("sys_user.phone=?", qp.Phone)
+	}
+	if qp.DeptId != 0 {
+		db = db.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+cast.ToString(qp.DeptId)+"%")
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
-	dataPermission.UserId = cast.ToInt(e.DataScope)
-	table, err := dataPermission.GetDataScope(e.TableName(), table)
+	dataPermission.UserId = jwtauth.FromUserId(ctx)
+	db, err := dataPermission.GetDataScope("sys_user", db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}
-	ifc, err := iorm.QueryPages(table, param, &doc)
-	if err != nil {
-		return nil, ifc, err
-	}
-	return doc, ifc, nil
+
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
 // 加密
@@ -248,25 +203,24 @@ func (e *SysUser) Encrypt() error {
 }
 
 // 添加
-func (e SysUser) Insert() (id int, err error) {
-	if err = e.Encrypt(); err != nil {
-		return
-	}
+func (CallUser) Create(ctx context.Context, item SysUser) (SysUser, error) {
+	var count int64
+	var err error
 
 	// check 用户名
-	var count int64
-	deployed.DB.Table(e.TableName()).Where("username = ?", e.Username).Count(&count)
+	deployed.DB.Scopes(UserDB()).Where("username=?", item.Username).Count(&count)
 	if count > 0 {
-		err = errors.New("账户已存在！")
-		return
+		return item, errors.New("账户已存在！")
 	}
 
-	// 添加数据
-	if err = deployed.DB.Table(e.TableName()).Create(&e).Error; err != nil {
-		return
+	item.Password, err = deployed.Verify.Hash(item.Password, "")
+	if err != nil {
+		return item, err
 	}
-	id = e.UserId
-	return
+	item.Creator = jwtauth.FromUserIdStr(ctx)
+	// 添加数据
+	err = deployed.DB.Table(item.TableName()).Create(&item).Error
+	return item, err
 }
 
 // 修改
@@ -291,34 +245,39 @@ func (e *SysUser) Update(id int) (update SysUser, err error) {
 	return
 }
 
-func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("user_id in (?)", id).Delete(&SysUser{}).Error; err != nil {
-		return
+func (CallUser) BatchDelete(id []int) error {
+	return deployed.DB.Scopes(UserDB()).
+		Where("user_id in (?)", id).Delete(&SysUser{}).Error
+}
+
+func (sf CallUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
+	item, err := sf.getUserInfo(ctx, jwtauth.FromUserId(ctx))
+	if err != nil {
+		return errors.New("获取用户数据失败(代码202)")
 	}
-	Result = true
+
+	// 校验旧密码 和 新密加签
+	err = deployed.Verify.Compare(pwd.OldPassword, "", item.Password)
+	if err != nil {
+		return err
+	}
+	pass, err := deployed.Verify.Hash(pwd.NewPassword, "")
+	if err != nil {
+		return err
+	}
+
+	err = deployed.DB.Scopes(UserDB()).
+		Where("user_id=?", item.UserId).Update("password", pass).Error
+	if err != nil {
+		return errors.New("更新密码失败(代码202)")
+	}
+	return nil
+}
+
+func (CallUser) getUserInfo(_ context.Context, id int) (item SysUserView, err error) {
+	err = deployed.DB.Scopes(UserDB()).
+		Select([]string{"sys_user.*", "sys_role.role_name"}).
+		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
+		Where("user_id=?", id).First(&item).Error
 	return
-}
-
-func (e *SysUser) SetPwd(pwd SysUserPwd) (bool, error) {
-	user, err := e.GetUserInfo()
-	if err != nil {
-		return false, errors.New("获取用户数据失败(代码202)")
-	}
-	err = deployed.Verify.Compare(pwd.OldPassword, "", user.Password)
-	if err != nil {
-		if strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
-			return false, errors.New("密码错误(代码202)")
-		}
-		return false, err
-	}
-	e.Password = pwd.NewPassword
-	_, err = e.Update(e.UserId)
-	if err != nil {
-		return false, errors.New("更新密码失败(代码202)")
-	}
-	return true, nil
-}
-
-func (e *SysUser) GetByUserId(tx *gorm.DB, id interface{}) error {
-	return tx.First(e, id).Error
 }

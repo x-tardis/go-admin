@@ -33,13 +33,13 @@ func GetSysFileInfoList(c *gin.Context) {
 		return
 	}
 
-	result, ifc, err := data.GetPage(param)
+	result, info, err := data.GetPage(param)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
-		Info: ifc,
+		Info: info,
 		List: result,
 	}))
 }

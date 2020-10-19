@@ -80,8 +80,8 @@ func (CallRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]SysRole, pa
 		return nil, paginator.Info{}, err
 	}
 
-	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	return items, ifc, err
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
 func (CallRole) GetWithName(_ context.Context, name string) (item SysRole, err error) {

@@ -77,8 +77,8 @@ func (CallDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]Dic
 		return nil, paginator.Info{}, err
 	}
 
-	ifc, err := iorm.QueryPages(db, qp.Param, &items)
-	return items, ifc, err
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
 func (CallDictData) Create(ctx context.Context, item DictData) (DictData, error) {
