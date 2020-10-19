@@ -133,7 +133,6 @@ func (Menu) Delete(c *gin.Context) {
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
-	var SysRole models.SysRole
 	id, err := strconv.Atoi(c.Param("roleId"))
 	result, err := new(models.CallMenu).QueryLabelTree(gcontext.Context(c))
 	if err != nil {
@@ -142,7 +141,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 	}
 	menuIds := make([]int, 0)
 	if id != 0 {
-		menuIds, err = SysRole.GetRoleMenuId(id)
+		menuIds, err = new(models.CallRole).GetMenuIds(id)
 		if err != nil {
 			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 			return

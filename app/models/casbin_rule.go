@@ -1,5 +1,9 @@
 package models
 
+import (
+	"gorm.io/gorm"
+)
+
 //sys_casbin_rule
 type CasbinRule struct {
 	PType string `json:"p_type" gorm:"size:100;"`
@@ -13,4 +17,10 @@ type CasbinRule struct {
 
 func (CasbinRule) TableName() string {
 	return "sys_casbin_rule"
+}
+
+func CasbinRuleDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(CasbinRule{})
+	}
 }

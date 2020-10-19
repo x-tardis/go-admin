@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cast"
+	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -18,6 +19,12 @@ type RoleMenu struct {
 
 func (RoleMenu) TableName() string {
 	return "sys_role_menu"
+}
+
+func RoleMenuDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(RoleMenu{})
+	}
 }
 
 type MenuPath struct {

@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 
+	"gorm.io/gorm"
+
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -14,6 +16,12 @@ type SysRoleDept struct {
 
 func (SysRoleDept) TableName() string {
 	return "sys_role_dept"
+}
+
+func RoleDeptDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(SysRoleDept{})
+	}
 }
 
 func (rm *SysRoleDept) Insert(roleId int, deptIds []int) (bool, error) {

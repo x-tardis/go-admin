@@ -71,6 +71,12 @@ func (SysUser) TableName() string {
 	return "sys_user"
 }
 
+func UserDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(SysUser{})
+	}
+}
+
 type SysUserPwd struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`

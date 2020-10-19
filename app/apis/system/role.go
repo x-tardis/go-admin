@@ -5,12 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 
 	"github.com/x-tardis/go-admin/app/models"
@@ -18,32 +18,26 @@ import (
 
 type Role struct{}
 
+// @Tags 角色/Role
 // @Summary 角色列表数据
 // @Description Get JSON
-// @Tags 角色/Role
 // @Param roleName query string false "roleName"
-// @Param status query string false "status"
 // @Param roleKey query string false "roleKey"
+// @Param status query string false "status"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/roles [get]
 // @Security Bearer
 func (Role) QueryPage(c *gin.Context) {
-	var data models.SysRole
-	var err error
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+	qp := models.RoleQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	data.RoleKey = c.Request.FormValue("roleKey")
-	data.RoleName = c.Request.FormValue("roleName")
-	data.Status = c.Request.FormValue("status")
-	data.DataScope = jwtauth.UserIdStr(c)
-	result, count, err := data.GetPage(param)
+	items, count, err := new(models.CallRole).QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -51,7 +45,7 @@ func (Role) QueryPage(c *gin.Context) {
 
 	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
 		Info: count,
-		List: result,
+		List: items,
 	}))
 }
 
@@ -64,13 +58,11 @@ func (Role) QueryPage(c *gin.Context) {
 // @Router /api/v1/role/{id} [get]
 // @Security Bearer
 func (Role) Get(c *gin.Context) {
-	var Role models.SysRole
-
-	roleId := cast.ToInt(c.Param("id"))
-	Role.RoleId = roleId
-	result, err := Role.Get()
+	call := new(models.CallRole)
+	id := cast.ToInt(c.Param("id"))
+	result, err := call.Get(gcontext.Context(c), id)
 	menuIds := make([]int, 0)
-	menuIds, err = Role.GetRoleMenuId(roleId)
+	menuIds, err = call.GetMenuIds(id)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -90,23 +82,22 @@ func (Role) Get(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/roles [post]
 func (Role) Create(c *gin.Context) {
-	var data models.SysRole
-	data.CreateBy = jwtauth.UserIdStr(c)
-	err := c.Bind(&data)
-	if err != nil {
+	newItem := models.SysRole{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, 500, codes.DataParseFailed)
 		return
 	}
-	id, err := data.Insert()
+
+	item, err := new(models.CallRole).Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	data.RoleId = id
 
 	var t models.RoleMenu
-	if len(data.MenuIds) > 0 {
-		_, err = t.Insert(id, data.MenuIds)
+
+	if len(item.MenuIds) > 0 {
+		_, err = t.Insert(item.RoleId, newItem.MenuIds)
 		if err != nil {
 			servers.Fail(c, -1, err.Error())
 			return
@@ -118,8 +109,7 @@ func (Role) Create(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-
-	servers.OKWithRequestID(c, data, codes.CreatedSuccess)
+	servers.OKWithRequestID(c, item, codes.CreatedSuccess)
 }
 
 // @Summary 修改用户角色
@@ -132,26 +122,27 @@ func (Role) Create(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/roles [put]
 func (Role) Update(c *gin.Context) {
-	var data models.SysRole
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	err := c.Bind(&data)
-	if err != nil {
+	up := models.SysRole{}
+
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	result, err := data.Update(data.RoleId)
+
+	item, err := new(models.CallRole).Update(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
+
 	var t models.RoleMenu
-	_, err = t.DeleteRoleMenu(data.RoleId)
+	_, err = t.DeleteRoleMenu(up.RoleId)
 	if err != nil {
 		servers.Fail(c, -1, "修改失败（delete rm）")
 		return
 	}
-	if len(data.MenuIds) > 0 {
-		_, err := t.Insert(data.RoleId, data.MenuIds)
+	if len(up.MenuIds) > 0 {
+		_, err := t.Insert(up.RoleId, up.MenuIds)
 		if err != nil {
 			servers.Fail(c, -1, "修改失败（insert）")
 			return
@@ -163,7 +154,7 @@ func (Role) Update(c *gin.Context) {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.OKWithRequestID(c, result, "修改成功")
+	servers.OKWithRequestID(c, item, "修改成功")
 }
 
 // @Summary 删除用户角色
@@ -174,11 +165,8 @@ func (Role) Update(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/roles/{ids} [delete]
 func (Role) BatchDelete(c *gin.Context) {
-	var Role models.SysRole
-	Role.UpdateBy = jwtauth.UserIdStr(c)
-
-	IDS := infra.ParseIdsGroup(c.Param("ids"))
-	_, err := Role.BatchDelete(IDS)
+	ids := infra.ParseIdsGroup(c.Param("ids"))
+	err := new(models.CallRole).BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, -1, codes.DeletedFail)
 		return
@@ -194,27 +182,26 @@ func (Role) BatchDelete(c *gin.Context) {
 }
 
 func UpdateRoleDataScope(c *gin.Context) {
-	var data models.SysRole
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	err := c.Bind(&data)
-	if err != nil {
+	up := models.SysRole{}
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	result, err := data.Update(data.RoleId)
+
+	item, err := new(models.CallRole).Update(gcontext.Context(c), up.RoleId, up)
 
 	var t models.SysRoleDept
-	_, err = t.DeleteRoleDept(data.RoleId)
+	_, err = t.DeleteRoleDept(up.RoleId)
 	if err != nil {
 		servers.Fail(c, -1, codes.CreatedFail)
 		return
 	}
-	if data.DataScope == "2" {
-		_, err := t.Insert(data.RoleId, data.DeptIds)
+	if up.DataScope == "2" {
+		_, err := t.Insert(up.RoleId, up.DeptIds)
 		if err != nil {
 			servers.Fail(c, -1, codes.CreatedFail)
 			return
 		}
 	}
-	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
+	servers.OKWithRequestID(c, item, codes.UpdatedSuccess)
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
@@ -146,17 +147,16 @@ func (Dept) Delete(c *gin.Context) {
 
 func GetDeptTreeRoleselect(c *gin.Context) {
 	var Dept models.SysDept
-	var SysRole models.SysRole
-	id, err := strconv.Atoi(c.Param("roleId"))
-	SysRole.RoleId = id
+
 	result, err := Dept.SetDeptLabel()
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFound)
 		return
 	}
+	roleId := cast.ToInt(c.Param("roleId"))
 	menuIds := make([]int, 0)
-	if id != 0 {
-		menuIds, err = SysRole.GetRoleDeptId()
+	if roleId != 0 {
+		menuIds, err = new(models.CallRole).GetDeptIds(gcontext.Context(c), roleId)
 		if err != nil {
 			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 			return

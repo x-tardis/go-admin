@@ -5,6 +5,7 @@ import (
 	_ "time"
 
 	"github.com/spf13/cast"
+	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
@@ -32,7 +33,13 @@ func (SysDept) TableName() string {
 	return "sys_dept"
 }
 
-func DeptTreeList(items []SysDept) []SysDept {
+func DeptDB() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Model(SysDept{})
+	}
+}
+
+func toDeptTree(items []SysDept) []SysDept {
 	tree := make([]SysDept, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
@@ -58,7 +65,7 @@ type DeptLabel struct {
 	Children []DeptLabel `gorm:"-" json:"children"`
 }
 
-func DeptLabelTreeList(items []SysDept) []DeptLabel {
+func toDeptLabelTree(items []SysDept) []DeptLabel {
 	tree := make([]DeptLabel, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
@@ -86,6 +93,14 @@ func deepChildrenDeptLabel(items []SysDept, dept DeptLabel) DeptLabel {
 	return dept
 }
 
+func (dept *SysDept) SetDeptLabel() (m []DeptLabel, err error) {
+	deptList, err := dept.GetList()
+	if err != nil {
+		return nil, err
+	}
+	return toDeptLabelTree(deptList), nil
+}
+
 func (e *SysDept) Create() (SysDept, error) {
 	var doc SysDept
 	result := deployed.DB.Table(e.TableName()).Create(&e)
@@ -94,7 +109,7 @@ func (e *SysDept) Create() (SysDept, error) {
 		return doc, err
 	}
 	deptPath := "/" + cast.ToString(e.DeptId)
-	if int(e.ParentId) != 0 {
+	if e.ParentId != 0 {
 		var deptP SysDept
 		deployed.DB.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
@@ -187,7 +202,7 @@ func (e *SysDept) SetDept(bl bool) ([]SysDept, error) {
 	if err != nil {
 		return nil, err
 	}
-	return DeptTreeList(list), nil
+	return toDeptTree(list), nil
 }
 
 func (e *SysDept) Update(id int) (update SysDept, err error) {
@@ -254,12 +269,4 @@ func (e *SysDept) Delete(id int) (success bool, err error) {
 	success = true
 
 	return
-}
-
-func (dept *SysDept) SetDeptLabel() (m []DeptLabel, err error) {
-	deptList, err := dept.GetList()
-	if err != nil {
-		return nil, err
-	}
-	return DeptLabelTreeList(deptList), nil
 }

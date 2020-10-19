@@ -275,7 +275,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list6 := []models.SysRole{
-			{1, "系统管理员", "0", "admin", 1, "", "1", "", "", true, "", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
+			{1, "系统管理员", "admin", "0", 1, "", "", true, "", "1", "", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
 		}
 
 		list7 := []models.DictType{

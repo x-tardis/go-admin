@@ -27,15 +27,16 @@ type Menu struct {
 	Component  string `json:"component" gorm:"size:255;"`
 	Sort       int    `json:"sort" gorm:"size:4;"`
 	Visible    string `json:"visible" gorm:"size:1;"`
-	CreateBy   string `json:"createBy" gorm:"size:128;"`
-	UpdateBy   string `json:"updateBy" gorm:"size:128;"`
 	IsFrame    string `json:"isFrame" gorm:"size:1;DEFAULT:0;"`
-	DataScope  string `json:"dataScope" gorm:"-"`
-	Params     string `json:"params" gorm:"-"`
 	RoleId     int    `gorm:"-"`
 	Children   []Menu `json:"children" gorm:"-"`
 	IsSelect   bool   `json:"is_select" gorm:"-"`
+	Creator    string `json:"creator" gorm:"size:128;"`
+	Updator    string `json:"updator" gorm:"size:128;"`
 	Model
+
+	DataScope string `json:"dataScope" gorm:"-"`
+	Params    string `json:"params" gorm:"-"`
 }
 
 func (Menu) TableName() string {
@@ -142,8 +143,8 @@ func deepChildrenMenuLabel(items []Menu, item MenuLabel) MenuLabel {
 // 	Visible  string `json:"visible" gorm:"column:visible"`
 // 	Children []Menu `json:"children" gorm:"-"`
 //
-// 	CreateBy  string `json:"createBy" gorm:"column:create_by"`
-// 	UpdateBy  string `json:"updateBy" gorm:"column:update_by"`
+// 	Creator  string `json:"creator" gorm:"column:create_by"`
+// 	Updator  string `json:"updator" gorm:"column:update_by"`
 // 	DataScope string `json:"dataScope" gorm:"-"`
 // 	Params    string `json:"params" gorm:"-"`
 // 	Model
@@ -250,7 +251,7 @@ func (CallMenu) Get(ctx context.Context, id int) (item Menu, err error) {
 	return
 }
 func (CallMenu) Create(ctx context.Context, item Menu) (Menu, error) {
-	item.CreateBy = jwtauth.FromUserIdStr(ctx)
+	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := deployed.DB.Scopes(MenuDB()).Create(&item).Error
 	if err != nil {
 		return item, err
@@ -260,7 +261,7 @@ func (CallMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 }
 
 func (CallMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
-	up.UpdateBy = jwtauth.FromUserIdStr(ctx)
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(MenuDB()).First(&item, id).Error; err != nil {
 		return
 	}

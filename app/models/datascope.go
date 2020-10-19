@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -25,14 +26,13 @@ func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, err
 		return db, nil
 	}
 	SysUser := new(SysUser)
-	SysRole := new(SysRole)
 	SysUser.UserId = e.UserId
 	user, err := SysUser.Get()
 	if err != nil {
 		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
 	}
-	SysRole.RoleId = user.RoleId
-	role, err := SysRole.Get()
+
+	role, err := new(CallRole).Get(context.Background(), user.RoleId)
 	if err != nil {
 		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
 	}
@@ -55,15 +55,13 @@ func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, err
 func DataScopes(tableName string, userid int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		SysUser := new(SysUser)
-		SysRole := new(SysRole)
 		SysUser.UserId = userid
 		user, err := SysUser.Get()
 		if err != nil {
 			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
 			return db
 		}
-		SysRole.RoleId = user.RoleId
-		role, err := SysRole.Get()
+		role, err := new(CallRole).Get(context.Background(), user.RoleId)
 		if err != nil {
 			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
 			return db

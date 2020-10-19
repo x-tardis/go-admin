@@ -74,8 +74,7 @@ func (User) Get(c *gin.Context) {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	var SysRole models.SysRole
-	roles, err := SysRole.GetList()
+	roles, err := new(models.CallRole).Query(gcontext.Context(c))
 	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
 
 	postIds := make([]int, 0)
@@ -108,10 +107,9 @@ func (User) GetProfile(c *gin.Context) {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	var SysRole models.SysRole
 	var Dept models.SysDept
 	//获取角色列表
-	roles, err := SysRole.GetList()
+	roles, err := new(models.CallRole).Query(gcontext.Context(c))
 	//获取职位列表
 	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
 	//获取部门列表
@@ -142,9 +140,7 @@ func (User) GetProfile(c *gin.Context) {
 // @Router /api/v1/users [get]
 // @Security Bearer
 func (User) GetInit(c *gin.Context) {
-	var SysRole models.SysRole
-
-	roles, err := SysRole.GetList()
+	roles, err := new(models.CallRole).Query(gcontext.Context(c))
 	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
