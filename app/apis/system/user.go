@@ -107,14 +107,13 @@ func (User) GetProfile(c *gin.Context) {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
-	var Dept models.SysDept
+
 	//获取角色列表
 	roles, err := new(models.CallRole).Query(gcontext.Context(c))
 	//获取职位列表
 	posts, err := new(models.CallPost).Query(gcontext.Context(c), models.PostQueryParam{})
 	//获取部门列表
-	Dept.DeptId = result.DeptId
-	dept, err := Dept.Get()
+	dept, err := new(models.CallDept).Get(gcontext.Context(c), result.DeptId)
 
 	postIds := make([]int, 0)
 	postIds = append(postIds, result.PostId)

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	_ "time"
 
@@ -8,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 type SysDept struct {
@@ -39,6 +41,13 @@ func DeptDB() func(db *gorm.DB) *gorm.DB {
 	}
 }
 
+type DeptQueryParam struct {
+	DeptId   int    `form:"deptId"`
+	DeptName string `form:"deptName"`
+	DeptPath string `form:"deptPath"`
+	Status   string `form:"status"`
+}
+
 func toDeptTree(items []SysDept) []SysDept {
 	tree := make([]SysDept, 0)
 	for _, itm := range items {
@@ -64,6 +73,8 @@ type DeptLabel struct {
 	Label    string      `gorm:"-" json:"label"`
 	Children []DeptLabel `gorm:"-" json:"children"`
 }
+
+type CallDept struct{}
 
 func toDeptLabelTree(items []SysDept) []DeptLabel {
 	tree := make([]DeptLabel, 0)
@@ -93,180 +104,143 @@ func deepChildrenDeptLabel(items []SysDept, dept DeptLabel) DeptLabel {
 	return dept
 }
 
-func (dept *SysDept) SetDeptLabel() (m []DeptLabel, err error) {
-	deptList, err := dept.GetList()
+func (sf CallDept) QueryLabelTree(ctx context.Context) ([]DeptLabel, error) {
+	items, err := sf.Query(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return toDeptLabelTree(deptList), nil
+	return toDeptLabelTree(items), nil
 }
 
-func (e *SysDept) Create() (SysDept, error) {
-	var doc SysDept
-	result := deployed.DB.Table(e.TableName()).Create(&e)
-	if result.Error != nil {
-		err := result.Error
-		return doc, err
-	}
-	deptPath := "/" + cast.ToString(e.DeptId)
-	if e.ParentId != 0 {
-		var deptP SysDept
-		deployed.DB.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
-		deptPath = deptP.DeptPath + deptPath
-	} else {
-		deptPath = "/0" + deptPath
-	}
-	var mp = map[string]string{}
-	mp["deptPath"] = deptPath
-	if err := deployed.DB.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Updates(mp).Error; err != nil {
-		err := result.Error
-		return doc, err
-	}
-	doc = *e
-	doc.DeptPath = deptPath
-	return doc, nil
-}
-
-func (e *SysDept) Get() (SysDept, error) {
-	var doc SysDept
-
-	table := deployed.DB.Table(e.TableName())
-	if e.DeptId != 0 {
-		table = table.Where("dept_id = ?", e.DeptId)
-	}
-	if e.DeptName != "" {
-		table = table.Where("dept_name = ?", e.DeptName)
-	}
-
-	if err := table.First(&doc).Error; err != nil {
-		return doc, err
-	}
-	return doc, nil
-}
-
-func (e *SysDept) GetList() ([]SysDept, error) {
-	var doc []SysDept
-
-	table := deployed.DB.Table(e.TableName())
-	if e.DeptId != 0 {
-		table = table.Where("dept_id = ?", e.DeptId)
-	}
-	if e.DeptName != "" {
-		table = table.Where("dept_name = ?", e.DeptName)
-	}
-	if e.Status != "" {
-		table = table.Where("status = ?", e.Status)
-	}
-
-	if err := table.Order("sort").Find(&doc).Error; err != nil {
-		return doc, err
-	}
-	return doc, nil
-}
-
-func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
-	var doc []SysDept
-
-	table := deployed.DB.Table(e.TableName())
-	if e.DeptId != 0 {
-		table = table.Where("dept_id = ?", e.DeptId)
-	}
-	if e.DeptName != "" {
-		table = table.Where("dept_name = ?", e.DeptName)
-	}
-	if e.Status != "" {
-		table = table.Where("status = ?", e.Status)
-	}
-	if e.DeptPath != "" {
-		table = table.Where("deptPath like %?%", e.DeptPath)
-	}
-	if bl {
-		// 数据权限控制
-		dataPermission := new(DataPermission)
-		dataPermission.UserId = cast.ToInt(e.DataScope)
-		tableper, err := dataPermission.GetDataScope("sys_dept", table)
-		if err != nil {
-			return nil, err
-		}
-		table = tableper
-	}
-
-	if err := table.Order("sort").Find(&doc).Error; err != nil {
-		return nil, err
-	}
-	return doc, nil
-}
-
-func (e *SysDept) SetDept(bl bool) ([]SysDept, error) {
-	list, err := e.GetPage(bl)
+func (sf CallDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([]SysDept, error) {
+	list, err := sf.QueryPage(ctx, qp, bl)
 	if err != nil {
 		return nil, err
 	}
 	return toDeptTree(list), nil
 }
 
-func (e *SysDept) Update(id int) (update SysDept, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("dept_id = ?", id).First(&update).Error; err != nil {
+func (CallDept) Query(_ context.Context) (items []SysDept, err error) {
+	err = deployed.DB.Scopes(DeptDB()).
+		Order("sort").Find(&items).Error
+	return
+}
+
+func (CallDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items []SysDept, err error) {
+	db := deployed.DB.Scopes(DeptDB())
+	if qp.DeptId != 0 {
+		db = db.Where("dept_id=?", qp.DeptId)
+	}
+	if qp.DeptName != "" {
+		db = db.Where("dept_name=?", qp.DeptName)
+	}
+	if qp.Status != "" {
+		db = db.Where("status=?", qp.Status)
+	}
+	if qp.DeptPath != "" {
+		db = db.Where("deptPath like %?%", qp.DeptPath)
+	}
+
+	if bl {
+		// 数据权限控制
+		dataPermission := new(DataPermission)
+		dataPermission.UserId = jwtauth.FromUserId(ctx)
+		tableper, err := dataPermission.GetDataScope("sys_dept", db)
+		if err != nil {
+			return nil, err
+		}
+		db = tableper
+	}
+
+	err = db.Order("sort").Find(&items).Error
+	return items, err
+}
+
+func (CallDept) Get(_ context.Context, id int) (item SysDept, err error) {
+	err = deployed.DB.Scopes(DeptDB()).
+		Where("dept_id=?", id).First(&item).Error
+	return
+}
+
+func (CallDept) Create(ctx context.Context, item SysDept) (SysDept, error) {
+	item.CreateBy = jwtauth.FromUserIdStr(ctx)
+	err := deployed.DB.Scopes(DeptDB()).Create(&item).Error
+	if err != nil {
+		return item, err
+	}
+
+	deptPath := "/" + cast.ToString(item.DeptId)
+	if item.ParentId == 0 {
+		deptPath = "/0" + deptPath
+	} else {
+		var parentDept SysDept
+		deployed.DB.Scopes(DeptDB()).
+			Where("dept_id=?", item.ParentId).First(&parentDept)
+		deptPath = parentDept.DeptPath + deptPath
+	}
+
+	item.DeptPath = deptPath
+	err = deployed.DB.Scopes(DeptDB()).
+		Where("dept_id=?", item.DeptId).
+		Updates(map[string]interface{}{"dept_path": deptPath}).Error
+	return item, err
+}
+
+func (CallDept) Update(ctx context.Context, id int, up SysDept) (item SysDept, err error) {
+	up.UpdateBy = jwtauth.FromUserIdStr(ctx)
+	if err = deployed.DB.Scopes(DeptDB()).
+		Where("dept_id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
-	deptPath := "/" + cast.ToString(e.DeptId)
-	if int(e.ParentId) != 0 {
-		var deptP SysDept
-		deployed.DB.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
-		deptPath = deptP.DeptPath + deptPath
-	} else {
+	deptPath := "/" + cast.ToString(id)
+	if up.ParentId == 0 {
 		deptPath = "/0" + deptPath
-	}
-	e.DeptPath = deptPath
 
-	if e.DeptPath != "" && e.DeptPath != update.DeptPath {
-		return update, errors.New("上级部门不允许修改！")
+	} else {
+		var parentDept SysDept
+		deployed.DB.Scopes(DeptDB()).
+			Where("dept_id=?", up.ParentId).First(&parentDept)
+		deptPath = parentDept.DeptPath + deptPath
+	}
+	up.DeptPath = deptPath
+
+	if up.DeptPath != "" && up.DeptPath != item.DeptPath {
+		return item, errors.New("上级部门不允许修改！")
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-
-	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-		return
-	}
-
+	err = deployed.DB.Scopes(DeptDB()).
+		Model(&item).Updates(&up).Error
 	return
 }
 
-func (e *SysDept) Delete(id int) (success bool, err error) {
+func (CallDept) Delete(_ context.Context, id int) error {
 	user := SysUser{}
 	user.DeptId = id
 	userlist, err := user.GetList()
 	if err != nil {
-		return false, err
+		return err
 	}
 	if len(userlist) <= 0 {
-		return false, errors.New("当前部门存在用户，不能删除！")
+		return errors.New("当前部门存在用户，不能删除！")
 	}
 
 	tx := deployed.DB.Begin()
+	if err := tx.Error; err != nil {
+		return err
+	}
+
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
 
-	if err = tx.Error; err != nil {
-		success = false
-		return
-	}
-
-	if err = tx.Table(e.TableName()).Where("dept_id = ?", id).Delete(&SysDept{}).Error; err != nil {
-		success = false
+	if err := tx.Scopes(DeptDB()).Where("dept_id=?", id).Delete(&SysDept{}).Error; err != nil {
 		tx.Rollback()
-		return
+		return err
 	}
-	if err = tx.Commit().Error; err != nil {
-		success = false
-		return
-	}
-	success = true
-
-	return
+	return tx.Commit().Error
 }

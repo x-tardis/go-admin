@@ -2,7 +2,6 @@ package system
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
@@ -10,29 +9,53 @@ import (
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 type Dept struct{}
 
+// @Tags 部门
 // @Summary 分页部门列表数据
 // @Description 分页列表
-// @Tags 部门
-// @Param name query string false "name"
-// @Param id query string false "id"
-// @Param position query string false "position"
+// @Param deptId query int false "deptId"
+// @Param deptName query string false "deptName"
+// @Param deptPath query string false "deptPath"
+// @Param Status query string false "Status"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/depts [get]
 // @Security Bearer
 func (Dept) QueryPage(c *gin.Context) {
-	var Dept models.SysDept
+	qp := models.DeptQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
 
-	Dept.DeptName = c.Request.FormValue("deptName")
-	Dept.Status = c.Request.FormValue("status")
-	Dept.DeptId = cast.ToInt(c.Request.FormValue("deptId"))
-	Dept.DataScope = jwtauth.UserIdStr(c)
-	result, err := Dept.SetDept(true)
+	tree, err := new(models.CallDept).QueryTree(gcontext.Context(c), qp, true)
+	if err != nil {
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		return
+	}
+	servers.OKWithRequestID(c, tree, "")
+}
+
+// @Tags 部门
+// @Summary 分页部门列表数据
+// @Description 分页列表
+// @Param deptId query int false "deptId"
+// @Param deptName query string false "deptName"
+// @Param deptPath query string false "deptPath"
+// @Param Status query string false "Status"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/deptTree [get]
+// @Security Bearer
+func (Dept) QueryTree(c *gin.Context) {
+	qp := models.DeptQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
+	}
+	result, err := new(models.CallDept).QueryTree(gcontext.Context(c), qp, false)
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
@@ -40,38 +63,22 @@ func (Dept) QueryPage(c *gin.Context) {
 	servers.OKWithRequestID(c, result, "")
 }
 
-func (Dept) GetTree(c *gin.Context) {
-	var Dept models.SysDept
-	Dept.DeptName = c.Request.FormValue("deptName")
-	Dept.Status = c.Request.FormValue("status")
-	Dept.DeptId = cast.ToInt(c.Request.FormValue("deptId"))
-	result, err := Dept.SetDept(false)
-	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
-		return
-	}
-	servers.OKWithRequestID(c, result, "")
-}
-
+// @Tags 部门
 // @Summary 部门列表数据
 // @Description 获取JSON
-// @Tags 部门
 // @Param deptId path string false "deptId"
 // @Param position query string false "position"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/depts/{id} [get]
 // @Security Bearer
 func (Dept) Get(c *gin.Context) {
-	var Dept models.SysDept
-
-	Dept.DeptId = cast.ToInt(c.Param("id"))
-	Dept.DataScope = jwtauth.UserIdStr(c)
-	result, err := Dept.Get()
+	deptId := cast.ToInt(c.Param("id"))
+	item, err := new(models.CallDept).Get(gcontext.Context(c), deptId)
 	if err != nil {
 		servers.Fail(c, 404, codes.NotFound)
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.GetSuccess)
+	servers.OKWithRequestID(c, item, codes.GetSuccess)
 }
 
 // @Summary 添加部门
@@ -85,14 +92,12 @@ func (Dept) Get(c *gin.Context) {
 // @Router /api/v1/depts [post]
 // @Security Bearer
 func (Dept) Create(c *gin.Context) {
-	var data models.SysDept
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	newItem := models.SysDept{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.CreateBy = jwtauth.UserIdStr(c)
-	result, err := data.Create()
+	result, err := new(models.CallDept).Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -112,14 +117,13 @@ func (Dept) Create(c *gin.Context) {
 // @Router /api/v1/depts [put]
 // @Security Bearer
 func (Dept) Update(c *gin.Context) {
-	var data models.SysDept
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	up := models.SysDept{}
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	data.UpdateBy = jwtauth.UserIdStr(c)
-	result, err := data.Update(data.DeptId)
+
+	result, err := new(models.CallDept).Update(gcontext.Context(c), up.DeptId, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
@@ -135,20 +139,17 @@ func (Dept) Update(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/depts/{id} [delete]
 func (Dept) Delete(c *gin.Context) {
-	var data models.SysDept
-	id, err := strconv.Atoi(c.Param("id"))
-	_, err = data.Delete(id)
-	if err != nil {
-		servers.Fail(c, 500, "删除失败")
+	id := cast.ToInt(c.Param("id"))
+	// TODO: bug 删除不到部门
+	if err := new(models.CallDept).Delete(gcontext.Context(c), id); err != nil {
+		servers.Fail(c, 500, codes.DeletedFail)
 		return
 	}
 	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
-	var Dept models.SysDept
-
-	result, err := Dept.SetDeptLabel()
+	result, err := new(models.CallDept).QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, -1, codes.NotFound)
 		return

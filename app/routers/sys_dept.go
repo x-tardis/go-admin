@@ -7,7 +7,7 @@ import (
 
 func Dept(v1 gin.IRouter) {
 	ctl := new(system.Dept)
-	v1.GET("/deptTree", ctl.GetTree)
+	v1.GET("/deptTree", ctl.QueryTree)
 	r := v1.Group("/depts")
 	{
 		r.GET("", ctl.QueryPage)
