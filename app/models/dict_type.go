@@ -66,6 +66,7 @@ func (cDictType) Query(_ context.Context, qp DictTypeQueryParam) ([]DictType, er
 }
 
 func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictType, paginator.Info, error) {
+	var err error
 	var items []DictType
 
 	db := deployed.DB.Scopes(DictTypeDB())
@@ -80,9 +81,7 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 	}
 
 	// 数据权限控制
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = jwtauth.FromUserId(ctx)
-	db, err := dataPermission.GetDataScope("sys_dict_type", db)
+	db, err = GetDataScope("sys_dict_type", jwtauth.FromUserId(ctx), db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}

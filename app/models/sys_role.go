@@ -60,6 +60,7 @@ func (cRole) Query(_ context.Context) (item []Role, err error) {
 }
 
 func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginator.Info, error) {
+	var err error
 	var items []Role
 
 	db := deployed.DB.Scopes(RoleDB())
@@ -75,9 +76,7 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 	db = db.Order("sort")
 
 	// 数据权限控制
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = jwtauth.FromUserId(ctx)
-	db, err := dataPermission.GetDataScope("sys_role", db)
+	db, err = GetDataScope("sys_role", jwtauth.FromUserId(ctx), db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}

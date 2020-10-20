@@ -48,6 +48,7 @@ var CCategory = new(cCategory)
 
 // 获取SysCategory带分页
 func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Category, paginator.Info, error) {
+	var err error
 	var items []Category
 
 	db := deployed.DB.Scopes(CategoryDB())
@@ -59,9 +60,7 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = jwtauth.FromUserId(ctx)
-	db, err := dataPermission.GetDataScope("sys_category", db)
+	db, err = GetDataScope("sys_category", jwtauth.FromUserId(ctx), db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}

@@ -237,9 +237,7 @@ func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, er
 	}
 
 	// 数据权限控制
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = jwtauth.FromUserId(ctx)
-	db, err = dataPermission.GetDataScope("sys_menu", db)
+	db, err = GetDataScope("sys_menu", jwtauth.FromUserId(ctx), db)
 	if err != nil {
 		return nil, err
 	}

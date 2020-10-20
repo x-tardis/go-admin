@@ -65,10 +65,10 @@ func (cConfig) Get(_ context.Context, id int) (item Config, err error) {
 }
 
 func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, paginator.Info, error) {
+	var err error
 	var items []Config
 
 	db := deployed.DB.Scopes(ConfigDB())
-
 	if qp.ConfigName != "" {
 		db = db.Where("config_name=?", qp.ConfigName)
 	}
@@ -80,9 +80,7 @@ func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, pa
 	}
 
 	// 数据权限控制
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = jwtauth.FromUserId(ctx)
-	db, err := dataPermission.GetDataScope("sys_config", db)
+	db, err = GetDataScope("sys_config", jwtauth.FromUserId(ctx), db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}

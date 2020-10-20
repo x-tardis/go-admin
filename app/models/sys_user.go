@@ -105,6 +105,7 @@ func (cUser) GetWithDeptId(id int) (items []UserView, err error) {
 }
 
 func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, paginator.Info, error) {
+	var err error
 	var items []UserPage
 
 	db := deployed.DB.Scopes(UserDB()).
@@ -125,9 +126,7 @@ func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, pagi
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = jwtauth.FromUserId(ctx)
-	db, err := dataPermission.GetDataScope("sys_user", db)
+	db, err = GetDataScope("sys_user", jwtauth.FromUserId(ctx), db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}

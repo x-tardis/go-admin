@@ -12,18 +12,19 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// Dept 部门
 type Dept struct {
-	DeptId   int    `json:"deptId" gorm:"primary_key;auto_increment;"` // 部门编码
-	ParentId int    `json:"parentId" gorm:""`                          // 上级部门
-	DeptPath string `json:"deptPath" gorm:"size:255;"`                 //
-	DeptName string `json:"deptName"  gorm:"size:128;"`                // 部门名称
+	DeptId   int    `json:"deptId" gorm:"primary_key;auto_increment;"` // 主键
+	ParentId int    `json:"parentId" gorm:""`                          // 上级部门主键
+	DeptPath string `json:"deptPath" gorm:"size:255;"`                 // 路径
+	DeptName string `json:"deptName"  gorm:"size:128;"`                // 名称
 	Sort     int    `json:"sort" gorm:""`                              // 排序
 	Leader   string `json:"leader" gorm:"size:128;"`                   // 负责人
-	Phone    string `json:"phone" gorm:"size:11;"`                     // 手机
-	Email    string `json:"email" gorm:"size:64;"`                     // 邮箱
+	Phone    string `json:"phone" gorm:"size:11;"`                     // 联系手机
+	Email    string `json:"email" gorm:"size:64;"`                     // 联系邮箱
 	Status   string `json:"status" gorm:"size:4;"`                     // 状态
-	Creator  string `json:"creator" gorm:"size:64;"`
-	Updator  string `json:"updator" gorm:"size:64;"`
+	Creator  string `json:"creator" gorm:"size:64;"`                   // 创建者
+	Updator  string `json:"updator" gorm:"size:64;"`                   // 更新者
 	Model
 
 	DataScope string `json:"dataScope" gorm:"-"`
@@ -31,22 +32,26 @@ type Dept struct {
 	Children  []Dept `json:"children" gorm:"-"`
 }
 
+// TableName 实现gorm.Tabler接口
 func (Dept) TableName() string {
 	return "sys_dept"
 }
 
+// DeptDB scope dept model
 func DeptDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Model(Dept{})
 	}
 }
 
+// DeptLabel dept label
 type DeptLabel struct {
 	Id       int         `gorm:"-" json:"id"`
-	Label    string      `gorm:"-" json:"label"`
+	DeptName string      `gorm:"-" json:"label"`
 	Children []DeptLabel `gorm:"-" json:"children"`
 }
 
+// DeptQueryParam 查询参数
 type DeptQueryParam struct {
 	DeptId   int    `form:"deptId"`
 	DeptName string `form:"deptName"`
@@ -56,7 +61,8 @@ type DeptQueryParam struct {
 
 type cDept struct{}
 
-var CDept = new(cDept)
+// CDept 实例
+var CDept = cDept{}
 
 func toDeptTree(items []Dept) []Dept {
 	tree := make([]Dept, 0)
@@ -85,7 +91,7 @@ func toDeptLabelTree(items []Dept) []DeptLabel {
 			tree = append(tree, deepChildrenDeptLabel(items, DeptLabel{
 				itm.DeptId,
 				itm.DeptName,
-				make([]DeptLabel, 0),
+				nil,
 			}))
 		}
 	}
@@ -143,11 +149,9 @@ func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items [
 		db = db.Where("deptPath like %?%", qp.DeptPath)
 	}
 
+	// 数据权限控制
 	if bl {
-		// 数据权限控制
-		dataPermission := new(DataPermission)
-		dataPermission.UserId = jwtauth.FromUserId(ctx)
-		db, err = dataPermission.GetDataScope("sys_dept", db)
+		db, err = GetDataScope("sys_dept", jwtauth.FromUserId(ctx), db)
 		if err != nil {
 			return nil, err
 		}

@@ -14,10 +14,10 @@ import (
 
 type DictData struct {
 	DictCode  int    `gorm:"primary_key;auto_increment;" json:"dictCode" example:"1"` // 主键
-	DictSort  int    `gorm:"" json:"dictSort"`                                        // 显示顺序
-	DictLabel string `gorm:"size:128;" json:"dictLabel"`                              // 数据标签
-	DictValue string `gorm:"size:255;" json:"dictValue"`                              // 数据键值
-	DictType  string `gorm:"size:64;" json:"dictType"`                                // 字典类型
+	DictSort  int    `gorm:"" json:"dictSort"`                                        // 排序
+	DictLabel string `gorm:"size:128;" json:"dictLabel"`                              // 标签
+	DictValue string `gorm:"size:255;" json:"dictValue"`                              // 值
+	DictType  string `gorm:"size:64;" json:"dictType"`                                // 类型
 	CssClass  string `gorm:"size:128;" json:"cssClass"`                               //
 	ListClass string `gorm:"size:128;" json:"listClass"`                              //
 	IsDefault string `gorm:"size:8;" json:"isDefault"`                                //
@@ -55,26 +55,26 @@ type cDictData struct{}
 var CDictData = new(cDictData)
 
 func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictData, paginator.Info, error) {
+	var err error
 	var items []DictData
 
 	db := deployed.DB.Scopes(DictDataDB())
 	if qp.DictCode != 0 {
-		db = db.Where("dict_code = ?", qp.DictCode)
+		db = db.Where("dict_code=?", qp.DictCode)
 	}
 	if qp.DictType != "" {
-		db = db.Where("dict_type = ?", qp.DictType)
+		db = db.Where("dict_type=?", qp.DictType)
 	}
 	if qp.DictLabel != "" {
-		db = db.Where("dict_label = ?", qp.DictLabel)
+		db = db.Where("dict_label=?", qp.DictLabel)
 	}
 	if qp.Status != "" {
-		db = db.Where("status = ?", qp.Status)
+		db = db.Where("status=?", qp.Status)
 	}
 
 	// 数据权限控制
-	dataPermission := new(DataPermission)
-	dataPermission.UserId = jwtauth.FromUserId(ctx)
-	db, err := dataPermission.GetDataScope("sys_dict_data", db)
+
+	db, err = GetDataScope("sys_dict_data", jwtauth.FromUserId(ctx), db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}

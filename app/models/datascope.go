@@ -12,19 +12,13 @@ import (
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
-type DataPermission struct {
-	DataScope string
-	UserId    int
-	DeptId    int
-	RoleId    int
-}
-
-func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, error) {
+func GetDataScope(tbname string, userId int, db *gorm.DB) (*gorm.DB, error) {
 	if !deployed.AppConfig.EnableDP {
 		fmt.Printf("%s\n", `数据权限已经为您`+textcolor.Green(`关闭`)+`，如需开启请参考配置文件字段说明`)
 		return db, nil
 	}
-	user, err := CUser.Get(context.Background(), e.UserId)
+
+	user, err := CUser.Get(context.Background(), userId)
 	if err != nil {
 		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
 	}
@@ -43,15 +37,15 @@ func (e *DataPermission) GetDataScope(tbname string, db *gorm.DB) (*gorm.DB, err
 		db = db.Where(tbname+".creator in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+cast.ToString(user.DeptId)+"%")
 	}
 	if role.DataScope == "5" || role.DataScope == "" {
-		db = db.Where(tbname+".creator = ?", e.UserId)
+		db = db.Where(tbname+".creator = ?", userId)
 	}
 
 	return db, nil
 }
 
-func DataScopes(tableName string, userid int) func(db *gorm.DB) *gorm.DB {
+func DataScopes(tableName string, userId int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		user, err := CUser.Get(context.Background(), userid)
+		user, err := CUser.Get(context.Background(), userId)
 		if err != nil {
 			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
 			return db
@@ -71,7 +65,7 @@ func DataScopes(tableName string, userid int) func(db *gorm.DB) *gorm.DB {
 			return db.Where(tableName+".creator in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+cast.ToString(user.DeptId)+"%")
 		}
 		if role.DataScope == "5" || role.DataScope == "" {
-			return db.Where(tableName+".creator = ?", userid)
+			return db.Where(tableName+".creator = ?", userId)
 		}
 		return db
 	}
