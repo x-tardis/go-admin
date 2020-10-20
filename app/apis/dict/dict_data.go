@@ -44,7 +44,7 @@ func (DictData) QueryPage(c *gin.Context) {
 		return
 	}
 
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
 		List: result,
 	}))
@@ -67,7 +67,7 @@ func (DictData) Get(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 通过字典类型获取字典数据
@@ -84,7 +84,7 @@ func (DictData) GetWithType(c *gin.Context) {
 		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.OK(c, servers.WithData(result))
 }
 
 // @Summary 添加字典数据
@@ -109,7 +109,7 @@ func (DictData) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 修改字典数据
@@ -134,7 +134,7 @@ func (DictData) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 删除字典数据
@@ -151,5 +151,5 @@ func (DictData) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }

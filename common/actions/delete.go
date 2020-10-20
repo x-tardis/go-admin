@@ -56,7 +56,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			servers.Fail(c, http.StatusForbidden, servers.WithMsg("无权删除该数据"))
 			return
 		}
-		servers.JSON(c, http.StatusOK, servers.WithData(object.GetId()), servers.WithMsg("删除成功"))
+		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg("删除成功"))
 		c.Next()
 	}
 }

@@ -52,5 +52,5 @@ func GetInfo(c *gin.Context) {
 	mp["deptId"] = user.DeptId
 	mp["name"] = user.NickName
 
-	servers.JSON(c, http.StatusOK, servers.WithData(mp))
+	servers.OK(c, servers.WithData(mp))
 }

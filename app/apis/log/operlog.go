@@ -42,7 +42,7 @@ func (OperLog) QueryPage(c *gin.Context) {
 			servers.WithPrompt(prompt.QueryFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
 		List: result,
 	}))
@@ -64,7 +64,7 @@ func (OperLog) Get(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Tags 操作日志
@@ -90,7 +90,7 @@ func (OperLog) Create(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Tags 操作日志
@@ -115,5 +115,5 @@ func (OperLog) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }

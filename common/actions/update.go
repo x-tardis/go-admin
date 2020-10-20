@@ -54,7 +54,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			servers.Fail(c, http.StatusForbidden, servers.WithMsg("无权更新该数据"))
 			return
 		}
-		servers.JSON(c, http.StatusOK, servers.WithData(object.GetId()), servers.WithMsg("更新成功"))
+		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg("更新成功"))
 		c.Next()
 	}
 }

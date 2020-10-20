@@ -41,7 +41,7 @@ func (User) QueryPage(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
 		List: items,
 	}))
@@ -71,7 +71,7 @@ func (User) Get(c *gin.Context) {
 
 	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
-	servers.JSONs(c, http.StatusOK, gin.H{
+	servers.JSON(c, http.StatusOK, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -106,7 +106,7 @@ func (User) GetProfile(c *gin.Context) {
 	postIds := []int{result.PostId}
 	roleIds := []int{result.RoleId}
 
-	servers.JSONs(c, http.StatusOK, gin.H{
+	servers.JSON(c, http.StatusOK, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -136,7 +136,7 @@ func (User) GetInit(c *gin.Context) {
 		"roles": roles,
 		"posts": posts,
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(mp))
+	servers.OK(c, servers.WithData(mp))
 }
 
 // @Summary 创建用户
@@ -160,7 +160,7 @@ func (User) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.CreateSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.CreateSuccess))
 }
 
 // @Summary 修改用户数据
@@ -184,7 +184,7 @@ func (User) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 删除用户数据
@@ -201,7 +201,7 @@ func (User) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 // @Summary 修改头像
@@ -228,7 +228,7 @@ func (User) UploadAvatar(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(avatar))
+	servers.OK(c, servers.WithData(avatar))
 }
 
 func (User) UpdatePassword(c *gin.Context) {
@@ -243,5 +243,5 @@ func (User) UpdatePassword(c *gin.Context) {
 		servers.Fail(c, http.StatusOK, servers.WithMsg("密码更新失败"))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg("密码修改成功"))
+	servers.OK(c, servers.WithMsg("密码修改成功"))
 }

@@ -38,7 +38,7 @@ func (Dept) QueryPage(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(tree))
+	servers.OK(c, servers.WithData(tree))
 }
 
 // @Tags 部门
@@ -64,7 +64,7 @@ func (Dept) QueryTree(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(items))
+	servers.OK(c, servers.WithData(items))
 }
 
 // @Tags 部门
@@ -84,7 +84,7 @@ func (Dept) Get(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 添加部门
@@ -108,7 +108,7 @@ func (Dept) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 修改部门
@@ -134,7 +134,7 @@ func (Dept) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 删除部门
@@ -151,7 +151,7 @@ func (Dept) Delete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
@@ -173,7 +173,7 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 			return
 		}
 	}
-	servers.JSONs(c, http.StatusOK, gin.H{
+	servers.JSON(c, http.StatusOK, gin.H{
 		"code":        200,
 		"depts":       result,
 		"checkedKeys": menuIds,

@@ -39,7 +39,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(s.Msg))
+	servers.OK(c, servers.WithMsg(s.Msg))
 }
 
 // StartJobForService 启动job service实现
@@ -66,5 +66,5 @@ func (e *SysJob) StartJobForService(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(s.Msg))
+	servers.OK(c, servers.WithMsg(s.Msg))
 }

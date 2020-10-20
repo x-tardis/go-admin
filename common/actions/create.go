@@ -44,7 +44,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("创建失败"))
 			return
 		}
-		servers.JSON(c, http.StatusOK, servers.WithData(object.GetId()), servers.WithMsg("创建成功"))
+		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg("创建成功"))
 		c.Next()
 	}
 }

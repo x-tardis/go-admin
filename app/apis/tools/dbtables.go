@@ -42,7 +42,7 @@ func GetDBTableList(c *gin.Context) {
 		return
 	}
 
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
 		List: result,
 	}))

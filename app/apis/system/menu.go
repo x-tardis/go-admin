@@ -40,7 +40,7 @@ func (Menu) QueryTree(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(tree))
+	servers.OK(c, servers.WithData(tree))
 }
 
 // @Summary Menu列表数据
@@ -60,7 +60,7 @@ func (Menu) Get(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Tags 菜单
@@ -90,7 +90,7 @@ func (Menu) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Tags 菜单
@@ -116,7 +116,7 @@ func (Menu) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK)
+	servers.OK(c)
 }
 
 // @Tags 菜单
@@ -133,7 +133,7 @@ func (Menu) Delete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
@@ -155,7 +155,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 			return
 		}
 	}
-	servers.JSONs(c, http.StatusOK, gin.H{
+	servers.JSON(c, http.StatusOK, gin.H{
 		"code":        200,
 		"menus":       result,
 		"checkedKeys": menuIds,
@@ -179,7 +179,7 @@ func GetMenuTreeselect(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(items))
+	servers.OK(c, servers.WithData(items))
 }
 
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）
@@ -198,7 +198,7 @@ func GetMenuRole(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(items))
+	servers.OK(c, servers.WithData(items))
 }
 
 // @Summary 获取角色对应的菜单id数组
@@ -221,5 +221,5 @@ func GetMenuIDS(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.OK(c, servers.WithData(result))
 }

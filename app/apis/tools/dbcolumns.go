@@ -39,7 +39,7 @@ func GetDBColumnList(c *gin.Context) {
 		servers.Fail(c, http.StatusOK, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
+	servers.OK(c, servers.WithData(paginator.Pages{
 		Info: info,
 		List: result,
 	}))

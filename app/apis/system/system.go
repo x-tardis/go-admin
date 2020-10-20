@@ -86,7 +86,7 @@ func SystemInfo(c *gin.Context) {
 	cpuInfo, _ := cpu.Info()
 	cpuNum, _ := cpu.Counts(false)
 
-	servers.JSONs(c, http.StatusOK, SystemInfos{
+	servers.JSON(c, http.StatusOK, SystemInfos{
 		http.StatusOK,
 		Os{
 			runtime.GOOS,
@@ -165,5 +165,5 @@ func HelloWorld(c *gin.Context) {
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/system/ping [get]
 func Ping(c *gin.Context) {
-	servers.JSON(c, http.StatusOK, servers.WithMsg("pong"))
+	servers.OK(c, servers.WithMsg("pong"))
 }

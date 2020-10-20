@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -65,7 +64,7 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 			return ok
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			servers.JSON(c, http.StatusOK, servers.WithCode(code), servers.WithMsg(message))
+			servers.OK(c, servers.WithCode(code), servers.WithMsg(message))
 		},
 		LogoutResponse: logoutResponse,
 		TokenLookup:    "header: Authorization, query: token, cookie: jwt",
@@ -129,7 +128,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 // @Security Bearer
 func logoutResponse(c *gin.Context, code int) {
 	loginLogRecord(c, true, "退出成功", jwtauth.UserName(c))
-	servers.JSON(c, http.StatusOK, servers.WithMsg("退出成功"))
+	servers.OK(c, servers.WithMsg("退出成功"))
 }
 
 // loginLogRecord Write log to database

@@ -31,7 +31,7 @@ func (Content) QueryPage(c *gin.Context) {
 			servers.WithPrompt(prompt.QueryFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
+	servers.OK(c, servers.WithData(paginator.Pages{
 		Info: info,
 		List: items,
 	}))
@@ -46,7 +46,7 @@ func (Content) Get(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.OK(c, servers.WithData(result))
 }
 
 // @Summary 添加内容管理
@@ -70,7 +70,7 @@ func (Content) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 func (Content) Update(c *gin.Context) {
@@ -85,7 +85,7 @@ func (Content) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 func (Content) BatchDelete(c *gin.Context) {
@@ -95,5 +95,5 @@ func (Content) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }

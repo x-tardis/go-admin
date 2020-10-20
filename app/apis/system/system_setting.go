@@ -26,7 +26,7 @@ func (SysSetting) Get(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Tags 系统设置
@@ -51,5 +51,5 @@ func (SysSetting) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusOK, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }

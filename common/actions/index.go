@@ -58,7 +58,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			return
 		}
 
-		servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Page{
+		servers.OK(c, servers.WithData(&paginator.Page{
 			List:      list,
 			Total:     count,
 			PageIndex: pageParam.PageIndex,

@@ -43,7 +43,7 @@ func (Config) QueryPage(c *gin.Context) {
 		return
 	}
 
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
 		List: result,
 	}))
@@ -65,7 +65,7 @@ func (Config) Get(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 获取配置
@@ -84,7 +84,7 @@ func (Config) GetWithKey(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK,
+	servers.OK(c,
 		servers.WithData(item),
 		servers.WithMsg(item.ConfigValue))
 }
@@ -111,7 +111,7 @@ func (Config) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 修改配置
@@ -136,7 +136,7 @@ func (Config) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 删除配置
@@ -153,5 +153,5 @@ func (Config) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }

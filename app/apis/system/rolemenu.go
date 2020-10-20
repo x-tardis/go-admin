@@ -27,7 +27,7 @@ func GetRoleMenu(c *gin.Context) {
 		servers.Fail(c, http.StatusOK, servers.WithMsg("抱歉未找到相关信息"))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.OK(c, servers.WithData(result))
 }
 
 type RoleMenuPost struct {
@@ -36,7 +36,7 @@ type RoleMenuPost struct {
 }
 
 func InsertRoleMenu(c *gin.Context) {
-	servers.JSON(c, http.StatusOK, servers.WithMsg("添加成功"))
+	servers.OK(c, servers.WithMsg("添加成功"))
 }
 
 // @Summary 删除用户菜单数据
@@ -57,5 +57,5 @@ func DeleteRoleMenu(c *gin.Context) {
 		servers.Fail(c, http.StatusOK, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }

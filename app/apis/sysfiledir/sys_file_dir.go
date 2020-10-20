@@ -27,7 +27,7 @@ func (FileDir) QueryTree(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(items))
+	servers.OK(c, servers.WithData(items))
 }
 
 func (FileDir) Get(c *gin.Context) {
@@ -37,7 +37,7 @@ func (FileDir) Get(c *gin.Context) {
 		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 添加SysFileDir
@@ -61,7 +61,7 @@ func (FileDir) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 func (FileDir) Update(c *gin.Context) {
@@ -76,7 +76,7 @@ func (FileDir) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 func (FileDir) BatchDelete(c *gin.Context) {
@@ -86,5 +86,5 @@ func (FileDir) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }

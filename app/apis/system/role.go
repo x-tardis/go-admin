@@ -46,7 +46,7 @@ func (Role) QueryPage(c *gin.Context) {
 		return
 	}
 
-	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
+	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: count,
 		List: items,
 	}))
@@ -63,8 +63,7 @@ func (Role) QueryPage(c *gin.Context) {
 func (Role) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CRole.Get(gcontext.Context(c), id)
-	menuIds := make([]int, 0)
-	menuIds, err = models.CRole.GetMenuIds(id)
+	menuIds, err := models.CRole.GetMenuIds(id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
@@ -73,7 +72,7 @@ func (Role) Get(c *gin.Context) {
 	}
 	item.MenuIds = menuIds
 
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 创建角色
@@ -113,7 +112,7 @@ func (Role) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 修改用户角色
@@ -157,7 +156,7 @@ func (Role) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 // @Summary 删除用户角色
@@ -180,7 +179,7 @@ func (Role) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 func UpdateRoleDataScope(c *gin.Context) {
@@ -204,5 +203,5 @@ func UpdateRoleDataScope(c *gin.Context) {
 			return
 		}
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }

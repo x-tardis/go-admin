@@ -77,7 +77,7 @@ func Preview(c *gin.Context) {
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
 
-	servers.JSON(c, http.StatusOK, servers.WithData(mp))
+	servers.OK(c, servers.WithData(mp))
 }
 
 func GenCodeV3(c *gin.Context) {
@@ -99,7 +99,7 @@ func GenCodeV3(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg("Code generated successfully！"))
+	servers.OK(c, servers.WithMsg("Code generated successfully！"))
 }
 
 func NOActionsGenV3(tab tools.SysTables) error {
@@ -485,5 +485,5 @@ func GenMenuAndApi(c *gin.Context) {
 
 	ADelete, err = models.CMenu.Create(gcontext.Context(c), ADelete)
 
-	servers.JSON(c, http.StatusOK, servers.WithMsg("数据生成成功！"))
+	servers.OK(c, servers.WithMsg("数据生成成功！"))
 }

@@ -29,7 +29,7 @@ func (FileInfo) QueryPage(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
+	servers.OK(c, servers.WithData(paginator.Pages{
 		Info: info,
 		List: items,
 	}))
@@ -42,7 +42,7 @@ func (FileInfo) Get(c *gin.Context) {
 		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 func (FileInfo) Create(c *gin.Context) {
@@ -57,7 +57,7 @@ func (FileInfo) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 func (FileInfo) Update(c *gin.Context) {
@@ -72,7 +72,7 @@ func (FileInfo) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(item))
+	servers.OK(c, servers.WithData(item))
 }
 
 func (FileInfo) BatchDelete(c *gin.Context) {
@@ -82,5 +82,5 @@ func (FileInfo) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }

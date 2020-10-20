@@ -62,7 +62,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("查看失败"))
 			return
 		}
-		servers.JSON(c, http.StatusOK, servers.WithData(rsp), servers.WithMsg("查看成功"))
+		servers.OK(c, servers.WithData(rsp), servers.WithMsg("查看成功"))
 		c.Next()
 	}
 }
