@@ -39,7 +39,7 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.SysFileDir),
 		new(models.SysFileInfo),
 		new(models.Category),
-		new(models.SysContent),
+		new(models.Content),
 	)
 	if err != nil {
 		return err

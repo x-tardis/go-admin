@@ -14,7 +14,7 @@ type Login struct {
 }
 
 func (u *Login) GetUser() (user User, role Role, err error) {
-	user, err = new(cUser).GetWithName(context.Background(), u.Username)
+	user, err = CUser.GetWithName(context.Background(), u.Username)
 	if err != nil {
 		return
 	}
@@ -23,6 +23,6 @@ func (u *Login) GetUser() (user User, role Role, err error) {
 	if err != nil {
 		return
 	}
-	role, err = new(cRole).Get(context.Background(), user.RoleId)
+	role, err = CRole.Get(context.Background(), user.RoleId)
 	return
 }

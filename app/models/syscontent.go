@@ -3,15 +3,15 @@ package models
 import (
 	"context"
 
-	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-type SysContent struct {
+type Content struct {
 	Id      int    `json:"id" gorm:"type:int(11);primary_key;auto_increment"` // id
 	CateId  string `json:"cateId" gorm:"type:int(11);"`                       // 分类id
 	Name    string `json:"name" gorm:"type:varchar(255);"`                    // 名称
@@ -28,113 +28,94 @@ type SysContent struct {
 	Params    string `json:"params"  gorm:"-"`
 }
 
-func (SysContent) TableName() string {
+func (Content) TableName() string {
 	return "sys_content"
 }
 
 func ContentDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(SysContent{})
+		return db.Model(Content{})
 	}
+}
+
+type ContentQueryParam struct {
+	CateId string `form:"cateId"`
+	Name   string `form:"name"`
+	Status string `form:"status"`
+	paginator.Param
 }
 
 type cContent struct{}
 
 var CContent = new(cContent)
 
-// 创建SysContent
-func (e *SysContent) Create() (SysContent, error) {
-	var doc SysContent
-	result := deployed.DB.Table(e.TableName()).Create(&e)
-	if result.Error != nil {
-		err := result.Error
-		return doc, err
-	}
-	doc = *e
-	return doc, nil
-}
-
-// 获取SysContent
-func (e *SysContent) Get() (SysContent, error) {
-	var doc SysContent
-	table := deployed.DB.Table(e.TableName())
-
-	if e.Id != 0 {
-		table = table.Where("id = ?", e.Id)
-	}
-
-	if e.CateId != "" {
-		table = table.Where("cate_id = ?", e.CateId)
-	}
-
-	if e.Name != "" {
-		table = table.Where("name like ?", "%"+e.Name+"%")
-	}
-
-	if e.Status != "" {
-		table = table.Where("status = ?", e.Status)
-	}
-
-	if err := table.First(&doc).Error; err != nil {
-		return doc, err
-	}
-	return doc, nil
-}
-
 // 获取SysContent带分页
-func (e *SysContent) GetPage(param paginator.Param) ([]SysContent, paginator.Info, error) {
-	var doc []SysContent
+func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content, paginator.Info, error) {
+	var err error
+	var items []Content
 
-	table := deployed.DB.Table(e.TableName())
-
-	if e.CateId != "" {
-		table = table.Where("cate_id = ?", e.CateId)
+	db := deployed.DB.Scopes(ContentDB())
+	if qp.CateId != "" {
+		db = db.Where("cate_id = ?", qp.CateId)
 	}
-
-	if e.Name != "" {
-		table = table.Where("name like ?", "%"+e.Name+"%")
+	if qp.Name != "" {
+		db = db.Where("name like ?", "%"+qp.Name+"%")
 	}
-
-	if e.Status != "" {
-		table = table.Where("status = ?", e.Status)
+	if qp.Status != "" {
+		db = db.Where("status=?", qp.Status)
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
-	dataPermission.UserId = cast.ToInt(e.DataScope)
-	table, err := dataPermission.GetDataScope(e.TableName(), table)
+	dataPermission.UserId = jwtauth.FromUserId(ctx)
+	db, err = dataPermission.GetDataScope("sys_content", db)
 	if err != nil {
 		return nil, paginator.Info{}, err
 	}
-	info, err := iorm.QueryPages(table, param, &doc)
-	if err != nil {
-		return nil, info, err
-	}
-	return doc, info, err
+
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
+}
+
+// 获取SysContent
+func (cContent) Get(_ context.Context, id int) (item Content, err error) {
+	err = deployed.DB.Scopes(ContentDB()).
+		Where("id = ?", id).
+		First(&item).Error
+	return
+
+}
+
+// 创建SysContent
+func (cContent) Create(ctx context.Context, item Content) (Content, error) {
+	item.Creator = jwtauth.FromUserIdStr(ctx)
+	err := deployed.DB.Scopes(ContentDB()).Create(&item).Error
+	return item, err
 }
 
 // 更新SysContent
-func (e *SysContent) Update(id int) (update SysContent, err error) {
-	if err = deployed.DB.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
+func (cContent) Update(ctx context.Context, id int, up Content) (item Content, err error) {
+	up.Updator = jwtauth.FromUserIdStr(ctx)
+	if err = deployed.DB.Scopes(ContentDB()).
+		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	if err = deployed.DB.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-		return
-	}
+	err = deployed.DB.Scopes(ContentDB()).
+		Model(&item).Updates(&up).Error
 	return
 }
 
 // 删除SysContent
 func (cContent) Delete(_ context.Context, id int) error {
 	return deployed.DB.Scopes(ContentDB()).
-		Where("id = ?", id).Delete(&SysContent{}).Error
+		Where("id = ?", id).Delete(&Content{}).Error
 }
 
 // 批量删除
 func (cContent) BatchDelete(_ context.Context, ids []int) error {
 	return deployed.DB.Scopes(ContentDB()).
-		Where("id in (?)", ids).Delete(&SysContent{}).Error
+		Where("id in (?)", ids).Delete(&Content{}).Error
 }

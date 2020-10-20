@@ -11,43 +11,35 @@ import (
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 type Content struct{}
 
 func (Content) QueryPage(c *gin.Context) {
-	var data models.SysContent
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+	qp := models.ContentQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, -1, codes.DataParseFailed)
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	data.CateId = c.Request.FormValue("cateId")
-	data.Name = c.Request.FormValue("name")
-	data.Status = c.Request.FormValue("status")
-
-	data.DataScope = jwtauth.UserIdStr(c)
-	result, info, err := data.GetPage(param)
+	items, info, err := models.CContent.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
 		Info: info,
-		List: result,
+		List: items,
 	}))
 }
 
 func (Content) Get(c *gin.Context) {
-	var data models.SysContent
-	data.Id = cast.ToInt(c.Param("id"))
-	result, err := data.Get()
+	id := cast.ToInt(c.Param("id"))
+	result, err := models.CContent.Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, -1, "抱歉未找到相关信息")
+		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
 		return
 	}
 	servers.OKWithRequestID(c, result, "")
@@ -58,40 +50,38 @@ func (Content) Get(c *gin.Context) {
 // @Tags 内容管理
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysContent true "data"
+// @Param data body models.Content true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/syscontents [post]
 func (Content) Create(c *gin.Context) {
-	var data models.SysContent
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	newItem := models.Content{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, 500, err.Error())
 		return
 	}
-	data.Creator = jwtauth.UserIdStr(c)
-	result, err := data.Create()
+
+	item, err := models.CContent.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.OKWithRequestID(c, item, "")
 }
 
 func (Content) Update(c *gin.Context) {
-	var data models.SysContent
-
-	if err := c.ShouldBindJSON(&data); err != nil {
+	up := models.Content{}
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, -1, codes.DataParseFailed)
 		return
 	}
-	data.Updator = jwtauth.UserIdStr(c)
-	result, err := data.Update(data.Id)
+
+	item, err := models.CContent.Update(gcontext.Context(c), up.Id, up)
 	if err != nil {
 		servers.Fail(c, -1, err.Error())
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.OKWithRequestID(c, item, "")
 }
 
 func (Content) BatchDelete(c *gin.Context) {
