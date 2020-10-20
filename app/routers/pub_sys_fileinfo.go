@@ -9,24 +9,26 @@ import (
 
 // 无需认证的路由代码
 func PubSysFileInfo(v1 gin.IRouter) {
+	ctl := new(sysfileinfo.FileInfo)
 	r := v1.Group("/sysfileinfo")
 	{
-		r.GET("", sysfileinfo.GetSysFileInfoList)
-		r.GET("/:id", sysfileinfo.GetSysFileInfo)
-		r.POST("", sysfileinfo.InsertSysFileInfo)
-		r.PUT("", sysfileinfo.UpdateSysFileInfo)
-		r.DELETE("/:ids", sysfileinfo.DeleteSysFileInfo)
+		r.GET("", ctl.QueryPage)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }
 
 // 无需认证的路由代码
 func PubSysFileDir(v1 gin.IRouter) {
+	ctl := new(sysfiledir.FileDir)
 	r := v1.Group("/sysfiledir")
 	{
-		r.GET("", sysfiledir.GetSysFileDirList)
-		r.GET("/:id", sysfiledir.GetSysFileDir)
-		r.POST("", sysfiledir.InsertSysFileDir)
-		r.PUT("", sysfiledir.UpdateSysFileDir)
-		r.DELETE("/:ids", sysfiledir.DeleteSysFileDir)
+		r.GET("", ctl.QueryTree)
+		r.GET("/:id", ctl.Get)
+		r.POST("", ctl.Create)
+		r.PUT("", ctl.Update)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }

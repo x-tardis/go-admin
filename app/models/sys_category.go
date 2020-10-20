@@ -54,7 +54,6 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 	if qp.Name != "" {
 		db = db.Where("name=?", qp.Name)
 	}
-
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)
 	}
@@ -102,7 +101,7 @@ func (cCategory) Update(ctx context.Context, id int, up Category) (update Catego
 // 删除SysCategory
 func (cCategory) Delete(_ context.Context, id int) error {
 	return deployed.DB.Scopes(CategoryDB()).
-		Where("id = ?", id).Delete(&Category{}).Error
+		Where("id=?", id).Delete(&Category{}).Error
 }
 
 // 批量删除

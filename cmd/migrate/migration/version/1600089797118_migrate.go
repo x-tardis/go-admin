@@ -17,7 +17,7 @@ func init() {
 
 func _1600089797118Migrate(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
-		f := &models.SysFileDir{
+		f := &models.FileDir{
 			Label:   "根目录",
 			PId:     0,
 			Sort:    0,

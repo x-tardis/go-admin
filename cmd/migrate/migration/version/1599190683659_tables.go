@@ -36,8 +36,8 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.SysJob),
 		new(models.Config),
 		new(models.Setting),
-		new(models.SysFileDir),
-		new(models.SysFileInfo),
+		new(models.FileDir),
+		new(models.FileInfo),
 		new(models.Category),
 		new(models.Content),
 	)
