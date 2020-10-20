@@ -46,9 +46,9 @@ func DeptDB() func(db *gorm.DB) *gorm.DB {
 
 // DeptLabel dept label
 type DeptLabel struct {
-	Id       int         `gorm:"-" json:"id"`
-	DeptName string      `gorm:"-" json:"label"`
-	Children []DeptLabel `gorm:"-" json:"children"`
+	Id       int         `json:"id"`
+	Label    string      `json:"label"`
+	Children []DeptLabel `json:"children"`
 }
 
 // DeptQueryParam 查询参数
@@ -112,6 +112,7 @@ func deepChildrenDeptLabel(items []Dept, dept DeptLabel) DeptLabel {
 	return dept
 }
 
+// QueryLabelTree query label tree
 func (sf cDept) QueryLabelTree(ctx context.Context) ([]DeptLabel, error) {
 	items, err := sf.Query(ctx)
 	if err != nil {
@@ -120,6 +121,7 @@ func (sf cDept) QueryLabelTree(ctx context.Context) ([]DeptLabel, error) {
 	return toDeptLabelTree(items), nil
 }
 
+// QueryTree query tree
 func (sf cDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([]Dept, error) {
 	list, err := sf.QueryPage(ctx, qp, bl)
 	if err != nil {
@@ -128,12 +130,14 @@ func (sf cDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([]De
 	return toDeptTree(list), nil
 }
 
+// Query query
 func (cDept) Query(_ context.Context) (items []Dept, err error) {
 	err = deployed.DB.Scopes(DeptDB()).
 		Order("sort").Find(&items).Error
 	return
 }
 
+// QueryPage query page
 func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items []Dept, err error) {
 	db := deployed.DB.Scopes(DeptDB())
 	if qp.DeptId != 0 {
@@ -161,12 +165,14 @@ func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items [
 	return items, err
 }
 
+// Get get
 func (cDept) Get(_ context.Context, id int) (item Dept, err error) {
 	err = deployed.DB.Scopes(DeptDB()).
 		Where("dept_id=?", id).First(&item).Error
 	return
 }
 
+// Create create
 func (cDept) Create(ctx context.Context, item Dept) (Dept, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := deployed.DB.Scopes(DeptDB()).Create(&item).Error
