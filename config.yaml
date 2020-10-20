@@ -72,6 +72,8 @@ cors:
     - Origin
     - Authorization
     - X-CSRF-Token
+    - X-Request-Id
+    - x-Trace-Id
   allowCredentials: true
   exposeHeaders:
     - Content-Type

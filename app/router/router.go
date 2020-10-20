@@ -11,6 +11,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cast"
 	"github.com/thinkgos/gin-middlewares/gzap"
+	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/apis/auth"
@@ -33,6 +34,7 @@ func InitRouter() *gin.Engine {
 
 	engine.Use(
 		middleware.WithContextDb(middleware.GetGormFromConfig(deployed.Cfg)),
+		requestid.RequestID(),
 		gzap.Logger(deployed.RequestLogger.Desugar()), // logger
 		gzap.Recovery(izap.Logger, false),             // recover
 		OperLog(),                                     // 操作日志写入数据库

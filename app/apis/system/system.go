@@ -86,7 +86,7 @@ func SystemInfo(c *gin.Context) {
 	cpuInfo, _ := cpu.Info()
 	cpuNum, _ := cpu.Counts(false)
 
-	c.JSON(http.StatusOK, SystemInfos{
+	servers.JSONs(c, http.StatusOK, SystemInfos{
 		http.StatusOK,
 		Os{
 			runtime.GOOS,

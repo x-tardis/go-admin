@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/gin-middlewares/requestid"
 
 	"github.com/x-tardis/go-admin/app/service"
 	"github.com/x-tardis/go-admin/common/dto"
@@ -16,7 +17,7 @@ type SysJob struct{}
 
 // RemoveJobForService 调用service实现
 func (e *SysJob) RemoveJobForService(c *gin.Context) {
-	msgID := middleware.GenerateMsgIDFromContext(c)
+	msgID := requestid.FromRequestID(c)
 	db, err := middleware.GetOrm(c)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] error:%s", msgID, err)
@@ -43,7 +44,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 
 // StartJobForService 启动job service实现
 func (e *SysJob) StartJobForService(c *gin.Context) {
-	msgID := middleware.GenerateMsgIDFromContext(c)
+	msgID := requestid.FromRequestID(c)
 	db, err := middleware.GetOrm(c)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] error:%s", msgID, err)

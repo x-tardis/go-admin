@@ -67,7 +67,7 @@ func (User) Get(c *gin.Context) {
 
 	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
-	c.JSON(http.StatusOK, gin.H{
+	servers.JSONs(c, http.StatusOK, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -97,13 +97,10 @@ func (User) GetProfile(c *gin.Context) {
 	//获取部门列表
 	dept, err := models.CDept.Get(gcontext.Context(c), result.DeptId)
 
-	postIds := make([]int, 0)
-	postIds = append(postIds, result.PostId)
+	postIds := []int{result.PostId}
+	roleIds := []int{result.RoleId}
 
-	roleIds := make([]int, 0)
-	roleIds = append(roleIds, result.RoleId)
-
-	c.JSON(http.StatusOK, gin.H{
+	servers.JSONs(c, http.StatusOK, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,

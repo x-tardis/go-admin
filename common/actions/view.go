@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/gin-middlewares/requestid"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/common/dto"
@@ -23,7 +24,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 			return
 		}
 
-		msgID := middleware.GenerateMsgIDFromContext(c)
+		msgID := requestid.FromRequestID(c)
 		//查看详情
 		req := control.Generate()
 		err = req.Bind(c)

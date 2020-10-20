@@ -147,7 +147,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{
+	servers.JSONs(c, http.StatusOK, gin.H{
 		"code":        200,
 		"menus":       result,
 		"checkedKeys": menuIds,

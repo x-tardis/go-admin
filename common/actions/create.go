@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/gin-middlewares/requestid"
 
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
@@ -22,7 +23,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			return
 		}
 
-		msgID := middleware.GenerateMsgIDFromContext(c)
+		msgID := requestid.FromRequestID(c)
 		//新增操作
 		req := control.Generate()
 		err = req.Bind(c)

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
@@ -26,7 +27,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			return
 		}
 
-		msgID := middleware.GenerateMsgIDFromContext(c)
+		msgID := requestid.FromRequestID(c)
 		list := f()
 		object := m.Generate()
 		req := d.Generate()

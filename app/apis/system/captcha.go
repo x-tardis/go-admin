@@ -27,7 +27,7 @@ func GetCaptcha(c *gin.Context) {
 		servers.Fail(c, 500, "验证码获取失败")
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
+	servers.JSONs(c, http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "success",
 		"id":   id,

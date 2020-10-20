@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/gin-middlewares/requestid"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -30,7 +31,7 @@ func PermissionAction() gin.HandlerFunc {
 			return
 		}
 
-		msgID := middleware.GenerateMsgIDFromContext(c)
+		msgID := requestid.FromRequestID(c)
 		var p = new(DataPermission)
 		if userId := jwtauth.UserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)

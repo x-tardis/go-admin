@@ -6,7 +6,7 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.4
-	github.com/casbin/casbin/v2 v2.13.1
+	github.com/casbin/casbin/v2 v2.14.2
 	github.com/casbin/gorm-adapter/v3 v3.0.2
 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -43,8 +43,9 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7
-	github.com/thinkgos/gin-middlewares v0.0.4
+	github.com/thinkgos/gin-middlewares v0.0.5
 	github.com/thinkgos/go-core-package v0.1.4
+	github.com/thinkgos/http-middlewares v0.0.3
 	github.com/thinkgos/sharp v0.3.4
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0

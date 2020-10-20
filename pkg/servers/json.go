@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/x-tardis/go-admin/pkg/middleware"
+	"github.com/thinkgos/gin-middlewares/requestid"
+	xrequestid "github.com/thinkgos/http-middlewares/requestid"
 )
 
 // Code code interface
@@ -63,6 +63,11 @@ func WithError(err error) Option {
 	}
 }
 
+func JSONs(c *gin.Context, httpCode int, obj interface{}) {
+	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
+	c.JSON(httpCode, obj)
+}
+
 func JSON(c *gin.Context, httpCode int, opts ...Option) {
 	r := Response{
 		Code: httpCode,
@@ -73,12 +78,41 @@ func JSON(c *gin.Context, httpCode int, opts ...Option) {
 	for _, opt := range opts {
 		opt(&r)
 	}
+	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
 	c.JSON(httpCode, r)
+}
+
+// JSONCustom http.StatusBadRequest式应答,自定义code码应答,一般给前端显示使用
+func JSONCustom(c *gin.Context, code Code, opts ...Option) {
+	rsp := Response{
+		Code: code.Value(),
+		Msg:  code.String(),
+		Data: "{}",
+	}
+	for _, opt := range opts {
+		opt(&rsp)
+	}
+	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
+	c.JSON(http.StatusBadRequest, rsp)
+}
+
+// JSONDetail http.StatusBadRequest式应答,detail为err的stringer
+func JSONDetail(c *gin.Context, err error, opts ...Option) {
+	rsp := Response{
+		Code:   http.StatusBadRequest,
+		Msg:    http.StatusText(http.StatusBadRequest),
+		Data:   "{}",
+		Detail: err.Error(),
+	}
+	for _, opt := range opts {
+		opt(&rsp)
+	}
+	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
+	c.JSON(http.StatusBadRequest, rsp)
 }
 
 // 通常成功数据处理
 func OKWithRequestID(c *gin.Context, data interface{}, msg string) {
-	c.Header("X-Request-Id", middleware.GenerateMsgIDFromContext(c))
 	JSON(c, http.StatusOK, WithData(data), WithMsg(msg))
 }
 
@@ -88,6 +122,5 @@ func Fail(c *gin.Context, code int, msg string) {
 
 // 失败数据处理
 func FailWithRequestID(c *gin.Context, code int, msg string) {
-	c.Header("X-Request-Id", middleware.GenerateMsgIDFromContext(c))
 	JSON(c, http.StatusOK, WithCode(code), WithMsg(msg))
 }
