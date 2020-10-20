@@ -66,7 +66,7 @@ func (s *SysJobControl) Generate() dto.Control {
 }
 
 func (s *SysJobControl) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysJob{
+	return &models.Job{
 		JobId:          s.JobId,
 		JobName:        s.JobName,
 		JobGroup:       s.JobGroup,
@@ -95,7 +95,7 @@ func (s *SysJobById) Generate() dto.Control {
 }
 
 func (s *SysJobById) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysJob{}, nil
+	return &models.Job{}, nil
 }
 
 type SysJobItem struct {

@@ -13,9 +13,9 @@ import (
 func SysJobRouter(v1 gin.IRouter) {
 	r := v1.Group("/sysjob")
 	{
-		sysJob := &models.SysJob{}
+		sysJob := &models.Job{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {
-			list := make([]models.SysJob, 0)
+			list := make([]models.Job, 0)
 			return &list
 		}))
 		r.GET("/:id", actions.PermissionAction(), actions.ViewAction(new(dto.SysJobById), func() interface{} {

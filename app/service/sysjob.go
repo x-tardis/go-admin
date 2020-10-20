@@ -18,7 +18,7 @@ type SysJob struct {
 // RemoveJob 删除job
 func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 	var err error
-	var data models.SysJob
+	var data models.Job
 	msgID := e.MsgID
 	data.JobId = c.Id
 	err = e.Orm.Table(data.TableName()).First(&data).Error
@@ -46,7 +46,7 @@ func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 
 // StartJob 启动任务
 func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
-	var data models.SysJob
+	var data models.Job
 	var err error
 	msgID := e.MsgID
 	err = e.Orm.Table(data.TableName()).First(&data, c.Id).Error

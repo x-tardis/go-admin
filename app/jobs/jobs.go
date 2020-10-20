@@ -20,9 +20,7 @@ func Setup() {
 
 	deployed.Cron = deployed.NewCron()
 
-	sysJob := models.SysJob{}
-	jobList := make([]models.SysJob, 0)
-	err := sysJob.GetList(&jobList)
+	jobList, err := models.CJob.Query()
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore init error", err)
 	}
@@ -30,12 +28,13 @@ func Setup() {
 		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore total:0")
 	}
 
-	_, err = sysJob.RemoveAllEntryID()
+	err = models.CJob.RemoveAllEntryID()
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore remove entry_id error", err)
 	}
 
 	for i := 0; i < len(jobList); i++ {
+		sysJob := models.Job{}
 		if jobList[i].JobType == 1 {
 			j := &HttpJob{}
 			j.InvokeTarget = jobList[i].InvokeTarget
@@ -53,7 +52,7 @@ func Setup() {
 			j.Args = jobList[i].Args
 			sysJob.EntryId, err = AddJob(j)
 		}
-		err = sysJob.Update(jobList[i].JobId)
+		err = models.CJob.Update(jobList[i].JobId, sysJob)
 	}
 
 	// 其中任务

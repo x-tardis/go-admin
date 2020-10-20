@@ -36,7 +36,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
 			return
 		}
-		object.SetCreateBy(uint(jwtauth.UserId(c)))
+		object.SetCreator(uint(jwtauth.UserId(c)))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] Create error: %s", msgID, err)

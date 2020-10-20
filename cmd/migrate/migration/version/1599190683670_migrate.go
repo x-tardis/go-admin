@@ -333,7 +333,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{1, "go-admin管理系统", "https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list11 := []models.SysJob{
+		list11 := []models.Job{
 			{1, "接口测试", "DEFAULT", 1, "0/5 * * * * ", "http://localhost:8000", "", 1, 1, 1, 0, "", "", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
 			{2, "函数测试", "DEFAULT", 2, "0/5 * * * * ", "ExamplesOne", "参数", 1, 1, 1, 0, "", "", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
 		}

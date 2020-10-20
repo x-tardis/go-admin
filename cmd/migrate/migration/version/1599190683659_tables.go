@@ -33,7 +33,7 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.Post),
 		new(models.DictData),
 		new(models.DictType),
-		new(models.SysJob),
+		new(models.Job),
 		new(models.Config),
 		new(models.Setting),
 		new(models.FileDir),
