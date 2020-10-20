@@ -111,43 +111,6 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
 
 }
 
-// 该方法即将弃用
-func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
-	tx := deployed.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return false, err
-	}
-
-	if err := tx.Table("sys_role_menu").Where("role_id in (?)", roleIds).Delete(&rm).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-	var role []Role
-	if err := tx.Table("sys_role").Where("role_id in (?)", roleIds).Find(&role).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-	sql := ""
-	for i := 0; i < len(role); i++ {
-		sql += "delete from sys_casbin_rule where v0= '" + role[i].RoleName + "';"
-	}
-	if err := tx.Exec(sql).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-	if err := tx.Commit().Error; err != nil {
-		return false, err
-	}
-	return true, nil
-
-}
-
 func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	var (
 		role            Role

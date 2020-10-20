@@ -64,7 +64,7 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 			return ok
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			servers.OK(c, servers.WithCode(code), servers.WithMsg(message))
+			servers.JSON(c, code, servers.Response{Code: code, Msg: message, Data: "{}"})
 		},
 		LogoutResponse: logoutResponse,
 		TokenLookup:    "header: Authorization, query: token, cookie: jwt",
