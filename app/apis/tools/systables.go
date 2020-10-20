@@ -9,10 +9,10 @@ import (
 	"github.com/thinkgos/sharp/core/paginator"
 
 	"github.com/x-tardis/go-admin/app/models/tools"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // @Summary 分页列表数据
@@ -34,15 +34,17 @@ func GetSysTableList(c *gin.Context) {
 
 	data.TBName = c.Request.FormValue("tableName")
 	data.TableComment = c.Request.FormValue("tableComment")
-	result, info, err := data.GetPage(param)
+	items, info, err := data.GetPage(param)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
 		Info: info,
-		List: result,
+		List: items,
 	}))
 }
 
@@ -58,7 +60,9 @@ func GetSysTables(c *gin.Context) {
 	data.TableId = cast.ToInt(c.Param("id"))
 	result, err := data.Get()
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 
@@ -75,7 +79,9 @@ func GetSysTablesInfo(c *gin.Context) {
 	}
 	result, err := data.Get()
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 	mp := make(map[string]interface{})
@@ -88,7 +94,9 @@ func GetSysTablesTree(c *gin.Context) {
 	var data tools.SysTables
 	result, err := data.GetTree()
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(result))
@@ -109,12 +117,12 @@ func InsertSysTable(c *gin.Context) {
 	for i := 0; i < len(tablesList); i++ {
 		data, err := genTableInit(tablesList, i, c)
 		if err != nil {
-			servers.Fail(c, -1, err.Error())
+			servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 			return
 		}
 		_, err = data.Create()
 		if err != nil {
-			servers.Fail(c, -1, err.Error())
+			servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 			return
 		}
 	}
@@ -240,19 +248,19 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 // @Security Bearer
 func UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
-	err := c.Bind(&data)
+	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		servers.Fail(c, 500, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.Update()
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result), servers.WithMsg(codes.UpdatedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithData(result), servers.WithPrompt(prompt.UpdatedSuccess))
 }
 
 // @Summary 删除表结构
@@ -265,10 +273,10 @@ func UpdateSysTable(c *gin.Context) {
 func DeleteSysTables(c *gin.Context) {
 	var data tools.SysTables
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	_, err := data.BatchDelete(ids)
+	err := data.BatchDelete(ids)
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }

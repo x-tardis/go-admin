@@ -8,6 +8,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // @Summary RoleMenu列表数据
@@ -23,7 +24,7 @@ func GetRoleMenu(c *gin.Context) {
 	err := c.ShouldBind(&Rm)
 	result, err := Rm.Get()
 	if err != nil {
-		servers.FailWithRequestID(c, http.StatusOK, "抱歉未找到相关信息")
+		servers.Fail(c, http.StatusOK, servers.WithMsg("抱歉未找到相关信息"))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(result))
@@ -53,8 +54,8 @@ func DeleteRoleMenu(c *gin.Context) {
 	fmt.Println(menuId)
 	_, err := t.Delete(id, menuId)
 	if err != nil {
-		servers.FailWithRequestID(c, http.StatusOK, "删除失败")
+		servers.Fail(c, http.StatusOK, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg("删除成功"))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }

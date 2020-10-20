@@ -303,7 +303,9 @@ func (manager *Manager) UnWsClient(c *gin.Context) {
 	id := c.Param("id")
 	group := c.Param("channel")
 	WsLogout(id, group)
-	servers.OKWithRequestID(c, "ws close success", "success")
+	servers.OK(c,
+		servers.WithData("ws close success"),
+		servers.WithMsg("success"))
 }
 
 func SendGroup(msg []byte) {

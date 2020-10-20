@@ -9,9 +9,9 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type OperLog struct{}
@@ -30,14 +30,16 @@ type OperLog struct{}
 func (OperLog) QueryPage(c *gin.Context) {
 	qp := models.OperLogQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
 	result, info, err := models.COperLog.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithError(err),
+			servers.WithPrompt(prompt.QueryFailed))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
@@ -57,7 +59,9 @@ func (OperLog) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.COperLog.Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(item))
@@ -74,18 +78,19 @@ func (OperLog) Get(c *gin.Context) {
 // @Router /api/v1/operlog [post]
 // @Security Bearer
 func (OperLog) Create(c *gin.Context) {
-	var item models.OperLog
-
-	if err := c.ShouldBindJSON(&item); err != nil {
-		servers.Fail(c, 500, err.Error())
+	newItem := models.OperLog{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	result, err := models.COperLog.Create(gcontext.Context(c), item)
+	item, err := models.COperLog.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.CreateFailed),
+			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Tags 操作日志
@@ -106,10 +111,9 @@ func (OperLog) BatchDelete(c *gin.Context) {
 		ids := infra.ParseIdsGroup(action)
 		err = models.COperLog.BatchDelete(gcontext.Context(c), ids)
 	}
-
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }

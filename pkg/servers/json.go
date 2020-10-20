@@ -9,11 +9,6 @@ import (
 	xrequestid "github.com/thinkgos/http-middlewares/requestid"
 )
 
-// Code code interface
-type Code interface {
-	fmt.Stringer
-	Value() int
-}
 type Response struct {
 	Code   int         `json:"code" example:"200"`
 	Msg    string      `json:"msg,omitempty"`
@@ -41,11 +36,9 @@ func WithMsg(msg string) Option {
 	}
 }
 
-// WithICode Code interface 使应答修改code和msg,用于显示
-func WithICode(code Code) Option {
+func WithPrompt(s fmt.Stringer) Option {
 	return func(r *Response) {
-		r.Code = code.Value()
-		r.Msg = code.String()
+		r.Msg = s.String()
 	}
 }
 
@@ -82,11 +75,11 @@ func JSON(c *gin.Context, httpCode int, opts ...Option) {
 	c.JSON(httpCode, r)
 }
 
-// JSONCustom http.StatusBadRequest式应答,自定义code码应答,一般给前端显示使用
-func JSONCustom(c *gin.Context, code Code, opts ...Option) {
+// JSONCustom http.StatusBadRequest式应答,自定义prompt码应答,一般给前端显示使用
+func JSONCustom(c *gin.Context, prompt fmt.Stringer, opts ...Option) {
 	rsp := Response{
-		Code: code.Value(),
-		Msg:  code.String(),
+		Code: http.StatusBadRequest,
+		Msg:  prompt.String(),
 		Data: "{}",
 	}
 	for _, opt := range opts {
@@ -112,15 +105,20 @@ func JSONDetail(c *gin.Context, err error, opts ...Option) {
 }
 
 // 通常成功数据处理
-func OKWithRequestID(c *gin.Context, data interface{}, msg string) {
-	JSON(c, http.StatusOK, WithData(data), WithMsg(msg))
+func OK(c *gin.Context, opts ...Option) {
+	JSON(c, http.StatusOK, opts...)
 }
 
-func Fail(c *gin.Context, code int, msg string) {
-	JSON(c, http.StatusOK, WithCode(code), WithMsg(msg))
-}
+func Fail(c *gin.Context, code int, opts ...Option) {
+	r := Response{
+		Code: code,
+		Msg:  http.StatusText(code),
+		Data: "{}",
+	}
 
-// 失败数据处理
-func FailWithRequestID(c *gin.Context, code int, msg string) {
-	JSON(c, http.StatusOK, WithCode(code), WithMsg(msg))
+	for _, opt := range opts {
+		opt(&r)
+	}
+	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
+	c.JSON(http.StatusOK, r)
 }

@@ -9,9 +9,9 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type DictData struct{}
@@ -31,14 +31,16 @@ type DictData struct{}
 func (DictData) QueryPage(c *gin.Context) {
 	qp := models.DictDataQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
 	result, info, err := models.CDictData.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 
@@ -58,12 +60,14 @@ func (DictData) QueryPage(c *gin.Context) {
 func (DictData) Get(c *gin.Context) {
 	dictLabel := c.Query("dictLabel")
 	dictCode := cast.ToInt(c.Param("dictCode"))
-	result, err := models.CDictData.Get(gcontext.Context(c), dictCode, dictLabel)
+	item, err := models.CDictData.Get(gcontext.Context(c), dictCode, dictLabel)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 通过字典类型获取字典数据
@@ -77,7 +81,7 @@ func (DictData) GetWithType(c *gin.Context) {
 	dictType := c.Param("dictType")
 	result, err := models.CDictData.GetWithType(gcontext.Context(c), dictType)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(result))
@@ -94,18 +98,18 @@ func (DictData) GetWithType(c *gin.Context) {
 // @Router /api/v1/dict/data [post]
 // @Security Bearer
 func (DictData) Create(c *gin.Context) {
-	item := models.DictData{}
-	if err := c.ShouldBindJSON(&item); err != nil {
-		servers.Fail(c, 500, err.Error())
+	newItem := models.DictData{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CDictData.Create(gcontext.Context(c), item)
+	item, err := models.CDictData.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 修改字典数据
@@ -119,19 +123,18 @@ func (DictData) Create(c *gin.Context) {
 // @Router /api/v1/dict/data [put]
 // @Security Bearer
 func (DictData) Update(c *gin.Context) {
-	var up models.DictData
-
+	up := models.DictData{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CDictData.Update(gcontext.Context(c), up.DictCode, up)
+	item, err := models.CDictData.Update(gcontext.Context(c), up.DictCode, up)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithData(result))
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 删除字典数据
@@ -145,8 +148,8 @@ func (DictData) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("dictCode"))
 	err := models.CDictData.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg("删除成功"))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }

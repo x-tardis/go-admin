@@ -30,12 +30,13 @@ func GetDBColumnList(c *gin.Context) {
 
 	data.TableName = c.Request.FormValue("tableName")
 	if data.TableName == "" {
-		servers.Fail(c, 500, "table name cannot be empty")
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithMsg("table name cannot be empty"))
 		return
 	}
 	result, info, err := data.GetPage(param)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusOK, servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{

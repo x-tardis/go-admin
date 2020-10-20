@@ -8,8 +8,8 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Dept struct{}
@@ -27,16 +27,18 @@ type Dept struct{}
 func (Dept) QueryPage(c *gin.Context) {
 	qp := models.DeptQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	tree, err := models.CDept.QueryTree(gcontext.Context(c), qp, true)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, tree, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(tree))
 }
 
 // @Tags 部门
@@ -52,15 +54,17 @@ func (Dept) QueryPage(c *gin.Context) {
 func (Dept) QueryTree(c *gin.Context) {
 	qp := models.DeptQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	result, err := models.CDept.QueryTree(gcontext.Context(c), qp, false)
+	items, err := models.CDept.QueryTree(gcontext.Context(c), qp, false)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(items))
 }
 
 // @Tags 部门
@@ -75,10 +79,12 @@ func (Dept) Get(c *gin.Context) {
 	deptId := cast.ToInt(c.Param("id"))
 	item, err := models.CDept.Get(gcontext.Context(c), deptId)
 	if err != nil {
-		servers.Fail(c, 404, codes.NotFound)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, item, codes.GetSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 添加部门
@@ -94,15 +100,15 @@ func (Dept) Get(c *gin.Context) {
 func (Dept) Create(c *gin.Context) {
 	newItem := models.Dept{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
-		servers.Fail(c, 500, err.Error())
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	result, err := models.CDept.Create(gcontext.Context(c), newItem)
+	item, err := models.CDept.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.CreatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 修改部门
@@ -119,16 +125,16 @@ func (Dept) Create(c *gin.Context) {
 func (Dept) Update(c *gin.Context) {
 	up := models.Dept{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CDept.Update(gcontext.Context(c), up.DeptId, up)
+	item, err := models.CDept.Update(gcontext.Context(c), up.DeptId, up)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 删除部门
@@ -140,18 +146,20 @@ func (Dept) Update(c *gin.Context) {
 // @Router /api/v1/depts/{id} [delete]
 func (Dept) Delete(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	// TODO: bug 删除不到部门
-	if err := models.CDept.Delete(gcontext.Context(c), id); err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+	err := models.CDept.Delete(gcontext.Context(c), id)
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
 	result, err := models.CDept.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFound)
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 	roleId := cast.ToInt(c.Param("roleId"))
@@ -159,7 +167,9 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 	if roleId != 0 {
 		menuIds, err = models.CRole.GetDeptIds(gcontext.Context(c), roleId)
 		if err != nil {
-			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+			servers.Fail(c, http.StatusInternalServerError,
+				servers.WithPrompt(prompt.QueryFailed),
+				servers.WithError(err))
 			return
 		}
 	}

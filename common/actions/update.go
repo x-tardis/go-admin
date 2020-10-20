@@ -28,13 +28,13 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		//更新操作
 		err = req.Bind(c)
 		if err != nil {
-			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))
 			return
 		}
 		object.SetUpdator(uint(jwtauth.UserId(c)))
@@ -47,14 +47,14 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
 			izap.Sugar.Errorf("MsgID[%s] Update error: %s", msgID, err)
-			servers.FailWithRequestID(c, http.StatusInternalServerError, "更新失败")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("更新失败"))
 			return
 		}
 		if db.RowsAffected == 0 {
-			servers.FailWithRequestID(c, http.StatusForbidden, "无权更新该数据")
+			servers.Fail(c, http.StatusForbidden, servers.WithMsg("无权更新该数据"))
 			return
 		}
-		servers.OKWithRequestID(c, object.GetId(), "更新成功")
+		servers.JSON(c, http.StatusOK, servers.WithData(object.GetId()), servers.WithMsg("更新成功"))
 		c.Next()
 	}
 }

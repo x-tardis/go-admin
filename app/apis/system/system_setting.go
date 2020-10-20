@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type SysSetting struct{}
@@ -21,10 +21,12 @@ type SysSetting struct{}
 func (SysSetting) Get(c *gin.Context) {
 	item, err := models.CSetting.Get()
 	if err != nil {
-		servers.Fail(c, 500, codes.GetFail)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, item, codes.GetSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Tags 系统设置
@@ -35,20 +37,19 @@ func (SysSetting) Get(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [post]
 func (SysSetting) Update(c *gin.Context) {
-	var up models.UpSetting
-
+	up := models.UpSetting{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.FailWithRequestID(c, http.StatusOK, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	a, err := models.CSetting.Update(models.Setting{
+	item, err := models.CSetting.Update(models.Setting{
 		Logo: up.Logo,
 		Name: up.Name,
 	})
 	if err != nil {
-		servers.FailWithRequestID(c, http.StatusOK, err.Error())
+		servers.Fail(c, http.StatusOK, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, a, codes.UpdatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }

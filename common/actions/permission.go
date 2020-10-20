@@ -37,7 +37,7 @@ func PermissionAction() gin.HandlerFunc {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
 				izap.Sugar.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
-				servers.FailWithRequestID(c, http.StatusInternalServerError, "权限范围鉴定错误")
+				servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("权限范围鉴定错误"))
 				c.Abort()
 				return
 			}

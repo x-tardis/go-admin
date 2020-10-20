@@ -29,13 +29,13 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		err = req.Bind(c)
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] Bind error: %s", msgID, err)
-			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))
 			return
 		}
 
@@ -49,14 +49,14 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Delete(object)
 		if db.Error != nil {
 			izap.Sugar.Errorf("MsgID[%s] Delete error: %s", msgID, err)
-			servers.FailWithRequestID(c, http.StatusInternalServerError, "删除失败")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("删除失败"))
 			return
 		}
 		if db.RowsAffected == 0 {
-			servers.FailWithRequestID(c, http.StatusForbidden, "无权删除该数据")
+			servers.Fail(c, http.StatusForbidden, servers.WithMsg("无权删除该数据"))
 			return
 		}
-		servers.OKWithRequestID(c, object.GetId(), "删除成功")
+		servers.JSON(c, http.StatusOK, servers.WithData(object.GetId()), servers.WithMsg("删除成功"))
 		c.Next()
 	}
 }

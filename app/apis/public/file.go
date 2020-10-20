@@ -41,11 +41,11 @@ func UploadFile(c *gin.Context) {
 
 	switch tag {
 	case "":
-		servers.FailWithRequestID(c, http.StatusOK, "缺少标识")
+		servers.Fail(c, http.StatusOK, servers.WithMsg("缺少标识"))
 	case "1": // 单图
 		files, err := c.FormFile("file")
 		if err != nil {
-			servers.FailWithRequestID(c, http.StatusOK, "图片不能为空")
+			servers.Fail(c, http.StatusOK, servers.WithMsg("图片不能为空"))
 			return
 		}
 		// 上传文件至指定目录
@@ -61,7 +61,7 @@ func UploadFile(c *gin.Context) {
 			Name:     files.Filename,
 			Type:     fileType,
 		}
-		servers.OKWithRequestID(c, fileResponse, "上传成功")
+		servers.JSON(c, http.StatusOK, servers.WithData(fileResponse), servers.WithMsg("上传成功"))
 		return
 	case "2": // 多图
 		files := c.Request.MultipartForm.File["file"]
@@ -82,7 +82,8 @@ func UploadFile(c *gin.Context) {
 				})
 			}
 		}
-		servers.OKWithRequestID(c, multipartFile, "上传成功")
+
+		servers.JSON(c, http.StatusOK, servers.WithData(multipartFile), servers.WithMsg("上传成功"))
 		return
 	case "3": // base64
 		files, _ := c.GetPostForm("file")
@@ -100,6 +101,6 @@ func UploadFile(c *gin.Context) {
 			Name:     "",
 			Type:     typeStr,
 		}
-		servers.OKWithRequestID(c, fileResponse, "上传成功")
+		servers.JSON(c, http.StatusOK, servers.WithData(fileResponse), servers.WithMsg("上传成功"))
 	}
 }

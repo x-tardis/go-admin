@@ -24,12 +24,12 @@ import (
 func GetCaptcha(c *gin.Context) {
 	id, b64s, err := deployed.Captcha.Generate()
 	if err != nil {
-		servers.Fail(c, 500, "验证码获取失败")
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("验证码获取失败"))
 		return
 	}
 	servers.JSONs(c, http.StatusOK, gin.H{
-		"code": 200,
-		"msg":  "success",
+		"code": http.StatusOK,
+		"msg":  http.StatusText(http.StatusOK),
 		"id":   id,
 		"data": b64s,
 	})

@@ -29,13 +29,13 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 		req := control.Generate()
 		err = req.Bind(c)
 		if err != nil {
-			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			servers.FailWithRequestID(c, http.StatusInternalServerError, "模型生成失败")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))
 			return
 		}
 
@@ -54,15 +54,15 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 		).Where(req.GetId()).First(rsp).Error
 
 		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-			servers.FailWithRequestID(c, http.StatusNotFound, "查看对象不存在或无权查看")
+			servers.Fail(c, http.StatusNotFound, servers.WithMsg("查看对象不存在或无权查看"))
 			return
 		}
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] View error: %s", msgID, err)
-			servers.FailWithRequestID(c, http.StatusInternalServerError, "查看失败")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("查看失败"))
 			return
 		}
-		servers.OKWithRequestID(c, rsp, "查看成功")
+		servers.JSON(c, http.StatusOK, servers.WithData(rsp), servers.WithMsg("查看成功"))
 		c.Next()
 	}
 }

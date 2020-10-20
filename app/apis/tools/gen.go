@@ -21,38 +21,38 @@ func Preview(c *gin.Context) {
 	table := tools.SysTables{}
 	id, err := strconv.Atoi(c.Param("tableId"))
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	table.TableId = id
 	t1, err := template.ParseFiles("template/v3/model.go.template")
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	t2, err := template.ParseFiles("template/v3/no_actions/api.go.template")
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	t3, err := template.ParseFiles("template/v3/js.go.template")
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	t4, err := template.ParseFiles("template/v3/vue.go.template")
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	t6, err := template.ParseFiles("template/v3/no_actions/dto.go.template")
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	tab, _ := table.Get()
@@ -84,7 +84,7 @@ func GenCodeV3(c *gin.Context) {
 	table := tools.SysTables{}
 	id, err := strconv.Atoi(c.Param("tableId"))
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	table.TableId = id
@@ -96,10 +96,10 @@ func GenCodeV3(c *gin.Context) {
 		err = NOActionsGenV3(tab)
 	}
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, "", "Code generated successfully！")
+	servers.JSON(c, http.StatusOK, servers.WithMsg("Code generated successfully！"))
 }
 
 func NOActionsGenV3(tab tools.SysTables) error {
@@ -214,7 +214,7 @@ func ActionsGenV3(tab tools.SysTables) error {
 func GenMenuAndApi(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("tableId"))
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
@@ -485,5 +485,5 @@ func GenMenuAndApi(c *gin.Context) {
 
 	ADelete, err = models.CMenu.Create(gcontext.Context(c), ADelete)
 
-	servers.OKWithRequestID(c, "", "数据生成成功！")
+	servers.JSON(c, http.StatusOK, servers.WithMsg("数据生成成功！"))
 }

@@ -9,9 +9,9 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Category struct{}
@@ -19,14 +19,16 @@ type Category struct{}
 func (Category) QueryPage(c *gin.Context) {
 	qp := models.CategoryQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
 	items, info, err := models.CCategory.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithError(err),
+			servers.WithPrompt(prompt.QueryFailed))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
@@ -39,10 +41,12 @@ func (Category) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CCategory.Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, item, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 添加分类
@@ -57,39 +61,39 @@ func (Category) Get(c *gin.Context) {
 func (Category) Create(c *gin.Context) {
 	newItem := models.Category{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
-		servers.Fail(c, 500, err.Error())
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	item, err := models.CCategory.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, item, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 func (Category) Update(c *gin.Context) {
 	up := models.Category{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusNotFound, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CCategory.Update(gcontext.Context(c), up.Id, up)
+	item, err := models.CCategory.Update(gcontext.Context(c), up.Id, up)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 func (Category) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("id"))
 	err := models.CCategory.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.OKWithRequestID(c, nil, codes.DeletedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }

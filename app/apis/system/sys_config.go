@@ -9,9 +9,9 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Config struct{}
@@ -30,14 +30,16 @@ type Config struct{}
 func (Config) QueryPage(c *gin.Context) {
 	qp := models.ConfigQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
 	result, info, err := models.CConfig.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 
@@ -58,7 +60,9 @@ func (Config) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CConfig.Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(item))
@@ -75,10 +79,14 @@ func (Config) GetWithKey(c *gin.Context) {
 	key := c.Param("key")
 	item, err := models.CConfig.GetWithKey(gcontext.Context(c), key)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, item, item.ConfigValue)
+	servers.JSON(c, http.StatusOK,
+		servers.WithData(item),
+		servers.WithMsg(item.ConfigValue))
 }
 
 // @Summary 添加配置
@@ -92,19 +100,18 @@ func (Config) GetWithKey(c *gin.Context) {
 // @Router /api/v1/configs [post]
 // @Security Bearer
 func (Config) Create(c *gin.Context) {
-	var data models.Config
-
-	if err := c.ShouldBindJSON(&data); err != nil {
-		servers.Fail(c, 500, err.Error())
+	newItem := models.Config{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CConfig.Create(gcontext.Context(c), data)
+	item, err := models.CConfig.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 修改配置
@@ -118,19 +125,18 @@ func (Config) Create(c *gin.Context) {
 // @Router /api/v1/configs [put]
 // @Security Bearer
 func (Config) Update(c *gin.Context) {
-	var data models.Config
-
-	if err := c.ShouldBindJSON(&data); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+	up := models.Config{}
+	if err := c.ShouldBindJSON(&up); err != nil {
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CConfig.Update(gcontext.Context(c), data.ConfigId, data)
+	item, err := models.CConfig.Update(gcontext.Context(c), up.ConfigId, up)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 删除配置
@@ -144,8 +150,8 @@ func (Config) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CConfig.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }

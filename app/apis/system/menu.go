@@ -9,9 +9,9 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Menu struct{}
@@ -29,13 +29,15 @@ type Menu struct{}
 func (Menu) QueryTree(c *gin.Context) {
 	qp := models.MenuQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	tree, err := models.CMenu.QueryTree(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(tree))
@@ -53,7 +55,9 @@ func (Menu) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CMenu.Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(item))
@@ -75,18 +79,18 @@ func (Menu) Get(c *gin.Context) {
 // @Router /api/v1/menus [post]
 // @Security Bearer
 func (Menu) Create(c *gin.Context) {
-	item := models.Menu{}
-	if err := c.ShouldBindJSON(&item); err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+	newItem := models.Menu{}
+	if err := c.ShouldBindJSON(&newItem); err != nil {
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CMenu.Create(gcontext.Context(c), item)
+	item, err := models.CMenu.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Tags 菜单
@@ -103,16 +107,16 @@ func (Menu) Create(c *gin.Context) {
 func (Menu) Update(c *gin.Context) {
 	up := models.Menu{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	_, err := models.CMenu.Update(gcontext.Context(c), up.MenuId, up)
 	if err != nil {
-		servers.Fail(c, 501, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OKWithRequestID(c, "", "修改成功")
+	servers.JSON(c, http.StatusOK)
 }
 
 // @Tags 菜单
@@ -126,24 +130,28 @@ func (Menu) Delete(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	err := models.CMenu.Delete(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("roleId"))
 	result, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = models.CRole.GetMenuIds(id)
 		if err != nil {
-			servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+			servers.Fail(c, http.StatusInternalServerError,
+				servers.WithPrompt(prompt.QueryFailed),
+				servers.WithError(err))
 			return
 		}
 	}
@@ -164,12 +172,14 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 // @Router /api/v1/menuTreeselect [get]
 // @Security Bearer
 func GetMenuTreeselect(c *gin.Context) {
-	result, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
+	items, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, result, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(items))
 }
 
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）
@@ -183,7 +193,9 @@ func GetMenuTreeselect(c *gin.Context) {
 func GetMenuRole(c *gin.Context) {
 	items, err := models.CMenu.QueryTreeWithRoleName(gcontext.Context(c), jwtauth.RoleKey(c))
 	if err != nil {
-		servers.Fail(c, 500, codes.GetFail)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(items))
@@ -204,8 +216,10 @@ func GetMenuIDS(c *gin.Context) {
 	data.Updator = jwtauth.UserIdStr(c)
 	result, err := data.GetIDS()
 	if err != nil {
-		servers.Fail(c, 500, codes.GetFail)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.GetSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(result))
 }

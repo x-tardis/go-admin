@@ -8,10 +8,11 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/thinkgos/sharp/core/paginator"
-	"github.com/x-tardis/go-admin/codes"
+
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 
 	"github.com/x-tardis/go-admin/app/models"
 )
@@ -32,14 +33,16 @@ type Role struct{}
 func (Role) QueryPage(c *gin.Context) {
 	qp := models.RoleQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
 	items, count, err := models.CRole.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 
@@ -58,18 +61,19 @@ func (Role) QueryPage(c *gin.Context) {
 // @Router /api/v1/role/{id} [get]
 // @Security Bearer
 func (Role) Get(c *gin.Context) {
-	call := models.CRole
 	id := cast.ToInt(c.Param("id"))
-	result, err := call.Get(gcontext.Context(c), id)
+	item, err := models.CRole.Get(gcontext.Context(c), id)
 	menuIds := make([]int, 0)
-	menuIds, err = call.GetMenuIds(id)
+	menuIds, err = models.CRole.GetMenuIds(id)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
-	result.MenuIds = menuIds
-	servers.OKWithRequestID(c, result, "")
+	item.MenuIds = menuIds
 
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 创建角色
@@ -84,13 +88,13 @@ func (Role) Get(c *gin.Context) {
 func (Role) Create(c *gin.Context) {
 	newItem := models.Role{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
-		servers.Fail(c, 500, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	item, err := models.CRole.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 
@@ -99,17 +103,17 @@ func (Role) Create(c *gin.Context) {
 	if len(item.MenuIds) > 0 {
 		_, err = t.Insert(item.RoleId, newItem.MenuIds)
 		if err != nil {
-			servers.Fail(c, -1, err.Error())
+			servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 			return
 		}
 	}
 
 	err = deployed.CasbinEnforcer.LoadPolicy()
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, item, codes.CreatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 修改用户角色
@@ -123,38 +127,37 @@ func (Role) Create(c *gin.Context) {
 // @Router /api/v1/roles [put]
 func (Role) Update(c *gin.Context) {
 	up := models.Role{}
-
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
 
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(up.RoleId)
 	if err != nil {
-		servers.Fail(c, -1, "修改失败（delete rm）")
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
 	if len(up.MenuIds) > 0 {
 		_, err := t.Insert(up.RoleId, up.MenuIds)
 		if err != nil {
-			servers.Fail(c, -1, "修改失败（insert）")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 			return
 		}
 	}
 
 	err = deployed.CasbinEnforcer.LoadPolicy()
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OKWithRequestID(c, item, "修改成功")
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 删除用户角色
@@ -168,23 +171,22 @@ func (Role) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CRole.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, -1, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
 
 	err = deployed.CasbinEnforcer.LoadPolicy()
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-
-	servers.OKWithRequestID(c, "", codes.DeletedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 func UpdateRoleDataScope(c *gin.Context) {
 	up := models.Role{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
@@ -192,15 +194,15 @@ func UpdateRoleDataScope(c *gin.Context) {
 
 	err = models.CRoleDept.DeleteRoleDept(up.RoleId)
 	if err != nil {
-		servers.Fail(c, -1, codes.CreatedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
 	if up.DataScope == "2" {
 		err := models.CRoleDept.Create(up.RoleId, up.DeptIds)
 		if err != nil {
-			servers.Fail(c, -1, codes.CreatedFail)
+			servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.CreateFailed))
 			return
 		}
 	}
-	servers.OKWithRequestID(c, item, codes.UpdatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }

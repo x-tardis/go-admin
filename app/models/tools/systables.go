@@ -223,10 +223,7 @@ func (e *SysTables) Delete() (success bool, err error) {
 	return
 }
 
-func (e *SysTables) BatchDelete(id []int) (Result bool, err error) {
-	if err = deployed.DB.Unscoped().Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
-		return
-	}
-	Result = true
-	return
+func (e *SysTables) BatchDelete(ids []int) error {
+	return deployed.DB.Unscoped().Table(e.TableName()).
+		Where(" table_id in (?)", ids).Delete(&SysColumns{}).Error
 }

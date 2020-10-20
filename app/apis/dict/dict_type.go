@@ -9,9 +9,9 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type DictType struct{}
@@ -30,14 +30,16 @@ type DictType struct{}
 func (DictType) QueryPage(c *gin.Context) {
 	qp := models.DictTypeQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
 	items, info, err := models.CDictType.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithError(err),
+			servers.WithPrompt(prompt.QueryFailed))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(paginator.Pages{
@@ -58,13 +60,15 @@ func (DictType) QueryPage(c *gin.Context) {
 func (DictType) GetOptionSelect(c *gin.Context) {
 	qp := models.DictTypeQueryParam{}
 	if err := c.ShouldBindQuery(qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	items, err := models.CDictType.Query(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(items))
@@ -82,7 +86,9 @@ func (DictType) Get(c *gin.Context) {
 	dictId := cast.ToInt(c.Param("dictId"))
 	item, err := models.CDictType.Get(gcontext.Context(c), dictId, dictName)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(item))
@@ -101,13 +107,15 @@ func (DictType) Get(c *gin.Context) {
 func (DictType) Create(c *gin.Context) {
 	item := models.DictType{}
 	if err := c.ShouldBindJSON(&item); err != nil {
-		servers.Fail(c, 500, err.Error())
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	result, err := models.CDictType.Create(gcontext.Context(c), item)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.CreateFailed),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(result))
@@ -126,12 +134,14 @@ func (DictType) Create(c *gin.Context) {
 func (DictType) Update(c *gin.Context) {
 	up := models.DictType{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	item, err := models.CDictType.Update(gcontext.Context(c), up.DictId, up)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.UpdateFailed),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(item))
@@ -148,8 +158,8 @@ func (DictType) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("dictId"))
 	err := models.CDictType.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }

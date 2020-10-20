@@ -1,6 +1,8 @@
 package system
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
@@ -35,7 +37,7 @@ func GetInfo(c *gin.Context) {
 
 	user, err := models.CUser.GetUserInfo(gcontext.Context(c))
 	if err != nil {
-		servers.Fail(c, 500, err.Error())
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 
@@ -50,5 +52,5 @@ func GetInfo(c *gin.Context) {
 	mp["deptId"] = user.DeptId
 	mp["name"] = user.NickName
 
-	servers.OKWithRequestID(c, mp, "")
+	servers.JSON(c, http.StatusOK, servers.WithData(mp))
 }

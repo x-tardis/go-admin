@@ -36,7 +36,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		//查询列表
 		err = req.Bind(c)
 		if err != nil {
-			servers.FailWithRequestID(c, http.StatusUnprocessableEntity, "参数验证失败")
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
 
@@ -54,7 +54,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			izap.Sugar.Errorf("MsgID[%s] Index error: %s", msgID, err)
-			servers.FailWithRequestID(c, http.StatusInternalServerError, "查询失败")
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("查询失败"))
 			return
 		}
 

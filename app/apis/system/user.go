@@ -10,10 +10,10 @@ import (
 	"github.com/thinkgos/sharp/core/paginator"
 
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/codes"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type User struct{}
@@ -29,14 +29,16 @@ type User struct{}
 func (User) QueryPage(c *gin.Context) {
 	qp := models.UserQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
 	items, info, err := models.CUser.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
-		servers.Fail(c, -1, err.Error())
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
 		return
 	}
 	servers.JSON(c, http.StatusOK, servers.WithData(&paginator.Pages{
@@ -56,7 +58,9 @@ func (User) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	result, err := models.CUser.Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 	roles, err := models.CRole.Query(gcontext.Context(c))
@@ -86,7 +90,9 @@ func (User) Get(c *gin.Context) {
 func (User) GetProfile(c *gin.Context) {
 	result, err := models.CUser.GetUserInfo(gcontext.Context(c))
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
 
@@ -121,13 +127,16 @@ func (User) GetInit(c *gin.Context) {
 	roles, err := models.CRole.Query(gcontext.Context(c))
 	posts, err := models.CPost.Query(gcontext.Context(c), models.PostQueryParam{})
 	if err != nil {
-		servers.Fail(c, -1, codes.NotFoundRelatedInfo)
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
 		return
 	}
-	mp := make(map[string]interface{}, 2)
-	mp["roles"] = roles
-	mp["posts"] = posts
-	servers.OKWithRequestID(c, mp, "")
+	mp := map[string]interface{}{
+		"roles": roles,
+		"posts": posts,
+	}
+	servers.JSON(c, http.StatusOK, servers.WithData(mp))
 }
 
 // @Summary 创建用户
@@ -142,16 +151,16 @@ func (User) GetInit(c *gin.Context) {
 func (User) Create(c *gin.Context) {
 	newItem := models.User{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
-		servers.Fail(c, 500, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	_, err := models.CUser.Create(gcontext.Context(c), newItem)
 	if err != nil {
-		servers.Fail(c, 500, codes.CreatedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.CreatedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.CreateSuccess))
 }
 
 // @Summary 修改用户数据
@@ -166,16 +175,16 @@ func (User) Create(c *gin.Context) {
 func (User) Update(c *gin.Context) {
 	up := models.User{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, -1, codes.DataParseFailed)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	result, err := models.CUser.Update(gcontext.Context(c), up.UserId, up)
+	item, err := models.CUser.Update(gcontext.Context(c), up.UserId, up)
 	if err != nil {
-		servers.Fail(c, -1, codes.UpdatedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OKWithRequestID(c, result, codes.UpdatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(item))
 }
 
 // @Summary 删除用户数据
@@ -189,10 +198,10 @@ func (User) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CUser.BatchDelete(ids)
 	if err != nil {
-		servers.Fail(c, 500, codes.DeletedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.JSON(c, http.StatusOK, servers.WithMsg(codes.DeletedSuccess))
+	servers.JSON(c, http.StatusOK, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
 // @Summary 修改头像
@@ -216,23 +225,23 @@ func (User) UploadAvatar(c *gin.Context) {
 	avatar := "/" + filPath
 	err := models.CUser.UpdateAvatar(gcontext.Context(c), avatar)
 	if err != nil {
-		servers.Fail(c, -1, codes.UpdatedFail)
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OKWithRequestID(c, avatar, codes.UpdatedSuccess)
+	servers.JSON(c, http.StatusOK, servers.WithData(avatar))
 }
 
 func (User) UpdatePassword(c *gin.Context) {
 	upPwd := models.UpdateUserPwd{}
 	if err := c.ShouldBindJSON(&upPwd); err != nil {
-		servers.Fail(c, 500, codes.UpdatedFail)
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
 	err := models.CUser.UpdatePassword(gcontext.Context(c), upPwd)
 	if err != nil {
-		servers.Fail(c, http.StatusOK, "密码更新失败")
+		servers.Fail(c, http.StatusOK, servers.WithMsg("密码更新失败"))
 		return
 	}
-	servers.OKWithRequestID(c, "", "密码修改成功")
+	servers.JSON(c, http.StatusOK, servers.WithMsg("密码修改成功"))
 }
