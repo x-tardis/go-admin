@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	imgType "github.com/shamsher31/goimgtype"
 	"github.com/thinkgos/go-core-package/extos"
 
+	"github.com/x-tardis/go-admin/pkg/extimg"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
@@ -52,7 +52,7 @@ func UploadFile(c *gin.Context) {
 		guid := infra.GenerateUUID()
 		singleFile := "static/uploadfile/" + guid + path.Ext(files.Filename)
 		_ = c.SaveUploadedFile(files, singleFile)
-		fileType, _ := imgType.Get(singleFile)
+		fileType, _ := extimg.GetType(singleFile)
 		fileSize, _ := extos.FileSize(singleFile)
 		fileResponse = FileResponse{
 			Size:     fileSize,
@@ -70,7 +70,7 @@ func UploadFile(c *gin.Context) {
 			guid := infra.GenerateUUID()
 			multipartFileName := "static/uploadfile/" + guid + path.Ext(f.Filename)
 			e := c.SaveUploadedFile(f, multipartFileName)
-			fileType, _ := imgType.Get(multipartFileName)
+			fileType, _ := extimg.GetType(multipartFileName)
 			if e == nil {
 				fileSize, _ := extos.FileSize(multipartFileName)
 				multipartFile = append(multipartFile, FileResponse{

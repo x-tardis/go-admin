@@ -31,8 +31,6 @@ require (
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/shamsher31/goimgext v1.0.0 // indirect
-	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shirou/gopsutil v2.20.9+incompatible
 	github.com/spf13/afero v1.4.1 // indirect
 	github.com/spf13/cast v1.3.1
