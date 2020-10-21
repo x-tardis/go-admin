@@ -34,10 +34,10 @@ var rootCmd = &cobra.Command{
 }
 
 func tip() {
-	usageStr := `欢迎使用 ` + textcolor.Green(`github.com/x-tardis/go-admin `+builder.Version) + ` 可以使用 ` + textcolor.Red(`-h`) + ` 查看命令`
-	usageStr1 := `也可以参考 http://doc.zhangwj.com/github.com/x-tardis/go-admin-site/guide/ksks.html 里边的【启动】章节`
-	fmt.Printf("%s\n", usageStr)
-	fmt.Printf("%s\n", usageStr1)
+	usage := `欢迎使用 ` + textcolor.Green(`github.com/x-tardis/go-admin `+builder.Version) + ` 可以使用 ` + textcolor.Red(`-h`) + ` 查看命令`
+	fmt.Printf("%s\n", usage)
+	usage1 := `也可以参考 http://doc.zhangwj.com/github.com/x-tardis/go-admin-site/guide/ksks.html 里边的【启动】章节`
+	fmt.Printf("%s\n", usage1)
 }
 
 func init() {

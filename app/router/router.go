@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/gin-middlewares/expvar"
 	"github.com/thinkgos/gin-middlewares/gzap"
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
@@ -62,7 +63,7 @@ func RegisterSys(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	engine.GET("/", system.HelloWorld)
 	engine.POST("/login", authMiddleware.LoginHandler)
 	engine.GET("/refresh_token", authMiddleware.RefreshHandler) // Refresh time can be longer than token timeout
-
+	engine.GET("/debug/vars", expvar.Handler())
 	// 静态文件
 	StaticFile(engine)
 	// swagger

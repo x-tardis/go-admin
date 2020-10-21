@@ -31,11 +31,11 @@ const layout = "2006-01-02 15:04:05 Z07:00"
 type Os struct {
 	GoOs         string `json:"goOs"`
 	Arch         string `json:"arch"`
-	NumCPU       int    `json:"numCpu"`
+	NumCPU       int    `json:"numCpu,string"`
 	Mem          int    `json:"mem"`
 	Compiler     string `json:"compiler"`
 	Version      string `json:"version"`
-	NumGoroutine int    `json:"numGoroutine"`
+	NumGoroutine int    `json:"numGoroutine,string"`
 	Ip           string `json:"ip"`
 }
 
@@ -44,14 +44,14 @@ type Mem struct {
 	Total       float64 `json:"total,string"`
 	Used        float64 `json:"used,string"`
 	Free        float64 `json:"free,string"`
-	UsedPercent float64 `json:"usedPercent,string"`
+	UsedPercent float64 `json:"usedPercent"`
 }
 
 // Cpu cpu信息
 type Cpu struct {
+	NumCPU  int            `json:"numCpu,string"`
+	Percent float64        `json:"percent"`
 	CpuInfo []cpu.InfoStat `json:"cpuInfo"`
-	Percent float64        `json:"percent,string"`
-	NumCPU  int            `json:"numCpu"`
 }
 
 // Disk disk信息
@@ -59,12 +59,12 @@ type Disk struct {
 	Total       float64 `json:"total,string"`
 	Used        float64 `json:"used,string"`
 	Free        float64 `json:"free,string"`
-	UsedPercent float64 `json:"usedPercent,string"`
+	UsedPercent float64 `json:"usedPercent"`
 }
 
 type App struct {
 	Model         string `json:"model"`
-	Pid           int    `json:"pid"`
+	Pid           int    `json:"pid,string"`
 	Version       string `json:"version"`
 	APIVersion    string `json:"apiVersion"`
 	BuildTime     string `json:"buildTime"`
@@ -107,8 +107,12 @@ func SystemInfo(c *gin.Context) {
 	percent, _ := cpu.Percent(0, false)
 	cpuInfo, _ := cpu.Info()
 	cpuNum, _ := cpu.Counts(true)
+
 	sysInfo := syscall.Sysinfo_t{} // Uptime = 秒
 	syscall.Sysinfo(&sysInfo)      // nolint: errcheck
+
+	// memStats := runtime.MemStats{}
+	// runtime.ReadMemStats(&memStats)
 
 	servers.JSON(c, http.StatusOK, SystemInfos{
 		http.StatusOK,
@@ -129,9 +133,9 @@ func SystemInfo(c *gin.Context) {
 			extmath.Round(vMem.UsedPercent, 2),
 		},
 		Cpu{
-			cpuInfo,
-			extmath.Round(percent[0], 2),
 			cpuNum,
+			extmath.Round(percent[0], 2),
+			cpuInfo,
 		},
 		Disk{
 			extmath.Round(float64(dis.Total)/GB, 2),
@@ -179,7 +183,7 @@ $(function(){
 </script>
 </head>
 <body>
-<iframe id="iframe" frameborder="0" src="http://doc.zhangwj.com/github.com/x-tardis/go-admin-site/" style="width:100%;"></iframe>
+<iframe id="iframe" frameborder="0" src="https://doc.zhangwj.com/" style="width:100%;"></iframe>
 </body>
 </html>
 `

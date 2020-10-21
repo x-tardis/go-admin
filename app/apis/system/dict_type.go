@@ -24,7 +24,7 @@ type DictType struct{}
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} paginator.Page "{"code": 200, "data": [...]}"
+// @Success 200 {object} paginator.Pages "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type [get]
 // @Security Bearer
 func (DictType) QueryPage(c *gin.Context) {

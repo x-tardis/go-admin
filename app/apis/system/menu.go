@@ -2,7 +2,6 @@ package system
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
@@ -137,7 +136,7 @@ func (Menu) Delete(c *gin.Context) {
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("roleId"))
+
 	result, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
@@ -145,6 +144,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
+	id := cast.ToInt(c.Param("roleId"))
 	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = models.CRole.GetMenuIds(id)
