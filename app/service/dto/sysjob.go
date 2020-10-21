@@ -6,7 +6,6 @@ import (
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/common/dto"
-	common "github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/izap"
 )
 
@@ -65,7 +64,7 @@ func (s *SysJobControl) Generate() dto.Control {
 	return &cp
 }
 
-func (s *SysJobControl) GenerateM() (common.ActiveRecord, error) {
+func (s *SysJobControl) GenerateM() (dto.ActiveRecord, error) {
 	return &models.Job{
 		JobId:          s.JobId,
 		JobName:        s.JobName,
@@ -94,7 +93,7 @@ func (s *SysJobById) Generate() dto.Control {
 	return &cp
 }
 
-func (s *SysJobById) GenerateM() (common.ActiveRecord, error) {
+func (s *SysJobById) GenerateM() (dto.ActiveRecord, error) {
 	return &models.Job{}, nil
 }
 

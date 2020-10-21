@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -26,7 +25,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
-		var object models.ActiveRecord
+		var object dto.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))

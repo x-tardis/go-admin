@@ -6,13 +6,12 @@ import (
 	"github.com/x-tardis/go-admin/app/jobs"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/common/service"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type SysJob struct {
-	service.Service
+	Service
 }
 
 // RemoveJob 删除job

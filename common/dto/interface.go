@@ -3,8 +3,7 @@ package dto
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/sharp/core/paginator"
-
-	"github.com/x-tardis/go-admin/common/models"
+	"gorm.io/gorm/schema"
 )
 
 type Index interface {
@@ -17,6 +16,14 @@ type Index interface {
 type Control interface {
 	Generate() Control
 	Bind(ctx *gin.Context) error
-	GenerateM() (models.ActiveRecord, error)
+	GenerateM() (ActiveRecord, error)
 	GetId() interface{}
+}
+
+type ActiveRecord interface {
+	schema.Tabler
+	SetCreator(createBy uint)
+	SetUpdator(updateBy uint)
+	Generate() ActiveRecord
+	GetId() uint
 }

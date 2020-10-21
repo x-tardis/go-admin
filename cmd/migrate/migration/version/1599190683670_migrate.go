@@ -4,8 +4,6 @@ import (
 	"runtime"
 	"time"
 
-	common "github.com/x-tardis/go-admin/common/models"
-
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/app/models"
@@ -396,7 +394,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 
 		}
 
-		return tx.Create(&common.Migration{
+		return tx.Create(&models.Migration{
 			Version: version,
 		}).Error
 	})

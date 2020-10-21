@@ -6,9 +6,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/cmd/migrate/migration"
 	_ "github.com/x-tardis/go-admin/cmd/migrate/migration/version"
-	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 

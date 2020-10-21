@@ -7,7 +7,6 @@ import (
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/cmd/migrate/migration"
-	common "github.com/x-tardis/go-admin/common/models"
 )
 
 func init() {
@@ -29,7 +28,7 @@ func _1600089797118Migrate(db *gorm.DB, version string) error {
 		if err != nil {
 			return err
 		}
-		return tx.Create(&common.Migration{
+		return tx.Create(&models.Migration{
 			Version: version,
 		}).Error
 	})

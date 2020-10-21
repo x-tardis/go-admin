@@ -8,7 +8,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/common/dto"
-	"github.com/x-tardis/go-admin/common/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -45,7 +44,7 @@ type cJob struct{}
 
 var CJob = new(cJob)
 
-func (e *Job) Generate() models.ActiveRecord {
+func (e *Job) Generate() dto.ActiveRecord {
 	o := *e
 	return &o
 }
