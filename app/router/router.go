@@ -33,7 +33,6 @@ func InitRouter() *gin.Engine {
 	}
 
 	engine.Use(
-		middleware.WithContextDb(middleware.GetGormFromConfig(deployed.Cfg)),
 		requestid.RequestID(),
 		gzap.Logger(deployed.RequestLogger.Desugar()), // logger
 		gzap.Recovery(izap.Logger, false),             // recover

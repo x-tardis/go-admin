@@ -12,7 +12,6 @@ import (
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
@@ -25,18 +24,13 @@ type DataPermission struct {
 
 func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := middleware.GetOrm(c)
-		if err != nil {
-			izap.Sugar.Error(err)
-			return
-		}
-
-		msgID := requestid.FromRequestID(c)
 		var p = new(DataPermission)
+		var err error
+
 		if userId := jwtauth.UserIdStr(c); userId != "" {
-			p, err = newDataPermission(db, userId)
+			p, err = newDataPermission(deployed.DB, userId)
 			if err != nil {
-				izap.Sugar.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
+				izap.Sugar.Errorf("MsgID[%s] PermissionAction error: %s", requestid.FromRequestID(c), err)
 				servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("权限范围鉴定错误"))
 				c.Abort()
 				return

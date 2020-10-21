@@ -8,25 +8,19 @@ import (
 
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 // CreateAction 通用新增动作
 func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := middleware.GetOrm(c)
-		if err != nil {
-			izap.Sugar.Error(err)
-			return
-		}
-
 		msgID := requestid.FromRequestID(c)
 		//新增操作
 		req := control.Generate()
-		err = req.Bind(c)
+		err := req.Bind(c)
 		if err != nil {
 			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
@@ -38,7 +32,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			return
 		}
 		object.SetCreator(uint(jwtauth.UserId(c)))
-		err = db.WithContext(c).Create(object).Error
+		err = deployed.DB.WithContext(c).Create(object).Error
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] Create error: %s", msgID, err)
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("创建失败"))

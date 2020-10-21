@@ -13,20 +13,14 @@ import (
 
 	"github.com/x-tardis/go-admin/common/dto"
 	"github.com/x-tardis/go-admin/common/models"
+	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
-	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 // IndexAction 通用查询动作
 func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := middleware.GetOrm(c)
-		if err != nil {
-			izap.Sugar.Error(err)
-			return
-		}
-
 		msgID := requestid.FromRequestID(c)
 		list := f()
 		object := m.Generate()
@@ -34,7 +28,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		var count int64
 
 		//查询列表
-		err = req.Bind(c)
+		err := req.Bind(c)
 		if err != nil {
 			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
@@ -44,7 +38,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		p := GetPermissionFromContext(c)
 
 		pageParam := req.GetPaginatorParam()
-		err = db.WithContext(c).Model(object).
+		err = deployed.DB.WithContext(c).Model(object).
 			Scopes(
 				dto.MakeCondition(req.GetNeedSearch()),
 				iorm.Paginate(pageParam),
