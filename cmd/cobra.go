@@ -16,10 +16,10 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:          "github.com/x-tardis/go-admin",
-	Short:        "github.com/x-tardis/go-admin",
+	Use:          "go-admin",
+	Short:        "go-admin",
 	SilenceUsage: true,
-	Long:         `github.com/x-tardis/go-admin`,
+	Long:         `go-admin`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			tip()
