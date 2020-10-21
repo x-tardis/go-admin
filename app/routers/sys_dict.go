@@ -3,12 +3,12 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/app/apis/dict"
+	"github.com/x-tardis/go-admin/app/apis/system"
 )
 
 func Dict(v1 *gin.RouterGroup) {
-	ctlType := new(dict.DictType)
-	ctlData := new(dict.DictData)
+	ctlType := new(system.DictType)
+	ctlData := new(system.DictData)
 	r := v1.Group("/dict")
 	{
 		r.GET("/data", ctlData.QueryPage)

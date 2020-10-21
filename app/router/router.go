@@ -14,7 +14,6 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
-	"github.com/x-tardis/go-admin/app/apis/auth"
 	"github.com/x-tardis/go-admin/app/apis/system"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/app/routers"
@@ -42,7 +41,7 @@ func InitRouter() *gin.Engine {
 		middleware.Secure(),                           // Secure is a middleware function that appends security
 	)
 	// the jwt middleware
-	authMiddleware, err := auth.NewJWTAuth(deployed.JwtConfig)
+	authMiddleware, err := system.NewJWTAuth(deployed.JwtConfig)
 	if err != nil {
 		panic("JWT Init Error")
 	}

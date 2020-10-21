@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/x-tardis/go-admin/app/apis/actions"
-	"github.com/x-tardis/go-admin/app/apis/sysjob"
+	"github.com/x-tardis/go-admin/app/apis/system"
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/app/service"
 )
@@ -25,7 +25,7 @@ func SysJobRouter(v1 gin.IRouter) {
 		r.PUT("", actions.PermissionAction(), actions.UpdateAction(new(service.SysJobControl)))
 		r.DELETE("", actions.PermissionAction(), actions.DeleteAction(new(service.SysJobById)))
 	}
-	sysJob := &sysjob.SysJob{}
+	sysJob := &system.Job{}
 
 	v1.GET("/job/remove/:id", sysJob.RemoveJobForService)
 	v1.GET("/job/start/:id", sysJob.StartJobForService)

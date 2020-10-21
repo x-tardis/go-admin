@@ -1,4 +1,4 @@
-package log
+package system
 
 import (
 	"net/http"
@@ -15,28 +15,28 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
-type LoginLog struct{}
+type OperLog struct{}
 
+// @Tags 操作日志
 // @Summary 登录日志列表
 // @Description 获取JSON
-// @Tags 登录日志
 // @Param status query string false "status"
 // @Param dictCode query string false "dictCode"
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/loginlog [get]
+// @Router /api/v1/operlog [get]
 // @Security Bearer
-func (LoginLog) QueryPage(c *gin.Context) {
-	qp := models.LoginLogQueryParam{}
+func (OperLog) QueryPage(c *gin.Context) {
+	qp := models.OperLogQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 	qp.Inspect()
 
-	result, info, err := models.CLoginLog.QueryPage(gcontext.Context(c), qp)
+	result, info, err := models.COperLog.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithError(err),
@@ -49,43 +49,42 @@ func (LoginLog) QueryPage(c *gin.Context) {
 	}))
 }
 
+// @Tags 操作日志
 // @Summary 通过编码获取登录日志
 // @Description 获取JSON
-// @Tags 登录日志
 // @Param infoId path int true "infoId"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/loginlog/{id} [get]
+// @Router /api/v1/operlog/{id} [get]
 // @Security Bearer
-func (LoginLog) Get(c *gin.Context) {
+func (OperLog) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	result, err := models.CLoginLog.Get(id)
+	item, err := models.COperLog.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(result))
+	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加登录日志
+// @Tags 操作日志
+// @Summary 添加操作日志
 // @Description 获取JSON
-// @Tags 登录日志
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.LoginLog true "data"
+// @Param data body models.OperLog true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/loginlog [post]
+// @Router /api/v1/operlog [post]
 // @Security Bearer
-func (LoginLog) Create(c *gin.Context) {
-	newItem := models.LoginLog{}
+func (OperLog) Create(c *gin.Context) {
+	newItem := models.OperLog{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-
-	item, err := models.CLoginLog.Create(gcontext.Context(c), newItem)
+	item, err := models.COperLog.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.CreateFailed),
@@ -95,49 +94,23 @@ func (LoginLog) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 修改登录日志
-// @Description 获取JSON
-// @Tags 登录日志
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.LoginLog true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/loginlog [put]
-// @Security Bearer
-func (LoginLog) Update(c *gin.Context) {
-	up := models.LoginLog{}
-	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
-		return
-	}
-	result, err := models.CLoginLog.Update(gcontext.Context(c), up.InfoId, up)
-	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.UpdateFailed),
-			servers.WithError(err))
-		return
-	}
-	servers.OK(c, servers.WithData(result))
-}
-
-// @Summary 批量删除登录日志
+// @Tags 操作日志
+// @Summary 批量删除操作日志
 // @Description 删除数据
-// @Tags 登录日志
-// @Param infoId path string true "以逗号（,）分割的infoId"
+// @Param operId path string true "以逗号（,）分割的operId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/loginlog/{ids} [delete]
-func (LoginLog) BatchDelete(c *gin.Context) {
+// @Router /api/v1/operlog/{ids} [delete]
+func (OperLog) BatchDelete(c *gin.Context) {
 	var err error
 
 	action := c.Param("ids")
 	switch action {
 	case "clean":
-		err = models.CLoginLog.Clean(gcontext.Context(c))
+		err = models.COperLog.Clean(gcontext.Context(c))
 	default: // ids
 		ids := infra.ParseIdsGroup(action)
-		err = models.CLoginLog.BatchDelete(gcontext.Context(c), ids)
+		err = models.COperLog.BatchDelete(gcontext.Context(c), ids)
 	}
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))

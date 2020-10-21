@@ -2,11 +2,12 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/x-tardis/go-admin/app/apis/log"
+
+	"github.com/x-tardis/go-admin/app/apis/system"
 )
 
 func LoginLog(v1 gin.IRouter) {
-	ctl := new(log.LoginLog)
+	ctl := new(system.LoginLog)
 	r := v1.Group("/loginlog")
 	{
 		r.GET("", ctl.QueryPage)
@@ -18,7 +19,7 @@ func LoginLog(v1 gin.IRouter) {
 }
 
 func OperLog(v1 gin.IRouter) {
-	ctl := new(log.OperLog)
+	ctl := new(system.OperLog)
 
 	r := v1.Group("/operlog")
 	{

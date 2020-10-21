@@ -1,4 +1,4 @@
-package sysjob
+package system
 
 import (
 	"net/http"
@@ -13,10 +13,10 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
-type SysJob struct{}
+type Job struct{}
 
 // RemoveJobForService 调用service实现
-func (e *SysJob) RemoveJobForService(c *gin.Context) {
+func (Job) RemoveJobForService(c *gin.Context) {
 	msgID := requestid.FromRequestID(c)
 	var v dto2.GeneralDelDto
 	err := c.BindUri(&v)
@@ -37,7 +37,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 }
 
 // StartJobForService 启动job service实现
-func (e *SysJob) StartJobForService(c *gin.Context) {
+func (Job) StartJobForService(c *gin.Context) {
 	msgID := requestid.FromRequestID(c)
 	var v dto2.GeneralGetDto
 	err := c.BindUri(&v)

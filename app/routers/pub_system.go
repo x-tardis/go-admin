@@ -13,7 +13,7 @@ func PubSystem(v1 gin.IRouter) {
 		r.GET("/info", system.SystemInfo)
 
 		// system setting
-		ctl := new(system.SysSetting)
+		ctl := new(system.Setting)
 		rx := r.Group("/setting")
 		{
 			rx.GET("", ctl.Get)

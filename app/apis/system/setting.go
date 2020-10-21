@@ -10,7 +10,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
-type SysSetting struct{}
+type Setting struct{}
 
 // @Summary 查询系统信息
 // @Description 获取JSON
@@ -18,7 +18,7 @@ type SysSetting struct{}
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [get]
-func (SysSetting) Get(c *gin.Context) {
+func (Setting) Get(c *gin.Context) {
 	item, err := models.CSetting.Get()
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
@@ -36,7 +36,7 @@ func (SysSetting) Get(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [post]
-func (SysSetting) Update(c *gin.Context) {
+func (Setting) Update(c *gin.Context) {
 	up := models.UpSetting{}
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))

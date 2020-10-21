@@ -1,4 +1,4 @@
-package dict
+package system
 
 import (
 	"net/http"

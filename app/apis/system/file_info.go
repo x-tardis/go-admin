@@ -1,4 +1,4 @@
-package sysfile
+package system
 
 import (
 	"net/http"
@@ -7,32 +7,38 @@ import (
 	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
+	"github.com/thinkgos/sharp/core/paginator"
+
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
-type FileDir struct{}
+type FileInfo struct{}
 
-func (FileDir) QueryTree(c *gin.Context) {
-	qp := models.FileDirQueryParam{}
+func (FileInfo) QueryPage(c *gin.Context) {
+	qp := models.FileInfoQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
+	qp.Inspect()
 
-	items, err := models.CFileDir.QueryTree(gcontext.Context(c), qp)
+	items, info, err := models.CFileInfo.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(items))
+	servers.OK(c, servers.WithData(paginator.Pages{
+		Info: info,
+		List: items,
+	}))
 }
 
-func (FileDir) Get(c *gin.Context) {
+func (FileInfo) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	item, err := models.CFileDir.Get(gcontext.Context(c), id)
+	item, err := models.CFileInfo.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
 		return
@@ -40,23 +46,14 @@ func (FileDir) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加SysFileDir
-// @Description 获取JSON
-// @Tags SysFileDir
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.FileDir true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/sysfiledir [post]
-func (FileDir) Create(c *gin.Context) {
-	newItem := models.FileDir{}
+func (FileInfo) Create(c *gin.Context) {
+	newItem := models.FileInfo{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	item, err := models.CFileDir.Create(gcontext.Context(c), newItem)
+	item, err := models.CFileInfo.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
@@ -64,14 +61,14 @@ func (FileDir) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-func (FileDir) Update(c *gin.Context) {
-	up := models.FileDir{}
+func (FileInfo) Update(c *gin.Context) {
+	up := models.FileInfo{}
 	if err := c.ShouldBindJSON(&up); err != nil {
-		servers.Fail(c, http.StatusNotFound, servers.WithError(err))
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	item, err := models.CFileDir.Update(gcontext.Context(c), up.Id, up)
+	item, err := models.CFileInfo.Update(gcontext.Context(c), up.Id, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
@@ -79,9 +76,9 @@ func (FileDir) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-func (FileDir) BatchDelete(c *gin.Context) {
+func (FileInfo) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	err := models.CFileDir.BatchDelete(gcontext.Context(c), ids)
+	err := models.CFileInfo.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
