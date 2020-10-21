@@ -178,7 +178,8 @@ func (sf cMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, err
 	return toMenuTree(items), nil
 }
 
-func (sf cMenu) QueryTreeWithRoleName(ctx context.Context, roleName string) ([]Menu, error) {
+func (sf cMenu) QueryTreeWithRoleName(ctx context.Context) ([]Menu, error) {
+	roleName := jwtauth.FromRoleKey(ctx)
 	items, err := sf.QueryWithRoleName(ctx, roleName)
 	if err != nil {
 		return nil, err

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -32,7 +33,7 @@ func DeleteAction(control dto2.Control) gin.HandlerFunc {
 			return
 		}
 
-		object.SetUpdator(uint(jwtauth.UserId(c)))
+		object.SetUpdator(uint(jwtauth.FromUserId(gcontext.Context(c))))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)

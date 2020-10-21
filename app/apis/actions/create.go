@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -30,7 +31,7 @@ func CreateAction(control dto2.Control) gin.HandlerFunc {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))
 			return
 		}
-		object.SetCreator(uint(jwtauth.UserId(c)))
+		object.SetCreator(uint(jwtauth.FromUserId(gcontext.Context(c))))
 		err = deployed.DB.WithContext(c).Create(object).Error
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] Create error: %s", msgID, err)

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mssola/user_agent"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -127,7 +128,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 // @Router /logout [post]
 // @Security Bearer
 func logoutResponse(c *gin.Context, code int) {
-	loginLogRecord(c, true, "退出成功", jwtauth.UserName(c))
+	loginLogRecord(c, true, "退出成功", jwtauth.FromUserName(gcontext.Context(c)))
 	servers.OK(c, servers.WithMsg("退出成功"))
 }
 

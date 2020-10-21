@@ -86,7 +86,7 @@ func RegisterSys(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	}
 
 	{ // 需要认证
-		v1Group.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
+		v1Group.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject))
 		routers.Base(v1Group, authMiddleware)
 		routers.Dept(v1Group)
 		routers.Dict(v1Group)
@@ -107,26 +107,33 @@ func OperLog() gin.HandlerFunc {
 		// 处理请求
 		c.Next()
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && deployed.EnabledDB {
-			SetDBOperLog(c, c.ClientIP(), c.Writer.Status(), c.Request.RequestURI, c.Request.Method, time.Since(startTime))
+			SetDBOperLog(c, c.Writer.Status(), time.Since(startTime))
 		}
 	}
 }
 
 // 写入操作日志表
 // 该方法后续即将弃用
-func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration) {
+func SetDBOperLog(c *gin.Context, statusCode int, latencyTime time.Duration) {
+	reqUri := c.Request.RequestURI
+	reqMethod := c.Request.Method
 	menuList, _ := models.CMenu.Query(gcontext.Context(c), models.MenuQueryParam{
 		Path:   reqUri,
 		Action: reqMethod,
 	})
-
+	clientIP := c.ClientIP()
+	username := jwtauth.FromUserName(gcontext.Context(c))
 	sysOperLog := models.OperLog{
 		OperIp:        clientIP,
 		OperLocation:  deployed.IPLocation(clientIP),
 		Status:        cast.ToString(statusCode),
-		OperName:      jwtauth.UserName(c),
-		RequestMethod: c.Request.Method,
+		OperName:      username,
+		RequestMethod: reqMethod,
 		OperUrl:       reqUri,
+		Creator:       username,
+		OperTime:      time.Now(),
+		LatencyTime:   latencyTime.String(),
+		UserAgent:     c.Request.UserAgent(),
 	}
 
 	if reqUri == "/login" {
@@ -153,10 +160,6 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	}
 	b, _ := c.Get("body")
 	sysOperLog.OperParam, _ = jsoniter.MarshalToString(b)
-	sysOperLog.Creator = jwtauth.UserName(c)
-	sysOperLog.OperTime = time.Now()
-	sysOperLog.LatencyTime = (latencyTime).String()
-	sysOperLog.UserAgent = c.Request.UserAgent()
 	if c.Err() == nil {
 		sysOperLog.Status = "0"
 	} else {

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 	"github.com/thinkgos/gin-middlewares/requestid"
+	"github.com/thinkgos/sharp/gin/gcontext"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -27,7 +28,7 @@ func PermissionAction() gin.HandlerFunc {
 		var p = new(DataPermission)
 		var err error
 
-		if userId := jwtauth.UserIdStr(c); userId != "" {
+		if userId := jwtauth.FromUserIdStr(gcontext.Context(c)); userId != "" {
 			p, err = newDataPermission(deployed.DB, userId)
 			if err != nil {
 				izap.Sugar.Errorf("MsgID[%s] PermissionAction error: %s", requestid.FromRequestID(c), err)

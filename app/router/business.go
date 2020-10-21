@@ -35,7 +35,7 @@ func RegisterBusiness(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.
 		}
 	}
 	{ // 需要认证的路由
-		v1.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.RoleKey))
+		v1.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject))
 		for _, f := range routerCheckRole {
 			f(v1)
 		}

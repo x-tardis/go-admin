@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -30,7 +31,7 @@ func UpdateAction(control dto2.Control) gin.HandlerFunc {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))
 			return
 		}
-		object.SetUpdator(uint(jwtauth.UserId(c)))
+		object.SetUpdator(uint(jwtauth.FromUserId(gcontext.Context(c))))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)

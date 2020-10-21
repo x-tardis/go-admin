@@ -191,7 +191,7 @@ func GetMenuTreeselect(c *gin.Context) {
 // @Router /api/v1/menurole [get]
 // @Security Bearer
 func GetMenuRole(c *gin.Context) {
-	items, err := models.CMenu.QueryTreeWithRoleName(gcontext.Context(c), jwtauth.RoleKey(c))
+	items, err := models.CMenu.QueryTreeWithRoleName(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
@@ -212,8 +212,8 @@ func GetMenuRole(c *gin.Context) {
 func GetMenuIDS(c *gin.Context) {
 	var data models.RoleMenu
 
-	data.RoleName = jwtauth.RoleName(c)
-	data.Updator = jwtauth.UserIdStr(c)
+	data.RoleName = jwtauth.FromRoleName(gcontext.Context(c))
+	data.Updator = jwtauth.FromUserIdStr(gcontext.Context(c))
 	result, err := data.GetIDS()
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,

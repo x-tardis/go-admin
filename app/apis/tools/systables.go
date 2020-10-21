@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/core/paginator"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models/tools"
 	"github.com/x-tardis/go-admin/pkg/infra"
@@ -134,7 +135,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.Creator = jwtauth.UserIdStr(c)
+	data.Creator = jwtauth.FromUserIdStr(gcontext.Context(c))
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get()
@@ -158,7 +159,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	if err != nil {
 		return tools.SysTables{}, err
 	}
-	data.Creator = jwtauth.UserIdStr(c)
+	data.Creator = jwtauth.FromUserIdStr(gcontext.Context(c))
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -254,7 +255,7 @@ func UpdateSysTable(c *gin.Context) {
 		return
 	}
 
-	data.Updator = jwtauth.UserIdStr(c)
+	data.Updator = jwtauth.FromUserIdStr(gcontext.Context(c))
 	result, err := data.Update()
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))

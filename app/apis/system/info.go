@@ -13,7 +13,8 @@ import (
 
 func GetInfo(c *gin.Context) {
 	var roles = make([]string, 1)
-	roles[0] = jwtauth.RoleKey(c)
+	rolekey := jwtauth.FromRoleKey(gcontext.Context(c))
+	roles[0] = rolekey
 
 	var permissions = make([]string, 1)
 	permissions[0] = "*:*:*"
@@ -22,11 +23,11 @@ func GetInfo(c *gin.Context) {
 	buttons[0] = "*:*:*"
 
 	RoleMenu := models.RoleMenu{}
-	RoleMenu.RoleId = jwtauth.RoleId(c)
+	RoleMenu.RoleId = jwtauth.FromRoleId(gcontext.Context(c))
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
-	if jwtauth.RoleKey(c) == "admin" || jwtauth.RoleKey(c) == "系统管理员" {
+	if rolekey == "admin" || rolekey == "系统管理员" {
 		mp["permissions"] = permissions
 		mp["buttons"] = buttons
 	} else {
