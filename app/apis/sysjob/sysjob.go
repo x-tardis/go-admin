@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 
 	"github.com/x-tardis/go-admin/app/service"
-	"github.com/x-tardis/go-admin/common/dto"
+	dto2 "github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -18,7 +18,7 @@ type SysJob struct{}
 // RemoveJobForService 调用service实现
 func (e *SysJob) RemoveJobForService(c *gin.Context) {
 	msgID := requestid.FromRequestID(c)
-	var v dto.GeneralDelDto
+	var v dto2.GeneralDelDto
 	err := c.BindUri(&v)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
@@ -39,7 +39,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 // StartJobForService 启动job service实现
 func (e *SysJob) StartJobForService(c *gin.Context) {
 	msgID := requestid.FromRequestID(c)
-	var v dto.GeneralGetDto
+	var v dto2.GeneralGetDto
 	err := c.BindUri(&v)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)

@@ -80,8 +80,8 @@ func (e *SysColumns) Update() (update SysColumns, err error) {
 		return
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = deployed.DB.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

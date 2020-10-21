@@ -11,14 +11,14 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 
-	"github.com/x-tardis/go-admin/common/dto"
+	dto2 "github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 // IndexAction 通用查询动作
-func IndexAction(m dto.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
+func IndexAction(m dto2.ActiveRecord, d dto2.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		msgID := requestid.FromRequestID(c)
 		list := f()
@@ -39,7 +39,7 @@ func IndexAction(m dto.ActiveRecord, d dto.Index, f func() interface{}) gin.Hand
 		pageParam := req.GetPaginatorParam()
 		err = deployed.DB.WithContext(c).Model(object).
 			Scopes(
-				dto.MakeCondition(req.GetNeedSearch()),
+				dto2.MakeCondition(req.GetNeedSearch()),
 				iorm.Paginate(pageParam),
 				Permission(object.TableName(), p),
 			).

@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
 
-	"github.com/x-tardis/go-admin/common/dto"
+	dto2 "github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -14,7 +14,7 @@ import (
 )
 
 // CreateAction 通用新增动作
-func CreateAction(control dto.Control) gin.HandlerFunc {
+func CreateAction(control dto2.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		msgID := requestid.FromRequestID(c)
 		//新增操作
@@ -24,7 +24,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
-		var object dto.ActiveRecord
+		var object dto2.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))

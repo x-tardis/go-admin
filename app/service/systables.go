@@ -1,4 +1,4 @@
-package dto
+package service
 
 type SysTableSearch struct {
 	TBName       string `form:"tableName" search:"type:exact;column:table_name;table:table_name"`

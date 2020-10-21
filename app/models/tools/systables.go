@@ -11,16 +11,16 @@ import (
 )
 
 type SysTables struct {
-	TableId             int    `gorm:"primary_key;auto_increment" json:"tableId"`    //表编码
-	TBName              string `gorm:"column:table_name;size:255;" json:"tableName"` //表名称
-	TableComment        string `gorm:"size:255;" json:"tableComment"`                //表备注
-	ClassName           string `gorm:"size:255;" json:"className"`                   //类名
+	TableId             int    `gorm:"primary_key;auto_increment" json:"tableId"`    // 表编码
+	TBName              string `gorm:"column:table_name;size:255;" json:"tableName"` // 表名称
+	TableComment        string `gorm:"size:255;" json:"tableComment"`                // 表备注
+	ClassName           string `gorm:"size:255;" json:"className"`                   // 类名
 	TplCategory         string `gorm:"size:255;" json:"tplCategory"`                 //
-	PackageName         string `gorm:"size:255;" json:"packageName"`                 //包名
-	ModuleName          string `gorm:"size:255;" json:"moduleName"`                  //模块名
+	PackageName         string `gorm:"size:255;" json:"packageName"`                 // 包名
+	ModuleName          string `gorm:"size:255;" json:"moduleName"`                  // 模块名
 	BusinessName        string `gorm:"size:255;" json:"businessName"`                //
-	FunctionName        string `gorm:"size:255;" json:"functionName"`                //功能名称
-	FunctionAuthor      string `gorm:"size:255;" json:"functionAuthor"`              //功能作者
+	FunctionName        string `gorm:"size:255;" json:"functionName"`                // 功能名称
+	FunctionAuthor      string `gorm:"size:255;" json:"functionAuthor"`              // 功能作者
 	PkColumn            string `gorm:"size:255;" json:"pkColumn"`
 	PkGoField           string `gorm:"size:255;" json:"pkGoField"`
 	PkJsonField         string `gorm:"size:255;" json:"pkJsonField"`
@@ -122,7 +122,7 @@ func (e *SysTables) GetTree() ([]SysTables, error) {
 	}
 	for i := 0; i < len(doc); i++ {
 		var col SysColumns
-		//col.FkCol = append(col.FkCol, SysColumns{ColumnId: 0, ColumnName: "请选择"})
+		// col.FkCol = append(col.FkCol, SysColumns{ColumnId: 0, ColumnName: "请选择"})
 		col.TableId = doc[i].TableId
 		if doc[i].Columns, err = col.GetList(); err != nil {
 			return doc, err
@@ -151,12 +151,12 @@ func (e *SysTables) Create() (SysTables, error) {
 }
 
 func (e *SysTables) Update() (update SysTables, err error) {
-	//if err = orm.DB.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
+	// if err = orm.DB.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
 	//	return
-	//}
+	// }
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = deployed.DB.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
