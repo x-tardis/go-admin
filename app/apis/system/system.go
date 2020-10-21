@@ -4,12 +4,15 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/thinkgos/go-core-package/extmath"
+	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -22,16 +25,18 @@ const (
 	GB = 1024 * MB
 )
 
+const layout = "2006-01-02 15:04:05 Z07:00"
+
 // Os os信息
 type Os struct {
 	GoOs         string `json:"goOs"`
 	Arch         string `json:"arch"`
+	NumCPU       int    `json:"numCpu"`
 	Mem          int    `json:"mem"`
 	Compiler     string `json:"compiler"`
 	Version      string `json:"version"`
 	NumGoroutine int    `json:"numGoroutine"`
 	Ip           string `json:"ip"`
-	ProjectDir   string `json:"projectDir"`
 }
 
 // Mem mem信息
@@ -46,7 +51,7 @@ type Mem struct {
 type Cpu struct {
 	CpuInfo []cpu.InfoStat `json:"cpuInfo"`
 	Percent float64        `json:"percent,string"`
-	CpuNum  int            `json:"cpuNum"`
+	NumCPU  int            `json:"numCpu"`
 }
 
 // Disk disk信息
@@ -57,6 +62,20 @@ type Disk struct {
 	UsedPercent float64 `json:"usedPercent,string"`
 }
 
+type App struct {
+	Model         string `json:"model"`
+	Pid           int    `json:"pid"`
+	Version       string `json:"version"`
+	APIVersion    string `json:"apiVersion"`
+	BuildTime     string `json:"buildTime"`
+	GitCommit     string `json:"gitCommit"`
+	GitFullCommit string `json:"gitFullCommit"`
+	ProjectDir    string `json:"projectDir"`
+	SetupTime     string `json:"setupTime"`   // 程序启动日期
+	RunningTime   string `json:"runningTime"` // 程序运行时间
+	Uptime        string `json:"uptime"`      // 系统运行时间
+}
+
 // SystemInfos system info
 type SystemInfos struct {
 	Code int  `json:"code"`
@@ -64,7 +83,10 @@ type SystemInfos struct {
 	Mem  Mem  `json:"mem"`
 	Cpu  Cpu  `json:"cpu"`
 	Disk Disk `json:"disk"`
+	App  App  `json:"app"`
 }
+
+var setupTime = time.Now()
 
 // @tags 系统信息
 // @summary 系统信息
@@ -84,19 +106,21 @@ func SystemInfo(c *gin.Context) {
 	vMem, _ := mem.VirtualMemory()
 	percent, _ := cpu.Percent(0, false)
 	cpuInfo, _ := cpu.Info()
-	cpuNum, _ := cpu.Counts(false)
+	cpuNum, _ := cpu.Counts(true)
+	sysInfo := syscall.Sysinfo_t{} // Uptime = 秒
+	syscall.Sysinfo(&sysInfo)      // nolint: errcheck
 
 	servers.JSON(c, http.StatusOK, SystemInfos{
 		http.StatusOK,
 		Os{
 			runtime.GOOS,
 			runtime.GOARCH,
+			runtime.NumCPU(),
 			runtime.MemProfileRate,
 			runtime.Compiler,
 			runtime.Version(),
 			runtime.NumGoroutine(),
 			infra.LanIP(),
-			projectDir,
 		},
 		Mem{
 			extmath.Round(float64(vMem.Total)/GB, 2),
@@ -114,6 +138,19 @@ func SystemInfo(c *gin.Context) {
 			extmath.Round(float64(dis.Used)/GB, 2),
 			extmath.Round(float64(dis.Free)/GB, 2),
 			extmath.Round(dis.UsedPercent, 2),
+		},
+		App{
+			builder.Model,
+			os.Getpid(),
+			builder.APIVersion,
+			builder.Version,
+			builder.BuildTime,
+			builder.GitCommit,
+			builder.GitFullCommit,
+			projectDir,
+			setupTime.Format(layout),
+			time.Since(setupTime).Round(time.Second).String(),
+			(time.Duration(sysInfo.Uptime) * time.Second).String(),
 		},
 	})
 }

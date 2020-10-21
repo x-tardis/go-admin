@@ -9,8 +9,8 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
-// @tags tags
-// @summary
+// @tags 验证码
+// @summary 获取验证码
 // @description
 // @accept json
 // @produce json
@@ -20,7 +20,7 @@ import (
 // @failure 404 {object} servers.Response "未找到相关信息"
 // @failure 417 {object} servers.Response "客户端请求头错误"
 // @failure 500 {object} servers.Response "服务器内部错误"
-// @router / [get]
+// @router /api/v1/captcha [get]
 func GetCaptcha(c *gin.Context) {
 	id, b64s, err := deployed.Captcha.Generate()
 	if err != nil {
