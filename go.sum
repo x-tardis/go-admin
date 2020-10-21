@@ -525,6 +525,8 @@ github.com/thinkgos/go-core-package v0.1.4 h1:Qmxj5ghoN8ud7yrqf9JLdcsWbbjskNG0Fo
 github.com/thinkgos/go-core-package v0.1.4/go.mod h1:NjJN3f1yZvDU8IKb/2f1njngCYml8t6DZ+X+//tm21M=
 github.com/thinkgos/http-middlewares v0.0.3 h1:sA4DIjczM3edwEoNOtwcMsImim6uz3MDyWbUthhD+wg=
 github.com/thinkgos/http-middlewares v0.0.3/go.mod h1:EMZQi9164D3k2g+3M6vxbmkFAWMbZ8+GmusXFSVuk7g=
+github.com/thinkgos/meter v0.0.8 h1:7zR18jn4bL8PYA+89CIrosEaQNf+6AZ51X7LVeq76ys=
+github.com/thinkgos/meter v0.0.8/go.mod h1:GYvy7pPrMiEa2WVq/7oVd7em/JYKKNo3fapoJ/fBhj4=
 github.com/thinkgos/render v0.1.4/go.mod h1:RdXQ6xuI7VSOgQXHajuzahdca5Jq7H7pH4/UDRXTn10=
 github.com/thinkgos/sharp v0.3.4 h1:sMoKGTKgoBvSARncShMoeWbGxdZlS0kn/d/pNo9vZ5Q=
 github.com/thinkgos/sharp v0.3.4/go.mod h1:xqab8ZlZ+mao8/x8va0iNDYpZBbKEAUEyLWCQcu6rzo=

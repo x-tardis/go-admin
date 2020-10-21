@@ -12,17 +12,11 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/thinkgos/go-core-package/extmath"
+	"github.com/thinkgos/meter"
 	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-)
-
-const (
-	B  = 1
-	KB = 1024 * B
-	MB = 1024 * KB
-	GB = 1024 * MB
 )
 
 const layout = "2006-01-02 15:04:05 Z07:00"
@@ -41,9 +35,9 @@ type Os struct {
 
 // Mem mem信息
 type Mem struct {
-	Total       float64 `json:"total,string"`
-	Used        float64 `json:"used,string"`
-	Free        float64 `json:"free,string"`
+	Total       string  `json:"total"`
+	Used        string  `json:"used"`
+	Free        string  `json:"free"`
 	UsedPercent float64 `json:"usedPercent"`
 }
 
@@ -56,9 +50,9 @@ type Cpu struct {
 
 // Disk disk信息
 type Disk struct {
-	Total       float64 `json:"total,string"`
-	Used        float64 `json:"used,string"`
-	Free        float64 `json:"free,string"`
+	Total       string  `json:"total"`
+	Used        string  `json:"used"`
+	Free        string  `json:"free"`
 	UsedPercent float64 `json:"usedPercent"`
 }
 
@@ -127,9 +121,9 @@ func SystemInfo(c *gin.Context) {
 			infra.LanIP(),
 		},
 		Mem{
-			extmath.Round(float64(vMem.Total)/GB, 2),
-			extmath.Round(float64(vMem.Used)/GB, 2),
-			extmath.Round(float64(vMem.Free)/GB, 2),
+			meter.ByteSize(vMem.Total).String(),
+			meter.ByteSize(vMem.Used).String(),
+			meter.ByteSize(vMem.Free).String(),
 			extmath.Round(vMem.UsedPercent, 2),
 		},
 		Cpu{
@@ -138,9 +132,9 @@ func SystemInfo(c *gin.Context) {
 			cpuInfo,
 		},
 		Disk{
-			extmath.Round(float64(dis.Total)/GB, 2),
-			extmath.Round(float64(dis.Used)/GB, 2),
-			extmath.Round(float64(dis.Free)/GB, 2),
+			meter.ByteSize(dis.Total).String(),
+			meter.ByteSize(dis.Used).String(),
+			meter.ByteSize(dis.Free).String(),
 			extmath.Round(dis.UsedPercent, 2),
 		},
 		App{

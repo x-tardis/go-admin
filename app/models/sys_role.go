@@ -26,9 +26,10 @@ type Role struct {
 	Updator   string `json:"updator" gorm:"size:128;"` // 更新者
 	Model
 
-	Params  string `json:"params" gorm:"-"`
-	MenuIds []int  `json:"menuIds" gorm:"-"`
-	DeptIds []int  `json:"deptIds" gorm:"-"`
+	MenuIds []int `json:"menuIds" gorm:"-"`
+	DeptIds []int `json:"deptIds" gorm:"-"`
+
+	Params string `json:"params" gorm:"-"`
 }
 
 func (Role) TableName() string {

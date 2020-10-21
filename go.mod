@@ -42,6 +42,7 @@ require (
 	github.com/thinkgos/gin-middlewares v0.0.5
 	github.com/thinkgos/go-core-package v0.1.4
 	github.com/thinkgos/http-middlewares v0.0.3
+	github.com/thinkgos/meter v0.0.8
 	github.com/thinkgos/sharp v0.3.4
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0
