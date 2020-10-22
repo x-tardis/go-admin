@@ -19,7 +19,7 @@ type DictData struct{}
 // @Summary 字典数据列表
 // @Description 获取JSON
 // @Tags 字典数据
-// @Param dictCode query int false "dictCode"
+// @Param dictId query int false "dictId"
 // @Param dictType query string false "dictType"
 // @Param dictLabel query string false "dictLabel"
 // @Param status query string false "status"
@@ -53,13 +53,13 @@ func (DictData) QueryPage(c *gin.Context) {
 // @Summary 通过编码获取字典数据
 // @Description 获取JSON
 // @Tags 字典数据
-// @Param dictCode path int true "字典编码"
+// @Param dictId path int true "字典编码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/dict/data/{dictCode} [get]
+// @Router /api/v1/dict/data/{dictId} [get]
 // @Security Bearer
 func (DictData) Get(c *gin.Context) {
-	dictCode := cast.ToInt(c.Param("dictCode"))
-	item, err := models.CDictData.Get(gcontext.Context(c), dictCode)
+	dictId := cast.ToInt(c.Param("dictId"))
+	item, err := models.CDictData.Get(gcontext.Context(c), dictId)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
@@ -128,7 +128,7 @@ func (DictData) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CDictData.Update(gcontext.Context(c), up.DictCode, up)
+	item, err := models.CDictData.Update(gcontext.Context(c), up.DictId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
@@ -139,12 +139,12 @@ func (DictData) Update(c *gin.Context) {
 // @Summary 删除字典数据
 // @Description 删除数据
 // @Tags 字典数据
-// @Param dictCode path int true "dictCode"
+// @Param dictId path int true "dictId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/dict/data/{dictCode} [delete]
+// @Router /api/v1/dict/data/{dictIds} [delete]
 func (DictData) BatchDelete(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("dictCode"))
+	ids := infra.ParseIdsGroup(c.Param("dictIds"))
 	err := models.CDictData.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))

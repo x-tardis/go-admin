@@ -14,19 +14,19 @@ import (
 
 // DictData 字典数据
 type DictData struct {
-	DictCode  int    `gorm:"primary_key;auto_increment;" json:"dictCode" example:"1"` // 主键
-	DictLabel string `gorm:"size:128;" json:"dictLabel"`                              // 标签
-	DictValue string `gorm:"size:255;" json:"dictValue"`                              // 值
-	DictType  string `gorm:"size:64;" json:"dictType"`                                // 类型
-	DictSort  int    `gorm:"" json:"dictSort"`                                        // 排序
-	CssClass  string `gorm:"size:128;" json:"cssClass"`                               // (未用)
-	ListClass string `gorm:"size:128;" json:"listClass"`                              // (未用)
-	IsDefault string `gorm:"size:8;" json:"isDefault"`                                // (未用)
-	Status    string `gorm:"size:4;" json:"status"`                                   // 状态
-	Default   string `gorm:"size:8;" json:"default"`                                  // (未用)
-	Remark    string `gorm:"size:255;" json:"remark"`                                 // 备注
-	Creator   string `gorm:"size:64;" json:"creator"`                                 // 创建者
-	Updator   string `gorm:"size:64;" json:"updator"`                                 // 更新者
+	DictId    int    `gorm:"primary_key;auto_increment;" json:"dictId" example:"1"` // 主键
+	DictLabel string `gorm:"size:128;" json:"dictLabel"`                            // 标签
+	DictValue string `gorm:"size:255;" json:"dictValue"`                            // 值
+	DictType  string `gorm:"size:64;" json:"dictType"`                              // 类型
+	Sort      int    `gorm:"" json:"sort"`                                          // 排序
+	CssClass  string `gorm:"size:128;" json:"cssClass"`                             // (未用)
+	ListClass string `gorm:"size:128;" json:"listClass"`                            // (未用)
+	IsDefault string `gorm:"size:8;" json:"isDefault"`                              // (未用)
+	Status    string `gorm:"size:4;" json:"status"`                                 // 状态
+	Default   string `gorm:"size:8;" json:"default"`                                // (未用)
+	Remark    string `gorm:"size:255;" json:"remark"`                               // 备注
+	Creator   string `gorm:"size:64;" json:"creator"`                               // 创建者
+	Updator   string `gorm:"size:64;" json:"updator"`                               // 更新者
 	Model
 
 	DataScope string `gorm:"-" json:"dataScope"`
@@ -80,6 +80,7 @@ func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictDa
 		return nil, paginator.Info{}, err
 	}
 
+	db = db.Order("sort")
 	info, err := iorm.QueryPages(db, qp.Param, &items)
 	return items, info, err
 }
@@ -103,9 +104,9 @@ func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 }
 
 // Get 通过dictCode(主键)
-func (cDictData) Get(_ context.Context, dictCode int) (item DictData, err error) {
+func (cDictData) Get(_ context.Context, dictId int) (item DictData, err error) {
 	err = deployed.DB.Scopes(DictDataDB()).
-		Where("dict_code=?", dictCode).First(&item).Error
+		Where("dict_id=?", dictId).First(&item).Error
 	return
 }
 
@@ -113,14 +114,14 @@ func (cDictData) Get(_ context.Context, dictCode int) (item DictData, err error)
 func (cDictData) GetWithType(_ context.Context, dictType string) (items []DictData, err error) {
 	err = deployed.DB.Scopes(DictDataDB()).
 		Where("dict_type = ?", dictType).
-		Order("dict_sort").Find(&items).Error
+		Order("sort").Find(&items).Error
 	return
 }
 
 // Update 更新
 func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData, err error) {
 	if err = deployed.DB.Scopes(DictDataDB()).
-		Where("dict_code = ?", id).First(&item).Error; err != nil {
+		Where("dict_id = ?", id).First(&item).Error; err != nil {
 		return
 	}
 
@@ -140,11 +141,11 @@ func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData
 // Delete 删除
 func (cDictData) Delete(_ context.Context, id int) error {
 	return deployed.DB.Scopes(DictDataDB()).
-		Where("dict_code = ?", id).Delete(&DictData{}).Error
+		Where("dict_id = ?", id).Delete(&DictData{}).Error
 }
 
 // BatchDelete 批量删除
 func (cDictData) BatchDelete(_ context.Context, id []int) error {
 	return deployed.DB.Scopes(DictDataDB()).
-		Where("dict_code in (?)", id).Delete(&DictData{}).Error
+		Where("dict_id in (?)", id).Delete(&DictData{}).Error
 }

@@ -55,7 +55,7 @@ func (DictType) QueryPage(c *gin.Context) {
 // @Param dictId query string false "dictId"
 // @Param dictType query string false "dictType"
 // @Success 200 {object} paginator.Page "{"code": 200, "data": [...]}"
-// @Router /api/v1/dict/typeoptionselect [get]
+// @Router /api/v1/dict/typeselect [get]
 // @Security Bearer
 func (DictType) GetOptionSelect(c *gin.Context) {
 	qp := models.DictTypeQueryParam{}
@@ -153,9 +153,9 @@ func (DictType) Update(c *gin.Context) {
 // @Param dictId path int true "dictId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/dict/type/{dictId} [delete]
+// @Router /api/v1/dict/type/{dictIds} [delete]
 func (DictType) BatchDelete(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("dictId"))
+	ids := infra.ParseIdsGroup(c.Param("dictIds"))
 	err := models.CDictType.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))

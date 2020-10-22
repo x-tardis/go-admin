@@ -21,7 +21,7 @@ type LoginLog struct{}
 // @Description 获取JSON
 // @Tags 登录日志
 // @Param status query string false "status"
-// @Param dictCode query string false "dictCode"
+// @Param dictId query string false "dictId"
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
