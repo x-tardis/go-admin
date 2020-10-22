@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -19,7 +20,7 @@ type Setting struct{}
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [get]
 func (Setting) Get(c *gin.Context) {
-	item, err := models.CSetting.Get()
+	item, err := models.CSetting.Get(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
@@ -43,7 +44,7 @@ func (Setting) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CSetting.Update(models.Setting{
+	item, err := models.CSetting.Update(gcontext.Context(c), models.Setting{
 		Logo: up.Logo,
 		Name: up.Name,
 	})

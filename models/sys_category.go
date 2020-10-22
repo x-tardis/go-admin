@@ -9,6 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type Category struct {
@@ -30,9 +31,9 @@ func (Category) TableName() string {
 	return "sys_category"
 }
 
-func CategoryDB() func(db *gorm.DB) *gorm.DB {
+func CategoryDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(Category{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(Category{})
 	}
 }
 
@@ -51,7 +52,7 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 	var err error
 	var items []Category
 
-	db := dao.DB.Scopes(CategoryDB())
+	db := dao.DB.Scopes(CategoryDB(ctx))
 	if qp.Name != "" {
 		db = db.Where("name=?", qp.Name)
 	}
@@ -70,8 +71,8 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 }
 
 // 获取SysCategory
-func (cCategory) Get(_ context.Context, id int) (item Category, err error) {
-	err = dao.DB.Scopes(CategoryDB()).
+func (cCategory) Get(ctx context.Context, id int) (item Category, err error) {
+	err = dao.DB.Scopes(CategoryDB(ctx)).
 		Where("id=?", id).First(&item).Error
 	return
 }
@@ -79,32 +80,32 @@ func (cCategory) Get(_ context.Context, id int) (item Category, err error) {
 // 创建SysCategory
 func (cCategory) Create(ctx context.Context, item Category) (Category, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(CategoryDB()).Create(&item).Error
+	err := dao.DB.Scopes(CategoryDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // 更新SysCategory
 func (cCategory) Update(ctx context.Context, id int, up Category) (update Category, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(CategoryDB()).Where("id=?", id).First(&update).Error
+	err = dao.DB.Scopes(CategoryDB(ctx)).Where("id=?", id).First(&update).Error
 	if err != nil {
 		return
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = dao.DB.Scopes(CategoryDB()).Model(&update).Updates(&up).Error
+	err = dao.DB.Scopes(CategoryDB(ctx)).Model(&update).Updates(&up).Error
 	return
 }
 
 // 删除SysCategory
-func (cCategory) Delete(_ context.Context, id int) error {
-	return dao.DB.Scopes(CategoryDB()).
+func (cCategory) Delete(ctx context.Context, id int) error {
+	return dao.DB.Scopes(CategoryDB(ctx)).
 		Where("id=?", id).Delete(&Category{}).Error
 }
 
 // 批量删除
-func (cCategory) BatchDelete(_ context.Context, ids []int) error {
-	return dao.DB.Scopes(CategoryDB()).
+func (cCategory) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(CategoryDB(ctx)).
 		Where("id in (?)", ids).Delete(&Category{}).Error
 }

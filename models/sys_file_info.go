@@ -9,6 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type FileInfo struct {
@@ -32,9 +33,9 @@ func (FileInfo) TableName() string {
 	return "sys_file_info"
 }
 
-func FileInfoDB() func(db *gorm.DB) *gorm.DB {
+func FileInfoDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(FileInfo{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(FileInfo{})
 	}
 }
 
@@ -52,7 +53,7 @@ func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileIn
 	var err error
 	var items []FileInfo
 
-	db := dao.DB.Scopes(FileInfoDB())
+	db := dao.DB.Scopes(FileInfoDB(ctx))
 
 	if qp.PId != 0 {
 		db = db.Where("p_id=?", qp.PId)
@@ -71,8 +72,8 @@ func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileIn
 }
 
 // 获取SysFileInfo
-func (cFileInfo) Get(_ context.Context, id int) (item FileInfo, err error) {
-	err = dao.DB.Scopes(FileInfoDB()).
+func (cFileInfo) Get(ctx context.Context, id int) (item FileInfo, err error) {
+	err = dao.DB.Scopes(FileInfoDB(ctx)).
 		Where("id=?", id).First(&item).Error
 	return
 }
@@ -80,33 +81,33 @@ func (cFileInfo) Get(_ context.Context, id int) (item FileInfo, err error) {
 // 创建SysFileInfo
 func (cFileInfo) Create(ctx context.Context, item FileInfo) (FileInfo, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(FileInfoDB()).Create(&item).Error
+	err := dao.DB.Scopes(FileInfoDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // 更新SysFileInfo
 func (cFileInfo) Update(ctx context.Context, id int, up FileInfo) (item FileInfo, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = dao.DB.Scopes(FileInfoDB()).
+	if err = dao.DB.Scopes(FileInfoDB(ctx)).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	err = dao.DB.Scopes(FileInfoDB()).
+	err = dao.DB.Scopes(FileInfoDB(ctx)).
 		Model(&item).Updates(&up).Error
 	return
 }
 
 // 删除SysFileInfo
-func (cFileInfo) Delete(_ context.Context, id int) error {
-	return dao.DB.Scopes(FileInfoDB()).
+func (cFileInfo) Delete(ctx context.Context, id int) error {
+	return dao.DB.Scopes(FileInfoDB(ctx)).
 		Where("id=?", id).Delete(&FileInfo{}).Error
 }
 
 //批量删除
-func (cFileInfo) BatchDelete(_ context.Context, ids []int) error {
-	return dao.DB.Scopes(FileInfoDB()).
+func (cFileInfo) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(FileInfoDB(ctx)).
 		Where("id in (?)", ids).Delete(&FileInfo{}).Error
 }

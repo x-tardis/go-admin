@@ -227,8 +227,8 @@ func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error)
 }
 
 // Delete 删除部门
-func (cDept) Delete(_ context.Context, id int) error {
-	userList, err := CUser.GetWithDeptId(id)
+func (cDept) Delete(ctx context.Context, id int) error {
+	userList, err := CUser.GetWithDeptId(ctx, id)
 	if err != nil {
 		return err
 	}

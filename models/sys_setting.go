@@ -1,9 +1,12 @@
 package models
 
 import (
+	"context"
+
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type Setting struct {
@@ -17,9 +20,9 @@ func (Setting) TableName() string {
 	return "sys_setting"
 }
 
-func SettingDB() func(db *gorm.DB) *gorm.DB {
+func SettingDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(Setting{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(Setting{})
 	}
 }
 
@@ -33,13 +36,13 @@ type cSetting struct{}
 var CSetting = new(cSetting)
 
 // 查询
-func (cSetting) Get() (item Setting, err error) {
-	err = dao.DB.Scopes(SettingDB()).First(&item).Error
+func (cSetting) Get(ctx context.Context) (item Setting, err error) {
+	err = dao.DB.Scopes(SettingDB(ctx)).First(&item).Error
 	return
 }
 
 // 修改
-func (cSetting) Update(up Setting) (item Setting, err error) {
-	err = dao.DB.Scopes(SettingDB()).Where("id=?", 1).Model(&item).Updates(&up).Error
+func (cSetting) Update(ctx context.Context, up Setting) (item Setting, err error) {
+	err = dao.DB.Scopes(SettingDB(ctx)).Where("id=?", 1).Model(&item).Updates(&up).Error
 	return
 }

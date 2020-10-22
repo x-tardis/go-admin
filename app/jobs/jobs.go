@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -20,7 +21,7 @@ func Setup() {
 
 	deployed.Cron = deployed.NewCron()
 
-	jobList, err := models.CJob.Query()
+	jobList, err := models.CJob.Query(context.Background())
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore init error", err)
 	}
@@ -28,7 +29,7 @@ func Setup() {
 		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore total:0")
 	}
 
-	err = models.CJob.RemoveAllEntryID()
+	err = models.CJob.RemoveAllEntryID(context.Background())
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore remove entry_id error", err)
 	}
@@ -52,7 +53,7 @@ func Setup() {
 			j.Args = jobList[i].Args
 			sysJob.EntryId, err = AddJob(j)
 		}
-		err = models.CJob.Update(jobList[i].JobId, sysJob)
+		err = models.CJob.Update(context.Background(), jobList[i].JobId, sysJob)
 	}
 
 	// 其中任务

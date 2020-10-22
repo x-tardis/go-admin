@@ -10,6 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // DictData 字典数据
@@ -39,9 +40,9 @@ func (DictData) TableName() string {
 }
 
 // DictDataDB dict data db
-func DictDataDB() func(db *gorm.DB) *gorm.DB {
+func DictDataDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(DictData{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(DictData{})
 	}
 }
 
@@ -63,7 +64,7 @@ func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictDa
 	var err error
 	var items []DictData
 
-	db := dao.DB.Scopes(DictDataDB())
+	db := dao.DB.Scopes(DictDataDB(ctx))
 	if qp.DictType != "" {
 		db = db.Where("dict_type=?", qp.DictType)
 	}
@@ -88,7 +89,7 @@ func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictDa
 func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 	var i int64
 
-	if err := dao.DB.Scopes(DictDataDB()).
+	if err := dao.DB.Scopes(DictDataDB(ctx)).
 		Where("dict_type=?", item.DictType).
 		Where("dict_label=? or (dict_label=? and dict_value=?)", item.DictLabel, item.DictLabel, item.DictValue).
 		Count(&i).Error; err != nil {
@@ -99,20 +100,20 @@ func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 	}
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(DictDataDB()).Create(&item).Error
+	err := dao.DB.Scopes(DictDataDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // Get 通过dictCode(主键)
-func (cDictData) Get(_ context.Context, dictId int) (item DictData, err error) {
-	err = dao.DB.Scopes(DictDataDB()).
+func (cDictData) Get(ctx context.Context, dictId int) (item DictData, err error) {
+	err = dao.DB.Scopes(DictDataDB(ctx)).
 		Where("dict_id=?", dictId).First(&item).Error
 	return
 }
 
 // GetWithType 通过dictType获取
-func (cDictData) GetWithType(_ context.Context, dictType string) (items []DictData, err error) {
-	err = dao.DB.Scopes(DictDataDB()).
+func (cDictData) GetWithType(ctx context.Context, dictType string) (items []DictData, err error) {
+	err = dao.DB.Scopes(DictDataDB(ctx)).
 		Where("dict_type = ?", dictType).
 		Order("sort").Find(&items).Error
 	return
@@ -120,7 +121,7 @@ func (cDictData) GetWithType(_ context.Context, dictType string) (items []DictDa
 
 // Update 更新
 func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData, err error) {
-	if err = dao.DB.Scopes(DictDataDB()).
+	if err = dao.DB.Scopes(DictDataDB(ctx)).
 		Where("dict_id = ?", id).First(&item).Error; err != nil {
 		return
 	}
@@ -134,18 +135,18 @@ func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(DictDataDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(DictDataDB(ctx)).Model(&item).Updates(&up).Error
 	return
 }
 
 // Delete 删除
-func (cDictData) Delete(_ context.Context, id int) error {
-	return dao.DB.Scopes(DictDataDB()).
+func (cDictData) Delete(ctx context.Context, id int) error {
+	return dao.DB.Scopes(DictDataDB(ctx)).
 		Where("dict_id = ?", id).Delete(&DictData{}).Error
 }
 
 // BatchDelete 批量删除
-func (cDictData) BatchDelete(_ context.Context, id []int) error {
-	return dao.DB.Scopes(DictDataDB()).
+func (cDictData) BatchDelete(ctx context.Context, id []int) error {
+	return dao.DB.Scopes(DictDataDB(ctx)).
 		Where("dict_id in (?)", id).Delete(&DictData{}).Error
 }

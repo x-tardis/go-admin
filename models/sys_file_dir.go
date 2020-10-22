@@ -8,6 +8,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type FileDir struct {
@@ -29,9 +30,9 @@ func (FileDir) TableName() string {
 	return "sys_file_dir"
 }
 
-func FileDirDB() func(db *gorm.DB) *gorm.DB {
+func FileDirDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(FileDir{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(FileDir{})
 	}
 }
 
@@ -78,7 +79,7 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 	var err error
 	var items []FileDir
 
-	db := dao.DB.Scopes(FileDirDB())
+	db := dao.DB.Scopes(FileDirDB(ctx))
 	if qp.Id != 0 {
 		db = db.Where("id=?", qp.Id)
 	}
@@ -102,8 +103,8 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 }
 
 // 获取SysFileDir
-func (cFileDir) Get(_ context.Context, id int) (item FileDir, err error) {
-	err = dao.DB.Scopes(FileDirDB()).
+func (cFileDir) Get(ctx context.Context, id int) (item FileDir, err error) {
+	err = dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id=?", id).First(&item).Error
 	return
 }
@@ -111,7 +112,7 @@ func (cFileDir) Get(_ context.Context, id int) (item FileDir, err error) {
 // 创建SysFileDir
 func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(FileDirDB()).Create(&item).Error
+	err := dao.DB.Scopes(FileDirDB(ctx)).Create(&item).Error
 	if err != nil {
 		return item, err
 	}
@@ -121,11 +122,11 @@ func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 		path = "/0" + path
 	} else {
 		var deptP FileDir
-		dao.DB.Scopes(FileDirDB()).Where("id = ?", item.PId).First(&deptP)
+		dao.DB.Scopes(FileDirDB(ctx)).Where("id = ?", item.PId).First(&deptP)
 		path = deptP.Path + path
 	}
 
-	err = dao.DB.Scopes(FileDirDB()).
+	err = dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id = ?", item.Id).
 		Updates(map[string]interface{}{"path": path}).Error
 	item.Path = path
@@ -135,7 +136,7 @@ func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 // 更新SysFileDir
 func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = dao.DB.Scopes(FileDirDB()).
+	if err = dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
@@ -145,7 +146,7 @@ func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, e
 		path = "/0" + path
 	} else {
 		var deptP FileDir
-		dao.DB.Scopes(FileDirDB()).Where("id = ?", up.Id).First(&deptP)
+		dao.DB.Scopes(FileDirDB(ctx)).Where("id = ?", up.Id).First(&deptP)
 		path = deptP.Path + path
 	}
 	up.Path = path
@@ -156,19 +157,19 @@ func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, e
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = dao.DB.Scopes(FileDirDB()).
+	err = dao.DB.Scopes(FileDirDB(ctx)).
 		Model(&item).Updates(&up).Error
 	return
 }
 
 // 删除SysFileDir
-func (cFileDir) Delete(_ context.Context, id int) error {
-	return dao.DB.Scopes(FileDirDB()).
+func (cFileDir) Delete(ctx context.Context, id int) error {
+	return dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id=?", id).Delete(&FileDir{}).Error
 }
 
 // 批量删除
-func (cFileDir) BatchDelete(_ context.Context, ids []int) error {
-	return dao.DB.Scopes(FileDirDB()).
+func (cFileDir) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id in (?)", ids).Delete(&FileDir{}).Error
 }

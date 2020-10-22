@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // LoginLog 登录记录
@@ -36,9 +37,9 @@ func (LoginLog) TableName() string {
 	return "sys_loginlog"
 }
 
-func LoginLogDB() func(db *gorm.DB) *gorm.DB {
+func LoginLogDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(LoginLog{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(LoginLog{})
 	}
 }
 
@@ -56,10 +57,10 @@ type cLoginLog struct{}
 var CLoginLog = new(cLoginLog)
 
 // QueryPage 查询,分页
-func (cLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {
+func (cLoginLog) QueryPage(ctx context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {
 	var items []LoginLog
 
-	db := dao.DB.Scopes(LoginLogDB())
+	db := dao.DB.Scopes(LoginLogDB(ctx))
 	if qp.Username != "" {
 		db = db.Where("username=?", qp.Username)
 	}
@@ -76,38 +77,38 @@ func (cLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog
 }
 
 // Get 获取
-func (cLoginLog) Get(_ context.Context, id int) (item LoginLog, err error) {
-	err = dao.DB.Scopes(LoginLogDB()).
+func (cLoginLog) Get(ctx context.Context, id int) (item LoginLog, err error) {
+	err = dao.DB.Scopes(LoginLogDB(ctx)).
 		Where("info_id=?", id).First(&item).Error
 	return
 }
 
 // Create 创建
-func (cLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {
+func (cLoginLog) Create(ctx context.Context, item LoginLog) (LoginLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
-	err := dao.DB.Scopes(LoginLogDB()).Create(&item).Error
+	err := dao.DB.Scopes(LoginLogDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // Update 更新
-func (cLoginLog) Update(_ context.Context, id int, up LoginLog) (item LoginLog, err error) {
-	if err = dao.DB.Scopes(LoginLogDB()).First(&item, id).Error; err != nil {
+func (cLoginLog) Update(ctx context.Context, id int, up LoginLog) (item LoginLog, err error) {
+	if err = dao.DB.Scopes(LoginLogDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}
 
-	err = dao.DB.Scopes(LoginLogDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(LoginLogDB(ctx)).Model(&item).Updates(&up).Error
 	return
 }
 
 // BatchDelete 批量删除id
-func (cLoginLog) BatchDelete(_ context.Context, ids []int) error {
-	return dao.DB.Scopes(LoginLogDB()).
+func (cLoginLog) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(LoginLogDB(ctx)).
 		Where("info_id in (?)", ids).Delete(&LoginLog{}).Error
 }
 
 // Clean 清空日志
-func (cLoginLog) Clean(_ context.Context) error {
-	return dao.DB.Scopes(LoginLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
+func (cLoginLog) Clean(ctx context.Context) error {
+	return dao.DB.Scopes(LoginLogDB(ctx)).Session(&gorm.Session{AllowGlobalUpdate: true}).
 		Delete(&LoginLog{}).Error
 }

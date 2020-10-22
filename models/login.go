@@ -13,13 +13,13 @@ type Login struct {
 	UUID     string `form:"uuid" json:"uuid" binding:"required"`
 }
 
-func (u *Login) GetUser() (user User, role Role, err error) {
-	user, err = CUser.GetWithName(context.Background(), u.Username)
+func (sf *Login) GetUser() (user User, role Role, err error) {
+	user, err = CUser.GetWithName(context.Background(), sf.Username)
 	if err != nil {
 		return
 	}
 	// check password
-	err = deployed.Verify.Compare(u.Password, "", user.Password)
+	err = deployed.Verify.Compare(sf.Password, "", user.Password)
 	if err != nil {
 		return
 	}

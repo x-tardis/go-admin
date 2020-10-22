@@ -196,7 +196,7 @@ func (User) Update(c *gin.Context) {
 // @Router /api/v1/users/{ids} [delete]
 func (User) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	err := models.CUser.BatchDelete(ids)
+	err := models.CUser.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return

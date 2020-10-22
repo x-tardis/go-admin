@@ -47,7 +47,7 @@ func (RoleMenu) Create(c *gin.Context) {
 func DeleteRoleMenu(c *gin.Context) {
 	roleId := c.Param("id")
 	menuId := c.Query("menu_id")
-	err := models.CRoleMenu.DeleteWith(roleId, menuId)
+	err := models.CRoleMenu.DeleteWith(gcontext.Context(c), roleId, menuId)
 	if err != nil {
 		servers.Fail(c, http.StatusOK, servers.WithPrompt(prompt.DeleteFailed))
 		return

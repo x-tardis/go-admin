@@ -1,7 +1,11 @@
 package models
 
 import (
+	"context"
+
 	"gorm.io/gorm"
+
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 //sys_casbin_rule
@@ -19,8 +23,8 @@ func (CasbinRule) TableName() string {
 	return "sys_casbin_rule"
 }
 
-func CasbinRuleDB() func(db *gorm.DB) *gorm.DB {
+func CasbinRuleDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(CasbinRule{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(CasbinRule{})
 	}
 }

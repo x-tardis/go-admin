@@ -9,6 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type Content struct {
@@ -32,9 +33,9 @@ func (Content) TableName() string {
 	return "sys_content"
 }
 
-func ContentDB() func(db *gorm.DB) *gorm.DB {
+func ContentDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(Content{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(Content{})
 	}
 }
 
@@ -54,7 +55,7 @@ func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content,
 	var err error
 	var items []Content
 
-	db := dao.DB.Scopes(ContentDB())
+	db := dao.DB.Scopes(ContentDB(ctx))
 	if qp.CateId != "" {
 		db = db.Where("cate_id = ?", qp.CateId)
 	}
@@ -76,8 +77,8 @@ func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content,
 }
 
 // 获取SysContent
-func (cContent) Get(_ context.Context, id int) (item Content, err error) {
-	err = dao.DB.Scopes(ContentDB()).
+func (cContent) Get(ctx context.Context, id int) (item Content, err error) {
+	err = dao.DB.Scopes(ContentDB(ctx)).
 		Where("id = ?", id).
 		First(&item).Error
 	return
@@ -87,33 +88,33 @@ func (cContent) Get(_ context.Context, id int) (item Content, err error) {
 // 创建SysContent
 func (cContent) Create(ctx context.Context, item Content) (Content, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(ContentDB()).Create(&item).Error
+	err := dao.DB.Scopes(ContentDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // 更新SysContent
 func (cContent) Update(ctx context.Context, id int, up Content) (item Content, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = dao.DB.Scopes(ContentDB()).
+	if err = dao.DB.Scopes(ContentDB(ctx)).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = dao.DB.Scopes(ContentDB()).
+	err = dao.DB.Scopes(ContentDB(ctx)).
 		Model(&item).Updates(&up).Error
 	return
 }
 
 // 删除SysContent
-func (cContent) Delete(_ context.Context, id int) error {
-	return dao.DB.Scopes(ContentDB()).
+func (cContent) Delete(ctx context.Context, id int) error {
+	return dao.DB.Scopes(ContentDB(ctx)).
 		Where("id = ?", id).Delete(&Content{}).Error
 }
 
 // 批量删除
-func (cContent) BatchDelete(_ context.Context, ids []int) error {
-	return dao.DB.Scopes(ContentDB()).
+func (cContent) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(ContentDB(ctx)).
 		Where("id in (?)", ids).Delete(&Content{}).Error
 }

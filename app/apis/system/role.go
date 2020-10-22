@@ -63,7 +63,7 @@ func (Role) QueryPage(c *gin.Context) {
 func (Role) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CRole.Get(gcontext.Context(c), id)
-	menuIds, err := models.CRole.GetMenuIds(id)
+	menuIds, err := models.CRole.GetMenuIds(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
@@ -98,7 +98,7 @@ func (Role) Create(c *gin.Context) {
 	}
 
 	if len(item.MenuIds) > 0 {
-		err = models.CRoleMenu.Insert(item.RoleId, newItem.MenuIds)
+		err = models.CRoleMenu.Insert(gcontext.Context(c), item.RoleId, newItem.MenuIds)
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 			return
@@ -135,13 +135,13 @@ func (Role) Update(c *gin.Context) {
 		return
 	}
 
-	err = models.CRoleMenu.Delete(up.RoleId)
+	err = models.CRoleMenu.Delete(gcontext.Context(c), up.RoleId)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
 	if len(up.MenuIds) > 0 {
-		err := models.CRoleMenu.Insert(up.RoleId, up.MenuIds)
+		err := models.CRoleMenu.Insert(gcontext.Context(c), up.RoleId, up.MenuIds)
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 			return

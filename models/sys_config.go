@@ -11,6 +11,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type Config struct {
@@ -32,9 +33,9 @@ func (Config) TableName() string {
 	return "sys_config"
 }
 
-func ConfigDB() func(db *gorm.DB) *gorm.DB {
+func ConfigDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(Config{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(Config{})
 	}
 }
 
@@ -51,15 +52,15 @@ type cConfig struct{}
 var CConfig = new(cConfig)
 
 // 获取 Config
-func (cConfig) GetWithKey(_ context.Context, key string) (item Config, err error) {
-	err = dao.DB.Scopes(ConfigDB()).
+func (cConfig) GetWithKey(ctx context.Context, key string) (item Config, err error) {
+	err = dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_key = ?", key).First(&item).Error
 	return
 }
 
 // 获取 Config
-func (cConfig) Get(_ context.Context, id int) (item Config, err error) {
-	err = dao.DB.Scopes(ConfigDB()).
+func (cConfig) Get(ctx context.Context, id int) (item Config, err error) {
+	err = dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_id = ?", id).First(&item).Error
 	return
 }
@@ -68,7 +69,7 @@ func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, pa
 	var err error
 	var items []Config
 
-	db := dao.DB.Scopes(ConfigDB())
+	db := dao.DB.Scopes(ConfigDB(ctx))
 	if qp.ConfigName != "" {
 		db = db.Where("config_name=?", qp.ConfigName)
 	}
@@ -94,14 +95,14 @@ func (cConfig) Create(ctx context.Context, item Config) (Config, error) {
 	var i int64
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	dao.DB.Scopes(ConfigDB()).
+	dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_name=? or config_key = ?", item.ConfigName, item.ConfigKey).
 		Count(&i)
 	if i > 0 {
 		return item, iorm.ErrObjectAlreadyExist
 	}
 
-	result := dao.DB.Scopes(ConfigDB()).Create(&item)
+	result := dao.DB.Scopes(ConfigDB(ctx)).Create(&item)
 	if err := result.Error; err != nil {
 		return item, err
 	}
@@ -110,7 +111,7 @@ func (cConfig) Create(ctx context.Context, item Config) (Config, error) {
 
 func (cConfig) Update(ctx context.Context, id int, item Config) (update Config, err error) {
 	item.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = dao.DB.Scopes(ConfigDB()).
+	if err = dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
@@ -124,16 +125,16 @@ func (cConfig) Update(ctx context.Context, id int, item Config) (update Config, 
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = dao.DB.Scopes(ConfigDB()).Model(&update).Updates(&item).Error
+	err = dao.DB.Scopes(ConfigDB(ctx)).Model(&update).Updates(&item).Error
 	return
 }
 
-func (cConfig) Delete(_ context.Context, id int) (err error) {
-	return dao.DB.Scopes(ConfigDB()).
+func (cConfig) Delete(ctx context.Context, id int) (err error) {
+	return dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_id = ?", id).Delete(&Config{}).Error
 }
 
-func (cConfig) BatchDelete(_ context.Context, id []int) error {
-	return dao.DB.Scopes(ConfigDB()).
+func (cConfig) BatchDelete(ctx context.Context, id []int) error {
+	return dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_id in (?)", id).Delete(&Config{}).Error
 }

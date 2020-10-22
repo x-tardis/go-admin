@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // OperLog
@@ -44,9 +45,9 @@ func (OperLog) TableName() string {
 	return "sys_operlog"
 }
 
-func OperLogDB() func(db *gorm.DB) *gorm.DB {
+func OperLogDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(OperLog{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(OperLog{})
 	}
 }
 
@@ -63,16 +64,16 @@ type cOperLog struct{}
 
 var COperLog = new(cOperLog)
 
-func (cOperLog) Get(_ context.Context, id int) (item OperLog, err error) {
-	err = dao.DB.Scopes(OperLogDB()).
+func (cOperLog) Get(ctx context.Context, id int) (item OperLog, err error) {
+	err = dao.DB.Scopes(OperLogDB(ctx)).
 		Where("oper_id=?", id).First(&item).Error
 	return
 }
 
-func (cOperLog) QueryPage(_ context.Context, qp OperLogQueryParam) ([]OperLog, paginator.Info, error) {
+func (cOperLog) QueryPage(ctx context.Context, qp OperLogQueryParam) ([]OperLog, paginator.Info, error) {
 	var items []OperLog
 
-	db := dao.DB.Scopes(OperLogDB())
+	db := dao.DB.Scopes(OperLogDB(ctx))
 	if qp.Title != "" {
 		db = db.Where("title=?", qp.Title)
 	}
@@ -93,29 +94,29 @@ func (cOperLog) QueryPage(_ context.Context, qp OperLogQueryParam) ([]OperLog, p
 	return items, info, err
 }
 
-func (cOperLog) Create(_ context.Context, item OperLog) (OperLog, error) {
+func (cOperLog) Create(ctx context.Context, item OperLog) (OperLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
-	err := dao.DB.Scopes(OperLogDB()).Create(&item).Error
+	err := dao.DB.Scopes(OperLogDB(ctx)).Create(&item).Error
 	return item, err
 }
 
-func (cOperLog) Update(id int, up OperLog) (item OperLog, err error) {
-	if err = dao.DB.Scopes(OperLogDB()).First(&item, id).Error; err != nil {
+func (cOperLog) Update(ctx context.Context, id int, up OperLog) (item OperLog, err error) {
+	if err = dao.DB.Scopes(OperLogDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = dao.DB.Scopes(OperLogDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(OperLogDB(ctx)).Model(&item).Updates(&up).Error
 	return
 }
 
-func (cOperLog) BatchDelete(_ context.Context, id []int) error {
-	return dao.DB.Scopes(OperLogDB()).
+func (cOperLog) BatchDelete(ctx context.Context, id []int) error {
+	return dao.DB.Scopes(OperLogDB(ctx)).
 		Where(" oper_id in (?)", id).Delete(&OperLog{}).Error
 }
 
-func (cOperLog) Clean(_ context.Context) error {
-	return dao.DB.Scopes(OperLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
+func (cOperLog) Clean(ctx context.Context) error {
+	return dao.DB.Scopes(OperLogDB(ctx)).Session(&gorm.Session{AllowGlobalUpdate: true}).
 		Delete(&OperLog{}).Error
 }

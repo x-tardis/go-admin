@@ -8,6 +8,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // RoleMenu role menu
@@ -23,9 +24,9 @@ func (RoleMenu) TableName() string {
 }
 
 // RoleMenuDB role mene db scope
-func RoleMenuDB() func(db *gorm.DB) *gorm.DB {
+func RoleMenuDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(RoleMenu{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(RoleMenu{})
 	}
 }
 
@@ -33,8 +34,8 @@ type cRoleMenu struct{}
 
 var CRoleMenu = new(cRoleMenu)
 
-func (cRoleMenu) Get(_ context.Context, id int) (items []RoleMenu, err error) {
-	err = dao.DB.Scopes(RoleMenuDB()).
+func (cRoleMenu) Get(ctx context.Context, id int) (items []RoleMenu, err error) {
+	err = dao.DB.Scopes(RoleMenuDB(ctx)).
 		Where("role_id = ?", id).Find(&items).Error
 	return
 }
@@ -73,15 +74,15 @@ func (cRoleMenu) GetIDSWithRoleName(ctx context.Context) (items []MenuPath, err 
 	return
 }
 
-func (cRoleMenu) DeleteWith(RoleId string, MenuID string) error {
-	db := dao.DB.Scopes(RoleMenuDB()).Where("role_id = ?", RoleId)
+func (cRoleMenu) DeleteWith(ctx context.Context, RoleId string, MenuID string) error {
+	db := dao.DB.Scopes(RoleMenuDB(ctx)).Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		db = db.Where("menu_id = ?", MenuID)
 	}
 	return db.Delete(&RoleMenu{}).Error
 }
 
-func (cRoleMenu) Delete(roleId int) error {
+func (cRoleMenu) Delete(ctx context.Context, roleId int) error {
 	tx := dao.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -93,22 +94,22 @@ func (cRoleMenu) Delete(roleId int) error {
 		return err
 	}
 
-	err := tx.Scopes(RoleDeptDB()).
+	err := tx.Scopes(RoleDeptDB(ctx)).
 		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	err = tx.Scopes(RoleMenuDB()).
-		Where("role_id = ?", roleId).Delete(RoleMenuDB()).Error
+	err = tx.Scopes(RoleMenuDB(ctx)).
+		Where("role_id = ?", roleId).Delete(RoleMenuDB(ctx)).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 	var role Role
 
-	err = tx.Scopes(RoleDB()).
+	err = tx.Scopes(RoleDB(ctx)).
 		Where("role_id = ?", roleId).First(&role).Error
 	if err != nil {
 		tx.Rollback()
@@ -122,7 +123,7 @@ func (cRoleMenu) Delete(roleId int) error {
 	return tx.Commit().Error
 }
 
-func (cRoleMenu) Insert(roleId int, menuId []int) error {
+func (cRoleMenu) Insert(ctx context.Context, roleId int, menuId []int) error {
 	var (
 		role            Role
 		menu            []Menu
@@ -142,7 +143,7 @@ func (cRoleMenu) Insert(roleId int, menuId []int) error {
 	}
 
 	// 在事务中做一些数据库操作（从这一点使用'tx'，而不是'db'）
-	err := tx.Scopes(RoleDB()).
+	err := tx.Scopes(RoleDB(ctx)).
 		Where("role_id = ?", roleId).First(&role).Error
 	if err != nil {
 		tx.Rollback()
@@ -169,7 +170,7 @@ func (cRoleMenu) Insert(roleId int, menuId []int) error {
 		}
 	}
 	// 执行批量插入sys_role_menu
-	err = tx.Scopes(RoleMenuDB()).Create(&roleMenus).Error
+	err = tx.Scopes(RoleMenuDB(ctx)).Create(&roleMenus).Error
 	if err != nil {
 		tx.Rollback()
 		return err

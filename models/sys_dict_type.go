@@ -10,6 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // DictType 字典类型
@@ -33,9 +34,9 @@ func (DictType) TableName() string {
 }
 
 // DictTypeDB dict type db
-func DictTypeDB() func(db *gorm.DB) *gorm.DB {
+func DictTypeDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(DictType{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(DictType{})
 	}
 }
 
@@ -53,10 +54,10 @@ type cDictType struct{}
 var CDictType = new(cDictType)
 
 // Query 查询,非分页
-func (cDictType) Query(_ context.Context, qp DictTypeQueryParam) ([]DictType, error) {
+func (cDictType) Query(ctx context.Context, qp DictTypeQueryParam) ([]DictType, error) {
 	var item []DictType
 
-	db := dao.DB.Scopes(DictTypeDB())
+	db := dao.DB.Scopes(DictTypeDB(ctx))
 	if qp.DictId != 0 {
 		db = db.Where("dict_id=?", qp.DictId)
 	}
@@ -76,7 +77,7 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 	var err error
 	var items []DictType
 
-	db := dao.DB.Scopes(DictTypeDB())
+	db := dao.DB.Scopes(DictTypeDB(ctx))
 	if qp.DictId != 0 {
 		db = db.Where("dict_id=?", qp.DictId)
 	}
@@ -98,8 +99,8 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 }
 
 // Get 通过id或name查询
-func (cDictType) Get(_ context.Context, dictId int, dictName string) (item DictType, err error) {
-	db := dao.DB.Scopes(DictTypeDB())
+func (cDictType) Get(ctx context.Context, dictId int, dictName string) (item DictType, err error) {
+	db := dao.DB.Scopes(DictTypeDB(ctx))
 	if dictId != 0 {
 		db = db.Where("dict_id=?", dictId)
 	}
@@ -114,7 +115,7 @@ func (cDictType) Get(_ context.Context, dictId int, dictName string) (item DictT
 func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
 	var i int64
 
-	dao.DB.Scopes(DictTypeDB()).
+	dao.DB.Scopes(DictTypeDB(ctx)).
 		Where("dict_name=? or dict_type=?", item.DictName, item.DictType).
 		Count(&i)
 	if i > 0 {
@@ -122,13 +123,13 @@ func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
 	}
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(DictTypeDB()).Create(&item).Error
+	err := dao.DB.Scopes(DictTypeDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // Update 更新
 func (cDictType) Update(ctx context.Context, id int, up DictType) (item DictType, err error) {
-	if err = dao.DB.Scopes(DictTypeDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(DictTypeDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}
 
@@ -140,18 +141,18 @@ func (cDictType) Update(ctx context.Context, id int, up DictType) (item DictType
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(DictTypeDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(DictTypeDB(ctx)).Model(&item).Updates(&up).Error
 	return
 }
 
 // Delete 根据id删除
-func (cDictType) Delete(_ context.Context, id int) error {
-	return dao.DB.Scopes(DictTypeDB()).
+func (cDictType) Delete(ctx context.Context, id int) error {
+	return dao.DB.Scopes(DictTypeDB(ctx)).
 		Where("dict_id=?", id).Delete(&DictData{}).Error
 }
 
 // BatchDelete 根据id列表批量删除
-func (cDictType) BatchDelete(_ context.Context, ids []int) error {
-	return dao.DB.Scopes(DictTypeDB()).
+func (cDictType) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(DictTypeDB(ctx)).
 		Where("dict_id in (?)", ids).Delete(&DictType{}).Error
 }

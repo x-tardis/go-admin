@@ -126,50 +126,6 @@ func deepChildrenMenuLabel(items []Menu, item MenuLabel) MenuLabel {
 	return item
 }
 
-//
-// type Menus struct {
-// 	MenuId     int    `json:"menuId" gorm:"column:menu_id;primary_key;"`
-// 	MenuName   string `json:"menuName" gorm:"column:menu_name"`
-// 	Title      string `json:"title" gorm:"column:title"`
-// 	Icon       string `json:"icon" gorm:"column:icon"`
-// 	Path       string `json:"path" gorm:"column:path"`
-// 	MenuType   string `json:"menuType" gorm:"column:menu_type"`
-// 	Action     string `json:"action" gorm:"column:action"`
-// 	Permission string `json:"permission" gorm:"column:permission"`
-// 	ParentId   int    `json:"parentId" gorm:"column:parent_id"`
-// 	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
-// 	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
-// 	Component  string `json:"component" gorm:"column:component"`
-// 	Sort       int    `json:"sort" gorm:"column:sort"`
-//
-// 	Visible  string `json:"visible" gorm:"column:visible"`
-// 	Children []Menu `json:"children" gorm:"-"`
-//
-// 	Creator  string `json:"creator" gorm:"column:creator"`
-// 	Updator  string `json:"updator" gorm:"column:updator"`
-// 	DataScope string `json:"dataScope" gorm:"-"`
-// 	Params    string `json:"params" gorm:"-"`
-// 	Model
-// }
-//
-// func (Menus) TableName() string {
-// 	return "sys_menu"
-// }
-
-// type MenuRole struct {
-// 	Menus
-// 	IsSelect bool `json:"is_select" gorm:"-"`
-// }
-//
-// func (*MenuRole) Get(menuName string) (items []MenuRole, err error) {
-// 	db := deployed.DB.Scopes(MenuDB())
-// 	if menuName != "" {
-// 		db = db.Where("menu_name = ?", menuName)
-// 	}
-// 	err = db.Order("sort").Find(&items).Error
-// 	return
-// }
-
 func (sf cMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, err error) {
 	items, err := sf.QueryPage(ctx, qp)
 	if err != nil {
@@ -247,7 +203,7 @@ func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, er
 	return
 }
 
-func (cMenu) Get(ctx context.Context, id int) (item Menu, err error) {
+func (cMenu) Get(_ context.Context, id int) (item Menu, err error) {
 	err = dao.DB.Scopes(MenuDB()).Where("menu_id=?", id).Find(&item).Error
 	return
 }

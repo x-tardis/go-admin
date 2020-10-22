@@ -10,6 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // Role 角色
@@ -39,9 +40,9 @@ func (Role) TableName() string {
 }
 
 // RoleDB role db scope
-func RoleDB() func(db *gorm.DB) *gorm.DB {
+func RoleDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(Role{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(Role{})
 	}
 }
 
@@ -59,8 +60,8 @@ type cRole struct{}
 var CRole = new(cRole)
 
 // Query 获取角色列表
-func (cRole) Query(_ context.Context) (items []Role, err error) {
-	err = dao.DB.Scopes(RoleDB()).
+func (cRole) Query(ctx context.Context) (items []Role, err error) {
+	err = dao.DB.Scopes(RoleDB(ctx)).
 		Order("sort").Find(&items).Error
 	return
 }
@@ -70,7 +71,7 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 	var err error
 	var items []Role
 
-	db := dao.DB.Scopes(RoleDB())
+	db := dao.DB.Scopes(RoleDB(ctx))
 	if qp.RoleName != "" {
 		db = db.Where("role_name=?", qp.RoleName)
 	}
@@ -93,15 +94,15 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 }
 
 // GetWithName 通过角色名获取角色信息
-func (cRole) GetWithName(_ context.Context, name string) (item Role, err error) {
-	err = dao.DB.Scopes(RoleDB()).
+func (cRole) GetWithName(ctx context.Context, name string) (item Role, err error) {
+	err = dao.DB.Scopes(RoleDB(ctx)).
 		Where("role_name=?", name).First(&item).Error
 	return
 }
 
 // Get 通过id获取角色信息
-func (cRole) Get(_ context.Context, id int) (item Role, err error) {
-	err = dao.DB.Scopes(RoleDB()).
+func (cRole) Get(ctx context.Context, id int) (item Role, err error) {
+	err = dao.DB.Scopes(RoleDB(ctx)).
 		Where("role_id=?", id).First(&item).Error
 	return
 }
@@ -118,13 +119,13 @@ func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	item.Updator = item.Creator
-	err := dao.DB.Scopes(RoleDB()).Create(&item).Error
+	err := dao.DB.Scopes(RoleDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // Update 修改角色信息
 func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error) {
-	if err = dao.DB.Scopes(RoleDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(RoleDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}
 
@@ -137,12 +138,12 @@ func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error)
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(RoleDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(RoleDB(ctx)).Model(&item).Updates(&up).Error
 	return
 }
 
 // BatchDelete 批量删除
-func (cRole) BatchDelete(_ context.Context, ids []int) error {
+func (cRole) BatchDelete(ctx context.Context, ids []int) error {
 	tx := dao.DB.Begin()
 
 	defer func() {
@@ -156,13 +157,13 @@ func (cRole) BatchDelete(_ context.Context, ids []int) error {
 	}
 	// 查询角色
 	var roles []Role
-	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", ids).Find(&roles).Error; err != nil {
+	if err := tx.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Find(&roles).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	var count int64
-	if err := tx.Scopes(UserDB()).Where("role_id in (?)", ids).Count(&count).Error; err != nil {
+	if err := tx.Scopes(UserDB(ctx)).Where("role_id in (?)", ids).Count(&count).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -172,20 +173,20 @@ func (cRole) BatchDelete(_ context.Context, ids []int) error {
 	}
 
 	// 删除角色
-	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", ids).Unscoped().Delete(&Role{}).Error; err != nil {
+	if err := tx.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Unscoped().Delete(&Role{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// 删除角色菜单
-	if err := tx.Scopes(RoleMenuDB()).Where("role_id in (?)", ids).Delete(&RoleMenu{}).Error; err != nil {
+	if err := tx.Scopes(RoleMenuDB(ctx)).Where("role_id in (?)", ids).Delete(&RoleMenu{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// 删除casbin配置
 	for i := 0; i < len(roles); i++ {
-		if err := tx.Scopes(CasbinRuleDB()).Where("v0 in (?)", roles[0].RoleKey).Delete(&CasbinRule{}).Error; err != nil {
+		if err := tx.Scopes(CasbinRuleDB(ctx)).Where("v0 in (?)", roles[0].RoleKey).Delete(&CasbinRule{}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -199,10 +200,10 @@ type MenuIdList struct {
 }
 
 // GetMenuIds 获取角色对应的菜单id列表
-func (cRole) GetMenuIds(roleId int) ([]int, error) {
+func (cRole) GetMenuIds(ctx context.Context, roleId int) ([]int, error) {
 	var menuList []MenuIdList
 
-	if err := dao.DB.Scopes(RoleMenuDB()).
+	if err := dao.DB.Scopes(RoleMenuDB(ctx)).
 		Select("sys_role_menu.menu_id").
 		Where("role_id=? ", roleId).
 		Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id=?  and parent_id is not null)", roleId).
@@ -222,10 +223,10 @@ type DeptIdList struct {
 }
 
 // GetDeptIds 获取角色对应的部门id列表
-func (cRole) GetDeptIds(_ context.Context, roleId int) ([]int, error) {
+func (cRole) GetDeptIds(ctx context.Context, roleId int) ([]int, error) {
 	var deptList []DeptIdList
 
-	if err := dao.DB.Scopes(RoleDeptDB()).
+	if err := dao.DB.Scopes(RoleDeptDB(ctx)).
 		Select("sys_role_dept.dept_id").
 		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").
 		Where("role_id=? ", roleId).

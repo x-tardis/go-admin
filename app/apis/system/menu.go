@@ -145,7 +145,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 	id := cast.ToInt(c.Param("roleId"))
 	menuIds := make([]int, 0)
 	if id != 0 {
-		menuIds, err = models.CRole.GetMenuIds(id)
+		menuIds, err = models.CRole.GetMenuIds(gcontext.Context(c), id)
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError,
 				servers.WithPrompt(prompt.QueryFailed),

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/thinkgos/sharp/core/paginator"
@@ -9,6 +10,7 @@ import (
 
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type Job struct {
@@ -34,9 +36,9 @@ func (Job) TableName() string {
 	return "sys_job"
 }
 
-func JobDB() func(db *gorm.DB) *gorm.DB {
+func JobDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Model(Job{})
+		return db.Scopes(trans.CtxDB(ctx)).Model(Job{})
 	}
 }
 
@@ -79,50 +81,50 @@ func (e *Job) GetPage(pageSize int, pageIndex int, v interface{}, list interface
 	return int(count), nil
 }
 
-func (cJob) Query() (items []Job, err error) {
-	err = dao.DB.Scopes(JobDB()).
+func (cJob) Query(ctx context.Context) (items []Job, err error) {
+	err = dao.DB.Scopes(JobDB(ctx)).
 		Where("status=?", 2).Find(&items).Error
 	return
 }
 
 // 获取SysJob
-func (cJob) Get(id uint) (item Job, err error) {
-	err = dao.DB.Scopes(JobDB()).
+func (cJob) Get(ctx context.Context, id uint) (item Job, err error) {
+	err = dao.DB.Scopes(JobDB(ctx)).
 		Where("job_id=?", id).First(&item).Error
 	return
 }
 
 // 创建SysJob
-func (cJob) Create(item Job) (Job, error) {
-	err := dao.DB.Scopes(JobDB()).Create(&item).Error
+func (cJob) Create(ctx context.Context, item Job) (Job, error) {
+	err := dao.DB.Scopes(JobDB(ctx)).Create(&item).Error
 	return item, err
 }
 
 // 更新SysJob
-func (cJob) Update(id uint, e Job) error {
-	return dao.DB.Scopes(JobDB()).Where("job_id=?", id).Updates(&e).Error
+func (cJob) Update(ctx context.Context, id uint, e Job) error {
+	return dao.DB.Scopes(JobDB(ctx)).Where("job_id=?", id).Updates(&e).Error
 }
 
-func (cJob) RemoveAllEntryID() error {
-	return dao.DB.Scopes(JobDB()).
+func (cJob) RemoveAllEntryID(ctx context.Context) error {
+	return dao.DB.Scopes(JobDB(ctx)).
 		Where("entry_id > ?", 0).
 		Update("entry_id", 0).Error
 }
 
-func (cJob) RemoveEntryID(entryID int) (err error) {
-	return dao.DB.Scopes(JobDB()).
+func (cJob) RemoveEntryID(ctx context.Context, entryID int) (err error) {
+	return dao.DB.Scopes(JobDB(ctx)).
 		Where("entry_id = ?", entryID).
 		Update("entry_id", 0).Error
 }
 
 // 删除SysJob
-func (cJob) Delete(id int) (err error) {
-	return dao.DB.Scopes(JobDB()).
+func (cJob) Delete(ctx context.Context, id int) (err error) {
+	return dao.DB.Scopes(JobDB(ctx)).
 		Where("job_id=?", id).Delete(&Job{}).Error
 }
 
 // 批量删除
-func (cJob) BatchDelete(ids []int) error {
-	return dao.DB.Scopes(JobDB()).
+func (cJob) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(JobDB(ctx)).
 		Where("job_id in ( ? )", ids).Delete(&Job{}).Error
 }
