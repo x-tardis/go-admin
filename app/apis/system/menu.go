@@ -8,7 +8,6 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
@@ -209,16 +208,12 @@ func GetMenuTreeWithRoleName(c *gin.Context) {
 // @Router /api/v1/menuids/{id} [get]
 // @Security Bearer
 func GetMenuIDS(c *gin.Context) {
-	var data models.RoleMenu
-
-	data.RoleName = jwtauth.FromRoleName(gcontext.Context(c))
-	data.Updator = jwtauth.FromUserIdStr(gcontext.Context(c))
-	result, err := data.GetIDS()
+	items, err := models.CRoleMenu.GetIDSWithRoleName(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(result))
+	servers.OK(c, servers.WithData(items))
 }

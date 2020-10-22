@@ -1,79 +1,87 @@
 package models
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// RoleMenu role menu
 type RoleMenu struct {
 	RoleId   int    `gorm:""`
 	MenuId   int    `gorm:""`
 	RoleName string `gorm:"size:128"`
-	Creator  string `gorm:"size:128"`
-	Updator  string `gorm:"size:128"`
 }
 
+// TableName implement gorm.Tabler interface
 func (RoleMenu) TableName() string {
 	return "sys_role_menu"
 }
 
+// RoleMenuDB role mene db scope
 func RoleMenuDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Model(RoleMenu{})
 	}
 }
 
-type MenuPath struct {
-	Path string `json:"path"`
+type cRoleMenu struct{}
+
+var CRoleMenu = new(cRoleMenu)
+
+func (cRoleMenu) Get(_ context.Context, id int) (items []RoleMenu, err error) {
+	err = dao.DB.Scopes(RoleMenuDB()).
+		Where("role_id = ?", id).Find(&items).Error
+	return
 }
 
-func (rm *RoleMenu) Get() ([]RoleMenu, error) {
-	var r []RoleMenu
-	table := dao.DB.Table("sys_role_menu")
-	if rm.RoleId != 0 {
-		table = table.Where("role_id = ?", rm.RoleId)
+func (cRoleMenu) GetPermissionWithRoleId(ctx context.Context) ([]string, error) {
+	var items []Menu
 
-	}
-	if err := table.Find(&r).Error; err != nil {
+	roleId := jwtauth.FromRoleId(ctx)
+	err := dao.DB.Select("sys_menu.permission").
+		Table("sys_menu").
+		Joins("left join sys_role_menu on sys_menu.menu_id = sys_role_menu.menu_id").
+		Where("role_id = ?", roleId).
+		Where("sys_menu.menu_type in('F','C')").
+		Find(&items).Error
+	if err != nil {
 		return nil, err
 	}
-	return r, nil
-}
-
-func (rm *RoleMenu) GetPermis() ([]string, error) {
-	var r []Menu
-	table := dao.DB.Select("sys_menu.permission").Table("sys_menu").Joins("left join sys_role_menu on sys_menu.menu_id = sys_role_menu.menu_id")
-
-	table = table.Where("role_id = ?", rm.RoleId)
-
-	table = table.Where("sys_menu.menu_type in('F','C')")
-	if err := table.Find(&r).Error; err != nil {
-		return nil, err
-	}
-	var list []string
-	for i := 0; i < len(r); i++ {
-		list = append(list, r[i].Permission)
+	list := make([]string, 0, len(items))
+	for _, item := range items {
+		list = append(list, item.Permission)
 	}
 	return list, nil
 }
 
-func (rm *RoleMenu) GetIDS() ([]MenuPath, error) {
-	var r []MenuPath
-	table := dao.DB.Select("sys_menu.path").Table("sys_role_menu")
-	table = table.Joins("left join sys_role on sys_role.role_id=sys_role_menu.role_id")
-	table = table.Joins("left join sys_menu on sys_menu.id=sys_role_menu.menu_id")
-	table = table.Where("sys_role.role_name = ? and sys_menu.type=1", rm.RoleName)
-	if err := table.Find(&r).Error; err != nil {
-		return nil, err
-	}
-	return r, nil
+type MenuPath struct {
+	Path string `json:"path"`
 }
 
-func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
+func (cRoleMenu) GetIDSWithRoleName(ctx context.Context) (items []MenuPath, err error) {
+	roleName := jwtauth.FromRoleName(ctx)
+	err = dao.DB.Select("sys_menu.path").Table("sys_role_menu").
+		Joins("left join sys_role on sys_role.role_id=sys_role_menu.role_id").
+		Joins("left join sys_menu on sys_menu.id=sys_role_menu.menu_id").
+		Where("sys_role.role_name=? and sys_menu.type=1", roleName).
+		Find(&items).Error
+	return
+}
+
+func (cRoleMenu) DeleteWith(RoleId string, MenuID string) error {
+	db := dao.DB.Scopes(RoleMenuDB()).Where("role_id = ?", RoleId)
+	if MenuID != "" {
+		db = db.Where("menu_id = ?", MenuID)
+	}
+	return db.Delete(&RoleMenu{}).Error
+}
+
+func (cRoleMenu) Delete(roleId int) error {
 	tx := dao.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -82,36 +90,39 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
 	}()
 
 	if err := tx.Error; err != nil {
-		return false, err
+		return err
 	}
 
-	if err := tx.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
+	err := tx.Scopes(RoleDeptDB()).
+		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
+	if err != nil {
 		tx.Rollback()
-		return false, err
+		return err
 	}
-	if err := tx.Table("sys_role_menu").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
+
+	err = tx.Scopes(RoleMenuDB()).
+		Where("role_id = ?", roleId).Delete(RoleMenuDB()).Error
+	if err != nil {
 		tx.Rollback()
-		return false, err
+		return err
 	}
 	var role Role
-	if err := tx.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
+
+	err = tx.Scopes(RoleDB()).
+		Where("role_id = ?", roleId).First(&role).Error
+	if err != nil {
 		tx.Rollback()
-		return false, err
+		return err
 	}
 	sql3 := "delete from sys_casbin_rule where v0= '" + role.RoleKey + "';"
 	if err := tx.Exec(sql3).Error; err != nil {
 		tx.Rollback()
-		return false, err
+		return err
 	}
-	if err := tx.Commit().Error; err != nil {
-		return false, err
-	}
-
-	return true, nil
-
+	return tx.Commit().Error
 }
 
-func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
+func (cRoleMenu) Insert(roleId int, menuId []int) error {
 	var (
 		role            Role
 		menu            []Menu
@@ -127,44 +138,41 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	}()
 
 	if err := tx.Error; err != nil {
-		return false, err
+		return err
 	}
 
 	// 在事务中做一些数据库操作（从这一点使用'tx'，而不是'db'）
-	if err := tx.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
+	err := tx.Scopes(RoleDB()).
+		Where("role_id = ?", roleId).First(&role).Error
+	if err != nil {
 		tx.Rollback()
-		return false, err
+		return err
 	}
-	if err := tx.Table("sys_menu").Where("menu_id in (?)", menuId).Find(&menu).Error; err != nil {
+	err = tx.Scopes(MenuDB()).
+		Where("menu_id in (?)", menuId).Find(&menu).Error
+	if err != nil {
 		tx.Rollback()
-		return false, err
+		return err
 	}
-	//ORM不支持批量插入所以需要拼接 sql 串
-	sysRoleMenuSql := "INSERT INTO `sys_role_menu` (`role_id`,`menu_id`,`role_name`) VALUES "
+	// ORM不支持批量插入所以需要拼接 sql 串
+	var roleMenus []RoleMenu
+
 	casbinRuleSql := "INSERT INTO `sys_casbin_rule`  (`p_type`,`v0`,`v1`,`v2`) VALUES "
 
-	for i, m := range menu {
-		// 拼装'role_menu'表批量插入SQL语句
-		sysRoleMenuSql += fmt.Sprintf("(%d,%d,'%s')", role.RoleId, m.MenuId, role.RoleKey)
-		if i == len(menu)-1 {
-			sysRoleMenuSql += ";" //最后一条数据 以分号结尾
-		} else {
-			sysRoleMenuSql += ","
-		}
+	for _, m := range menu {
+		roleMenus = append(roleMenus,
+			RoleMenu{role.RoleId, m.MenuId, role.RoleKey})
 		if m.MenuType == "A" {
 			// 加入队列
 			casbinRuleQueue = append(casbinRuleQueue,
-				CasbinRule{
-					V0: role.RoleKey,
-					V1: m.Path,
-					V2: m.Action,
-				})
+				CasbinRule{V0: role.RoleKey, V1: m.Path, V2: m.Action})
 		}
 	}
 	// 执行批量插入sys_role_menu
-	if err := tx.Exec(sysRoleMenuSql).Error; err != nil {
+	err = tx.Scopes(RoleMenuDB()).Create(&roleMenus).Error
+	if err != nil {
 		tx.Rollback()
-		return false, err
+		return err
 	}
 
 	// 拼装'sys_casbin_rule'批量插入SQL语句
@@ -181,25 +189,9 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	if len(casbinRuleQueue) > 0 {
 		if err := tx.Exec(casbinRuleSql).Error; err != nil {
 			tx.Rollback()
-			return false, err
+			return err
 		}
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func (rm *RoleMenu) Delete(RoleId string, MenuID string) (bool, error) {
-	rm.RoleId = cast.ToInt(RoleId)
-	table := dao.DB.Table("sys_role_menu").Where("role_id = ?", RoleId)
-	if MenuID != "" {
-		table = table.Where("menu_id = ?", MenuID)
-	}
-	if err := table.Delete(&rm).Error; err != nil {
-		return false, err
-	}
-	return true, nil
-
+	return tx.Commit().Error
 }

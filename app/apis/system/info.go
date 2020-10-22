@@ -22,16 +22,13 @@ func GetInfo(c *gin.Context) {
 	var buttons = make([]string, 1)
 	buttons[0] = "*:*:*"
 
-	RoleMenu := models.RoleMenu{}
-	RoleMenu.RoleId = jwtauth.FromRoleId(gcontext.Context(c))
-
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
 	if rolekey == "admin" || rolekey == "系统管理员" {
 		mp["permissions"] = permissions
 		mp["buttons"] = buttons
 	} else {
-		list, _ := RoleMenu.GetPermis()
+		list, _ := models.CRoleMenu.GetPermissionWithRoleId(gcontext.Context(c))
 		mp["permissions"] = list
 		mp["buttons"] = list
 	}

@@ -1,15 +1,18 @@
 package system
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
+
+type RoleMenu struct{}
 
 // @Summary RoleMenu列表数据
 // @Description 获取JSON
@@ -17,25 +20,19 @@ import (
 // @Param RoleId query string false "RoleId"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/rolemenu [get]
+// @Router /api/v1/rolemenu/{roleId} [get]
 // @Security Bearer
-func GetRoleMenu(c *gin.Context) {
-	var Rm models.RoleMenu
-	err := c.ShouldBind(&Rm)
-	result, err := Rm.Get()
+func (RoleMenu) Get(c *gin.Context) {
+	roleId := cast.ToInt(c.Param("roleId"))
+	items, err := models.CRoleMenu.Get(gcontext.Context(c), roleId)
 	if err != nil {
-		servers.Fail(c, http.StatusOK, servers.WithMsg("抱歉未找到相关信息"))
+		servers.Fail(c, http.StatusOK, servers.WithPrompt(prompt.NotFound))
 		return
 	}
-	servers.OK(c, servers.WithData(result))
+	servers.OK(c, servers.WithData(items))
 }
 
-type RoleMenuPost struct {
-	RoleId   string
-	RoleMenu []models.RoleMenu
-}
-
-func InsertRoleMenu(c *gin.Context) {
+func (RoleMenu) Create(c *gin.Context) {
 	servers.OK(c, servers.WithMsg("添加成功"))
 }
 
@@ -48,11 +45,9 @@ func InsertRoleMenu(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/rolemenu/{id} [delete]
 func DeleteRoleMenu(c *gin.Context) {
-	var t models.RoleMenu
-	id := c.Param("id")
-	menuId := c.Request.FormValue("menu_id")
-	fmt.Println(menuId)
-	_, err := t.Delete(id, menuId)
+	roleId := c.Param("id")
+	menuId := c.Query("menu_id")
+	err := models.CRoleMenu.DeleteWith(roleId, menuId)
 	if err != nil {
 		servers.Fail(c, http.StatusOK, servers.WithPrompt(prompt.DeleteFailed))
 		return

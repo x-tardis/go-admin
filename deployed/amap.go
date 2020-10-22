@@ -14,13 +14,10 @@ func IPLocation(ip string) string {
 		return "intranet location"
 	}
 	rsp, err := defaultAmap.IPLocation(ip)
-	if err != nil {
+	if err != nil || (rsp.Province == "" && rsp.City == "") {
 		return "unknown location"
 	}
 
-	if rsp.Province == "" && rsp.City == "" {
-		return "unknown location"
-	}
 	if rsp.Province == "" {
 		return rsp.City
 	}

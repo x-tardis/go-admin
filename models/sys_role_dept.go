@@ -1,7 +1,7 @@
 package models
 
 import (
-	"fmt"
+	"context"
 
 	"gorm.io/gorm"
 
@@ -28,24 +28,15 @@ type cRoleDept struct{}
 
 var CRoleDept = new(cRoleDept)
 
-func (cRoleDept) Create(roleId int, deptIds []int) error {
-	// ORM不支持批量插入所以需要拼接 sql 串
-	sql := "INSERT INTO `sys_role_dept` (`role_id`,`dept_id`) VALUES "
-
-	for i := 0; i < len(deptIds); i++ {
-		if len(deptIds)-1 == i {
-			//最后一条数据 以分号结尾
-			sql += fmt.Sprintf("(%d,%d);", roleId, deptIds[i])
-		} else {
-			sql += fmt.Sprintf("(%d,%d),", roleId, deptIds[i])
-		}
+func (cRoleDept) Create(_ context.Context, roleId int, deptIds []int) error {
+	newItems := make([]RoleDept, 0, len(deptIds))
+	for _, v := range deptIds {
+		newItems = append(newItems, RoleDept{roleId, v})
 	}
-	dao.DB.Exec(sql)
-
-	return nil
+	return dao.DB.Scopes(RoleDeptDB()).Create(&newItems).Error
 }
 
-func (cRoleDept) DeleteRoleDept(roleId int) error {
+func (cRoleDept) Delete(_ context.Context, roleId int) error {
 	return dao.DB.Scopes(RoleDeptDB()).
 		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
 }
