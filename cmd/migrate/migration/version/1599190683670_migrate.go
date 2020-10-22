@@ -273,7 +273,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list6 := []models.Role{
-			{1, "系统管理员", "admin", "0", 1, "", "", true, "", "1", "", models.Model{CreatedAt: time.Now(), UpdatedAt: time.Now()}, []int{}, []int{}, ""},
+			{1, "系统管理员", "admin", "0", 1, "", true, "", "", "1", "", models.Model{}, []int{}, []int{}, ""},
 		}
 
 		list7 := []models.DictType{

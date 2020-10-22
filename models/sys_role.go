@@ -13,6 +13,9 @@ import (
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
+// SuperAdmin 超级管理员
+const SuperAdmin = "admin"
+
 // Role 角色
 type Role struct {
 	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"` // 主键
@@ -21,8 +24,8 @@ type Role struct {
 	Status    string `json:"status" gorm:"size:4;"`                    // 状态
 	Sort      int    `json:"sort" gorm:""`                             // 排序
 	Flag      string `json:"flag" gorm:"size:128;"`                    // 标记(未用)
+	Admin     bool   `json:"admin" gorm:"size:4;"`                     // 超级权限(未用)
 	Remark    string `json:"remark" gorm:"size:255;"`                  // 备注
-	Admin     bool   `json:"admin" gorm:"size:4;"`                     // (未用)
 	DataScope string `json:"dataScope" gorm:"size:128;"`               // 数据权限
 	Creator   string `json:"creator" gorm:"size:128;"`                 // 创建者
 	Updator   string `json:"updator" gorm:"size:128;"`                 // 更新者
@@ -129,6 +132,9 @@ func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error)
 		return
 	}
 
+	if item.RoleKey == SuperAdmin && up.Status == StatusDisable {
+		return item, errors.New("超级用户不允许禁用")
+	}
 	// 角色名称与角色标识不允许修改
 	if up.RoleName != "" && up.RoleName != item.RoleName {
 		return item, errors.New("角色名称不允许修改！")

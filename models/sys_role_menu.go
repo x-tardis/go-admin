@@ -48,7 +48,7 @@ func (cRoleMenu) GetPermissionWithRoleId(ctx context.Context) ([]string, error) 
 		Table("sys_menu").
 		Joins("left join sys_role_menu on sys_menu.menu_id = sys_role_menu.menu_id").
 		Where("role_id = ?", roleId).
-		Where("sys_menu.menu_type in('F','C')").
+		Where("sys_menu.menu_type in(? , ?)", MenuTypeMenu, MenuTypeBtn).
 		Find(&items).Error
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func (cRoleMenu) Insert(ctx context.Context, roleId int, menuId []int) error {
 		tx.Rollback()
 		return err
 	}
-	err = tx.Scopes(MenuDB()).
+	err = tx.Scopes(MenuDB(ctx)).
 		Where("menu_id in (?)", menuId).Find(&menu).Error
 	if err != nil {
 		tx.Rollback()
@@ -163,7 +163,7 @@ func (cRoleMenu) Insert(ctx context.Context, roleId int, menuId []int) error {
 	for _, m := range menu {
 		roleMenus = append(roleMenus,
 			RoleMenu{role.RoleId, m.MenuId, role.RoleKey})
-		if m.MenuType == "A" {
+		if m.MenuType == MenuTypeIfc {
 			// 加入队列
 			casbinRuleQueue = append(casbinRuleQueue,
 				CasbinRule{V0: role.RoleKey, V1: m.Path, V2: m.Action})
