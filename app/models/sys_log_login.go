@@ -11,20 +11,21 @@ import (
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
+// LoginLog 登录记录
 type LoginLog struct {
-	InfoId        int       `json:"infoId" gorm:"primary_key;auto_increment;"` // 主键
-	Username      string    `json:"username" gorm:"size:128;"`                 // 用户名
-	Status        string    `json:"status" gorm:"size:4;"`                     // 登录状态
-	Ipaddr        string    `json:"ipaddr" gorm:"size:255;"`                   // 登录ip地址
-	LoginLocation string    `json:"loginLocation" gorm:"size:255;"`            // 登录ip归属地
-	Browser       string    `json:"browser" gorm:"size:255;"`                  // 浏览器
-	Os            string    `json:"os" gorm:"size:255;"`                       // 操作系统
-	Platform      string    `json:"platform" gorm:"size:255;"`                 // 系统平台
-	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;"`          // 登录时间
-	Remark        string    `json:"remark" gorm:"size:255;"`                   // 备注
-	Msg           string    `json:"msg" gorm:"size:255;"`                      // 登录信息
-	Creator       string    `json:"creator" gorm:"size:128;"`                  // 创建人
-	Updator       string    `json:"updator" gorm:"size:128;"`                  // 更新者
+	InfoId    int       `json:"infoId" gorm:"primary_key;auto_increment;"` // 主键
+	Username  string    `json:"username" gorm:"size:128;"`                 // 用户名
+	Status    string    `json:"status" gorm:"size:4;"`                     // 登录状态
+	Ip        string    `json:"ip" gorm:"size:255;"`                       // 登录ip地址
+	Location  string    `json:"location" gorm:"size:255;"`                 // 登录ip归属地
+	Browser   string    `json:"browser" gorm:"size:255;"`                  // 浏览器
+	Os        string    `json:"os" gorm:"size:255;"`                       // 操作系统
+	Platform  string    `json:"platform" gorm:"size:255;"`                 // 系统平台
+	LoginTime time.Time `json:"loginTime" gorm:"type:timestamp;"`          // 登录时间
+	Remark    string    `json:"remark" gorm:"size:255;"`                   // 备注
+	Msg       string    `json:"msg" gorm:"size:255;"`                      // 登录信息
+	Creator   string    `json:"creator" gorm:"size:128;"`                  // 创建人
+	Updator   string    `json:"updator" gorm:"size:128;"`                  // 更新者
 	Model
 
 	DataScope string `json:"dataScope" gorm:"-"` // 数据
@@ -41,35 +42,32 @@ func LoginLogDB() func(db *gorm.DB) *gorm.DB {
 	}
 }
 
+// LoginLogQueryParam 查询参数
 type LoginLogQueryParam struct {
 	Username string `form:"username"` // 用户名
+	Ip       string `form:"ip"`       // ip地址
 	Status   string `form:"status"`   // 状态
-	Ipaddr   string `form:"ipaddr"`   // ip地址
 	paginator.Param
 }
 
 type cLoginLog struct{}
 
+// CLoginLog 实例
 var CLoginLog = new(cLoginLog)
 
-func (cLoginLog) Get(id int) (item LoginLog, err error) {
-	err = deployed.DB.Scopes(LoginLogDB()).
-		Where("info_id = ?", id).First(&item).Error
-	return
-}
-
+// QueryPage 查询,分页
 func (cLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {
 	var items []LoginLog
 
 	db := deployed.DB.Scopes(LoginLogDB())
-	if qp.Ipaddr != "" {
-		db = db.Where("ipaddr=?", qp.Ipaddr)
+	if qp.Username != "" {
+		db = db.Where("username=?", qp.Username)
+	}
+	if qp.Ip != "" {
+		db = db.Where("ip=?", qp.Ip)
 	}
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)
-	}
-	if qp.Username != "" {
-		db = db.Where("username=?", qp.Username)
 	}
 	db = db.Order("info_id desc")
 
@@ -77,6 +75,14 @@ func (cLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog
 	return items, info, err
 }
 
+// Get 获取
+func (cLoginLog) Get(_ context.Context, id int) (item LoginLog, err error) {
+	err = deployed.DB.Scopes(LoginLogDB()).
+		Where("info_id=?", id).First(&item).Error
+	return
+}
+
+// Create 创建
 func (cLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
@@ -84,21 +90,20 @@ func (cLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {
 	return item, err
 }
 
+// Update 更新
 func (cLoginLog) Update(_ context.Context, id int, up LoginLog) (item LoginLog, err error) {
 	if err = deployed.DB.Scopes(LoginLogDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据,只修改非零的数据
 	err = deployed.DB.Scopes(LoginLogDB()).Model(&item).Updates(&up).Error
 	return
 }
 
 // BatchDelete 批量删除id
-func (cLoginLog) BatchDelete(_ context.Context, id []int) error {
+func (cLoginLog) BatchDelete(_ context.Context, ids []int) error {
 	return deployed.DB.Scopes(LoginLogDB()).
-		Where("info_id in (?)", id).Delete(&LoginLog{}).Error
+		Where("info_id in (?)", ids).Delete(&LoginLog{}).Error
 }
 
 // Clean 清空日志

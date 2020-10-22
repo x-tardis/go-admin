@@ -41,7 +41,7 @@ import (
 //	defer orm.Eloquent.Close()
 //
 //	srv := &http.Server{
-//		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
+//		Ip:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
 //		Handler: r,
 //	}
 //

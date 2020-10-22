@@ -7,7 +7,7 @@ import (
 )
 
 // Dict 字典类型与数据路由
-func Dict(v1 *gin.RouterGroup) {
+func Dict(v1 gin.IRouter) {
 	r := v1.Group("/dict")
 	{
 		ctlType := new(system.DictType)

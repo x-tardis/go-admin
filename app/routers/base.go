@@ -7,7 +7,7 @@ import (
 	"github.com/x-tardis/go-admin/app/apis/system"
 )
 
-func Base(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+func Base(v1 gin.IRouter, authMiddleware *jwt.GinJWTMiddleware) {
 	v1.GET("/getinfo", system.GetInfo)
 	v1.POST("/logout", authMiddleware.LogoutHandler)
 

@@ -11,15 +11,18 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-var routerNoCheckRole []func(r gin.IRouter)
-var routerCheckRole []func(r gin.IRouter)
+// 业务无授权,无RBAC角色控制
+var businessNoAuthRbac []func(r gin.IRouter)
+
+// 业务有授权,有RBAC角色控制
+var businessAuthRbac []func(r gin.IRouter)
 
 func init() {
-	routerNoCheckRole = append(routerNoCheckRole,
+	businessNoAuthRbac = append(businessNoAuthRbac,
 		routers.PubSysFileInfo,
 		routers.PubSysFileDir,
 	)
-	routerCheckRole = append(routerCheckRole,
+	businessAuthRbac = append(businessAuthRbac,
 		routers.SysJobRouter,
 		routers.SysContent,
 		routers.SysCategory,
@@ -27,19 +30,21 @@ func init() {
 }
 
 // 路由示例
-func RegisterBusiness(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Engine {
-	v1 := r.Group("/api/v1")
-	{ // 无需认证的路由
-		for _, f := range routerNoCheckRole {
+func RegisterBusiness(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
+	v1 := engine.Group("/api/v1")
+	{
+		// 无需认证的路由
+		for _, f := range businessNoAuthRbac {
+			f(v1)
+		}
+		// 需要认证的路由
+		v1.Use(
+			authMiddleware.MiddlewareFunc(),
+			OperLog(),
+			authj.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject),
+		)
+		for _, f := range businessAuthRbac {
 			f(v1)
 		}
 	}
-	{ // 需要认证的路由
-		v1.Use(authMiddleware.MiddlewareFunc(), authj.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject))
-		for _, f := range routerCheckRole {
-			f(v1)
-		}
-	}
-
-	return r
 }

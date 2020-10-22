@@ -88,25 +88,24 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func authenticator(c *gin.Context) (interface{}, error) {
-	var req models.Login
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		loginLogRecord(c, false, "数据解析失败", req.Username)
+	login := models.Login{}
+	if err := c.ShouldBindJSON(&login); err != nil {
+		loginLogRecord(c, false, "数据解析失败", login.Username)
 		return nil, jwt.ErrMissingLoginValues
 	}
 
 	if deployed.AppConfig.Mode == infra.ModeProd &&
-		!deployed.Captcha.Verify(req.UUID, req.Code, true) {
-		loginLogRecord(c, false, "验证码错误", req.Username)
+		!deployed.Captcha.Verify(login.UUID, login.Code, true) {
+		loginLogRecord(c, false, "验证码错误", login.Username)
 		return nil, jwt.ErrFailedAuthentication
 	}
-	user, role, err := req.GetUser()
+	user, role, err := login.GetUser()
 	if err != nil {
-		loginLogRecord(c, false, "登录失败", req.Username)
+		loginLogRecord(c, false, "登录失败", login.Username)
 		deployed.RequestLogger.Debug(err.Error())
 		return nil, jwt.ErrFailedAuthentication
 	}
-	loginLogRecord(c, true, "登录成功", req.Username)
+	loginLogRecord(c, true, "登录成功", login.Username)
 	return jwtauth.Identities{
 		UserId:    user.UserId,
 		Username:  user.Username,
@@ -143,16 +142,16 @@ func loginLogRecord(c *gin.Context, success bool, msg string, username string) {
 		browserName, browserVersion := ua.Browser()
 		location := deployed.IPLocation(c.ClientIP())
 		loginLog := models.LoginLog{
-			Username:      username,
-			Status:        status,
-			Ipaddr:        c.ClientIP(),
-			LoginLocation: location,
-			Browser:       browserName + " " + browserVersion,
-			Os:            ua.OS(),
-			Platform:      ua.Platform(),
-			LoginTime:     time.Now(),
-			Remark:        c.Request.UserAgent(),
-			Msg:           msg,
+			Username:  username,
+			Status:    status,
+			Ip:        c.ClientIP(),
+			Location:  location,
+			Browser:   browserName + " " + browserVersion,
+			Os:        ua.OS(),
+			Platform:  ua.Platform(),
+			LoginTime: time.Now(),
+			Remark:    c.Request.UserAgent(),
+			Msg:       msg,
 		}
 
 		models.CLoginLog.Create(context.Background(), loginLog) // nolint: errcheck

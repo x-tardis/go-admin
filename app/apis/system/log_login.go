@@ -15,19 +15,25 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
+// LoginLog login log
 type LoginLog struct{}
 
-// @Summary 登录日志列表
-// @Description 获取JSON
-// @Tags 登录日志
-// @Param status query string false "status"
-// @Param dictId query string false "dictId"
-// @Param dictType query string false "dictType"
-// @Param pageSize query int false "页条数"
-// @Param pageIndex query int false "页码"
+// @tags 登录日志
+// @summary 获取登录日志列表
+// @description 获取登录日志列表
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param username query string false "username"
+// @param ip query string false "ip"
+// @param status query string false "status"
+// @param pageSize query int false "页条数"
+// @param pageIndex query int false "页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/loginlog [get]
-// @Security Bearer
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/loginlog [get]
 func (LoginLog) QueryPage(c *gin.Context) {
 	qp := models.LoginLogQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -36,7 +42,7 @@ func (LoginLog) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	result, info, err := models.CLoginLog.QueryPage(gcontext.Context(c), qp)
+	items, info, err := models.CLoginLog.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithError(err),
@@ -45,39 +51,46 @@ func (LoginLog) QueryPage(c *gin.Context) {
 	}
 	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
-		List: result,
+		List: items,
 	}))
 }
 
-// @Summary 通过编码获取登录日志
-// @Description 获取JSON
-// @Tags 登录日志
-// @Param infoId path int true "infoId"
+// @tags 登录日志
+// @summary 获取登录日志
+// @description 获取登录日志
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param infoId path int true "infoId"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/loginlog/{id} [get]
-// @Security Bearer
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/loginlog/{id} [get]
 func (LoginLog) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	result, err := models.CLoginLog.Get(id)
+	item, err := models.CLoginLog.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(result))
+	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加登录日志
-// @Description 获取JSON
-// @Tags 登录日志
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.LoginLog true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/loginlog [post]
-// @Security Bearer
+// @tags 登录日志
+// @summary 添加登录日志
+// @description 添加登录日志
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param newItem body models.LoginLog true "newItem"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/loginlog [post]
 func (LoginLog) Create(c *gin.Context) {
 	newItem := models.LoginLog{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -95,39 +108,46 @@ func (LoginLog) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 修改登录日志
-// @Description 获取JSON
-// @Tags 登录日志
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.LoginLog true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/loginlog [put]
-// @Security Bearer
+// @tags 登录日志
+// @summary 修改登录日志
+// @description 修改登录日志
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param up body models.LoginLog true "up"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/loginlog [put]
 func (LoginLog) Update(c *gin.Context) {
 	up := models.LoginLog{}
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	result, err := models.CLoginLog.Update(gcontext.Context(c), up.InfoId, up)
+	item, err := models.CLoginLog.Update(gcontext.Context(c), up.InfoId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.UpdateFailed),
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(result))
+	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 批量删除登录日志
-// @Description 删除数据
-// @Tags 登录日志
-// @Param infoId path string true "以逗号（,）分割的infoId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/loginlog/{ids} [delete]
+// @tags 登录日志
+// @summary 批量删除登录日志
+// @description 批量删除登录日志
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param infoId path string true "以逗号（,）分割的infoId,如果为clean,将清空日志"
+// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/loginlog/{ids} [delete]
 func (LoginLog) BatchDelete(c *gin.Context) {
 	var err error
 
