@@ -15,18 +15,21 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
+// Post post
 type Post struct{}
 
-// @Summary 岗位列表数据
-// @Description 获取JSON
-// @Tags 岗位
-// @Param postName query string false "postName"
-// @Param postCode query string false "postCode"
-// @Param postId query string false "postId"
-// @Param status query string false "status"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/posts [get]
-// @Security Bearer
+// @tags 岗位
+// @summary 岗位列表数据
+// @description 获取JSON
+// @security ApiKeyAuth
+// @accept  application/json
+// @produce application/json
+// @param postId query string false "postId"
+// @param postName query string false "postName"
+// @param postCode query string false "postCode"
+// @param status query string false "status"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @router /api/v1/posts [get]
 func (Post) QueryPage(c *gin.Context) {
 	qp := models.PostQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -48,12 +51,14 @@ func (Post) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @Summary 获取岗位信息
-// @Description 获取JSON
-// @Tags 岗位
-// @Param id path int true "post id"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/posts/{id} [get]
+// @tags 岗位
+// @summary 获取岗位信息
+// @description 获取JSON
+// @accept  application/json
+// @produce application/json
+// @param id path int true "post id"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @router /api/v1/posts/{id} [get]
 // @Security Bearer
 func (Post) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
@@ -67,16 +72,16 @@ func (Post) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加岗位
-// @Description 获取JSON
-// @Tags 岗位
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Post true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/posts [post]
-// @Security Bearer
+// @tags 岗位
+// @summary 添加岗位
+// @description 获取JSON
+// @security ApiKeyAuth
+// @accept  application/json
+// @produce application/json
+// @param data body models.Post true "data"
+// @success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @router /api/v1/posts [post]
 func (Post) Create(c *gin.Context) {
 	newItem := models.Post{}
 	err := c.ShouldBindJSON(&newItem)
@@ -93,16 +98,16 @@ func (Post) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 修改岗位
-// @Description 获取JSON
-// @Tags 岗位
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Post true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/posts [put]
-// @Security Bearer
+// @tags 岗位
+// @summary 修改岗位
+// @description 获取JSON
+// @security ApiKeyAuth
+// @accept  application/json
+// @produce application/json
+// @param up body models.Post true "body"
+// @success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @router /api/v1/posts [put]
 func (Post) Update(c *gin.Context) {
 	up := models.Post{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -117,13 +122,15 @@ func (Post) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 删除岗位
-// @Description 删除数据
-// @Tags 岗位
-// @Param id path int true "id"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
-// @Router /api/v1/posts/{ids} [delete]
+// @tags 岗位
+// @summary 批量删除岗位
+// @description 批量删除数据
+// @security ApiKeyAuth
+// @produce application/json
+// @param ids path int true "id 列表,以','分隔"
+// @success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @success 500 {string} string	"{"code": 500, "message": "删除失败"}"
+// @router /api/v1/posts/{ids} [delete]
 func (Post) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CPost.BatchDelete(gcontext.Context(c), ids)

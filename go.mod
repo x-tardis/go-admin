@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.14.2
-	github.com/casbin/gorm-adapter/v3 v3.0.2
+	github.com/casbin/gorm-adapter/v3 v3.0.3
 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gin-contrib/cors v1.3.1
@@ -39,7 +39,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.9
-	github.com/thinkgos/gin-middlewares v0.0.5
+	github.com/thinkgos/gin-middlewares v0.0.6
 	github.com/thinkgos/go-core-package v0.1.4
 	github.com/thinkgos/http-middlewares v0.0.3
 	github.com/thinkgos/meter v0.0.8

@@ -12,30 +12,34 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// DictType 字典类型
 type DictType struct {
 	DictId   int    `gorm:"primary_key;auto_increment;" json:"dictId"` // 主键
-	DictName string `gorm:"size:128;" json:"dictName"`                 // 字典名称
-	DictType string `gorm:"size:128;" json:"dictType"`                 // 字典类型
+	DictName string `gorm:"size:128;" json:"dictName"`                 // 名称
+	DictType string `gorm:"size:128;" json:"dictType"`                 // 类型
 	Status   string `gorm:"size:4;" json:"status"`                     // 状态
+	Remark   string `gorm:"size:255;" json:"remark"`                   // 备注
 	Creator  string `gorm:"size:11;" json:"creator"`                   // 创建者
 	Updator  string `gorm:"size:11;" json:"updator"`                   // 更新者
-	Remark   string `gorm:"size:255;" json:"remark"`                   // 备注
 	Model
 
 	DataScope string `gorm:"-" json:"dataScope"`
 	Params    string `gorm:"-" json:"params"`
 }
 
+// TableName implement gorm.Tabler interface
 func (DictType) TableName() string {
 	return "sys_dict_type"
 }
 
+// DictTypeDB dict type db
 func DictTypeDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Model(DictType{})
 	}
 }
 
+// DictTypeQueryParam 查询参数
 type DictTypeQueryParam struct {
 	DictId   int    `form:"dictId"`
 	DictName string `form:"dictName"`
@@ -45,8 +49,10 @@ type DictTypeQueryParam struct {
 
 type cDictType struct{}
 
+// CDictType 实例
 var CDictType = new(cDictType)
 
+// Query 查询,非分页
 func (cDictType) Query(_ context.Context, qp DictTypeQueryParam) ([]DictType, error) {
 	var item []DictType
 
@@ -65,6 +71,7 @@ func (cDictType) Query(_ context.Context, qp DictTypeQueryParam) ([]DictType, er
 	return item, err
 }
 
+// QueryPage 查询,分页
 func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictType, paginator.Info, error) {
 	var err error
 	var items []DictType
@@ -90,6 +97,7 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 	return items, info, err
 }
 
+// Get 通过id或name查询
 func (cDictType) Get(_ context.Context, dictId int, dictName string) (item DictType, err error) {
 	db := deployed.DB.Scopes(DictTypeDB())
 	if dictId != 0 {
@@ -102,10 +110,10 @@ func (cDictType) Get(_ context.Context, dictId int, dictName string) (item DictT
 	return
 }
 
+// Create 创建
 func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
 	var i int64
 
-	item.Creator = jwtauth.FromUserIdStr(ctx)
 	deployed.DB.Scopes(DictTypeDB()).
 		Where("dict_name=? or dict_type=?", item.DictName, item.DictType).
 		Count(&i)
@@ -113,13 +121,13 @@ func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
 		return item, errors.New("字典名称或者字典类型已经存在！")
 	}
 
+	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := deployed.DB.Scopes(DictTypeDB()).Create(&item).Error
 	return item, err
 }
 
+// Update 更新
 func (cDictType) Update(ctx context.Context, id int, up DictType) (item DictType, err error) {
-	up.Updator = jwtauth.FromUserIdStr(ctx)
-
 	if err = deployed.DB.Scopes(DictTypeDB()).First(&item, id).Error; err != nil {
 		return
 	}
@@ -127,22 +135,22 @@ func (cDictType) Update(ctx context.Context, id int, up DictType) (item DictType
 	if up.DictName != "" && up.DictName != item.DictName {
 		return item, errors.New("名称不允许修改！")
 	}
-
 	if up.DictType != "" && up.DictType != item.DictType {
 		return item, errors.New("类型不允许修改！")
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	err = deployed.DB.Scopes(DictTypeDB()).Model(&item).Updates(&up).Error
 	return
 }
 
+// Delete 根据id删除
 func (cDictType) Delete(_ context.Context, id int) error {
 	return deployed.DB.Scopes(DictTypeDB()).
 		Where("dict_id=?", id).Delete(&DictData{}).Error
 }
 
+// BatchDelete 根据id列表批量删除
 func (cDictType) BatchDelete(_ context.Context, ids []int) error {
 	return deployed.DB.Scopes(DictTypeDB()).
 		Where("dict_id in (?)", ids).Delete(&DictType{}).Error

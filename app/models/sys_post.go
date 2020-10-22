@@ -11,31 +11,35 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// Post 岗位
 type Post struct {
 	PostId   int    `gorm:"primary_key;AUTO_INCREMENT" json:"postId"` // 主键
-	PostName string `gorm:"size:128;" json:"postName"`                // 岗位名称
-	PostCode string `gorm:"size:128;" json:"postCode"`                // 岗位代码
+	PostName string `gorm:"size:128;" json:"postName"`                // 名称
+	PostCode string `gorm:"size:128;" json:"postCode"`                // 编码
 	Sort     int    `gorm:"" json:"sort"`                             // 岗位排序
 	Status   string `gorm:"size:4;" json:"status"`                    // 状态
 	Remark   string `gorm:"size:255;" json:"remark"`                  // 备注
-	Creator  string `gorm:"size:128;" json:"creator"`
-	Updator  string `gorm:"size:128;" json:"updator"`
+	Creator  string `gorm:"size:128;" json:"creator"`                 // 创建者
+	Updator  string `gorm:"size:128;" json:"updator"`                 // 更新者
 	Model
 
 	DataScope string `gorm:"-" json:"dataScope"`
 	Params    string `gorm:"-" json:"params"`
 }
 
+// TableName implement gorm.Tabler interface
 func (Post) TableName() string {
 	return "sys_post"
 }
 
+// PostDB post db scope
 func PostDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Model(Post{})
 	}
 }
 
+// PostQueryParam 查询参数
 type PostQueryParam struct {
 	PostId   int    `form:"postId"`
 	PostName string `form:"postName"`
@@ -46,8 +50,10 @@ type PostQueryParam struct {
 
 type cPost struct{}
 
+// CPost post 实例
 var CPost = new(cPost)
 
+// Query 查询岗位信息, 非分页查询
 func (cPost) Query(_ context.Context, qp PostQueryParam) (items []Post, err error) {
 	db := deployed.DB.Scopes(PostDB())
 	if qp.PostId != 0 {
@@ -66,6 +72,7 @@ func (cPost) Query(_ context.Context, qp PostQueryParam) (items []Post, err erro
 	return
 }
 
+// QueryPage 查询岗位信息,分页查询
 func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginator.Info, error) {
 	var err error
 	var items []Post
@@ -94,36 +101,39 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	return items, info, err
 }
 
-func (cPost) Create(ctx context.Context, item Post) (Post, error) {
-	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(PostDB()).Create(&item).Error
-	return item, err
-}
-
+// Get 获取岗位信息
 func (cPost) Get(_ context.Context, id int) (item Post, err error) {
 	err = deployed.DB.Scopes(PostDB()).
 		Where("post_id=?", id).First(&item).Error
 	return
 }
 
+// Create 创建岗位信息
+func (cPost) Create(ctx context.Context, item Post) (Post, error) {
+	item.Creator = jwtauth.FromUserIdStr(ctx)
+	err := deployed.DB.Scopes(PostDB()).Create(&item).Error
+	return item, err
+}
+
+// Update 更新岗位信息
 func (cPost) Update(ctx context.Context, id int, up Post) (item Post, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(PostDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
 	err = deployed.DB.Scopes(PostDB()).Model(&item).Updates(&up).Error
 	return
 }
 
+// Delete 删除指定id
 func (cPost) Delete(_ context.Context, id int) (err error) {
 	return deployed.DB.Scopes(PostDB()).
 		Where("post_id=?", id).Delete(&Post{}).Error
 }
 
-func (cPost) BatchDelete(_ context.Context, id []int) error {
+// BatchDelete 删除批量id
+func (cPost) BatchDelete(_ context.Context, ids []int) error {
 	return deployed.DB.Scopes(PostDB()).
-		Where("post_id in (?)", id).Delete(&Post{}).Error
+		Where("post_id in (?)", ids).Delete(&Post{}).Error
 }

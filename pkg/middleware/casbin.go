@@ -9,7 +9,7 @@ import (
 
 // NewCasbinSyncedEnforcer new casbin enforcer
 func NewCasbinSyncedEnforcer(m model.Model, db *gorm.DB) (*casbin.SyncedEnforcer, error) {
-	adapter, err := gormAdapter.NewAdapterByDBUsePrefix(db, "sys_")
+	adapter, err := gormAdapter.NewAdapterByDBUseTableName(db, "sys", "casbin_rule")
 	if err != nil {
 		return nil, err
 	}

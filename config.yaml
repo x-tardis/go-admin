@@ -47,9 +47,9 @@ jwt:
   # token 密钥，生产环境请及时修改
   secretKey: go-admin
   # token 过期时间
-  timeout: 3600s
+  timeout: 2h
   # token 最大刷新时间
-  maxRefresh: 3600s
+  maxRefresh: 2h
 cors:
   allowAllOrigins: false
   allowOrigins:

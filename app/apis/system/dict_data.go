@@ -58,9 +58,8 @@ func (DictData) QueryPage(c *gin.Context) {
 // @Router /api/v1/dict/data/{dictCode} [get]
 // @Security Bearer
 func (DictData) Get(c *gin.Context) {
-	dictLabel := c.Query("dictLabel")
 	dictCode := cast.ToInt(c.Param("dictCode"))
-	item, err := models.CDictData.Get(gcontext.Context(c), dictCode, dictLabel)
+	item, err := models.CDictData.Get(gcontext.Context(c), dictCode)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),

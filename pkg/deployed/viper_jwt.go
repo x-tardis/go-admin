@@ -8,6 +8,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// TODO: bug 当jwt token过期时,页面并未有跳转到登录页面
 func ViperJwtDefault() {
 	viper.SetDefault("jwt.realm", "go-admin")
 	viper.SetDefault("jwt.secretKey", "go-admin")

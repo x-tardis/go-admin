@@ -4,11 +4,11 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
+	"github.com/thinkgos/gin-middlewares/authj"
 
 	"github.com/x-tardis/go-admin/app/routers"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/middleware"
 )
 
 var routerNoCheckRole []func(r gin.IRouter)
@@ -35,7 +35,7 @@ func RegisterBusiness(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.
 		}
 	}
 	{ // 需要认证的路由
-		v1.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject))
+		v1.Use(authMiddleware.MiddlewareFunc(), authj.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject))
 		for _, f := range routerCheckRole {
 			f(v1)
 		}

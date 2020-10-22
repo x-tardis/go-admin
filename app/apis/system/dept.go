@@ -12,18 +12,24 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
+// Dept dept
 type Dept struct{}
 
-// @Tags 部门
-// @Summary 分页部门列表数据
-// @Description 分页列表
-// @Param deptId query int false "deptId"
-// @Param deptName query string false "deptName"
-// @Param deptPath query string false "deptPath"
-// @Param Status query string false "Status"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/depts [get]
-// @Security Bearer
+// @tags 部门
+// @summary 分页部门列表数据
+// @description 分页列表
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param deptId query int false "deptId"
+// @param deptName query string false "deptName"
+// @param deptPath query string false "deptPath"
+// @param Status query string false "Status"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/depts [get]
 func (Dept) QueryPage(c *gin.Context) {
 	qp := models.DeptQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -41,16 +47,21 @@ func (Dept) QueryPage(c *gin.Context) {
 	servers.OK(c, servers.WithData(tree))
 }
 
-// @Tags 部门
-// @Summary 分页部门列表数据
-// @Description 分页列表
-// @Param deptId query int false "deptId"
-// @Param deptName query string false "deptName"
-// @Param deptPath query string false "deptPath"
-// @Param Status query string false "Status"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/deptTree [get]
-// @Security Bearer
+// @tags 部门
+// @summary 分页部门列表数据
+// @description 分页列表
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param deptId query int false "deptId"
+// @param deptName query string false "deptName"
+// @param deptPath query string false "deptPath"
+// @param Status query string false "Status"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/deptTree [get]
 func (Dept) QueryTree(c *gin.Context) {
 	qp := models.DeptQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -67,14 +78,18 @@ func (Dept) QueryTree(c *gin.Context) {
 	servers.OK(c, servers.WithData(items))
 }
 
-// @Tags 部门
-// @Summary 部门列表数据
-// @Description 获取JSON
-// @Param deptId path string false "deptId"
-// @Param position query string false "position"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/depts/{id} [get]
-// @Security Bearer
+// @tags 部门
+// @summary 获取指定Id信息
+// @description 获取指定Id信息
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param deptId path int false "deptId"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/depts/{id} [get]
 func (Dept) Get(c *gin.Context) {
 	deptId := cast.ToInt(c.Param("id"))
 	item, err := models.CDept.Get(gcontext.Context(c), deptId)
@@ -87,16 +102,18 @@ func (Dept) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加部门
-// @Description 获取JSON
-// @Tags 部门
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Dept true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/depts [post]
-// @Security Bearer
+// @tags 部门
+// @summary 添加部门信息
+// @description 添加部门信息
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param newItem body models.Dept true "new item"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/depts [post]
 func (Dept) Create(c *gin.Context) {
 	newItem := models.Dept{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -111,17 +128,19 @@ func (Dept) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 修改部门
-// @Description 获取JSON
-// @Tags 部门
-// @Accept  application/json
-// @Product application/json
-// @Param id path int true "id"
-// @Param data body models.Dept true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/depts [put]
-// @Security Bearer
+// @tags 部门
+// @summary 更新部门信息
+// @description 更新部门信息
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param id path int true "id"
+// @param up body models.Dept true "up"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/depts [put]
 func (Dept) Update(c *gin.Context) {
 	up := models.Dept{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -137,13 +156,18 @@ func (Dept) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 删除部门
-// @Description 删除数据
-// @Tags 部门
-// @Param id path int true "id"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/depts/{id} [delete]
+// @tags 部门
+// @summary 删除部门信息
+// @description 删除部门信息
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param id path int true "id"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/depts [delete]
 func (Dept) Delete(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	err := models.CDept.Delete(gcontext.Context(c), id)
@@ -154,6 +178,7 @@ func (Dept) Delete(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
+// TODO
 func GetDeptTreeRoleselect(c *gin.Context) {
 	result, err := models.CDept.QueryLabelTree(gcontext.Context(c))
 	if err != nil {

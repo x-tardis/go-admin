@@ -50,8 +50,8 @@ github.com/bsm/redislock v0.5.0/go.mod h1:qagqKlV+xiLy26iV34Y3zRPxRcJjQYbV7pZfWF
 github.com/casbin/casbin/v2 v2.2.2/go.mod h1:XXtYGrs/0zlOsJMeRteEdVi/FsB0ph7KgNfjoCoJUD8=
 github.com/casbin/casbin/v2 v2.14.2 h1:j29dbpZsVBL7GsBdoSev4nME/24YOircZXRpfd3wAl0=
 github.com/casbin/casbin/v2 v2.14.2/go.mod h1:XXtYGrs/0zlOsJMeRteEdVi/FsB0ph7KgNfjoCoJUD8=
-github.com/casbin/gorm-adapter/v3 v3.0.2 h1:4F2VFElwPyFzvHfgwizD2JQxk2OFLwvRFZct1np0yBg=
-github.com/casbin/gorm-adapter/v3 v3.0.2/go.mod h1:mQI09sqvXfy5p6kZB5HBzZrgKWwxaJ4xMWpd5OGfHRY=
+github.com/casbin/gorm-adapter/v3 v3.0.3 h1:hXGl0MvyOgo7veI9L3PEGg1nrYZz46jVohsWJl6Ue4k=
+github.com/casbin/gorm-adapter/v3 v3.0.3/go.mod h1:mQI09sqvXfy5p6kZB5HBzZrgKWwxaJ4xMWpd5OGfHRY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash v1.1.0 h1:a6HrQnmkObjyL+Gs60czilIUGqrzKutQD6XZog3p+ko=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
@@ -519,8 +519,8 @@ github.com/swaggo/gin-swagger v1.2.0/go.mod h1:qlH2+W7zXGZkczuL+r2nEBR2JTT+/lX05
 github.com/swaggo/swag v1.5.1/go.mod h1:1Bl9F/ZBpVWh22nY0zmYyASPO1lI/zIwRDrpZU+tv8Y=
 github.com/swaggo/swag v1.6.9 h1:BukKRwZjnEcUxQt7Xgfrt9fpav0hiWw9YimdNO9wssw=
 github.com/swaggo/swag v1.6.9/go.mod h1:a0IpNeMfGidNOcm2TsqODUh9JHdHu3kxDA0UlGbBKjI=
-github.com/thinkgos/gin-middlewares v0.0.5 h1:ZswG34VPyvCIU6MaqeC8SXsHo0IJrA8nHat8Ss+m0r8=
-github.com/thinkgos/gin-middlewares v0.0.5/go.mod h1:Ge6nYzqArgroSRNMb+X3aCofqopxnRJmApJ7DfyHk1I=
+github.com/thinkgos/gin-middlewares v0.0.6 h1:tFUAGxgMuhcMmgSUlmS+CJ2+lVD5K2f71g6aaBY9ZiM=
+github.com/thinkgos/gin-middlewares v0.0.6/go.mod h1:Ge6nYzqArgroSRNMb+X3aCofqopxnRJmApJ7DfyHk1I=
 github.com/thinkgos/go-core-package v0.1.4 h1:Qmxj5ghoN8ud7yrqf9JLdcsWbbjskNG0FouYEomSL5M=
 github.com/thinkgos/go-core-package v0.1.4/go.mod h1:NjJN3f1yZvDU8IKb/2f1njngCYml8t6DZ+X+//tm21M=
 github.com/thinkgos/http-middlewares v0.0.3 h1:sA4DIjczM3edwEoNOtwcMsImim6uz3MDyWbUthhD+wg=

@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/gin-middlewares/authj"
 	"github.com/thinkgos/gin-middlewares/expvar"
 	"github.com/thinkgos/gin-middlewares/gzap"
 	"github.com/thinkgos/gin-middlewares/requestid"
@@ -86,7 +87,7 @@ func RegisterSys(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	}
 
 	{ // 需要认证
-		v1Group.Use(authMiddleware.MiddlewareFunc(), middleware.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject))
+		v1Group.Use(authMiddleware.MiddlewareFunc(), authj.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject))
 		routers.Base(v1Group, authMiddleware)
 		routers.Dept(v1Group)
 		routers.Dict(v1Group)

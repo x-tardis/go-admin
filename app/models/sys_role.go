@@ -12,36 +12,40 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// Role 角色
 type Role struct {
-	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"` // 角色编码
-	RoleName  string `json:"roleName" gorm:"size:128;"`                // 角色名称
-	RoleKey   string `json:"roleKey" gorm:"size:128;"`                 // 角色代码
+	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"` // 主键
+	RoleName  string `json:"roleName" gorm:"size:128;"`                // 名称
+	RoleKey   string `json:"roleKey" gorm:"size:128;"`                 // 标识
 	Status    string `json:"status" gorm:"size:4;"`                    // 状态
-	Sort      int    `json:"sort" gorm:""`                             // 角色排序
-	Flag      string `json:"flag" gorm:"size:128;"`                    //
+	Sort      int    `json:"sort" gorm:""`                             // 排序
+	Flag      string `json:"flag" gorm:"size:128;"`                    // 标记(未用)
 	Remark    string `json:"remark" gorm:"size:255;"`                  // 备注
-	Admin     bool   `json:"admin" gorm:"size:4;"`
-	DataScope string `json:"dataScope" gorm:"size:128;"`
-	Creator   string `json:"creator" gorm:"size:128;"` // 创建者
-	Updator   string `json:"updator" gorm:"size:128;"` // 更新者
+	Admin     bool   `json:"admin" gorm:"size:4;"`                     // (未用)
+	DataScope string `json:"dataScope" gorm:"size:128;"`               // 数据权限
+	Creator   string `json:"creator" gorm:"size:128;"`                 // 创建者
+	Updator   string `json:"updator" gorm:"size:128;"`                 // 更新者
 	Model
 
-	MenuIds []int `json:"menuIds" gorm:"-"`
-	DeptIds []int `json:"deptIds" gorm:"-"`
+	MenuIds []int `json:"menuIds" gorm:"-"` // 角色目录ID列表
+	DeptIds []int `json:"deptIds" gorm:"-"` // 角色部门ID列表
 
-	Params string `json:"params" gorm:"-"`
+	Params string `json:"params" gorm:"-"` // (未用)
 }
 
+// TableName implement gorm.Tabler interface
 func (Role) TableName() string {
 	return "sys_role"
 }
 
+// RoleDB role db scope
 func RoleDB() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Model(Role{})
 	}
 }
 
+// RoleQueryParam 查询参数
 type RoleQueryParam struct {
 	RoleName string `form:"roleName"`
 	RoleKey  string `form:"roleKey"`
@@ -51,15 +55,17 @@ type RoleQueryParam struct {
 
 type cRole struct{}
 
+// CRole role实例
 var CRole = new(cRole)
 
-func (cRole) Query(_ context.Context) (item []Role, err error) {
+// Query 获取角色列表
+func (cRole) Query(_ context.Context) (items []Role, err error) {
 	err = deployed.DB.Scopes(RoleDB()).
-		Order("sort").
-		Find(&item).Error
+		Order("sort").Find(&items).Error
 	return
 }
 
+// QueryPage 分页查询角色列表
 func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginator.Info, error) {
 	var err error
 	var items []Role
@@ -86,20 +92,21 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 	return items, info, err
 }
 
+// GetWithName 通过角色名获取角色信息
 func (cRole) GetWithName(_ context.Context, name string) (item Role, err error) {
 	err = deployed.DB.Scopes(RoleDB()).
-		Where("role_name=?", name).
-		First(&item).Error
+		Where("role_name=?", name).First(&item).Error
 	return
 }
 
+// Get 通过id获取角色信息
 func (cRole) Get(_ context.Context, id int) (item Role, err error) {
 	err = deployed.DB.Scopes(RoleDB()).
-		Where("role_id=?", id).
-		First(&item).Error
+		Where("role_id=?", id).First(&item).Error
 	return
 }
 
+// Create 创建角色
 func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	var i int64
 
@@ -110,34 +117,32 @@ func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	}
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	item.Updator = ""
+	item.Updator = item.Creator
 	err := deployed.DB.Scopes(RoleDB()).Create(&item).Error
 	return item, err
 }
 
-// 修改
+// Update 修改角色信息
 func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error) {
-	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = deployed.DB.Scopes(RoleDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
+	// 角色名称与角色标识不允许修改
 	if up.RoleName != "" && up.RoleName != item.RoleName {
 		return item, errors.New("角色名称不允许修改！")
 	}
-
 	if up.RoleKey != "" && up.RoleKey != item.RoleKey {
 		return item, errors.New("角色标识不允许修改！")
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	err = deployed.DB.Scopes(RoleDB()).Model(&item).Updates(&up).Error
 	return
 }
 
-// 批量删除
-func (cRole) BatchDelete(_ context.Context, id []int) error {
+// BatchDelete 批量删除
+func (cRole) BatchDelete(_ context.Context, ids []int) error {
 	tx := deployed.DB.Begin()
 
 	defer func() {
@@ -151,13 +156,13 @@ func (cRole) BatchDelete(_ context.Context, id []int) error {
 	}
 	// 查询角色
 	var roles []Role
-	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", id).Find(&roles).Error; err != nil {
+	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", ids).Find(&roles).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	var count int64
-	if err := tx.Scopes(UserDB()).Where("role_id in (?)", id).Count(&count).Error; err != nil {
+	if err := tx.Scopes(UserDB()).Where("role_id in (?)", ids).Count(&count).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -167,13 +172,13 @@ func (cRole) BatchDelete(_ context.Context, id []int) error {
 	}
 
 	// 删除角色
-	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", id).Unscoped().Delete(&Role{}).Error; err != nil {
+	if err := tx.Scopes(RoleDB()).Where("role_id in (?)", ids).Unscoped().Delete(&Role{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// 删除角色菜单
-	if err := tx.Scopes(RoleMenuDB()).Where("role_id in (?)", id).Delete(&RoleMenu{}).Error; err != nil {
+	if err := tx.Scopes(RoleMenuDB()).Where("role_id in (?)", ids).Delete(&RoleMenu{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -188,11 +193,12 @@ func (cRole) BatchDelete(_ context.Context, id []int) error {
 	return tx.Commit().Error
 }
 
+// MenuIdList ...
 type MenuIdList struct {
 	MenuId int `json:"menuId"`
 }
 
-// 获取角色对应的菜单ids
+// GetMenuIds 获取角色对应的菜单id列表
 func (cRole) GetMenuIds(roleId int) ([]int, error) {
 	var menuList []MenuIdList
 
@@ -210,17 +216,19 @@ func (cRole) GetMenuIds(roleId int) ([]int, error) {
 	return menuIds, nil
 }
 
+// DeptIdList ...
 type DeptIdList struct {
 	DeptId int `json:"DeptId"`
 }
 
+// GetDeptIds 获取角色对应的部门id列表
 func (cRole) GetDeptIds(_ context.Context, roleId int) ([]int, error) {
 	var deptList []DeptIdList
 
 	if err := deployed.DB.Scopes(RoleDeptDB()).
 		Select("sys_role_dept.dept_id").
 		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").
-		Where("role_id = ? ", roleId).
+		Where("role_id=? ", roleId).
 		Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", roleId).
 		Find(&deptList).Error; err != nil {
 		return nil, err
