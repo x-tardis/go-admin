@@ -9,7 +9,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -52,14 +52,14 @@ var CConfig = new(cConfig)
 
 // 获取 Config
 func (cConfig) GetWithKey(_ context.Context, key string) (item Config, err error) {
-	err = deployed.DB.Scopes(ConfigDB()).
+	err = dao.DB.Scopes(ConfigDB()).
 		Where("config_key = ?", key).First(&item).Error
 	return
 }
 
 // 获取 Config
 func (cConfig) Get(_ context.Context, id int) (item Config, err error) {
-	err = deployed.DB.Scopes(ConfigDB()).
+	err = dao.DB.Scopes(ConfigDB()).
 		Where("config_id = ?", id).First(&item).Error
 	return
 }
@@ -68,7 +68,7 @@ func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, pa
 	var err error
 	var items []Config
 
-	db := deployed.DB.Scopes(ConfigDB())
+	db := dao.DB.Scopes(ConfigDB())
 	if qp.ConfigName != "" {
 		db = db.Where("config_name=?", qp.ConfigName)
 	}
@@ -94,14 +94,14 @@ func (cConfig) Create(ctx context.Context, item Config) (Config, error) {
 	var i int64
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	deployed.DB.Scopes(ConfigDB()).
+	dao.DB.Scopes(ConfigDB()).
 		Where("config_name=? or config_key = ?", item.ConfigName, item.ConfigKey).
 		Count(&i)
 	if i > 0 {
 		return item, iorm.ErrObjectAlreadyExist
 	}
 
-	result := deployed.DB.Scopes(ConfigDB()).Create(&item)
+	result := dao.DB.Scopes(ConfigDB()).Create(&item)
 	if err := result.Error; err != nil {
 		return item, err
 	}
@@ -110,7 +110,7 @@ func (cConfig) Create(ctx context.Context, item Config) (Config, error) {
 
 func (cConfig) Update(ctx context.Context, id int, item Config) (update Config, err error) {
 	item.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(ConfigDB()).
+	if err = dao.DB.Scopes(ConfigDB()).
 		Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
@@ -124,16 +124,16 @@ func (cConfig) Update(ctx context.Context, id int, item Config) (update Config, 
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Scopes(ConfigDB()).Model(&update).Updates(&item).Error
+	err = dao.DB.Scopes(ConfigDB()).Model(&update).Updates(&item).Error
 	return
 }
 
 func (cConfig) Delete(_ context.Context, id int) (err error) {
-	return deployed.DB.Scopes(ConfigDB()).
+	return dao.DB.Scopes(ConfigDB()).
 		Where("config_id = ?", id).Delete(&Config{}).Error
 }
 
 func (cConfig) BatchDelete(_ context.Context, id []int) error {
-	return deployed.DB.Scopes(ConfigDB()).
+	return dao.DB.Scopes(ConfigDB()).
 		Where("config_id in (?)", id).Delete(&Config{}).Error
 }

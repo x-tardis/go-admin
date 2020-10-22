@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 )
 
 type SysTables struct {
@@ -59,7 +59,7 @@ type Params struct {
 func (e *SysTables) GetPage(param paginator.Param) ([]SysTables, paginator.Info, error) {
 	var doc []SysTables
 
-	table := deployed.DB.Table("sys_tables")
+	table := dao.DB.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -78,7 +78,7 @@ func (e *SysTables) GetPage(param paginator.Param) ([]SysTables, paginator.Info,
 func (e *SysTables) Get() (SysTables, error) {
 	var doc SysTables
 	var err error
-	table := deployed.DB.Table("sys_tables")
+	table := dao.DB.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -105,7 +105,7 @@ func (e *SysTables) Get() (SysTables, error) {
 func (e *SysTables) GetTree() ([]SysTables, error) {
 	var doc []SysTables
 	var err error
-	table := deployed.DB.Table("sys_tables")
+	table := dao.DB.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -135,7 +135,7 @@ func (e *SysTables) GetTree() ([]SysTables, error) {
 
 func (e *SysTables) Create() (SysTables, error) {
 	var doc SysTables
-	result := deployed.DB.Table("sys_tables").Create(&e)
+	result := dao.DB.Table("sys_tables").Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -157,7 +157,7 @@ func (e *SysTables) Update() (update SysTables, err error) {
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	if err = deployed.DB.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
+	if err = dao.DB.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
 
@@ -171,7 +171,7 @@ func (e *SysTables) Update() (update SysTables, err error) {
 	tables := make([]SysTables, 0)
 	tableMap := make(map[string]*SysTables)
 	if len(tableNames) > 0 {
-		if err = deployed.DB.Table("sys_tables").Where("table_name in (?)", tableNames).Find(&tables).Error; err != nil {
+		if err = dao.DB.Table("sys_tables").Where("table_name in (?)", tableNames).Find(&tables).Error; err != nil {
 			return
 		}
 		for i := range tables {
@@ -203,7 +203,7 @@ func (e *SysTables) Update() (update SysTables, err error) {
 }
 
 func (e *SysTables) Delete() (success bool, err error) {
-	tx := deployed.DB.Begin()
+	tx := dao.DB.Begin()
 	defer func() {
 		if err != nil {
 			tx.Rollback()
@@ -224,6 +224,6 @@ func (e *SysTables) Delete() (success bool, err error) {
 }
 
 func (e *SysTables) BatchDelete(ids []int) error {
-	return deployed.DB.Unscoped().Table(e.TableName()).
+	return dao.DB.Unscoped().Table(e.TableName()).
 		Where(" table_id in (?)", ids).Delete(&SysColumns{}).Error
 }

@@ -48,32 +48,6 @@ func (DictType) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @Summary 字典类型列表数据
-// @Description 获取JSON
-// @Tags 字典类型
-// @Param dictName query string false "dictName"
-// @Param dictId query string false "dictId"
-// @Param dictType query string false "dictType"
-// @Success 200 {object} paginator.Page "{"code": 200, "data": [...]}"
-// @Router /api/v1/dict/typeselect [get]
-// @Security Bearer
-func (DictType) GetOptionSelect(c *gin.Context) {
-	qp := models.DictTypeQueryParam{}
-	if err := c.ShouldBindQuery(qp); err != nil {
-		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
-		return
-	}
-
-	items, err := models.CDictType.Query(gcontext.Context(c), qp)
-	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.QueryFailed),
-			servers.WithError(err))
-		return
-	}
-	servers.OK(c, servers.WithData(items))
-}
-
 // @Summary 通过字典id获取字典类型
 // @Description 获取JSON
 // @Tags 字典类型
@@ -162,4 +136,30 @@ func (DictType) BatchDelete(c *gin.Context) {
 		return
 	}
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
+}
+
+// @Summary 字典类型列表数据
+// @Description 获取JSON
+// @Tags 字典类型
+// @Param dictName query string false "dictName"
+// @Param dictId query string false "dictId"
+// @Param dictType query string false "dictType"
+// @Success 200 {object} paginator.Page "{"code": 200, "data": [...]}"
+// @Router /api/v1/dict/typeoption [get]
+// @Security Bearer
+func (DictType) GetOption(c *gin.Context) {
+	qp := models.DictTypeQueryParam{}
+	if err := c.ShouldBindQuery(qp); err != nil {
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
+		return
+	}
+
+	items, err := models.CDictType.Query(gcontext.Context(c), qp)
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithError(err))
+		return
+	}
+	servers.OK(c, servers.WithData(items))
 }

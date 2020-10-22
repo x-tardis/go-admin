@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -133,14 +133,14 @@ func (sf cDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([]De
 
 // Query 查询部门列表
 func (cDept) Query(_ context.Context) (items []Dept, err error) {
-	err = deployed.DB.Scopes(DeptDB()).
+	err = dao.DB.Scopes(DeptDB()).
 		Order("sort").Find(&items).Error
 	return
 }
 
 // QueryPage 查询部门列表,分页
 func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items []Dept, err error) {
-	db := deployed.DB.Scopes(DeptDB())
+	db := dao.DB.Scopes(DeptDB())
 	if qp.DeptId != 0 {
 		db = db.Where("dept_id=?", qp.DeptId)
 	}
@@ -168,7 +168,7 @@ func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items [
 
 // Get 通过Id获取部门
 func (cDept) Get(_ context.Context, id int) (item Dept, err error) {
-	err = deployed.DB.Scopes(DeptDB()).
+	err = dao.DB.Scopes(DeptDB()).
 		Where("dept_id=?", id).First(&item).Error
 	return
 }
@@ -176,7 +176,7 @@ func (cDept) Get(_ context.Context, id int) (item Dept, err error) {
 // Create 创建部门
 func (cDept) Create(ctx context.Context, item Dept) (Dept, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(DeptDB()).Create(&item).Error
+	err := dao.DB.Scopes(DeptDB()).Create(&item).Error
 	if err != nil {
 		return item, err
 	}
@@ -186,13 +186,13 @@ func (cDept) Create(ctx context.Context, item Dept) (Dept, error) {
 		deptPath = "/0" + deptPath
 	} else {
 		var parentDept Dept
-		deployed.DB.Scopes(DeptDB()).
+		dao.DB.Scopes(DeptDB()).
 			Where("dept_id=?", item.ParentId).First(&parentDept)
 		deptPath = parentDept.DeptPath + deptPath
 	}
 
 	item.DeptPath = deptPath
-	err = deployed.DB.Scopes(DeptDB()).
+	err = dao.DB.Scopes(DeptDB()).
 		Where("dept_id=?", item.DeptId).
 		Updates(map[string]interface{}{"dept_path": deptPath}).Error
 	return item, err
@@ -200,7 +200,7 @@ func (cDept) Create(ctx context.Context, item Dept) (Dept, error) {
 
 // Update 更新部门信息
 func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error) {
-	if err = deployed.DB.Scopes(DeptDB()).
+	if err = dao.DB.Scopes(DeptDB()).
 		Where("dept_id=?", id).First(&item).Error; err != nil {
 		return
 	}
@@ -210,7 +210,7 @@ func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error)
 		deptPath = "/0" + deptPath
 	} else {
 		var parentDept Dept
-		deployed.DB.Scopes(DeptDB()).
+		dao.DB.Scopes(DeptDB()).
 			Where("dept_id=?", up.ParentId).First(&parentDept)
 		deptPath = parentDept.DeptPath + deptPath
 	}
@@ -221,7 +221,7 @@ func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error)
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = deployed.DB.Scopes(DeptDB()).
+	err = dao.DB.Scopes(DeptDB()).
 		Model(&item).Updates(&up).Error
 	return
 }
@@ -236,7 +236,7 @@ func (cDept) Delete(_ context.Context, id int) error {
 		return errors.New("当前部门存在用户，不能删除！")
 	}
 
-	tx := deployed.DB.Begin()
+	tx := dao.DB.Begin()
 	if err := tx.Error; err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 )
 
 // LoginLog 登录记录
@@ -59,7 +59,7 @@ var CLoginLog = new(cLoginLog)
 func (cLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {
 	var items []LoginLog
 
-	db := deployed.DB.Scopes(LoginLogDB())
+	db := dao.DB.Scopes(LoginLogDB())
 	if qp.Username != "" {
 		db = db.Where("username=?", qp.Username)
 	}
@@ -77,7 +77,7 @@ func (cLoginLog) QueryPage(_ context.Context, qp LoginLogQueryParam) ([]LoginLog
 
 // Get 获取
 func (cLoginLog) Get(_ context.Context, id int) (item LoginLog, err error) {
-	err = deployed.DB.Scopes(LoginLogDB()).
+	err = dao.DB.Scopes(LoginLogDB()).
 		Where("info_id=?", id).First(&item).Error
 	return
 }
@@ -86,28 +86,28 @@ func (cLoginLog) Get(_ context.Context, id int) (item LoginLog, err error) {
 func (cLoginLog) Create(_ context.Context, item LoginLog) (LoginLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
-	err := deployed.DB.Scopes(LoginLogDB()).Create(&item).Error
+	err := dao.DB.Scopes(LoginLogDB()).Create(&item).Error
 	return item, err
 }
 
 // Update 更新
 func (cLoginLog) Update(_ context.Context, id int, up LoginLog) (item LoginLog, err error) {
-	if err = deployed.DB.Scopes(LoginLogDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(LoginLogDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
-	err = deployed.DB.Scopes(LoginLogDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(LoginLogDB()).Model(&item).Updates(&up).Error
 	return
 }
 
 // BatchDelete 批量删除id
 func (cLoginLog) BatchDelete(_ context.Context, ids []int) error {
-	return deployed.DB.Scopes(LoginLogDB()).
+	return dao.DB.Scopes(LoginLogDB()).
 		Where("info_id in (?)", ids).Delete(&LoginLog{}).Error
 }
 
 // Clean 清空日志
 func (cLoginLog) Clean(_ context.Context) error {
-	return deployed.DB.Scopes(LoginLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
+	return dao.DB.Scopes(LoginLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
 		Delete(&LoginLog{}).Error
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/app/models"
@@ -30,12 +31,8 @@ func OperLog() gin.HandlerFunc {
 // 写入操作日志表
 // 该方法后续即将弃用
 func OperLogRecord(c *gin.Context, statusCode int, latencyTime time.Duration) {
-	reqUri := c.Request.RequestURI
-	reqMethod := c.Request.Method
-	menuList, _ := models.CMenu.Query(gcontext.Context(c), models.MenuQueryParam{
-		Path:   reqUri,
-		Action: reqMethod,
-	})
+	uri := c.Request.RequestURI
+	method := c.Request.Method
 	clientIP := c.ClientIP()
 	username := jwtauth.FromUserName(gcontext.Context(c))
 	sysOperLog := models.OperLog{
@@ -43,42 +40,44 @@ func OperLogRecord(c *gin.Context, statusCode int, latencyTime time.Duration) {
 		OperLocation:  deployed.IPLocation(clientIP),
 		Status:        cast.ToString(statusCode),
 		OperName:      username,
-		RequestMethod: reqMethod,
-		OperUrl:       reqUri,
+		RequestMethod: method,
+		Method:        method,
+		OperUrl:       uri,
 		Creator:       username,
 		OperTime:      time.Now(),
 		LatencyTime:   latencyTime.String(),
 		UserAgent:     c.Request.UserAgent(),
 	}
 
-	if reqUri == "/login" {
+	if uri == "/login" {
 		sysOperLog.BusinessType = "10"
 		sysOperLog.Title = "用户登录"
 		sysOperLog.OperName = "-"
-	} else if strings.Contains(reqUri, "/api/v1/logout") {
+	} else if strings.Contains(uri, "/api/v1/logout") {
 		sysOperLog.BusinessType = "11"
-	} else if strings.Contains(reqUri, "/api/v1/captcha") {
+	} else if strings.Contains(uri, "/api/v1/captcha") {
 		sysOperLog.BusinessType = "12"
 		sysOperLog.Title = "验证码"
 	} else {
-		if reqMethod == "POST" {
+		switch method {
+		case "POST":
 			sysOperLog.BusinessType = "1"
-		} else if reqMethod == "PUT" {
+		case "PUT":
 			sysOperLog.BusinessType = "2"
-		} else if reqMethod == "DELETE" {
+		case "DELETE":
 			sysOperLog.BusinessType = "3"
 		}
 	}
-	sysOperLog.Method = reqMethod
+	menuList, _ := models.CMenu.Query(gcontext.Context(c), models.MenuQueryParam{
+		Path:   uri,
+		Action: method,
+	})
 	if len(menuList) > 0 {
 		sysOperLog.Title = menuList[0].Title
 	}
 	b, _ := c.Get("body")
 	sysOperLog.OperParam, _ = jsoniter.MarshalToString(b)
-	if c.Err() == nil {
-		sysOperLog.Status = "0"
-	} else {
-		sysOperLog.Status = "1"
-	}
+	sysOperLog.Status = ternary.IfString(c.Err() == nil, "0", "1")
+
 	models.COperLog.Create(context.Background(), sysOperLog) // nolint: errcheck
 }

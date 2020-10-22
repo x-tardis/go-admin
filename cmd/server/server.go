@@ -18,6 +18,7 @@ import (
 	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/app/jobs"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/app/router"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
@@ -53,7 +54,7 @@ func setup(cmd *cobra.Command, args []string) {
 	//2. 设置日志
 	deployed.SetupLogger()
 	//3. 初始化数据库链接
-	deployed.SetupDatabase(deployed.DbConfig.Driver, deployed.DbConfig.Source)
+	dao.SetupDatabase(deployed.DbConfig.Driver, deployed.DbConfig.Source, deployed.EnabledDB)
 	//4. 接口访问控制加载
 	deployed.SetupCasbin()
 

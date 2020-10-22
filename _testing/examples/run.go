@@ -7,12 +7,13 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 func main() {
 	var err error
-	deployed.DB, err = gorm.Open(mysql.Open("root:123456@tcp/inmg?charset=utf8&parseTime=True&loc=Local"), &gorm.Config{})
+	dao.DB, err = gorm.Open(mysql.Open("root:123456@tcp/inmg?charset=utf8&parseTime=True&loc=Local"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

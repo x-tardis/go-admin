@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -51,7 +51,7 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 	var err error
 	var items []Category
 
-	db := deployed.DB.Scopes(CategoryDB())
+	db := dao.DB.Scopes(CategoryDB())
 	if qp.Name != "" {
 		db = db.Where("name=?", qp.Name)
 	}
@@ -71,7 +71,7 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 
 // 获取SysCategory
 func (cCategory) Get(_ context.Context, id int) (item Category, err error) {
-	err = deployed.DB.Scopes(CategoryDB()).
+	err = dao.DB.Scopes(CategoryDB()).
 		Where("id=?", id).First(&item).Error
 	return
 }
@@ -79,32 +79,32 @@ func (cCategory) Get(_ context.Context, id int) (item Category, err error) {
 // 创建SysCategory
 func (cCategory) Create(ctx context.Context, item Category) (Category, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(CategoryDB()).Create(&item).Error
+	err := dao.DB.Scopes(CategoryDB()).Create(&item).Error
 	return item, err
 }
 
 // 更新SysCategory
 func (cCategory) Update(ctx context.Context, id int, up Category) (update Category, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = deployed.DB.Scopes(CategoryDB()).Where("id=?", id).First(&update).Error
+	err = dao.DB.Scopes(CategoryDB()).Where("id=?", id).First(&update).Error
 	if err != nil {
 		return
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Scopes(CategoryDB()).Model(&update).Updates(&up).Error
+	err = dao.DB.Scopes(CategoryDB()).Model(&update).Updates(&up).Error
 	return
 }
 
 // 删除SysCategory
 func (cCategory) Delete(_ context.Context, id int) error {
-	return deployed.DB.Scopes(CategoryDB()).
+	return dao.DB.Scopes(CategoryDB()).
 		Where("id=?", id).Delete(&Category{}).Error
 }
 
 // 批量删除
 func (cCategory) BatchDelete(_ context.Context, ids []int) error {
-	return deployed.DB.Scopes(CategoryDB()).
+	return dao.DB.Scopes(CategoryDB()).
 		Where("id in (?)", ids).Delete(&Category{}).Error
 }

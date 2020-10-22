@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -54,7 +54,7 @@ func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content,
 	var err error
 	var items []Content
 
-	db := deployed.DB.Scopes(ContentDB())
+	db := dao.DB.Scopes(ContentDB())
 	if qp.CateId != "" {
 		db = db.Where("cate_id = ?", qp.CateId)
 	}
@@ -77,7 +77,7 @@ func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content,
 
 // 获取SysContent
 func (cContent) Get(_ context.Context, id int) (item Content, err error) {
-	err = deployed.DB.Scopes(ContentDB()).
+	err = dao.DB.Scopes(ContentDB()).
 		Where("id = ?", id).
 		First(&item).Error
 	return
@@ -87,33 +87,33 @@ func (cContent) Get(_ context.Context, id int) (item Content, err error) {
 // 创建SysContent
 func (cContent) Create(ctx context.Context, item Content) (Content, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(ContentDB()).Create(&item).Error
+	err := dao.DB.Scopes(ContentDB()).Create(&item).Error
 	return item, err
 }
 
 // 更新SysContent
 func (cContent) Update(ctx context.Context, id int, up Content) (item Content, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(ContentDB()).
+	if err = dao.DB.Scopes(ContentDB()).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Scopes(ContentDB()).
+	err = dao.DB.Scopes(ContentDB()).
 		Model(&item).Updates(&up).Error
 	return
 }
 
 // 删除SysContent
 func (cContent) Delete(_ context.Context, id int) error {
-	return deployed.DB.Scopes(ContentDB()).
+	return dao.DB.Scopes(ContentDB()).
 		Where("id = ?", id).Delete(&Content{}).Error
 }
 
 // 批量删除
 func (cContent) BatchDelete(_ context.Context, ids []int) error {
-	return deployed.DB.Scopes(ContentDB()).
+	return dao.DB.Scopes(ContentDB()).
 		Where("id in (?)", ids).Delete(&Content{}).Error
 }

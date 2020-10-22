@@ -7,8 +7,8 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 type Job struct {
@@ -63,7 +63,7 @@ func (e *Job) SetUpdator(updateBy uint) {
 
 // 获取SysJob带分页
 func (e *Job) GetPage(pageSize int, pageIndex int, v interface{}, list interface{}) (int, error) {
-	table := deployed.DB.Table(e.TableName()).Scopes(dto2.MakeCondition(v))
+	table := dao.DB.Table(e.TableName()).Scopes(dto2.MakeCondition(v))
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	// dataPermission := new(DataPermission)
@@ -80,49 +80,49 @@ func (e *Job) GetPage(pageSize int, pageIndex int, v interface{}, list interface
 }
 
 func (cJob) Query() (items []Job, err error) {
-	err = deployed.DB.Scopes(JobDB()).
+	err = dao.DB.Scopes(JobDB()).
 		Where("status=?", 2).Find(&items).Error
 	return
 }
 
 // 获取SysJob
 func (cJob) Get(id uint) (item Job, err error) {
-	err = deployed.DB.Scopes(JobDB()).
+	err = dao.DB.Scopes(JobDB()).
 		Where("job_id=?", id).First(&item).Error
 	return
 }
 
 // 创建SysJob
 func (cJob) Create(item Job) (Job, error) {
-	err := deployed.DB.Scopes(JobDB()).Create(&item).Error
+	err := dao.DB.Scopes(JobDB()).Create(&item).Error
 	return item, err
 }
 
 // 更新SysJob
 func (cJob) Update(id uint, e Job) error {
-	return deployed.DB.Scopes(JobDB()).Where("job_id=?", id).Updates(&e).Error
+	return dao.DB.Scopes(JobDB()).Where("job_id=?", id).Updates(&e).Error
 }
 
 func (cJob) RemoveAllEntryID() error {
-	return deployed.DB.Scopes(JobDB()).
+	return dao.DB.Scopes(JobDB()).
 		Where("entry_id > ?", 0).
 		Update("entry_id", 0).Error
 }
 
 func (cJob) RemoveEntryID(entryID int) (err error) {
-	return deployed.DB.Scopes(JobDB()).
+	return dao.DB.Scopes(JobDB()).
 		Where("entry_id = ?", entryID).
 		Update("entry_id", 0).Error
 }
 
 // 删除SysJob
 func (cJob) Delete(id int) (err error) {
-	return deployed.DB.Scopes(JobDB()).
+	return dao.DB.Scopes(JobDB()).
 		Where("job_id=?", id).Delete(&Job{}).Error
 }
 
 // 批量删除
 func (cJob) BatchDelete(ids []int) error {
-	return deployed.DB.Scopes(JobDB()).
+	return dao.DB.Scopes(JobDB()).
 		Where("job_id in ( ? )", ids).Delete(&Job{}).Error
 }

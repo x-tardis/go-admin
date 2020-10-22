@@ -7,6 +7,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -27,7 +28,7 @@ func (e *DBTables) GetPage(params paginator.Param) ([]DBTables, paginator.Info, 
 		return nil, paginator.Info{}, errors.New("目前只支持mysql数据库")
 	}
 
-	table := deployed.DB.Table("information_schema.tables")
+	table := dao.DB.Table("information_schema.tables")
 	table = table.Where("TABLE_NAME not in (select table_name from " + deployed.GenConfig.DBName + ".sys_tables) ")
 	table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
@@ -45,7 +46,7 @@ func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
 	table := new(gorm.DB)
 	if deployed.DbConfig.Driver == "mysql" {
-		table = deployed.DB.Table("information_schema.tables")
+		table = dao.DB.Table("information_schema.tables")
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 		if e.TableName == "" {
 			return doc, errors.New("table name cannot be empty！")

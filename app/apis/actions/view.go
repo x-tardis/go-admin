@@ -8,8 +8,8 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
@@ -42,7 +42,7 @@ func ViewAction(control dto2.Control, f func() interface{}) gin.HandlerFunc {
 		//数据权限检查
 		p := GetPermissionFromContext(c)
 
-		err = deployed.DB.Model(object).WithContext(c).Scopes(
+		err = dao.DB.Model(object).WithContext(c).Scopes(
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).First(rsp).Error
 

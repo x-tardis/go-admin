@@ -11,8 +11,8 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
@@ -37,7 +37,7 @@ func IndexAction(m dto2.ActiveRecord, d dto2.Index, f func() interface{}) gin.Ha
 		p := GetPermissionFromContext(c)
 
 		pageParam := req.GetPaginatorParam()
-		err = deployed.DB.WithContext(c).Model(object).
+		err = dao.DB.WithContext(c).Model(object).
 			Scopes(
 				dto2.MakeCondition(req.GetNeedSearch()),
 				iorm.Paginate(pageParam),

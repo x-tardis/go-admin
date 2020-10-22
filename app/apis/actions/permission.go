@@ -10,6 +10,7 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -29,7 +30,7 @@ func PermissionAction() gin.HandlerFunc {
 		var err error
 
 		if userId := jwtauth.FromUserIdStr(gcontext.Context(c)); userId != "" {
-			p, err = newDataPermission(deployed.DB, userId)
+			p, err = newDataPermission(dao.DB, userId)
 			if err != nil {
 				izap.Sugar.Errorf("MsgID[%s] PermissionAction error: %s", requestid.FromRequestID(c), err)
 				servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("权限范围鉴定错误"))

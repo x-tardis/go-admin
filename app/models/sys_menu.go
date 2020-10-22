@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -188,7 +188,7 @@ func (sf cMenu) QueryTreeWithRoleName(ctx context.Context) ([]Menu, error) {
 }
 
 func (cMenu) QueryWithRoleName(_ context.Context, roleName string) (items []Menu, err error) {
-	err = deployed.DB.Scopes(MenuDB()).
+	err = dao.DB.Scopes(MenuDB()).
 		Select("sys_menu.*").
 		Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id").
 		Where("sys_role_menu.role_name=? and menu_type in ('M','C')", roleName).
@@ -205,7 +205,7 @@ func (sf cMenu) QueryLabelTree(ctx context.Context) (m []MenuLabel, err error) {
 }
 
 func (cMenu) Query(_ context.Context, qp MenuQueryParam) (items []Menu, err error) {
-	db := deployed.DB.Scopes(MenuDB())
+	db := dao.DB.Scopes(MenuDB())
 	if qp.MenuName != "" {
 		db = db.Where("menu_name=?", qp.MenuName)
 	}
@@ -223,7 +223,7 @@ func (cMenu) Query(_ context.Context, qp MenuQueryParam) (items []Menu, err erro
 }
 
 func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, err error) {
-	db := deployed.DB.Scopes(MenuDB())
+	db := dao.DB.Scopes(MenuDB())
 	if qp.MenuName != "" {
 		db = db.Where("menu_name=?", qp.MenuName)
 	}
@@ -248,12 +248,12 @@ func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, er
 }
 
 func (cMenu) Get(ctx context.Context, id int) (item Menu, err error) {
-	err = deployed.DB.Scopes(MenuDB()).Where("menu_id=?", id).Find(&item).Error
+	err = dao.DB.Scopes(MenuDB()).Where("menu_id=?", id).Find(&item).Error
 	return
 }
 func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(MenuDB()).Create(&item).Error
+	err := dao.DB.Scopes(MenuDB()).Create(&item).Error
 	if err != nil {
 		return item, err
 	}
@@ -263,13 +263,13 @@ func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 
 func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(MenuDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(MenuDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	if err = deployed.DB.Scopes(MenuDB()).Model(&item).Updates(&up).Error; err != nil {
+	if err = dao.DB.Scopes(MenuDB()).Model(&item).Updates(&up).Error; err != nil {
 		return
 	}
 	err = InitPaths(&up)
@@ -277,14 +277,14 @@ func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error)
 }
 
 func (cMenu) Delete(_ context.Context, id int) error {
-	return deployed.DB.Scopes(MenuDB()).
+	return dao.DB.Scopes(MenuDB()).
 		Where("menu_id=?", id).Delete(&Menu{}).Error
 }
 
 func InitPaths(menu *Menu) (err error) {
 	parentMenu := new(Menu)
 	if menu.ParentId != 0 {
-		deployed.DB.Scopes(MenuDB()).
+		dao.DB.Scopes(MenuDB()).
 			Where("menu_id = ?", menu.ParentId).First(parentMenu)
 		if parentMenu.Paths == "" {
 			return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
@@ -293,6 +293,6 @@ func InitPaths(menu *Menu) (err error) {
 	} else {
 		menu.Paths = "/0/" + cast.ToString(menu.MenuId)
 	}
-	return deployed.DB.Scopes(MenuDB()).
+	return dao.DB.Scopes(MenuDB()).
 		Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths).Error
 }

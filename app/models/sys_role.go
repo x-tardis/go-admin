@@ -8,7 +8,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -60,7 +60,7 @@ var CRole = new(cRole)
 
 // Query 获取角色列表
 func (cRole) Query(_ context.Context) (items []Role, err error) {
-	err = deployed.DB.Scopes(RoleDB()).
+	err = dao.DB.Scopes(RoleDB()).
 		Order("sort").Find(&items).Error
 	return
 }
@@ -70,7 +70,7 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 	var err error
 	var items []Role
 
-	db := deployed.DB.Scopes(RoleDB())
+	db := dao.DB.Scopes(RoleDB())
 	if qp.RoleName != "" {
 		db = db.Where("role_name=?", qp.RoleName)
 	}
@@ -94,14 +94,14 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 
 // GetWithName 通过角色名获取角色信息
 func (cRole) GetWithName(_ context.Context, name string) (item Role, err error) {
-	err = deployed.DB.Scopes(RoleDB()).
+	err = dao.DB.Scopes(RoleDB()).
 		Where("role_name=?", name).First(&item).Error
 	return
 }
 
 // Get 通过id获取角色信息
 func (cRole) Get(_ context.Context, id int) (item Role, err error) {
-	err = deployed.DB.Scopes(RoleDB()).
+	err = dao.DB.Scopes(RoleDB()).
 		Where("role_id=?", id).First(&item).Error
 	return
 }
@@ -110,7 +110,7 @@ func (cRole) Get(_ context.Context, id int) (item Role, err error) {
 func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	var i int64
 
-	deployed.DB.Table(item.TableName()).
+	dao.DB.Table(item.TableName()).
 		Where("role_name=? or role_key = ?", item.RoleName, item.RoleKey).Count(&i)
 	if i > 0 {
 		return item, errors.New("角色名称或者角色标识已经存在！")
@@ -118,13 +118,13 @@ func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	item.Updator = item.Creator
-	err := deployed.DB.Scopes(RoleDB()).Create(&item).Error
+	err := dao.DB.Scopes(RoleDB()).Create(&item).Error
 	return item, err
 }
 
 // Update 修改角色信息
 func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error) {
-	if err = deployed.DB.Scopes(RoleDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(RoleDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
@@ -137,13 +137,13 @@ func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error)
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = deployed.DB.Scopes(RoleDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(RoleDB()).Model(&item).Updates(&up).Error
 	return
 }
 
 // BatchDelete 批量删除
 func (cRole) BatchDelete(_ context.Context, ids []int) error {
-	tx := deployed.DB.Begin()
+	tx := dao.DB.Begin()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -202,7 +202,7 @@ type MenuIdList struct {
 func (cRole) GetMenuIds(roleId int) ([]int, error) {
 	var menuList []MenuIdList
 
-	if err := deployed.DB.Scopes(RoleMenuDB()).
+	if err := dao.DB.Scopes(RoleMenuDB()).
 		Select("sys_role_menu.menu_id").
 		Where("role_id=? ", roleId).
 		Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id=?  and parent_id is not null)", roleId).
@@ -225,7 +225,7 @@ type DeptIdList struct {
 func (cRole) GetDeptIds(_ context.Context, roleId int) ([]int, error) {
 	var deptList []DeptIdList
 
-	if err := deployed.DB.Scopes(RoleDeptDB()).
+	if err := dao.DB.Scopes(RoleDeptDB()).
 		Select("sys_role_dept.dept_id").
 		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").
 		Where("role_id=? ", roleId).

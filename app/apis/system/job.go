@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/app/service"
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
@@ -27,7 +27,7 @@ func (Job) RemoveJobForService(c *gin.Context) {
 	}
 	s := service.SysJob{}
 	s.MsgID = msgID
-	s.Orm = deployed.DB
+	s.Orm = dao.DB
 	err = s.RemoveJob(&v)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
@@ -47,7 +47,7 @@ func (Job) StartJobForService(c *gin.Context) {
 		return
 	}
 	s := service.SysJob{}
-	s.Orm = deployed.DB
+	s.Orm = dao.DB
 	s.MsgID = msgID
 	err = s.StartJob(&v)
 	if err != nil {

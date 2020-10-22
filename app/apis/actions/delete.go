@@ -7,8 +7,8 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -38,7 +38,7 @@ func DeleteAction(control dto2.Control) gin.HandlerFunc {
 		//数据权限检查
 		p := GetPermissionFromContext(c)
 
-		db := deployed.DB.WithContext(c).Scopes(
+		db := dao.DB.WithContext(c).Scopes(
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Delete(object)
 		if db.Error != nil {

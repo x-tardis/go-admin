@@ -9,6 +9,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
@@ -90,13 +91,13 @@ func (sf cUser) GetUserInfo(ctx context.Context) (UserView, error) {
 }
 
 func (cUser) GetWithName(_ context.Context, name string) (item User, err error) {
-	err = deployed.DB.Scopes(UserDB()).
+	err = dao.DB.Scopes(UserDB()).
 		Where("username=? ", name).First(&item).Error
 	return
 }
 
 func (cUser) GetWithDeptId(id int) (items []UserView, err error) {
-	err = deployed.DB.Scopes(UserDB()).
+	err = dao.DB.Scopes(UserDB()).
 		Select([]string{"sys_user.*", "sys_role.role_name"}).
 		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
 		Where("dept_id=?", id).
@@ -108,7 +109,7 @@ func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, pagi
 	var err error
 	var items []UserPage
 
-	db := deployed.DB.Scopes(UserDB()).
+	db := dao.DB.Scopes(UserDB()).
 		Select("sys_user.*,sys_dept.dept_name").
 		Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
 
@@ -141,7 +142,7 @@ func (cUser) Create(ctx context.Context, item User) (User, error) {
 	var err error
 
 	// check 用户名
-	deployed.DB.Scopes(UserDB()).Where("username=?", item.Username).Count(&count)
+	dao.DB.Scopes(UserDB()).Where("username=?", item.Username).Count(&count)
 	if count > 0 {
 		return item, errors.New("账户已存在！")
 	}
@@ -152,18 +153,18 @@ func (cUser) Create(ctx context.Context, item User) (User, error) {
 	}
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	// 添加数据
-	err = deployed.DB.Table(item.TableName()).Create(&item).Error
+	err = dao.DB.Table(item.TableName()).Create(&item).Error
 	return item, err
 }
 
 func (cUser) BatchDelete(id []int) error {
-	return deployed.DB.Scopes(UserDB()).
+	return dao.DB.Scopes(UserDB()).
 		Where("user_id in (?)", id).Delete(&User{}).Error
 }
 
 // 修改
 func (cUser) Update(ctx context.Context, id int, up User) (item User, err error) {
-	if err = deployed.DB.Scopes(UserDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(UserDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
@@ -179,14 +180,14 @@ func (cUser) Update(ctx context.Context, id int, up User) (item User, err error)
 	}
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Table(up.TableName()).
+	err = dao.DB.Table(up.TableName()).
 		Model(&item).Updates(&up).Error
 	return
 }
 
 func (cUser) UpdateAvatar(ctx context.Context, avatar string) error {
 	id := jwtauth.FromUserId(ctx)
-	return deployed.DB.Scopes(UserDB()).
+	return dao.DB.Scopes(UserDB()).
 		Where("user_id=?", id).
 		Updates(map[string]interface{}{
 			"avatar":  avatar,
@@ -210,7 +211,7 @@ func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
 		return err
 	}
 
-	err = deployed.DB.Scopes(UserDB()).
+	err = dao.DB.Scopes(UserDB()).
 		Where("user_id=?", item.UserId).Update("password", pass).Error
 	if err != nil {
 		return errors.New("更新密码失败(代码202)")
@@ -219,7 +220,7 @@ func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
 }
 
 func (cUser) get(_ context.Context, id int) (item UserView, err error) {
-	err = deployed.DB.Scopes(UserDB()).
+	err = dao.DB.Scopes(UserDB()).
 		Select([]string{"sys_user.*", "sys_role.role_name"}).
 		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
 		Where("user_id=?", id).First(&item).Error

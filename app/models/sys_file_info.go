@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -52,7 +52,7 @@ func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileIn
 	var err error
 	var items []FileInfo
 
-	db := deployed.DB.Scopes(FileInfoDB())
+	db := dao.DB.Scopes(FileInfoDB())
 
 	if qp.PId != 0 {
 		db = db.Where("p_id=?", qp.PId)
@@ -72,7 +72,7 @@ func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileIn
 
 // 获取SysFileInfo
 func (cFileInfo) Get(_ context.Context, id int) (item FileInfo, err error) {
-	err = deployed.DB.Scopes(FileInfoDB()).
+	err = dao.DB.Scopes(FileInfoDB()).
 		Where("id=?", id).First(&item).Error
 	return
 }
@@ -80,33 +80,33 @@ func (cFileInfo) Get(_ context.Context, id int) (item FileInfo, err error) {
 // 创建SysFileInfo
 func (cFileInfo) Create(ctx context.Context, item FileInfo) (FileInfo, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(FileInfoDB()).Create(&item).Error
+	err := dao.DB.Scopes(FileInfoDB()).Create(&item).Error
 	return item, err
 }
 
 // 更新SysFileInfo
 func (cFileInfo) Update(ctx context.Context, id int, up FileInfo) (item FileInfo, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(FileInfoDB()).
+	if err = dao.DB.Scopes(FileInfoDB()).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	err = deployed.DB.Scopes(FileInfoDB()).
+	err = dao.DB.Scopes(FileInfoDB()).
 		Model(&item).Updates(&up).Error
 	return
 }
 
 // 删除SysFileInfo
 func (cFileInfo) Delete(_ context.Context, id int) error {
-	return deployed.DB.Scopes(FileInfoDB()).
+	return dao.DB.Scopes(FileInfoDB()).
 		Where("id=?", id).Delete(&FileInfo{}).Error
 }
 
 //批量删除
 func (cFileInfo) BatchDelete(_ context.Context, ids []int) error {
-	return deployed.DB.Scopes(FileInfoDB()).
+	return dao.DB.Scopes(FileInfoDB()).
 		Where("id in (?)", ids).Delete(&FileInfo{}).Error
 }

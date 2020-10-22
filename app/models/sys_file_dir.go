@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -78,7 +78,7 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 	var err error
 	var items []FileDir
 
-	db := deployed.DB.Scopes(FileDirDB())
+	db := dao.DB.Scopes(FileDirDB())
 	if qp.Id != 0 {
 		db = db.Where("id=?", qp.Id)
 	}
@@ -103,7 +103,7 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 
 // 获取SysFileDir
 func (cFileDir) Get(_ context.Context, id int) (item FileDir, err error) {
-	err = deployed.DB.Scopes(FileDirDB()).
+	err = dao.DB.Scopes(FileDirDB()).
 		Where("id=?", id).First(&item).Error
 	return
 }
@@ -111,7 +111,7 @@ func (cFileDir) Get(_ context.Context, id int) (item FileDir, err error) {
 // 创建SysFileDir
 func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(FileDirDB()).Create(&item).Error
+	err := dao.DB.Scopes(FileDirDB()).Create(&item).Error
 	if err != nil {
 		return item, err
 	}
@@ -121,11 +121,11 @@ func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 		path = "/0" + path
 	} else {
 		var deptP FileDir
-		deployed.DB.Scopes(FileDirDB()).Where("id = ?", item.PId).First(&deptP)
+		dao.DB.Scopes(FileDirDB()).Where("id = ?", item.PId).First(&deptP)
 		path = deptP.Path + path
 	}
 
-	err = deployed.DB.Scopes(FileDirDB()).
+	err = dao.DB.Scopes(FileDirDB()).
 		Where("id = ?", item.Id).
 		Updates(map[string]interface{}{"path": path}).Error
 	item.Path = path
@@ -135,7 +135,7 @@ func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 // 更新SysFileDir
 func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(FileDirDB()).
+	if err = dao.DB.Scopes(FileDirDB()).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
@@ -145,7 +145,7 @@ func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, e
 		path = "/0" + path
 	} else {
 		var deptP FileDir
-		deployed.DB.Scopes(FileDirDB()).Where("id = ?", up.Id).First(&deptP)
+		dao.DB.Scopes(FileDirDB()).Where("id = ?", up.Id).First(&deptP)
 		path = deptP.Path + path
 	}
 	up.Path = path
@@ -156,19 +156,19 @@ func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, e
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Scopes(FileDirDB()).
+	err = dao.DB.Scopes(FileDirDB()).
 		Model(&item).Updates(&up).Error
 	return
 }
 
 // 删除SysFileDir
 func (cFileDir) Delete(_ context.Context, id int) error {
-	return deployed.DB.Scopes(FileDirDB()).
+	return dao.DB.Scopes(FileDirDB()).
 		Where("id=?", id).Delete(&FileDir{}).Error
 }
 
 // 批量删除
 func (cFileDir) BatchDelete(_ context.Context, ids []int) error {
-	return deployed.DB.Scopes(FileDirDB()).
+	return dao.DB.Scopes(FileDirDB()).
 		Where("id in (?)", ids).Delete(&FileDir{}).Error
 }

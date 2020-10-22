@@ -8,7 +8,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -63,7 +63,7 @@ func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictDa
 	var err error
 	var items []DictData
 
-	db := deployed.DB.Scopes(DictDataDB())
+	db := dao.DB.Scopes(DictDataDB())
 	if qp.DictType != "" {
 		db = db.Where("dict_type=?", qp.DictType)
 	}
@@ -88,7 +88,7 @@ func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictDa
 func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 	var i int64
 
-	if err := deployed.DB.Scopes(DictDataDB()).
+	if err := dao.DB.Scopes(DictDataDB()).
 		Where("dict_type=?", item.DictType).
 		Where("dict_label=? or (dict_label=? and dict_value=?)", item.DictLabel, item.DictLabel, item.DictValue).
 		Count(&i).Error; err != nil {
@@ -99,20 +99,20 @@ func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 	}
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(DictDataDB()).Create(&item).Error
+	err := dao.DB.Scopes(DictDataDB()).Create(&item).Error
 	return item, err
 }
 
 // Get 通过dictCode(主键)
 func (cDictData) Get(_ context.Context, dictId int) (item DictData, err error) {
-	err = deployed.DB.Scopes(DictDataDB()).
+	err = dao.DB.Scopes(DictDataDB()).
 		Where("dict_id=?", dictId).First(&item).Error
 	return
 }
 
 // GetWithType 通过dictType获取
 func (cDictData) GetWithType(_ context.Context, dictType string) (items []DictData, err error) {
-	err = deployed.DB.Scopes(DictDataDB()).
+	err = dao.DB.Scopes(DictDataDB()).
 		Where("dict_type = ?", dictType).
 		Order("sort").Find(&items).Error
 	return
@@ -120,7 +120,7 @@ func (cDictData) GetWithType(_ context.Context, dictType string) (items []DictDa
 
 // Update 更新
 func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData, err error) {
-	if err = deployed.DB.Scopes(DictDataDB()).
+	if err = dao.DB.Scopes(DictDataDB()).
 		Where("dict_id = ?", id).First(&item).Error; err != nil {
 		return
 	}
@@ -134,18 +134,18 @@ func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = deployed.DB.Scopes(DictDataDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(DictDataDB()).Model(&item).Updates(&up).Error
 	return
 }
 
 // Delete 删除
 func (cDictData) Delete(_ context.Context, id int) error {
-	return deployed.DB.Scopes(DictDataDB()).
+	return dao.DB.Scopes(DictDataDB()).
 		Where("dict_id = ?", id).Delete(&DictData{}).Error
 }
 
 // BatchDelete 批量删除
 func (cDictData) BatchDelete(_ context.Context, id []int) error {
-	return deployed.DB.Scopes(DictDataDB()).
+	return dao.DB.Scopes(DictDataDB()).
 		Where("dict_id in (?)", id).Delete(&DictData{}).Error
 }

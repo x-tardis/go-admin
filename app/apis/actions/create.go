@@ -7,8 +7,8 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
@@ -32,7 +32,7 @@ func CreateAction(control dto2.Control) gin.HandlerFunc {
 			return
 		}
 		object.SetCreator(uint(jwtauth.FromUserId(gcontext.Context(c))))
-		err = deployed.DB.WithContext(c).Create(object).Error
+		err = dao.DB.WithContext(c).Create(object).Error
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] Create error: %s", msgID, err)
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("创建失败"))

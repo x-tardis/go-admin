@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
@@ -55,7 +55,7 @@ var CPost = new(cPost)
 
 // Query 查询岗位信息, 非分页查询
 func (cPost) Query(_ context.Context, qp PostQueryParam) (items []Post, err error) {
-	db := deployed.DB.Scopes(PostDB())
+	db := dao.DB.Scopes(PostDB())
 	if qp.PostId != 0 {
 		db = db.Where("post_id=?", qp.PostId)
 	}
@@ -77,7 +77,7 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	var err error
 	var items []Post
 
-	db := deployed.DB.Scopes(PostDB())
+	db := dao.DB.Scopes(PostDB())
 	if qp.PostId != 0 {
 		db = db.Where("post_id=?", qp.PostId)
 	}
@@ -103,7 +103,7 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 
 // Get 获取岗位信息
 func (cPost) Get(_ context.Context, id int) (item Post, err error) {
-	err = deployed.DB.Scopes(PostDB()).
+	err = dao.DB.Scopes(PostDB()).
 		Where("post_id=?", id).First(&item).Error
 	return
 }
@@ -111,29 +111,29 @@ func (cPost) Get(_ context.Context, id int) (item Post, err error) {
 // Create 创建岗位信息
 func (cPost) Create(ctx context.Context, item Post) (Post, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := deployed.DB.Scopes(PostDB()).Create(&item).Error
+	err := dao.DB.Scopes(PostDB()).Create(&item).Error
 	return item, err
 }
 
 // Update 更新岗位信息
 func (cPost) Update(ctx context.Context, id int, up Post) (item Post, err error) {
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = deployed.DB.Scopes(PostDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(PostDB()).First(&item, id).Error; err != nil {
 		return
 	}
 
-	err = deployed.DB.Scopes(PostDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(PostDB()).Model(&item).Updates(&up).Error
 	return
 }
 
 // Delete 删除指定id
 func (cPost) Delete(_ context.Context, id int) (err error) {
-	return deployed.DB.Scopes(PostDB()).
+	return dao.DB.Scopes(PostDB()).
 		Where("post_id=?", id).Delete(&Post{}).Error
 }
 
 // BatchDelete 删除批量id
 func (cPost) BatchDelete(_ context.Context, ids []int) error {
-	return deployed.DB.Scopes(PostDB()).
+	return dao.DB.Scopes(PostDB()).
 		Where("post_id in (?)", ids).Delete(&Post{}).Error
 }

@@ -12,7 +12,7 @@ func Dict(v1 gin.IRouter) {
 	{
 		ctlType := new(system.DictType)
 
-		r.GET("/typeselect", ctlType.GetOptionSelect)
+		r.GET("/typeoption", ctlType.GetOption)
 		tr := r.Group("/type")
 		{
 			tr.GET("", ctlType.QueryPage)

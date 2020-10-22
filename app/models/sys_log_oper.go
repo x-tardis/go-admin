@@ -8,7 +8,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 )
 
 // OperLog
@@ -31,7 +31,7 @@ type OperLog struct {
 	JsonResult    string    `json:"jsonResult" gorm:"size:255;"`     // 返回数据
 	Remark        string    `json:"remark" gorm:"size:255;"`         // 备注
 	LatencyTime   string    `json:"latencyime" gorm:"size:128;"`     // 耗时
-	UserAgent     string    `json:"userAgent" gorm:"size:255;"`      // ua
+	UserAgent     string    `json:"userAgent" gorm:"size:255;"`      // user_agent
 	Creator       string    `json:"creator" gorm:"size:128;"`        // 创建人
 	Updator       string    `json:"updator" gorm:"size:128;"`        // 更新者
 	Model
@@ -64,7 +64,7 @@ type cOperLog struct{}
 var COperLog = new(cOperLog)
 
 func (cOperLog) Get(_ context.Context, id int) (item OperLog, err error) {
-	err = deployed.DB.Scopes(OperLogDB()).
+	err = dao.DB.Scopes(OperLogDB()).
 		Where("oper_id=?", id).First(&item).Error
 	return
 }
@@ -72,7 +72,7 @@ func (cOperLog) Get(_ context.Context, id int) (item OperLog, err error) {
 func (cOperLog) QueryPage(_ context.Context, qp OperLogQueryParam) ([]OperLog, paginator.Info, error) {
 	var items []OperLog
 
-	db := deployed.DB.Scopes(OperLogDB())
+	db := dao.DB.Scopes(OperLogDB())
 	if qp.Title != "" {
 		db = db.Where("title=?", qp.Title)
 	}
@@ -96,26 +96,26 @@ func (cOperLog) QueryPage(_ context.Context, qp OperLogQueryParam) ([]OperLog, p
 func (cOperLog) Create(_ context.Context, item OperLog) (OperLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
-	err := deployed.DB.Scopes(OperLogDB()).Create(&item).Error
+	err := dao.DB.Scopes(OperLogDB()).Create(&item).Error
 	return item, err
 }
 
 func (cOperLog) Update(id int, up OperLog) (item OperLog, err error) {
-	if err = deployed.DB.Scopes(OperLogDB()).First(&item, id).Error; err != nil {
+	if err = dao.DB.Scopes(OperLogDB()).First(&item, id).Error; err != nil {
 		return
 	}
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	err = deployed.DB.Scopes(OperLogDB()).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(OperLogDB()).Model(&item).Updates(&up).Error
 	return
 }
 
 func (cOperLog) BatchDelete(_ context.Context, id []int) error {
-	return deployed.DB.Scopes(OperLogDB()).
+	return dao.DB.Scopes(OperLogDB()).
 		Where(" oper_id in (?)", id).Delete(&OperLog{}).Error
 }
 
 func (cOperLog) Clean(_ context.Context) error {
-	return deployed.DB.Scopes(OperLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
+	return dao.DB.Scopes(OperLogDB()).Session(&gorm.Session{AllowGlobalUpdate: true}).
 		Delete(&OperLog{}).Error
 }

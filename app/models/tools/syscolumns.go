@@ -2,7 +2,7 @@ package tools
 
 import (
 	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 )
 
 type SysColumns struct {
@@ -54,7 +54,7 @@ func (SysColumns) TableName() string {
 func (e *SysColumns) GetList() ([]SysColumns, error) {
 	var doc []SysColumns
 
-	table := deployed.DB.Table("sys_columns")
+	table := dao.DB.Table("sys_columns")
 
 	table = table.Where("table_id = ?", e.TableId)
 
@@ -66,7 +66,7 @@ func (e *SysColumns) GetList() ([]SysColumns, error) {
 
 func (e *SysColumns) Create() (SysColumns, error) {
 	var doc SysColumns
-	result := deployed.DB.Table("sys_columns").Create(&e)
+	result := dao.DB.Table("sys_columns").Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -76,13 +76,13 @@ func (e *SysColumns) Create() (SysColumns, error) {
 }
 
 func (e *SysColumns) Update() (update SysColumns, err error) {
-	if err = deployed.DB.Table("sys_columns").First(&update, e.ColumnId).Error; err != nil {
+	if err = dao.DB.Table("sys_columns").First(&update, e.ColumnId).Error; err != nil {
 		return
 	}
 
 	// 参数1:是要修改的数据
 	// 参数2:是修改的数据
-	if err = deployed.DB.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
+	if err = dao.DB.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 

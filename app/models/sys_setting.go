@@ -3,7 +3,7 @@ package models
 import (
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 )
 
 type Setting struct {
@@ -34,12 +34,12 @@ var CSetting = new(cSetting)
 
 // 查询
 func (cSetting) Get() (item Setting, err error) {
-	err = deployed.DB.Scopes(SettingDB()).First(&item).Error
+	err = dao.DB.Scopes(SettingDB()).First(&item).Error
 	return
 }
 
 // 修改
 func (cSetting) Update(up Setting) (item Setting, err error) {
-	err = deployed.DB.Scopes(SettingDB()).Where("id=?", 1).Model(&item).Updates(&up).Error
+	err = dao.DB.Scopes(SettingDB()).Where("id=?", 1).Model(&item).Updates(&up).Error
 	return
 }

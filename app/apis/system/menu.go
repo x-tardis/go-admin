@@ -136,7 +136,6 @@ func (Menu) Delete(c *gin.Context) {
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
-
 	result, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
@@ -169,9 +168,9 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 // @Product application/x-www-form-urlencoded
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/menuTreeselect [get]
+// @Router /api/v1/menuTreeoption [get]
 // @Security Bearer
-func GetMenuTreeselect(c *gin.Context) {
+func GetMenuTreeOption(c *gin.Context) {
 	items, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
@@ -190,7 +189,7 @@ func GetMenuTreeselect(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menurole [get]
 // @Security Bearer
-func GetMenuRole(c *gin.Context) {
+func GetMenuTreeWithRoleName(c *gin.Context) {
 	items, err := models.CMenu.QueryTreeWithRoleName(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,

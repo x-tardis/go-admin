@@ -7,6 +7,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
@@ -31,7 +32,7 @@ func (e *DBColumns) GetPage(param paginator.Param) ([]DBColumns, paginator.Info,
 	table := new(gorm.DB)
 
 	if deployed.DbConfig.Driver == "mysql" {
-		table = deployed.DB.Table("information_schema.`COLUMNS`")
+		table = dao.DB.Table("information_schema.`COLUMNS`")
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
 		if e.TableName != "" {
@@ -57,7 +58,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 	}
 
 	if deployed.DbConfig.Driver == "mysql" {
-		table = deployed.DB.Table("information_schema.columns")
+		table = dao.DB.Table("information_schema.columns")
 		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
 
 		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")

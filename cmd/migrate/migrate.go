@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/x-tardis/go-admin/app/models"
+	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/cmd/migrate/migration"
 	_ "github.com/x-tardis/go-admin/cmd/migrate/migration/version"
 	"github.com/x-tardis/go-admin/pkg/deployed"
@@ -40,7 +41,7 @@ func run(cmd *cobra.Command, args []string) {
 	//2. 设置日志
 	deployed.SetupLogger()
 	//3. 初始化数据库链接
-	deployed.SetupDatabase(deployed.DbConfig.Driver, deployed.DbConfig.Source)
+	dao.SetupDatabase(deployed.DbConfig.Driver, deployed.DbConfig.Source, deployed.EnabledDB)
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()
@@ -55,13 +56,13 @@ func run(cmd *cobra.Command, args []string) {
 
 func migrateModel() error {
 	if deployed.DbConfig.Driver == "mysql" {
-		deployed.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+		dao.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
-	err := deployed.DB.Debug().AutoMigrate(&models.Migration{})
+	err := dao.DB.Debug().AutoMigrate(&models.Migration{})
 	if err != nil {
 		return err
 	}
-	migration.Migrate.SetDb(deployed.DB.Debug())
+	migration.Migrate.SetDb(dao.DB.Debug())
 	migration.Migrate.Migrate()
 	return err
 }

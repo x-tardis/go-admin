@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/app/models/dao"
 )
 
 //sys_role_dept
@@ -40,12 +40,12 @@ func (cRoleDept) Create(roleId int, deptIds []int) error {
 			sql += fmt.Sprintf("(%d,%d),", roleId, deptIds[i])
 		}
 	}
-	deployed.DB.Exec(sql)
+	dao.DB.Exec(sql)
 
 	return nil
 }
 
 func (cRoleDept) DeleteRoleDept(roleId int) error {
-	return deployed.DB.Scopes(RoleDeptDB()).
+	return dao.DB.Scopes(RoleDeptDB()).
 		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
 }
