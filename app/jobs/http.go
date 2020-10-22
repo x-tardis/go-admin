@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg"
-	"github.com/x-tardis/go-admin/pkg/deployed"
 )
 
 var retryCount = 3

@@ -10,8 +10,8 @@ import (
 	"github.com/thinkgos/sharp/gin/gcontext"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/app/models/dao"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"

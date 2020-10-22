@@ -6,9 +6,9 @@ import (
 	_ "github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/authj"
 
-	"github.com/x-tardis/go-admin/app/routers"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
+	"github.com/x-tardis/go-admin/routers"
 )
 
 // 业务无授权,无RBAC角色控制

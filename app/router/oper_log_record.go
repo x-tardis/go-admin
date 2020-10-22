@@ -11,8 +11,8 @@ import (
 	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
-	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 

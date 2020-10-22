@@ -7,7 +7,8 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/thinkgos/sharp/core/paginator"
-	"github.com/x-tardis/go-admin/app/models/tools"
+
+	"github.com/x-tardis/go-admin/models/tools"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 

@@ -4,7 +4,7 @@ import (
 	"github.com/matchstalk/go-admin-core/search"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
 )
 
 type GeneralDelDto struct {

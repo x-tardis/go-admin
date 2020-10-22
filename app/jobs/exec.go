@@ -3,7 +3,7 @@ package jobs
 import (
 	"time"
 
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
 )
 
 type ExecJob struct {

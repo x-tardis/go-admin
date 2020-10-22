@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/x-tardis/go-admin/app/jobs"
-	"github.com/x-tardis/go-admin/app/models"
 	dto2 "github.com/x-tardis/go-admin/app/service/dto"
+	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )

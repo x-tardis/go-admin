@@ -18,9 +18,9 @@ import (
 	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/app/jobs"
-	"github.com/x-tardis/go-admin/app/models/dao"
 	"github.com/x-tardis/go-admin/app/router"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"
 )

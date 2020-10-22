@@ -9,7 +9,7 @@ import (
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
-	"github.com/x-tardis/go-admin/app/models/tools"
+	"github.com/x-tardis/go-admin/models/tools"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"

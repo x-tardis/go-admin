@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 
 	"github.com/x-tardis/go-admin/app/apis/system"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/middleware"

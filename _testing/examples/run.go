@@ -7,8 +7,8 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/app/models/dao"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/deployed/dao"
 )
 
 func main() {

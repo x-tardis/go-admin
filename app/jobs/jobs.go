@@ -6,8 +6,8 @@ import (
 
 	"github.com/robfig/cron/v3"
 
-	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/models"
 )
 
 var timeFormat = "2006-01-02 15:04:05"

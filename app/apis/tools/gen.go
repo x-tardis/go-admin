@@ -11,9 +11,9 @@ import (
 	"github.com/thinkgos/go-core-package/extos"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
-	"github.com/x-tardis/go-admin/app/models"
-	"github.com/x-tardis/go-admin/app/models/tools"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/models"
+	"github.com/x-tardis/go-admin/models/tools"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
-	"github.com/x-tardis/go-admin/app/models"
+	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"

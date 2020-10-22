@@ -7,10 +7,10 @@ import (
 	"github.com/thinkgos/gin-middlewares/expvar"
 
 	"github.com/x-tardis/go-admin/app/apis/system"
-	"github.com/x-tardis/go-admin/app/routers"
-	"github.com/x-tardis/go-admin/pkg/deployed"
+	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/ws"
+	"github.com/x-tardis/go-admin/routers"
 )
 
 func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
