@@ -21,7 +21,7 @@ type Post struct{}
 // @tags 岗位
 // @summary 岗位列表数据
 // @description 获取JSON
-// @security ApiKeyAuth
+// @security Bearer
 // @accept  application/json
 // @produce application/json
 // @param postId query string false "postId"
@@ -75,7 +75,7 @@ func (Post) Get(c *gin.Context) {
 // @tags 岗位
 // @summary 添加岗位
 // @description 获取JSON
-// @security ApiKeyAuth
+// @security Bearer
 // @accept  application/json
 // @produce application/json
 // @param data body models.Post true "data"
@@ -101,7 +101,7 @@ func (Post) Create(c *gin.Context) {
 // @tags 岗位
 // @summary 修改岗位
 // @description 获取JSON
-// @security ApiKeyAuth
+// @security Bearer
 // @accept  application/json
 // @produce application/json
 // @param up body models.Post true "body"
@@ -125,7 +125,7 @@ func (Post) Update(c *gin.Context) {
 // @tags 岗位
 // @summary 批量删除岗位
 // @description 批量删除数据
-// @security ApiKeyAuth
+// @security Bearer
 // @produce application/json
 // @param ids path int true "id 列表,以','分隔"
 // @success 200 {string} string	"{"code": 200, "message": "删除成功"}"

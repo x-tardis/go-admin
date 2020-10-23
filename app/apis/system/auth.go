@@ -75,18 +75,17 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 }
 
 // @tags auth
-// @Summary 登陆
-// @Description 获取token
-// @Description LoginHandler can be used by clients to get a jwt token.
-// @Description Payload needs to be json in the form of {"username": "USERNAME", "password": "PASSWORD"}.
-// @Description Reply will be of the form {"token": "TOKEN"}.
-// @Description dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
-// @Description 注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
-// @Accept  application/json
-// @Product application/json
-// @Param account body models.Login  true "account"
-// @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
-// @Router /login [post]
+// @summary 登陆
+// @description 登陆,获取token
+// @description 注意：开发模式：需要注意全部字段不能为空，账号,密码外可以传入0值
+// @accept json
+// @produce json
+// @param account body models.Login  true "account"
+// @success 200 {object} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": "xxxx" }"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /login [post]
 func authenticator(c *gin.Context) (interface{}, error) {
 	login := models.Login{}
 	if err := c.ShouldBindJSON(&login); err != nil {
@@ -95,7 +94,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	if deployed.AppConfig.Mode == infra.ModeProd &&
-		!deployed.Captcha.Verify(login.UUID, login.Code, true) {
+		!deployed.Captcha.Verify(login.CID, login.CCode, true) {
 		loginLogRecord(c, false, "验证码错误", login.Username)
 		return nil, jwt.ErrFailedAuthentication
 	}
@@ -117,15 +116,16 @@ func authenticator(c *gin.Context) (interface{}, error) {
 }
 
 // @tags auth
-// @Summary 退出登录
-// @Description 获取token
-// LoginHandler can be used by clients to get a jwt token.
-// Reply will be of the form {"token": "TOKEN"}.
-// @Accept  application/json
-// @Product application/json
-// @Success 200 {string} string "{"code": 200, "msg": "成功退出系统" }"
-// @Router /logout [post]
-// @Security Bearer
+// @summary 退出登录
+// @description 退出登录
+// @security Bearer
+// @accept json
+// @produce json
+// @success 200 {object} string "{"code": 200, "msg": "成功退出系统" }"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /logout [post]
 func logoutResponse(c *gin.Context, code int) {
 	loginLogRecord(c, true, "退出成功", jwtauth.FromUserName(gcontext.Context(c)))
 	servers.OK(c, servers.WithMsg("退出成功"))

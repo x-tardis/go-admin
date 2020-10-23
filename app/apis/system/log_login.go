@@ -21,7 +21,7 @@ type LoginLog struct{}
 // @tags 登录日志
 // @summary 获取登录日志列表
 // @description 获取登录日志列表
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param username query string false "username"
@@ -58,7 +58,7 @@ func (LoginLog) QueryPage(c *gin.Context) {
 // @tags 登录日志
 // @summary 获取登录日志
 // @description 获取登录日志
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param infoId path int true "infoId"
@@ -82,7 +82,7 @@ func (LoginLog) Get(c *gin.Context) {
 // @tags 登录日志
 // @summary 添加登录日志
 // @description 添加登录日志
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param newItem body models.LoginLog true "newItem"
@@ -111,7 +111,7 @@ func (LoginLog) Create(c *gin.Context) {
 // @tags 登录日志
 // @summary 修改登录日志
 // @description 修改登录日志
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param up body models.LoginLog true "up"
@@ -139,7 +139,7 @@ func (LoginLog) Update(c *gin.Context) {
 // @tags 登录日志
 // @summary 批量删除登录日志
 // @description 批量删除登录日志
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param infoId path string true "以逗号（,）分割的infoId,如果为clean,将清空日志"

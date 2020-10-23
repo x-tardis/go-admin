@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/x-tardis/go-admin/cmd"
-)
+import "github.com/x-tardis/go-admin/cmd"
 
 // @title go-admin API
 // @version 1.0.1
@@ -13,6 +11,9 @@ import (
 // @securityDefinitions.apikey Bearer
 // @in header
 // @name Authorization
+func main() {
+	cmd.Execute()
+}
 
 //func main() {
 //	configName := "settings"
@@ -66,7 +67,3 @@ import (
 //	}
 //	log.Println("Server exiting")
 //}
-
-func main() {
-	cmd.Execute()
-}

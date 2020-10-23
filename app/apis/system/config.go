@@ -17,17 +17,22 @@ import (
 
 type Config struct{}
 
-// @Summary 配置列表数据
-// @Description 获取JSON
-// @Tags 配置
-// @Param configKey query string false "configKey"
-// @Param configName query string false "configName"
-// @Param configType query string false "configType"
-// @Param pageSize query int false "页条数"
-// @Param pageIndex query int false "页码"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/configs [get]
-// @Security Bearer
+// @tags 系统配置
+// @summary 获取系统配置
+// @description 获取系统配置
+// @security Bearer
+// @accept json
+// @produce json
+// @param configKey query string false "系统配置的Key"
+// @param configName query string false "系统配置的名称"
+// @param configType query string false "系统配置是否内置,由用户指定值,服务只存储"
+// @param pageSize query int false "页条数"
+// @param pageIndex query int false "页码"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/configs [get]
 func (Config) QueryPage(c *gin.Context) {
 	qp := models.ConfigQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -36,27 +41,31 @@ func (Config) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	result, info, err := models.CConfig.QueryPage(gcontext.Context(c), qp)
+	items, info, err := models.CConfig.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
-
 	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
-		List: result,
+		List: items,
 	}))
 }
 
-// @Summary 获取配置
-// @Description 获取JSON
-// @Tags 配置
-// @Param configId path int true "配置编码"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/configs/{id} [get]
-// @Security Bearer
+// @tags 系统配置
+// @summary 获取配置
+// @description 获取配置
+// @security Bearer
+// @accept json
+// @produce json
+// @Param id path int true "系统配置主键"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/configs/{id} [get]
 func (Config) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CConfig.Get(gcontext.Context(c), id)
@@ -69,13 +78,18 @@ func (Config) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 获取配置
-// @Description 获取JSON
-// @Tags 配置
-// @Param configKey path int true "configKey"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/configKey/{key} [get]
-// @Security Bearer
+// @tags 系统配置
+// @summary 通过Key获取配置
+// @description 通过Key获取配置
+// @security Bearer
+// @accept json
+// @produce json
+// @Param key path string true "系统配置的key"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/configKey/{key} [get]
 func (Config) GetWithKey(c *gin.Context) {
 	key := c.Param("key")
 	item, err := models.CConfig.GetWithKey(gcontext.Context(c), key)
@@ -85,21 +99,21 @@ func (Config) GetWithKey(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c,
-		servers.WithData(item),
-		servers.WithMsg(item.ConfigValue))
+	servers.OK(c, servers.WithData(item), servers.WithMsg(item.ConfigValue))
 }
 
-// @Summary 添加配置
-// @Description 获取JSON
-// @Tags 配置
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Config true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/configs [post]
-// @Security Bearer
+// @tags 系统配置
+// @summary 创建系统配置
+// @description 创建系统配置
+// @security Bearer
+// @accept json
+// @produce json
+// @param newItem body models.Config true "new item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/configs [post]
 func (Config) Create(c *gin.Context) {
 	newItem := models.Config{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -115,16 +129,18 @@ func (Config) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 修改配置
-// @Description 获取JSON
-// @Tags 配置
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Config true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/configs [put]
-// @Security Bearer
+// @tags 系统配置
+// @summary 更新系统配置
+// @description 更新系统配置
+// @security Bearer
+// @accept json
+// @produce json
+// @param up body models.Config true "update item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/configs [put]
 func (Config) Update(c *gin.Context) {
 	up := models.Config{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -140,13 +156,18 @@ func (Config) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 删除配置
-// @Description 删除数据
-// @Tags 配置
-// @Param configId path int true "configId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/configs/{ids} [delete]
+// @tags 系统配置
+// @summary 批量删除系统设置
+// @description 批量删除系统设置
+// @security Bearer
+// @accept json
+// @produce json
+// @Param ids path string true "id,以','分隔的id列表"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/configs/{ids} [delete]
 func (Config) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CConfig.BatchDelete(gcontext.Context(c), ids)

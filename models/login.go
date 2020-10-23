@@ -9,8 +9,8 @@ import (
 type Login struct {
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
-	Code     string `form:"code" json:"code" binding:"required"`
-	UUID     string `form:"uuid" json:"uuid" binding:"required"`
+	CID      string `form:"cid" json:"cid" binding:"required"`    // 验证码id
+	CCode    string `form:"code" json:"ccode" binding:"required"` // 验证码
 }
 
 func (sf *Login) GetUser() (user User, role Role, err error) {
@@ -19,6 +19,7 @@ func (sf *Login) GetUser() (user User, role Role, err error) {
 		return
 	}
 	// check password
+
 	err = deployed.Verify.Compare(sf.Password, "", user.Password)
 	if err != nil {
 		return

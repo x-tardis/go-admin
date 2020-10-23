@@ -14,11 +14,12 @@ import (
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
+// Config参数配置
 type Config struct {
 	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` // 主键
-	ConfigName  string `json:"configName" gorm:"size:128;"`                 // 参数名称
-	ConfigKey   string `json:"configKey" gorm:"size:128;"`                  // 参数键名
-	ConfigValue string `json:"configValue" gorm:"size:255;"`                // 参数键值
+	ConfigName  string `json:"configName" gorm:"size:128;"`                 // 名称
+	ConfigKey   string `json:"configKey" gorm:"size:128;"`                  // 键名
+	ConfigValue string `json:"configValue" gorm:"size:255;"`                // 键值
 	ConfigType  string `json:"configType" gorm:"size:64;"`                  // 是否系统内置
 	Remark      string `json:"remark" gorm:"size:128;"`                     // 备注
 	Creator     string `json:"creator" gorm:"size:128;"`                    // 创建者
@@ -29,10 +30,12 @@ type Config struct {
 	Params    string `json:"params"  gorm:"-"`
 }
 
+// TableName implement gorm.Tabler interface
 func (Config) TableName() string {
 	return "sys_config"
 }
 
+// ConfigDB config db scope
 func ConfigDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(Config{})
@@ -49,22 +52,24 @@ type ConfigQueryParam struct {
 
 type cConfig struct{}
 
+// CConfig 实例
 var CConfig = new(cConfig)
 
-// 获取 Config
+// GetWithKey 通过键获取
 func (cConfig) GetWithKey(ctx context.Context, key string) (item Config, err error) {
 	err = dao.DB.Scopes(ConfigDB(ctx)).
-		Where("config_key = ?", key).First(&item).Error
+		Where("config_key=?", key).First(&item).Error
 	return
 }
 
 // 获取 Config
 func (cConfig) Get(ctx context.Context, id int) (item Config, err error) {
 	err = dao.DB.Scopes(ConfigDB(ctx)).
-		Where("config_id = ?", id).First(&item).Error
+		Where("config_id=?", id).First(&item).Error
 	return
 }
 
+// QueryPage 查询
 func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, paginator.Info, error) {
 	var items []Config
 
@@ -93,46 +98,45 @@ func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, pa
 func (cConfig) Create(ctx context.Context, item Config) (Config, error) {
 	var i int64
 
-	item.Creator = jwtauth.FromUserIdStr(ctx)
 	dao.DB.Scopes(ConfigDB(ctx)).
-		Where("config_name=? or config_key = ?", item.ConfigName, item.ConfigKey).
+		Where("config_name=? or config_key=?", item.ConfigName, item.ConfigKey).
 		Count(&i)
 	if i > 0 {
 		return item, iorm.ErrObjectAlreadyExist
 	}
 
-	result := dao.DB.Scopes(ConfigDB(ctx)).Create(&item)
-	if err := result.Error; err != nil {
-		return item, err
-	}
-	return item, nil
+	item.Creator = jwtauth.FromUserIdStr(ctx)
+	err := dao.DB.Scopes(ConfigDB(ctx)).Create(&item).Error
+	return item, err
+
 }
 
-func (cConfig) Update(ctx context.Context, id int, item Config) (update Config, err error) {
-	item.Updator = jwtauth.FromUserIdStr(ctx)
+// Update 更新
+func (cConfig) Update(ctx context.Context, id int, up Config) (item Config, err error) {
 	if err = dao.DB.Scopes(ConfigDB(ctx)).
-		Where("config_id = ?", id).First(&update).Error; err != nil {
+		Where("config_id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
-	if item.ConfigName != "" && item.ConfigName != update.ConfigName {
-		return update, errors.New("参数名称不允许修改！")
+	if up.ConfigName != "" && up.ConfigName != item.ConfigName {
+		return item, errors.New("参数名称不允许修改！")
 	}
-	if item.ConfigKey != "" && item.ConfigKey != update.ConfigKey {
-		return update, errors.New("参数键名不允许修改！")
+	if up.ConfigKey != "" && up.ConfigKey != item.ConfigKey {
+		return item, errors.New("参数键名不允许修改！")
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
-	err = dao.DB.Scopes(ConfigDB(ctx)).Model(&update).Updates(&item).Error
+	up.Updator = jwtauth.FromUserIdStr(ctx)
+	err = dao.DB.Scopes(ConfigDB(ctx)).Model(&item).Updates(&up).Error
 	return
 }
 
+// Delete 删除
 func (cConfig) Delete(ctx context.Context, id int) (err error) {
 	return dao.DB.Scopes(ConfigDB(ctx)).
-		Where("config_id = ?", id).Delete(&Config{}).Error
+		Where("config_id=?", id).Delete(&Config{}).Error
 }
 
+// BatchDelete 批量删除
 func (cConfig) BatchDelete(ctx context.Context, id []int) error {
 	return dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_id in (?)", id).Delete(&Config{}).Error

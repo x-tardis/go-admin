@@ -18,7 +18,7 @@ type Dept struct{}
 // @tags 部门
 // @summary 分页部门列表数据
 // @description 分页列表
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param deptId query int false "deptId"
@@ -50,7 +50,7 @@ func (Dept) QueryPage(c *gin.Context) {
 // @tags 部门
 // @summary 分页部门列表数据
 // @description 分页列表
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param deptId query int false "deptId"
@@ -81,7 +81,7 @@ func (Dept) QueryTree(c *gin.Context) {
 // @tags 部门
 // @summary 获取指定Id信息
 // @description 获取指定Id信息
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param deptId path int false "deptId"
@@ -105,7 +105,7 @@ func (Dept) Get(c *gin.Context) {
 // @tags 部门
 // @summary 添加部门信息
 // @description 添加部门信息
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param newItem body models.Dept true "new item"
@@ -131,7 +131,7 @@ func (Dept) Create(c *gin.Context) {
 // @tags 部门
 // @summary 更新部门信息
 // @description 更新部门信息
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param id path int true "id"
@@ -159,7 +159,7 @@ func (Dept) Update(c *gin.Context) {
 // @tags 部门
 // @summary 删除部门信息
 // @description 删除部门信息
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param id path int true "id"

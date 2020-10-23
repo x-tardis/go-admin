@@ -37,7 +37,7 @@ func (Setting) Get(c *gin.Context) {
 // @tags 系统设置
 // @summary 更新系统设置
 // @description 更新系统设置
-// @security ApiKeyAuth
+// @security Bearer
 // @accept json
 // @produce json
 // @param up body models.UpSetting true "更新的信息"
