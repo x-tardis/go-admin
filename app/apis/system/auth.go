@@ -26,6 +26,7 @@ const (
 	dataScopeKey = "dataScope"
 )
 
+// NewJWTAuth new jwt auth
 func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
 		Realm:      c.Realm,

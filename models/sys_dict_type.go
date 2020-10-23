@@ -13,7 +13,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
-// DictType 字典类型
+// DictType 字典类型, 用于字典数据的管理.
 type DictType struct {
 	DictId   int    `gorm:"primary_key;auto_increment;" json:"dictId"` // 主键
 	DictName string `gorm:"size:128;" json:"dictName"`                 // 名称
@@ -42,30 +42,30 @@ func DictTypeDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 
 // DictTypeQueryParam 查询参数
 type DictTypeQueryParam struct {
-	DictId   int    `form:"dictId"`
 	DictName string `form:"dictName"`
 	DictType string `form:"dictType"`
+	Status   string `form:"status"`
 	paginator.Param
 }
 
 type cDictType struct{}
 
 // CDictType 实例
-var CDictType = new(cDictType)
+var CDictType = cDictType{}
 
 // Query 查询,非分页
 func (cDictType) Query(ctx context.Context, qp DictTypeQueryParam) ([]DictType, error) {
 	var item []DictType
 
 	db := dao.DB.Scopes(DictTypeDB(ctx))
-	if qp.DictId != 0 {
-		db = db.Where("dict_id=?", qp.DictId)
-	}
 	if qp.DictName != "" {
 		db = db.Where("dict_name=?", qp.DictName)
 	}
 	if qp.DictType != "" {
 		db = db.Where("dict_type=?", qp.DictType)
+	}
+	if qp.Status != "" {
+		db = db.Where("status=?", qp.Status)
 	}
 
 	err := db.Find(&item).Error
@@ -77,14 +77,14 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 	var items []DictType
 
 	db := dao.DB.Scopes(DictTypeDB(ctx))
-	if qp.DictId != 0 {
-		db = db.Where("dict_id=?", qp.DictId)
-	}
 	if qp.DictName != "" {
 		db = db.Where("dict_name=?", qp.DictName)
 	}
 	if qp.DictType != "" {
 		db = db.Where("dict_type=?", qp.DictType)
+	}
+	if qp.Status != "" {
+		db = db.Where("status=?", qp.Status)
 	}
 
 	// 数据权限控制
@@ -98,15 +98,9 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 }
 
 // Get 通过id或name查询
-func (cDictType) Get(ctx context.Context, dictId int, dictName string) (item DictType, err error) {
-	db := dao.DB.Scopes(DictTypeDB(ctx))
-	if dictId != 0 {
-		db = db.Where("dict_id=?", dictId)
-	}
-	if dictName != "" {
-		db = db.Where("dict_name=?", dictName)
-	}
-	err = db.First(&item).Error
+func (cDictType) Get(ctx context.Context, dictId int) (item DictType, err error) {
+	err = dao.DB.Scopes(DictTypeDB(ctx)).
+		Where("dict_id=?", dictId).First(&item).Error
 	return
 }
 

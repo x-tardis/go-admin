@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"errors"
-	_ "time"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
@@ -14,7 +13,10 @@ import (
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
-// Config参数配置
+// Config 参数配置
+// 主要用于系统参数配置,包含名称,键名,键值,是否系统内置
+// 可用于web一些系统化配置,如框架样式,主框架侧边主题,用户管理默认密码等
+// 由开发者动态决定,以适配不同的需求.
 type Config struct {
 	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` // 主键
 	ConfigName  string `json:"configName" gorm:"size:128;"`                 // 名称
@@ -26,8 +28,8 @@ type Config struct {
 	Updator     string `json:"updator" gorm:"size:128;"`                    // 更新者
 	Model
 
-	DataScope string `json:"dataScope" gorm:"-"`
-	Params    string `json:"params"  gorm:"-"`
+	DataScope string `json:"-" gorm:"-"`
+	Params    string `json:"-"  gorm:"-"`
 }
 
 // TableName implement gorm.Tabler interface
@@ -53,7 +55,7 @@ type ConfigQueryParam struct {
 type cConfig struct{}
 
 // CConfig 实例
-var CConfig = new(cConfig)
+var CConfig = cConfig{}
 
 // GetWithKey 通过键获取
 func (cConfig) GetWithKey(ctx context.Context, key string) (item Config, err error) {

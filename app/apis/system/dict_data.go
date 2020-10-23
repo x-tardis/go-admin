@@ -16,18 +16,22 @@ import (
 
 type DictData struct{}
 
-// @Summary 字典数据列表
-// @Description 获取JSON
-// @Tags 字典数据
-// @Param dictId query int false "dictId"
-// @Param dictType query string false "dictType"
-// @Param dictLabel query string false "dictLabel"
-// @Param status query string false "status"
-// @Param pageSize query int false "页条数"
-// @Param pageIndex query int false "页码"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/dict/data [get]
-// @Security Bearer
+// @tags 字典数据
+// @summary 获取字典数据列表
+// @description 获取字典数据列表
+// @security Bearer
+// @accept json
+// @produce json
+// @param dictType query string false "dictType"
+// @param dictLabel query string false "dictLabel"
+// @param status query string false "status"
+// @param pageSize query int false "页条数"
+// @param pageIndex query int false "页码"
+// @success 200 {object} paginator.Pages "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/dict/data [get]
 func (DictData) QueryPage(c *gin.Context) {
 	qp := models.DictDataQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -36,27 +40,31 @@ func (DictData) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	result, info, err := models.CDictData.QueryPage(gcontext.Context(c), qp)
+	item, info, err := models.CDictData.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
-
 	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
-		List: result,
+		List: item,
 	}))
 }
 
-// @Summary 通过编码获取字典数据
-// @Description 获取JSON
-// @Tags 字典数据
-// @Param dictId path int true "字典编码"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/dict/data/{dictId} [get]
-// @Security Bearer
+// @tags 字典数据
+// @summary 通过id获取字典数据
+// @description 通过id获取字典数据
+// @security Bearer
+// @accept json
+// @produce json
+// @param dictId path int true "字典数据主键"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/dict/data/{dictId} [get]
 func (DictData) Get(c *gin.Context) {
 	dictId := cast.ToInt(c.Param("dictId"))
 	item, err := models.CDictData.Get(gcontext.Context(c), dictId)
@@ -69,33 +77,18 @@ func (DictData) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 通过字典类型获取字典数据
-// @Description 获取JSON
-// @Tags 字典数据
-// @Param dictType path int true "dictType"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/dict/databyType/{dictType} [get]
-// @Security Bearer
-func (DictData) GetWithType(c *gin.Context) {
-	dictType := c.Param("dictType")
-	result, err := models.CDictData.GetWithType(gcontext.Context(c), dictType)
-	if err != nil {
-		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
-		return
-	}
-	servers.OK(c, servers.WithData(result))
-}
-
-// @Summary 添加字典数据
-// @Description 获取JSON
-// @Tags 字典数据
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.DictType true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/dict/data [post]
-// @Security Bearer
+// @tags 字典数据
+// @summary 添加字典数据
+// @description 添加字典数据
+// @security Bearer
+// @accept json
+// @produce json
+// @param newItem body models.DictData true "newItem"
+// @success 200 {object} string	"{"code": 200, "msg": ""}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/dict/data [post]
 func (DictData) Create(c *gin.Context) {
 	newItem := models.DictData{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -111,16 +104,18 @@ func (DictData) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 修改字典数据
-// @Description 获取JSON
-// @Tags 字典数据
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.DictType true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/dict/data [put]
-// @Security Bearer
+// @tags 字典数据
+// @summary 修改字典数据
+// @description 修改字典数据
+// @security Bearer
+// @accept json
+// @produce json
+// @param up body models.DictData true "update item"
+// @success 200 {object} string	"{"code": 200, "msg": ""}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/dict/data [put]
 func (DictData) Update(c *gin.Context) {
 	up := models.DictData{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -143,6 +138,19 @@ func (DictData) Update(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/data/{dictIds} [delete]
+
+// @tags 字典数据
+// @summary 批量删除字典数据
+// @description 批量删除字典数据
+// @security Bearer
+// @accept json
+// @produce json
+// @param dictId path string true "id列表,以','分隔"
+// @success 200 {string} string	"{"code": 200, "msg": ""}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/dict/data/{dictIds} [delete]
 func (DictData) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("dictIds"))
 	err := models.CDictData.BatchDelete(gcontext.Context(c), ids)
@@ -151,4 +159,26 @@ func (DictData) BatchDelete(c *gin.Context) {
 		return
 	}
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
+}
+
+// @tags 字典数据
+// @summary 通过字典类型获取字典数据
+// @description 通过字典类型获取字典数据
+// @security Bearer
+// @accept json
+// @produce json
+// @param dictType path string true "dictType"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/dict/databyType/{dictType} [get]
+func (DictData) GetWithType(c *gin.Context) {
+	dictType := c.Param("dictType")
+	result, err := models.CDictData.GetWithType(gcontext.Context(c), dictType)
+	if err != nil {
+		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
+		return
+	}
+	servers.OK(c, servers.WithData(result))
 }

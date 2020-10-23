@@ -11,6 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
+// Setting api setting
 type Setting struct{}
 
 // @tags 系统设置

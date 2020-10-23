@@ -13,7 +13,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
-// DictData 字典数据
+// DictData 字典数据, 字典类型下的实际字典数据
 type DictData struct {
 	DictId    int    `gorm:"primary_key;auto_increment;" json:"dictId" example:"1"` // 主键
 	DictLabel string `gorm:"size:128;" json:"dictLabel"`                            // 标签
@@ -23,8 +23,8 @@ type DictData struct {
 	CssClass  string `gorm:"size:128;" json:"cssClass"`                             // (未用)
 	ListClass string `gorm:"size:128;" json:"listClass"`                            // (未用)
 	IsDefault string `gorm:"size:8;" json:"isDefault"`                              // (未用)
-	Status    string `gorm:"size:4;" json:"status"`                                 // 状态
 	Default   string `gorm:"size:8;" json:"default"`                                // (未用)
+	Status    string `gorm:"size:4;" json:"status"`                                 // 状态
 	Remark    string `gorm:"size:255;" json:"remark"`                               // 备注
 	Creator   string `gorm:"size:64;" json:"creator"`                               // 创建者
 	Updator   string `gorm:"size:64;" json:"updator"`                               // 更新者
