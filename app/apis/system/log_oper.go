@@ -17,17 +17,24 @@ import (
 
 type OperLog struct{}
 
-// @Tags 操作日志
-// @Summary 登录日志列表
-// @Description 获取JSON
-// @Param status query string false "status"
-// @Param dictId query string false "dictId"
-// @Param dictType query string false "dictType"
-// @Param pageSize query int false "页条数"
-// @Param pageIndex query int false "页码"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/operlog [get]
-// @Security Bearer
+// @tags 操作日志
+// @summary 获取操作日志列表
+// @description 获取操作日志列表
+// @security Bearer
+// @accept json
+// @produce json
+// @param title query string false "title"
+// @param operName query string false "operName"
+// @param operIp query string false "operIp"
+// @param businessType query string false "businessType"
+// @param status query string false "status"
+// @param pageSize query int false "页条数"
+// @param pageIndex query int false "页码"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/operlog [get]
 func (OperLog) QueryPage(c *gin.Context) {
 	qp := models.OperLogQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -36,7 +43,7 @@ func (OperLog) QueryPage(c *gin.Context) {
 	}
 	qp.Inspect()
 
-	result, info, err := models.COperLog.QueryPage(gcontext.Context(c), qp)
+	items, info, err := models.COperLog.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithError(err),
@@ -45,17 +52,22 @@ func (OperLog) QueryPage(c *gin.Context) {
 	}
 	servers.OK(c, servers.WithData(&paginator.Pages{
 		Info: info,
-		List: result,
+		List: items,
 	}))
 }
 
-// @Tags 操作日志
-// @Summary 通过编码获取登录日志
-// @Description 获取JSON
-// @Param infoId path int true "infoId"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/operlog/{id} [get]
-// @Security Bearer
+// @tags 操作日志
+// @summary 通过id获取登录日志
+// @description 通过id获取登录日志
+// @security Bearer
+// @accept json
+// @produce json
+// @Param id path int true "id"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/operlog/{id} [get]
 func (OperLog) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.COperLog.Get(gcontext.Context(c), id)
@@ -68,16 +80,18 @@ func (OperLog) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Tags 操作日志
-// @Summary 添加操作日志
-// @Description 获取JSON
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.OperLog true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/operlog [post]
-// @Security Bearer
+// @tags 操作日志
+// @summary 添加操作日志
+// @description 添加操作日志
+// @security Bearer
+// @accept json
+// @produce json
+// @Param newItem body models.OperLog true "new item"
+// @success 200 {object} string	"{"code": 200, "msg": ""}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/operlog [post]
 func (OperLog) Create(c *gin.Context) {
 	newItem := models.OperLog{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -94,13 +108,18 @@ func (OperLog) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Tags 操作日志
-// @Summary 批量删除操作日志
-// @Description 删除数据
-// @Param operId path string true "以逗号（,）分割的operId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/operlog/{ids} [delete]
+// @tags 操作日志
+// @summary 批量删除操作日志
+// @description 批量删除操作日志
+// @security Bearer
+// @accept json
+// @produce json
+// @param ids path string true "以逗号（,）分隔的dd"
+// @success 200 {object} string	"{"code": 200, "msg": ""}"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/operlog/{ids} [delete]
 func (OperLog) BatchDelete(c *gin.Context) {
 	var err error
 

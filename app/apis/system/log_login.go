@@ -15,7 +15,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
-// LoginLog login log
+// LoginLog api login log
 type LoginLog struct{}
 
 // @tags 登录日志
@@ -114,7 +114,7 @@ func (LoginLog) Create(c *gin.Context) {
 // @security Bearer
 // @accept json
 // @produce json
-// @param up body models.LoginLog true "up"
+// @param up body models.LoginLog true "upate item"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
@@ -142,7 +142,7 @@ func (LoginLog) Update(c *gin.Context) {
 // @security Bearer
 // @accept json
 // @produce json
-// @param infoId path string true "以逗号（,）分割的infoId,如果为clean,将清空日志"
+// @param ids path string true "以逗号（,）分割的id列表,如果为clean,将清空日志"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"

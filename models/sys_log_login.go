@@ -33,10 +33,12 @@ type LoginLog struct {
 	Params    string `json:"params" gorm:"-"`    //
 }
 
+// TableName implement gorm.Tabler interface
 func (LoginLog) TableName() string {
 	return "sys_loginlog"
 }
 
+// LoginLogDB login log db scopes
 func LoginLogDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(LoginLog{})
@@ -54,7 +56,7 @@ type LoginLogQueryParam struct {
 type cLoginLog struct{}
 
 // CLoginLog 实例
-var CLoginLog = new(cLoginLog)
+var CLoginLog = cLoginLog{}
 
 // QueryPage 查询,分页
 func (cLoginLog) QueryPage(ctx context.Context, qp LoginLogQueryParam) ([]LoginLog, paginator.Info, error) {

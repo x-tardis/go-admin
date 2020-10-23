@@ -42,7 +42,6 @@ func PostDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 
 // PostQueryParam 查询参数
 type PostQueryParam struct {
-	PostId   int    `form:"postId"`
 	PostName string `form:"postName"`
 	PostCode string `form:"postCode"`
 	Status   string `form:"status"`
@@ -57,9 +56,6 @@ var CPost = new(cPost)
 // Query 查询岗位信息, 非分页查询
 func (cPost) Query(ctx context.Context, qp PostQueryParam) (items []Post, err error) {
 	db := dao.DB.Scopes(PostDB(ctx))
-	if qp.PostId != 0 {
-		db = db.Where("post_id=?", qp.PostId)
-	}
 	if qp.PostName != "" {
 		db = db.Where("post_name=?", qp.PostName)
 	}
@@ -78,9 +74,6 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	var items []Post
 
 	db := dao.DB.Scopes(PostDB(ctx))
-	if qp.PostId != 0 {
-		db = db.Where("post_id=?", qp.PostId)
-	}
 	if qp.PostName != "" {
 		db = db.Where("post_name=?", qp.PostName)
 	}

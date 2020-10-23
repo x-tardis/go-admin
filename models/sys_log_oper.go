@@ -9,48 +9,51 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
-// OperLog
+// OperLog operate log
 type OperLog struct {
-	OperId        int       `json:"operId" gorm:"primary_key;AUTO_INCREMENT"` // 日志编码
+	OperId        int       `json:"operId" gorm:"primary_key;AUTO_INCREMENT"` // 主鍵
 	Title         string    `json:"title" gorm:"size:255;"`                   // 操作模块
 	BusinessType  string    `json:"businessType" gorm:"size:128;"`            // 操作类型
-	BusinessTypes string    `json:"businessTypes" gorm:"size:128;"`
-	Method        string    `json:"method" gorm:"size:128;"`         // 函数
-	RequestMethod string    `json:"requestMethod" gorm:"size:128;"`  // 请求方式
-	OperatorType  string    `json:"operatorType" gorm:"size:128;"`   // 操作类型
-	OperName      string    `json:"operName" gorm:"size:128;"`       // 操作者
-	DeptName      string    `json:"deptName" gorm:"size:128;"`       // 部门名称
-	OperUrl       string    `json:"operUrl" gorm:"size:255;"`        // 访问地址
-	OperIp        string    `json:"operIp" gorm:"size:128;"`         // 客户端ip
-	OperLocation  string    `json:"operLocation" gorm:"size:128;"`   // 访问位置
-	OperParam     string    `json:"operParam" gorm:"size:255;"`      // 请求参数
-	Status        string    `json:"status" gorm:"size:4;"`           // 操作状态
-	OperTime      time.Time `json:"operTime" gorm:"type:timestamp;"` // 操作时间
-	JsonResult    string    `json:"jsonResult" gorm:"size:255;"`     // 返回数据
-	Remark        string    `json:"remark" gorm:"size:255;"`         // 备注
-	LatencyTime   string    `json:"latencyime" gorm:"size:128;"`     // 耗时
-	UserAgent     string    `json:"userAgent" gorm:"size:255;"`      // user_agent
-	Creator       string    `json:"creator" gorm:"size:128;"`        // 创建人
-	Updator       string    `json:"updator" gorm:"size:128;"`        // 更新者
+	Method        string    `json:"method" gorm:"size:128;"`                  // 函数
+	RequestMethod string    `json:"requestMethod" gorm:"size:128;"`           // 请求方式
+	OperatorType  string    `json:"operatorType" gorm:"size:128;"`            // 操作类型
+	OperName      string    `json:"operName" gorm:"size:128;"`                // 操作者
+	DeptName      string    `json:"deptName" gorm:"size:128;"`                // 部门名称
+	OperUrl       string    `json:"operUrl" gorm:"size:255;"`                 // 访问地址
+	OperIp        string    `json:"operIp" gorm:"size:128;"`                  // 客户端ip
+	OperLocation  string    `json:"operLocation" gorm:"size:128;"`            // 访问位置
+	OperParam     string    `json:"operParam" gorm:"size:255;"`               // 请求参数
+	Status        string    `json:"status" gorm:"size:4;"`                    // 操作状态
+	OperTime      time.Time `json:"operTime" gorm:"type:timestamp;"`          // 操作时间
+	JsonResult    string    `json:"jsonResult" gorm:"size:255;"`              // 返回数据
+	Remark        string    `json:"remark" gorm:"size:255;"`                  // 备注
+	LatencyTime   string    `json:"latencyime" gorm:"size:128;"`              // 耗时
+	UserAgent     string    `json:"userAgent" gorm:"size:255;"`               // user_agent
+	Creator       string    `json:"creator" gorm:"size:128;"`                 // 创建人
+	Updator       string    `json:"updator" gorm:"size:128;"`                 // 更新者
 	Model
 
 	DataScope string `json:"dataScope" gorm:"-"` // 数据
 	Params    string `json:"params" gorm:"-"`    // 参数
 }
 
+// TableName implement gorm.Tabler interface
 func (OperLog) TableName() string {
 	return "sys_operlog"
 }
 
+// OperLogDB openate log db scope
 func OperLogDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(OperLog{})
 	}
 }
 
+// OperLogQueryParam 查询参数
 type OperLogQueryParam struct {
 	Title        string `form:"title"`        // 操作模块
 	OperName     string `form:"operName"`     // 操作人员
@@ -62,14 +65,10 @@ type OperLogQueryParam struct {
 
 type cOperLog struct{}
 
-var COperLog = new(cOperLog)
+// COperLog 实例
+var COperLog = cOperLog{}
 
-func (cOperLog) Get(ctx context.Context, id int) (item OperLog, err error) {
-	err = dao.DB.Scopes(OperLogDB(ctx)).
-		Where("oper_id=?", id).First(&item).Error
-	return
-}
-
+// QueryPage 查询,分页
 func (cOperLog) QueryPage(ctx context.Context, qp OperLogQueryParam) ([]OperLog, paginator.Info, error) {
 	var items []OperLog
 
@@ -94,6 +93,14 @@ func (cOperLog) QueryPage(ctx context.Context, qp OperLogQueryParam) ([]OperLog,
 	return items, info, err
 }
 
+// Get 获取
+func (cOperLog) Get(ctx context.Context, id int) (item OperLog, err error) {
+	err = dao.DB.Scopes(OperLogDB(ctx)).
+		Where("oper_id=?", id).First(&item).Error
+	return
+}
+
+// Create 创建
 func (cOperLog) Create(ctx context.Context, item OperLog) (OperLog, error) {
 	item.Creator = "0"
 	item.Updator = "0"
@@ -101,21 +108,23 @@ func (cOperLog) Create(ctx context.Context, item OperLog) (OperLog, error) {
 	return item, err
 }
 
+// Update 更新
 func (cOperLog) Update(ctx context.Context, id int, up OperLog) (item OperLog, err error) {
 	if err = dao.DB.Scopes(OperLogDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	err = dao.DB.Scopes(OperLogDB(ctx)).Model(&item).Updates(&up).Error
 	return
 }
 
+// BatchDelete 批量删除
 func (cOperLog) BatchDelete(ctx context.Context, id []int) error {
 	return dao.DB.Scopes(OperLogDB(ctx)).
 		Where(" oper_id in (?)", id).Delete(&OperLog{}).Error
 }
 
+// Clean 清空
 func (cOperLog) Clean(ctx context.Context) error {
 	return dao.DB.Scopes(OperLogDB(ctx)).Session(&gorm.Session{AllowGlobalUpdate: true}).
 		Delete(&OperLog{}).Error
