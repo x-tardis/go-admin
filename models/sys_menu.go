@@ -204,8 +204,8 @@ func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, er
 	}
 
 	// 数据权限控制
-	db, err = GetDataScope("sys_menu", jwtauth.FromUserId(ctx), db)
-	if err != nil {
+	db = db.Scopes(DataScope("sys_menu", jwtauth.FromUserId(ctx)))
+	if err := db.Error; err != nil {
 		return nil, err
 	}
 

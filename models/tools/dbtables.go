@@ -5,7 +5,6 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
-	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
@@ -21,42 +20,42 @@ type DBTables struct {
 	TableComment   string `gorm:"column:TABLE_COMMENT" json:"tableComment"`
 }
 
-func (e *DBTables) GetPage(params paginator.Param) ([]DBTables, paginator.Info, error) {
-	var doc []DBTables
+type DbTablesQueryParam struct {
+	TableName string `form:"tableName"`
+	paginator.Param
+}
+
+type cDBTables struct{}
+
+var CDBTables = cDBTables{}
+
+func (cDBTables) QueryPage(qp DbTablesQueryParam) ([]DBTables, paginator.Info, error) {
+	var items []DBTables
 
 	if deployed.DbConfig.Driver != "mysql" {
 		return nil, paginator.Info{}, errors.New("目前只支持mysql数据库")
 	}
 
-	table := dao.DB.Table("information_schema.tables")
-	table = table.Where("TABLE_NAME not in (select table_name from " + deployed.GenConfig.DBName + ".sys_tables) ")
-	table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
-
-	if e.TableName != "" {
-		table = table.Where("TABLE_NAME = ?", e.TableName)
+	db := dao.DB.Table("information_schema.tables").
+		Where("TABLE_NAME not in (select table_name from "+deployed.GenConfig.DBName+".sys_tables) ").
+		Where("table_schema= ? ", deployed.GenConfig.DBName)
+	if qp.TableName != "" {
+		db = db.Where("TABLE_NAME = ?", qp.TableName)
 	}
-	info, err := iorm.QueryPages(table, params, &doc)
-	if err != nil {
-		return nil, info, err
-	}
-	return doc, info, err
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }
 
-func (e *DBTables) Get() (DBTables, error) {
-	var doc DBTables
-	table := new(gorm.DB)
-	if deployed.DbConfig.Driver == "mysql" {
-		table = dao.DB.Table("information_schema.tables")
-		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
-		if e.TableName == "" {
-			return doc, errors.New("table name cannot be empty！")
-		}
-		table = table.Where("TABLE_NAME = ?", e.TableName)
-	} else {
-		return DBTables{}, errors.New("目前只支持mysql数据库")
+func (cDBTables) Get(tableName string) (item DBTables, err error) {
+	if deployed.DbConfig.Driver != "mysql" {
+		return item, errors.New("目前只支持mysql数据库")
 	}
-	if err := table.First(&doc).Error; err != nil {
-		return doc, err
+	if tableName == "" {
+		return item, errors.New("table name cannot be empty！")
 	}
-	return doc, nil
+	err = dao.DB.Table("information_schema.tables").
+		Where("table_schema= ? ", deployed.GenConfig.DBName).
+		Where("TABLE_NAME = ?", tableName).
+		First(&item).Error
+	return
 }

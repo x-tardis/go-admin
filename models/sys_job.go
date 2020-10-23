@@ -73,7 +73,7 @@ func (e *Job) GetPage(pageSize int, pageIndex int, v interface{}, list interface
 
 	var count int64
 
-	if err := table.Scopes(DataScopes(e.TableName(), userid),
+	if err := table.Scopes(DataScope(e.TableName(), userid),
 		iorm.Paginate(paginator.Param{pageIndex, pageSize})).
 		Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return 0, err

@@ -74,7 +74,6 @@ func (cDictType) Query(ctx context.Context, qp DictTypeQueryParam) ([]DictType, 
 
 // QueryPage 查询,分页
 func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictType, paginator.Info, error) {
-	var err error
 	var items []DictType
 
 	db := dao.DB.Scopes(DictTypeDB(ctx))
@@ -89,8 +88,8 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 	}
 
 	// 数据权限控制
-	db, err = GetDataScope("sys_dict_type", jwtauth.FromUserId(ctx), db)
-	if err != nil {
+	db = db.Scopes(DataScope("sys_dict_type", jwtauth.FromUserId(ctx)))
+	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}
 

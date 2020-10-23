@@ -84,7 +84,6 @@ var CUser = new(cUser)
 
 // QueryPage 查询,分页
 func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, paginator.Info, error) {
-	var err error
 	var items []UserPage
 
 	db := dao.DB.Scopes(UserDB(ctx)).
@@ -105,8 +104,8 @@ func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, pagi
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	db, err = GetDataScope("sys_user", jwtauth.FromUserId(ctx), db)
-	if err != nil {
+	db = db.Scopes(DataScope("sys_user", jwtauth.FromUserId(ctx)))
+	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}
 

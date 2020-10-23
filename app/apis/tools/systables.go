@@ -132,13 +132,11 @@ func InsertSysTable(c *gin.Context) {
 
 func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
 	var data tools.SysTables
-	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
 	data.Creator = jwtauth.FromUserIdStr(gcontext.Context(c))
 
-	dbTable.TableName = data.TBName
-	dbtable, err := dbTable.Get()
+	dbtable, err := tools.CDBTables.Get(data.TBName)
 	if err != nil {
 		return tools.SysTables{}, err
 	}

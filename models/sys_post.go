@@ -75,7 +75,6 @@ func (cPost) Query(ctx context.Context, qp PostQueryParam) (items []Post, err er
 
 // QueryPage 查询岗位信息,分页查询
 func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginator.Info, error) {
-	var err error
 	var items []Post
 
 	db := dao.DB.Scopes(PostDB(ctx))
@@ -93,8 +92,8 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	}
 
 	// 数据权限控制
-	db, err = GetDataScope("sys_post", jwtauth.FromUserId(ctx), db)
-	if err != nil {
+	db = db.Scopes(DataScope("sys_post", jwtauth.FromUserId(ctx)))
+	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}
 

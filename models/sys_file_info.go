@@ -63,10 +63,8 @@ func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileIn
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	// dataPermission := new(DataPermission)
-	// dataPermission.UserId = jwtauth.FromUserId(ctx)
-	// db, err = dataPermission.GetDataScope(e.TableName(), db)
-	// if err != nil {
+	// db = db.Scopes(DataScope("sys_file_info", jwtauth.FromUserId(ctx)))
+	// if err := db.Error; err != nil {
 	// 	return nil, paginator.Info{}, err
 	// }
 

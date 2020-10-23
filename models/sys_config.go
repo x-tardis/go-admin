@@ -66,7 +66,6 @@ func (cConfig) Get(ctx context.Context, id int) (item Config, err error) {
 }
 
 func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, paginator.Info, error) {
-	var err error
 	var items []Config
 
 	db := dao.DB.Scopes(ConfigDB(ctx))
@@ -81,8 +80,8 @@ func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, pa
 	}
 
 	// 数据权限控制
-	db, err = GetDataScope("sys_config", jwtauth.FromUserId(ctx), db)
-	if err != nil {
+	db = db.Scopes(DataScope("sys_config", jwtauth.FromUserId(ctx)))
+	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}
 
