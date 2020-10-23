@@ -12,13 +12,13 @@ import (
 )
 
 type FileDir struct {
-	Id      int    `json:"id"`
+	Id      int    `json:"id"`                                // 主键
 	Label   string `json:"label" gorm:"type:varchar(255);"`   // 名称
 	PId     int    `json:"pId" gorm:"type:int(11);"`          // 父id
+	Path    string `json:"path" gorm:"size:255;"`             // 路径树
 	Sort    int    `json:"sort" gorm:""`                      // 排序
-	Path    string `json:"path" gorm:"size:255;"`             //
-	Creator string `json:"creator" gorm:"type:varchar(128);"` // 创建人
-	Updator string `json:"updator" gorm:"type:varchar(128);"` // 编辑人
+	Creator string `json:"creator" gorm:"type:varchar(128);"` // 创建者
+	Updator string `json:"updator" gorm:"type:varchar(128);"` // 更新者
 	Model
 
 	Children  []FileDir `json:"children" gorm:"-"`
@@ -26,16 +26,19 @@ type FileDir struct {
 	Params    string    `json:"params"  gorm:"-"`
 }
 
+// TableName implement gorm.Tabler interface
 func (FileDir) TableName() string {
 	return "sys_file_dir"
 }
 
+// FileDirDB file dir db scopes
 func FileDirDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(FileDir{})
 	}
 }
 
+// FileDirQueryParam 文件查询
 type FileDirQueryParam struct {
 	Id    int    `form:"id"`
 	Label string `form:"label"`
@@ -44,6 +47,7 @@ type FileDirQueryParam struct {
 
 type cFileDir struct{}
 
+// CFileDir 实例
 var CFileDir = new(cFileDir)
 
 func toFileDirTree(items []FileDir) []FileDir {
@@ -66,6 +70,7 @@ func deepChildrenFileDir(items []FileDir, item FileDir) FileDir {
 	return item
 }
 
+// QueryTree 查询文件路径树
 func (sf cFileDir) QueryTree(ctx context.Context, qp FileDirQueryParam) ([]FileDir, error) {
 	item, err := sf.Query(ctx, qp)
 	if err != nil {
@@ -74,7 +79,7 @@ func (sf cFileDir) QueryTree(ctx context.Context, qp FileDirQueryParam) ([]FileD
 	return toFileDirTree(item), nil
 }
 
-// 获取SysFileDir带分页
+// Query 查询FileDir带分页
 func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, error) {
 	var err error
 	var items []FileDir
@@ -102,14 +107,14 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 	return items, err
 }
 
-// 获取SysFileDir
+// Get 获取SysFileDir
 func (cFileDir) Get(ctx context.Context, id int) (item FileDir, err error) {
 	err = dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id=?", id).First(&item).Error
 	return
 }
 
-// 创建SysFileDir
+// Create 创建
 func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := dao.DB.Scopes(FileDirDB(ctx)).Create(&item).Error
@@ -128,14 +133,13 @@ func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 
 	err = dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id = ?", item.Id).
-		Updates(map[string]interface{}{"path": path}).Error
+		Update("path", path).Error
 	item.Path = path
 	return item, err
 }
 
-// 更新SysFileDir
+// Update 更新
 func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, err error) {
-	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
@@ -154,21 +158,19 @@ func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, e
 	// if up.Path != "" && up.Path != item.Path {
 	//	return item, errors.New("上级不允许修改！")
 	// }
-
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	err = dao.DB.Scopes(FileDirDB(ctx)).
 		Model(&item).Updates(&up).Error
 	return
 }
 
-// 删除SysFileDir
+// Delete 删除
 func (cFileDir) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id=?", id).Delete(&FileDir{}).Error
 }
 
-// 批量删除
+// BatchDelete 批量删除
 func (cFileDir) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id in (?)", ids).Delete(&FileDir{}).Error

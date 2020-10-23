@@ -245,11 +245,11 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{PType: "p", V0: "admin", V1: "/api/v1/sysjob", V2: "POST"},
 			{PType: "p", V0: "admin", V1: "/api/v1/sysjob", V2: "PUT"},
 			{PType: "p", V0: "admin", V1: "/api/v1/sysjob", V2: "DELETE"},
-			{PType: "p", V0: "admin", V1: "/api/v1/syssettingList", V2: "GET"},
-			{PType: "p", V0: "admin", V1: "/api/v1/syssetting/:id", V2: "GET"},
-			{PType: "p", V0: "admin", V1: "/api/v1/syssetting", V2: "POST"},
-			{PType: "p", V0: "admin", V1: "/api/v1/syssetting", V2: "PUT"},
-			{PType: "p", V0: "admin", V1: "/api/v1/syssetting/:id", V2: "DELETE"},
+			{PType: "p", V0: "admin", V1: "/api/v1/system/setting", V2: "GET"},
+			{PType: "p", V0: "admin", V1: "/api/v1/system/setting/:id", V2: "GET"},
+			{PType: "p", V0: "admin", V1: "/api/v1/system/setting", V2: "POST"},
+			{PType: "p", V0: "admin", V1: "/api/v1/system/setting", V2: "PUT"},
+			{PType: "p", V0: "admin", V1: "/api/v1/system/setting/:id", V2: "DELETE"},
 		}
 
 		list3 := []models.Dept{

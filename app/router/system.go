@@ -37,11 +37,11 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 
 	v1 := engine.Group("/api/v1")
 	{ // 无需认证
+		routers.PubSystem(v1)
+		routers.PubPublic(v1)
 		routers.PubBase(v1)
 		routers.PubDB(v1)
 		routers.PubSysTable(v1)
-		routers.PubPublic(v1)
-		routers.PubSystem(v1)
 
 		// 需要认证
 		v1.Use(
@@ -49,6 +49,7 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 			OperLog(),
 			authj.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject),
 		)
+		routers.System(v1)
 		routers.Base(v1, authMiddleware)
 		routers.Dept(v1)
 		routers.Dict(v1)

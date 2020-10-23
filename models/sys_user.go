@@ -16,13 +16,13 @@ import (
 )
 
 type User struct {
-	UserId   int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 编码
+	UserId   int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 主键
 	Username string `gorm:"size:64" json:"username"`                   // 用户名
 	Password string `gorm:"size:128" json:"password"`                  // 密码
 	NickName string `gorm:"size:128" json:"nickName"`                  // 昵称
 	Phone    string `gorm:"size:11" json:"phone"`                      // 手机号
 	RoleId   int    `gorm:"" json:"roleId"`                            // 角色编码
-	Salt     string `gorm:"size:255" json:"salt"`                      // 盐
+	Salt     string `gorm:"size:255" json:"salt"`                      // 加密盐
 	Avatar   string `gorm:"size:255" json:"avatar"`                    // 头像
 	Sex      string `gorm:"size:255" json:"sex"`                       // 性别
 	Email    string `gorm:"size:128" json:"email"`                     // 邮箱
@@ -38,16 +38,19 @@ type User struct {
 	Params    string `gorm:"-" json:"params"`
 }
 
+// TableName implement gorm.Tabler interface
 func (User) TableName() string {
 	return "sys_user"
 }
 
+// UserDB user db scopes
 func UserDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(User{})
 	}
 }
 
+// UserPage 分页查询数据
 type UserPage struct {
 	User
 	DeptName string `gorm:"-" json:"deptName"`
@@ -58,6 +61,7 @@ type UserView struct {
 	RoleName string `gorm:"column:role_name"  json:"roleName"`
 }
 
+// UserQueryParam 查询参数
 type UserQueryParam struct {
 	Username string `form:"username"`
 	Status   string `form:"status"`
@@ -67,6 +71,7 @@ type UserQueryParam struct {
 	paginator.Param
 }
 
+// UpdateUserPwd 更新用户密码
 type UpdateUserPwd struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`
@@ -74,38 +79,10 @@ type UpdateUserPwd struct {
 
 type cUser struct{}
 
+// CUser 实例
 var CUser = new(cUser)
 
-// 获取用户数据
-func (sf cUser) Get(ctx context.Context, id int) (UserView, error) {
-	item, err := sf.get(ctx, id)
-	if err != nil {
-		return UserView{}, err
-	}
-	item.Password = ""
-	return item, err
-}
-
-// 获取用户数据
-func (sf cUser) GetUserInfo(ctx context.Context) (UserView, error) {
-	return sf.Get(ctx, jwtauth.FromUserId(ctx))
-}
-
-func (cUser) GetWithName(ctx context.Context, name string) (item User, err error) {
-	err = dao.DB.Scopes(UserDB(ctx)).
-		Where("username=? ", name).First(&item).Error
-	return
-}
-
-func (cUser) GetWithDeptId(ctx context.Context, id int) (items []UserView, err error) {
-	err = dao.DB.Scopes(UserDB(ctx)).
-		Select([]string{"sys_user.*", "sys_role.role_name"}).
-		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
-		Where("dept_id=?", id).
-		Find(&items).Error
-	return
-}
-
+// QueryPage 查询,分页
 func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, paginator.Info, error) {
 	var err error
 	var items []UserPage
@@ -115,7 +92,7 @@ func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, pagi
 		Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
 
 	if qp.Username != "" {
-		db = db.Where("username=?", qp.Username)
+		db = db.Where("sys_user.username=?", qp.Username)
 	}
 	if qp.Status != "" {
 		db = db.Where("sys_user.status=?", qp.Status)
@@ -137,7 +114,39 @@ func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, pagi
 	return items, info, err
 }
 
-// 添加
+// Get 获取用户数据, 密码为空
+func (sf cUser) Get(ctx context.Context, id int) (UserView, error) {
+	item, err := sf.get(ctx, id)
+	if err != nil {
+		return UserView{}, err
+	}
+	item.Password = ""
+	return item, err
+}
+
+// GetUserInfo 获取用户数据,含密码
+func (sf cUser) GetUserInfo(ctx context.Context) (UserView, error) {
+	return sf.Get(ctx, jwtauth.FromUserId(ctx))
+}
+
+// GetWithName 通过用户名获取用户数据,含密码
+func (cUser) GetWithName(ctx context.Context, username string) (item User, err error) {
+	err = dao.DB.Scopes(UserDB(ctx)).
+		Where("username=? ", username).First(&item).Error
+	return
+}
+
+// GetWithDeptId 查询部门下的用户
+func (cUser) GetWithDeptId(ctx context.Context, deptId int) (items []UserView, err error) {
+	err = dao.DB.Scopes(UserDB(ctx)).
+		Select([]string{"sys_user.*", "sys_role.role_name"}).
+		Joins("left join sys_role on sys_user.role_id=sys_role.role_id").
+		Where("dept_id=?", deptId).
+		Find(&items).Error
+	return
+}
+
+// Create 添加
 func (cUser) Create(ctx context.Context, item User) (User, error) {
 	var count int64
 	var err error
@@ -153,14 +162,14 @@ func (cUser) Create(ctx context.Context, item User) (User, error) {
 		return item, err
 	}
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	// 添加数据
 	err = dao.DB.Table(item.TableName()).Create(&item).Error
 	return item, err
 }
 
-func (cUser) BatchDelete(ctx context.Context, id []int) error {
+// BatchDelete 批量删除用户
+func (cUser) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(UserDB(ctx)).
-		Where("user_id in (?)", id).Delete(&User{}).Error
+		Where("user_id in (?)", ids).Delete(&User{}).Error
 }
 
 // 修改
@@ -169,7 +178,6 @@ func (cUser) Update(ctx context.Context, id int, up User) (item User, err error)
 		return
 	}
 
-	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if up.RoleId == 0 {
 		up.RoleId = item.RoleId
 	}
@@ -179,13 +187,14 @@ func (cUser) Update(ctx context.Context, id int, up User) (item User, err error)
 			return
 		}
 	}
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
+
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	err = dao.DB.Table(up.TableName()).
 		Model(&item).Updates(&up).Error
 	return
 }
 
+// UpdateAvatar 更新头像
 func (cUser) UpdateAvatar(ctx context.Context, avatar string) error {
 	id := jwtauth.FromUserId(ctx)
 	return dao.DB.Scopes(UserDB(ctx)).
@@ -196,6 +205,7 @@ func (cUser) UpdateAvatar(ctx context.Context, avatar string) error {
 		}).Error
 }
 
+// UpdatePassword 更新密码
 func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
 	item, err := sf.get(ctx, jwtauth.FromUserId(ctx))
 	if err != nil {
@@ -212,12 +222,8 @@ func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
 		return err
 	}
 
-	err = dao.DB.Scopes(UserDB(ctx)).
+	return dao.DB.Scopes(UserDB(ctx)).
 		Where("user_id=?", item.UserId).Update("password", pass).Error
-	if err != nil {
-		return errors.New("更新密码失败(代码202)")
-	}
-	return nil
 }
 
 func (cUser) get(ctx context.Context, id int) (item UserView, err error) {

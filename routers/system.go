@@ -11,13 +11,11 @@ func PubSystem(v1 gin.IRouter) {
 	{
 		r.GET("/ping", system.Ping)
 		r.GET("/info", system.SystemInfo)
-
-		// system setting
-		ctl := new(system.Setting)
-		rx := r.Group("/setting")
-		{
-			rx.GET("", ctl.Get)
-			rx.PUT("", ctl.Update)
-		}
+		r.GET("/setting", new(system.Setting).Get)
 	}
+}
+
+func System(v1 gin.IRouter) {
+	// system setting
+	v1.PUT("/system/setting", new(system.Setting).Update)
 }

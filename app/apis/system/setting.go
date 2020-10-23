@@ -13,12 +13,16 @@ import (
 
 type Setting struct{}
 
-// @Summary 查询系统信息
-// @Description 获取JSON
-// @Tags 系统设置
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/system/setting [get]
+// @tags 系统设置
+// @summary 查询系统设置
+// @description 查询系统设置
+// @accept json
+// @produce json
+// @success 200 {object} models.Setting "系统设置信息"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/system/setting [get]
 func (Setting) Get(c *gin.Context) {
 	item, err := models.CSetting.Get(gcontext.Context(c))
 	if err != nil {
@@ -30,13 +34,18 @@ func (Setting) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Tags 系统设置
-// @Summary 更新设置
-// @Description 更新设置
-// @Param data body models.User true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/system/setting [post]
+// @tags 系统设置
+// @summary 更新系统设置
+// @description 更新系统设置
+// @security ApiKeyAuth
+// @accept json
+// @produce json
+// @param up body models.UpSetting true "更新的信息"
+// @success 200 {object} models.Setting "系统设置信息"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/system/setting [post]
 func (Setting) Update(c *gin.Context) {
 	up := models.UpSetting{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -44,10 +53,7 @@ func (Setting) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CSetting.Update(gcontext.Context(c), models.Setting{
-		Logo: up.Logo,
-		Name: up.Name,
-	})
+	item, err := models.CSetting.Update(gcontext.Context(c), up)
 	if err != nil {
 		servers.Fail(c, http.StatusOK, servers.WithError(err))
 		return

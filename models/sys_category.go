@@ -13,7 +13,7 @@ import (
 )
 
 type Category struct {
-	Id      int    `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // 分类Id
+	Id      int    `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // 主键
 	Name    string `json:"name" gorm:"type:varchar(255);"`                    // 名称
 	Img     string `json:"img" gorm:"type:varchar(255);"`                     // 图片
 	Sort    string `json:"sort" gorm:"type:int(4);"`                          // 排序

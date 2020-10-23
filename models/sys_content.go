@@ -12,8 +12,9 @@ import (
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
+// Content 内容
 type Content struct {
-	Id      int    `json:"id" gorm:"type:int(11);primary_key;auto_increment"` // id
+	Id      int    `json:"id" gorm:"type:int(11);primary_key;auto_increment"` // 主键
 	CateId  string `json:"cateId" gorm:"type:int(11);"`                       // 分类id
 	Name    string `json:"name" gorm:"type:varchar(255);"`                    // 名称
 	Status  string `json:"status" gorm:"type:int(1);"`                        // 状态
@@ -29,16 +30,19 @@ type Content struct {
 	Params    string `json:"params"  gorm:"-"`
 }
 
+// TableName implement gorm.Tabler interface
 func (Content) TableName() string {
 	return "sys_content"
 }
 
+// ContentDB content db scopes
 func ContentDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(Content{})
 	}
 }
 
+// ContentQueryParam 查询参数
 type ContentQueryParam struct {
 	CateId string `form:"cateId"`
 	Name   string `form:"name"`
@@ -48,9 +52,10 @@ type ContentQueryParam struct {
 
 type cContent struct{}
 
+// CContent 实例
 var CContent = new(cContent)
 
-// 获取SysContent带分页
+// QueryPage 查询,带分页
 func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content, paginator.Info, error) {
 	var err error
 	var items []Content
@@ -76,16 +81,16 @@ func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content,
 	return items, info, err
 }
 
-// 获取SysContent
+// Get 获取
 func (cContent) Get(ctx context.Context, id int) (item Content, err error) {
 	err = dao.DB.Scopes(ContentDB(ctx)).
-		Where("id = ?", id).
+		Where("id=?", id).
 		First(&item).Error
 	return
 
 }
 
-// 创建SysContent
+// Create 创建
 func (cContent) Create(ctx context.Context, item Content) (Content, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := dao.DB.Scopes(ContentDB(ctx)).Create(&item).Error
@@ -94,26 +99,24 @@ func (cContent) Create(ctx context.Context, item Content) (Content, error) {
 
 // 更新SysContent
 func (cContent) Update(ctx context.Context, id int, up Content) (item Content, err error) {
-	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = dao.DB.Scopes(ContentDB(ctx)).
 		Where("id=?", id).First(&item).Error; err != nil {
 		return
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	err = dao.DB.Scopes(ContentDB(ctx)).
 		Model(&item).Updates(&up).Error
 	return
 }
 
-// 删除SysContent
+// Delete 删除
 func (cContent) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(ContentDB(ctx)).
 		Where("id = ?", id).Delete(&Content{}).Error
 }
 
-// 批量删除
+// BatchDelete 批量删除
 func (cContent) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(ContentDB(ctx)).
 		Where("id in (?)", ids).Delete(&Content{}).Error
