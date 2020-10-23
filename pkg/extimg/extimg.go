@@ -28,8 +28,8 @@ func GetExts() []string {
 }
 
 // GetType returns the type of image (like image/jpeg)
-func GetType(name string) (string, error) {
-	file, err := os.Open(name)
+func GetType(filename string) (string, error) {
+	file, err := os.Open(filename)
 	if err != nil {
 		return "", err
 	}

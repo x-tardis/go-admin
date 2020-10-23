@@ -66,8 +66,8 @@ type UserQueryParam struct {
 	Username string `form:"username"`
 	Status   string `form:"status"`
 	Phone    string `form:"phone"`
-	PostId   int    `form:"postId"`
 	DeptId   int    `form:"deptId"`
+	// PostId   int    `form:"postId"`
 	paginator.Param
 }
 

@@ -228,13 +228,11 @@ func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 }
 
 func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
-	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = dao.DB.Scopes(MenuDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
+	up.Updator = jwtauth.FromUserIdStr(ctx)
 	if err = dao.DB.Scopes(MenuDB(ctx)).Model(&item).Updates(&up).Error; err != nil {
 		return
 	}

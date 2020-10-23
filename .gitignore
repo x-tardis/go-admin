@@ -1,16 +1,9 @@
 .idea
 .vscode
 go-admin
+vendor
 docs
 bin
 temp
-vendor
 static/uploadfile
-config/settings.dev.yml
-config/settings.dev.*.yml
-config/settings.dev.*.yml.log
-config/settings.dev.yml.log
-config/settings.b.dev.yml
-common/middleware/demo.go
-temp/logs
 cmd/migrate/migration/version_local/*
