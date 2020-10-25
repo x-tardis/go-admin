@@ -1,12 +1,10 @@
 package public
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"path"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/go-core-package/extos"
@@ -87,12 +85,10 @@ func UploadFile(c *gin.Context) {
 		return
 	case "3": // base64
 		files, _ := c.GetPostForm("file")
-		file2list := strings.Split(files, ",")
-		ddd, _ := base64.StdEncoding.DecodeString(file2list[1])
+		typeStr, ddd, _ := extimg.DecodeBase64(files)
 		guid := infra.GenerateUUID()
 		base64File := "static/uploadfile/" + guid + ".jpg"
 		_ = ioutil.WriteFile(base64File, ddd, 0666)
-		typeStr := strings.Replace(strings.Replace(file2list[0], "data:", "", -1), ";base64", "", -1)
 		fileSize, _ := extos.FileSize(base64File)
 		fileResponse = FileResponse{
 			Size:     fileSize,
