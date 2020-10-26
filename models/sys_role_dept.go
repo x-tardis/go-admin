@@ -27,7 +27,7 @@ func RoleDeptDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 
 type cRoleDept struct{}
 
-var CRoleDept = new(cRoleDept)
+var CRoleDept = cRoleDept{}
 
 func (cRoleDept) Create(ctx context.Context, roleId int, deptIds []int) error {
 	newItems := make([]RoleDept, 0, len(deptIds))

@@ -44,7 +44,7 @@ func JobDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 
 type cJob struct{}
 
-var CJob = new(cJob)
+var CJob = cJob{}
 
 func (e *Job) Generate() dto.ActiveRecord {
 	o := *e

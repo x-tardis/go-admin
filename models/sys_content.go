@@ -53,7 +53,7 @@ type ContentQueryParam struct {
 type cContent struct{}
 
 // CContent 实例
-var CContent = new(cContent)
+var CContent = cContent{}
 
 // QueryPage 查询,带分页
 func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content, paginator.Info, error) {

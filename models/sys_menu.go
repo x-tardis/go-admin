@@ -75,7 +75,7 @@ type MenuLabel struct {
 
 type cMenu struct{}
 
-var CMenu = new(cMenu)
+var CMenu = cMenu{}
 
 // toMenuTree 目录树
 func toMenuTree(items []Menu) []Menu {

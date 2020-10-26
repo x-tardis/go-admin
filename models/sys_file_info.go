@@ -50,7 +50,7 @@ type FileInfoQueryParam struct {
 type cFileInfo struct{}
 
 // CFileInfo 实例
-var CFileInfo = new(cFileInfo)
+var CFileInfo = cFileInfo{}
 
 // QueryPage 查询,带分页
 func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileInfo, paginator.Info, error) {

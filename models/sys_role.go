@@ -62,7 +62,7 @@ type RoleQueryParam struct {
 type cRole struct{}
 
 // CRole role实例
-var CRole = new(cRole)
+var CRole = cRole{}
 
 // Query 获取角色列表
 func (cRole) Query(ctx context.Context) (items []Role, err error) {

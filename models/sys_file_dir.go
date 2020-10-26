@@ -48,7 +48,7 @@ type FileDirQueryParam struct {
 type cFileDir struct{}
 
 // CFileDir 实例
-var CFileDir = new(cFileDir)
+var CFileDir = cFileDir{}
 
 func toFileDirTree(items []FileDir) []FileDir {
 	tree := make([]FileDir, 0)

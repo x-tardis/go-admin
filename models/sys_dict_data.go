@@ -57,7 +57,7 @@ type DictDataQueryParam struct {
 type cDictData struct{}
 
 // CDictData 实例
-var CDictData = new(cDictData)
+var CDictData = cDictData{}
 
 // QueryPage 查询,分页
 func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictData, paginator.Info, error) {

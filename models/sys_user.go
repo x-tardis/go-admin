@@ -80,7 +80,7 @@ type UpdateUserPwd struct {
 type cUser struct{}
 
 // CUser 实例
-var CUser = new(cUser)
+var CUser = cUser{}
 
 // QueryPage 查询,分页
 func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, paginator.Info, error) {

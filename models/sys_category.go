@@ -45,7 +45,7 @@ type CategoryQueryParam struct {
 
 type cCategory struct{}
 
-var CCategory = new(cCategory)
+var CCategory = cCategory{}
 
 // 获取SysCategory带分页
 func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Category, paginator.Info, error) {

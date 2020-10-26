@@ -51,7 +51,7 @@ type PostQueryParam struct {
 type cPost struct{}
 
 // CPost post 实例
-var CPost = new(cPost)
+var CPost = cPost{}
 
 // Query 查询岗位信息, 非分页查询
 func (cPost) Query(ctx context.Context, qp PostQueryParam) (items []Post, err error) {

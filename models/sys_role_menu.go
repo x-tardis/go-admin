@@ -32,7 +32,7 @@ func RoleMenuDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 
 type cRoleMenu struct{}
 
-var CRoleMenu = new(cRoleMenu)
+var CRoleMenu = cRoleMenu{}
 
 func (cRoleMenu) Get(ctx context.Context, id int) (items []RoleMenu, err error) {
 	err = dao.DB.Scopes(RoleMenuDB(ctx)).
