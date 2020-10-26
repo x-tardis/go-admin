@@ -265,9 +265,9 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list5 := []models.Post{
-			{PostId: 1, PostName: "首席执行官", PostCode: "CEO", Sort: 0, Status: "0", Remark: "首席执行官", Creator: "1", Updator: "1"},
-			{PostId: 2, PostName: "首席技术执行官", PostCode: "CTO", Sort: 2, Status: "0", Remark: "首席技术执行官", Creator: "1", Updator: "1"},
-			{PostId: 3, PostName: "首席运营官", PostCode: "COO", Sort: 3, Status: "0", Remark: "测试工程师", Creator: "1", Updator: "1"},
+			{PostId: 1, PostCode: "CEO", PostName: "首席执行官", Sort: 1, Status: "0", Remark: "首席执行官", Creator: "1", Updator: "1"},
+			{PostId: 2, PostCode: "CTO", PostName: "首席技术执行官", Sort: 2, Status: "0", Remark: "首席技术执行官", Creator: "1", Updator: "1"},
+			{PostId: 3, PostCode: "COO", PostName: "首席运营官", Sort: 3, Status: "0", Remark: "测试工程师", Creator: "1", Updator: "1"},
 		}
 
 		list6 := []models.Role{

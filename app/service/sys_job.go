@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/sharp/core/paginator"
 
-	dto2 "github.com/x-tardis/go-admin/app/service/dto"
+	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/izap"
 )
@@ -31,7 +31,7 @@ func (m *SysJobSearch) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (m *SysJobSearch) Generate() dto2.Index {
+func (m *SysJobSearch) Generate() dto.Index {
 	o := *m
 	return &o
 }
@@ -59,12 +59,12 @@ func (s *SysJobControl) Bind(ctx *gin.Context) error {
 	return ctx.ShouldBind(s)
 }
 
-func (s *SysJobControl) Generate() dto2.Control {
+func (s *SysJobControl) Generate() dto.Control {
 	cp := *s
 	return &cp
 }
 
-func (s *SysJobControl) GenerateM() (dto2.ActiveRecord, error) {
+func (s *SysJobControl) GenerateM() (dto.ActiveRecord, error) {
 	return &models.Job{
 		JobId:          s.JobId,
 		JobName:        s.JobName,
@@ -85,15 +85,15 @@ func (s *SysJobControl) GetId() interface{} {
 }
 
 type SysJobById struct {
-	dto2.ObjectById
+	dto.ObjectById
 }
 
-func (s *SysJobById) Generate() dto2.Control {
+func (s *SysJobById) Generate() dto.Control {
 	cp := *s
 	return &cp
 }
 
-func (s *SysJobById) GenerateM() (dto2.ActiveRecord, error) {
+func (s *SysJobById) GenerateM() (dto.ActiveRecord, error) {
 	return &models.Job{}, nil
 }
 

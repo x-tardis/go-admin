@@ -8,7 +8,7 @@ import (
 	"github.com/thinkgos/sharp/iorm"
 	"gorm.io/gorm"
 
-	dto2 "github.com/x-tardis/go-admin/app/service/dto"
+	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
@@ -46,7 +46,7 @@ type cJob struct{}
 
 var CJob = new(cJob)
 
-func (e *Job) Generate() dto2.ActiveRecord {
+func (e *Job) Generate() dto.ActiveRecord {
 	o := *e
 	return &o
 }
@@ -65,7 +65,7 @@ func (e *Job) SetUpdator(updateBy uint) {
 
 // 获取SysJob带分页
 func (e *Job) GetPage(pageSize int, pageIndex int, v interface{}, list interface{}) (int, error) {
-	table := dao.DB.Table(e.TableName()).Scopes(dto2.MakeCondition(v))
+	table := dao.DB.Table(e.TableName()).Scopes(dto.MakeCondition(v))
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	// dataPermission := new(DataPermission)

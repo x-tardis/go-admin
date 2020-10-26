@@ -7,7 +7,7 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
-	dto2 "github.com/x-tardis/go-admin/app/service/dto"
+	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -15,7 +15,7 @@ import (
 )
 
 // UpdateAction 通用更新动作
-func UpdateAction(control dto2.Control) gin.HandlerFunc {
+func UpdateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		msgID := requestid.FromRequestID(c)
 		req := control.Generate()
@@ -25,7 +25,7 @@ func UpdateAction(control dto2.Control) gin.HandlerFunc {
 			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
-		var object dto2.ActiveRecord
+		var object dto.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))

@@ -14,7 +14,9 @@ import (
 )
 
 // SuperAdmin 超级管理员
-const SuperAdmin = "admin"
+const (
+	SuperAdmin = "admin"
+)
 
 // Role 角色
 type Role struct {

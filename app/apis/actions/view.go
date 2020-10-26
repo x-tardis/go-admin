@@ -8,14 +8,14 @@ import (
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"gorm.io/gorm"
 
-	dto2 "github.com/x-tardis/go-admin/app/service/dto"
+	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
 // ViewAction 通用详情动作
-func ViewAction(control dto2.Control, f func() interface{}) gin.HandlerFunc {
+func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		msgID := requestid.FromRequestID(c)
 		//查看详情
@@ -25,7 +25,7 @@ func ViewAction(control dto2.Control, f func() interface{}) gin.HandlerFunc {
 			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
 			return
 		}
-		var object dto2.ActiveRecord
+		var object dto.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("模型生成失败"))

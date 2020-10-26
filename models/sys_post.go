@@ -15,9 +15,9 @@ import (
 // Post 岗位
 type Post struct {
 	PostId   int    `gorm:"primary_key;AUTO_INCREMENT" json:"postId"` // 主键
+	PostCode string `gorm:"size:128;" json:"postCode"`                // 编码,比如CEO,CTO
 	PostName string `gorm:"size:128;" json:"postName"`                // 名称
-	PostCode string `gorm:"size:128;" json:"postCode"`                // 编码
-	Sort     int    `gorm:"" json:"sort"`                             // 岗位排序
+	Sort     int    `gorm:"" json:"sort"`                             // 排序
 	Status   string `gorm:"size:4;" json:"status"`                    // 状态
 	Remark   string `gorm:"size:255;" json:"remark"`                  // 备注
 	Creator  string `gorm:"size:128;" json:"creator"`                 // 创建者
@@ -56,11 +56,11 @@ var CPost = new(cPost)
 // Query 查询岗位信息, 非分页查询
 func (cPost) Query(ctx context.Context, qp PostQueryParam) (items []Post, err error) {
 	db := dao.DB.Scopes(PostDB(ctx))
-	if qp.PostName != "" {
-		db = db.Where("post_name=?", qp.PostName)
-	}
 	if qp.PostCode != "" {
 		db = db.Where("post_code=?", qp.PostCode)
+	}
+	if qp.PostName != "" {
+		db = db.Where("post_name=?", qp.PostName)
 	}
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)
@@ -74,11 +74,11 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	var items []Post
 
 	db := dao.DB.Scopes(PostDB(ctx))
-	if qp.PostName != "" {
-		db = db.Where("post_name=?", qp.PostName)
-	}
 	if qp.PostCode != "" {
 		db = db.Where("post_code=?", qp.PostCode)
+	}
+	if qp.PostName != "" {
+		db = db.Where("post_name=?", qp.PostName)
 	}
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)

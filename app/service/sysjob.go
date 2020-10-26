@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/x-tardis/go-admin/app/jobs"
-	dto2 "github.com/x-tardis/go-admin/app/service/dto"
+	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
@@ -15,7 +15,7 @@ type SysJob struct {
 }
 
 // RemoveJob 删除job
-func (e *SysJob) RemoveJob(c *dto2.GeneralDelDto) error {
+func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 	var err error
 	var data models.Job
 	msgID := e.MsgID
@@ -44,7 +44,7 @@ func (e *SysJob) RemoveJob(c *dto2.GeneralDelDto) error {
 }
 
 // StartJob 启动任务
-func (e *SysJob) StartJob(c *dto2.GeneralGetDto) error {
+func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
 	var data models.Job
 	var err error
 	msgID := e.MsgID
