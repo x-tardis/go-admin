@@ -12,10 +12,10 @@ import (
 )
 
 func InitDb(db *gorm.DB) (err error) {
-	filePath := "config/db.sql"
+	filePath := "script/db.sql"
 	err = ExecSql(db, filePath)
 	if deployed.DbConfig.Driver == "postgres" {
-		filePath = "config/pg.sql"
+		filePath = "script/pg.sql"
 		err = ExecSql(db, filePath)
 	}
 	return err

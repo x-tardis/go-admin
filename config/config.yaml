@@ -5,7 +5,7 @@ host: 0.0.0.0
 # 服务名称
 name: testApp
 # 端口号
-port: 8001 # 服务端口号
+port: 8000 # 服务端口号
 readtimeout: 1
 writertimeout: 2
 # 数据权限功能开关

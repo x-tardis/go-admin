@@ -17,14 +17,14 @@ var configFile string
 var StartCmd = &cobra.Command{
 	Use:     "migrate",
 	Short:   "Initialize the database",
-	Example: "go-admin migrate -c config.yaml",
+	Example: "go-admin migrate -c config/config.yaml",
 	Run:     run,
 }
 
 // var exec bool
 
 func init() {
-	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yaml", "Start server with provided configuration file")
+	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
 	//StartCmd.PersistentFlags().BoolVarP(&exec, "exec", "e", false, "exec script")
 }
 

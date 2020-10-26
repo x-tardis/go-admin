@@ -30,14 +30,14 @@ var mode string
 var StartCmd = &cobra.Command{
 	Use:          "server",
 	Short:        "Start API server",
-	Example:      "go-admin server -c config.yaml",
+	Example:      "go-admin server -c config/config.yaml",
 	SilenceUsage: true,
 	PreRun:       setup,
 	RunE:         run,
 }
 
 func init() {
-	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yaml", "Start server with provided configuration file")
+	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,debug,prod")
 }

@@ -25,12 +25,12 @@ MAINTAINER thinkgos "thinkgo@aliyun.com"
 RUN apk --no-cache add ca-certificates bash
 
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-COPY --from=builder /release/config.yaml /config.yaml
+COPY --from=builder /release/config /config
 COPY --from=builder /release/go-admin /
 
 ENV TZ=Asia/Shanghai
 
 EXPOSE 8000
 
-CMD ["/go-admin","server","-c", "/config.yaml"]
+CMD ["/go-admin","server","-c", "/config/config.yaml"]
 
