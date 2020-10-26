@@ -16,6 +16,8 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
+type Tables struct{}
+
 // @Summary 分页列表数据
 // @Description 生成表分页列表
 // @Tags 工具 - 生成表
@@ -24,18 +26,15 @@ import (
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/page [get]
-func GetSysTableList(c *gin.Context) {
-	var data tools.SysTables
-
-	param := paginator.Param{
-		PageIndex: cast.ToInt(c.Query("pageIndex")),
-		PageSize:  cast.ToInt(c.Query("pageSize")),
+func (Tables) QueryPage(c *gin.Context) {
+	qp := tools.TablesQueryParam{}
+	if err := c.ShouldBindQuery(&qp); err != nil {
+		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
+		return
 	}
-	param.Inspect()
+	qp.Inspect()
 
-	data.TBName = c.Request.FormValue("tableName")
-	data.TableComment = c.Request.FormValue("tableComment")
-	items, info, err := data.GetPage(param)
+	items, info, err := tools.CTables.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.QueryFailed),
@@ -49,6 +48,17 @@ func GetSysTableList(c *gin.Context) {
 	}))
 }
 
+func (Tables) QueryTree(c *gin.Context) {
+	items, err := tools.CTables.QueryTree(gcontext.Context(c))
+	if err != nil {
+		servers.Fail(c, http.StatusNotFound,
+			servers.WithPrompt(prompt.NotFound),
+			servers.WithError(err))
+		return
+	}
+	servers.OK(c, servers.WithData(items))
+}
+
 // @Summary 获取配置
 // @Description 获取JSON
 // @Tags 工具 - 生成表
@@ -56,10 +66,9 @@ func GetSysTableList(c *gin.Context) {
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/info/{id} [get]
 // @Security Bearer
-func GetSysTables(c *gin.Context) {
-	var data tools.SysTables
-	data.TableId = cast.ToInt(c.Param("id"))
-	result, err := data.Get()
+func (Tables) Get(c *gin.Context) {
+	id := cast.ToInt(c.Param("id"))
+	result, err := tools.CTables.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
@@ -73,34 +82,20 @@ func GetSysTables(c *gin.Context) {
 	servers.OK(c, servers.WithData(mp))
 }
 
-func GetSysTablesInfo(c *gin.Context) {
-	var data tools.SysTables
-	if c.Request.FormValue("tableName") != "" {
-		data.TBName = c.Request.FormValue("tableName")
-	}
-	result, err := data.Get()
+func (Tables) GetWithName(c *gin.Context) {
+	tbName := c.Request.FormValue("tableName")
+	item, err := tools.CTables.GetWithName(gcontext.Context(c), tbName)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
-	mp := make(map[string]interface{})
-	mp["list"] = result.Columns
-	mp["info"] = result
+	mp := map[string]interface{}{
+		"list": item.Columns,
+		"info": item,
+	}
 	servers.OK(c, servers.WithData(mp))
-}
-
-func GetSysTablesTree(c *gin.Context) {
-	var data tools.SysTables
-	result, err := data.GetTree()
-	if err != nil {
-		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.NotFound),
-			servers.WithError(err))
-		return
-	}
-	servers.OK(c, servers.WithData(result))
 }
 
 // @Summary 添加表结构
@@ -113,7 +108,7 @@ func GetSysTablesTree(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [post]
 // @Security Bearer
-func InsertSysTable(c *gin.Context) {
+func (Tables) Create(c *gin.Context) {
 	tablesList := strings.Split(c.Request.FormValue("tables"), ",")
 	for i := 0; i < len(tablesList); i++ {
 		data, err := genTableInit(tablesList, i, c)
@@ -121,7 +116,7 @@ func InsertSysTable(c *gin.Context) {
 			servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 			return
 		}
-		_, err = data.Create()
+		_, err = tools.CTables.Create(gcontext.Context(c), data)
 		if err != nil {
 			servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 			return
@@ -132,7 +127,7 @@ func InsertSysTable(c *gin.Context) {
 
 func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
 	var data tools.SysTables
-	var dbColumn tools.DBColumns
+
 	data.TBName = tablesList[i]
 	data.Creator = jwtauth.FromUserIdStr(gcontext.Context(c))
 
@@ -140,8 +135,8 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	if err != nil {
 		return tools.SysTables{}, err
 	}
-	dbColumn.TableName = data.TBName
-	tablenamelist := strings.Split(dbColumn.TableName, "_")
+
+	tablenamelist := strings.Split(data.TBName, "_")
 	for i := 0; i < len(tablenamelist); i++ {
 		strStart := string([]byte(tablenamelist[i])[:1])
 		strend := string([]byte(tablenamelist[i])[1:])
@@ -153,7 +148,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	data.TplCategory = "crud"
 	data.Crud = true
 
-	dbcolumn, err := dbColumn.GetList()
+	dbcolumn, err := tools.CDBColumns.Query(data.TBName)
 	if err != nil {
 		return tools.SysTables{}, err
 	}
@@ -245,21 +240,19 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [put]
 // @Security Bearer
-func UpdateSysTable(c *gin.Context) {
-	var data tools.SysTables
-	err := c.ShouldBindJSON(&data)
-	if err != nil {
+func (Tables) Update(c *gin.Context) {
+	up := tools.SysTables{}
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	data.Updator = jwtauth.FromUserIdStr(gcontext.Context(c))
-	result, err := data.Update()
+	item, err := tools.CTables.Update(gcontext.Context(c), up.TableId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(result), servers.WithPrompt(prompt.UpdatedSuccess))
+	servers.OK(c, servers.WithData(item), servers.WithPrompt(prompt.UpdatedSuccess))
 }
 
 // @Summary 删除表结构
@@ -269,10 +262,9 @@ func UpdateSysTable(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/sys/tables/info/{ids} [delete]
-func DeleteSysTables(c *gin.Context) {
-	var data tools.SysTables
+func (Tables) DeleteSysTables(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
-	err := data.BatchDelete(ids)
+	err := tools.CTables.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return

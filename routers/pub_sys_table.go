@@ -6,16 +6,18 @@ import (
 )
 
 func PubSysTable(v1 gin.IRouter) {
+	ctl := tools.Tables{}
 	r := v1.Group("/sys/tables")
 	{
-		r.GET("/page", tools.GetSysTableList)
+		r.GET("/page", ctl.QueryPage)
+		r.GET("/tree", ctl.QueryTree)
 		tablesInfo := r.Group("/info")
 		{
-			tablesInfo.GET("", tools.GetSysTablesInfo)
-			tablesInfo.GET("/:id", tools.GetSysTables)
-			tablesInfo.POST("", tools.InsertSysTable)
-			tablesInfo.PUT("", tools.UpdateSysTable)
-			tablesInfo.DELETE("/:ids", tools.DeleteSysTables)
+			tablesInfo.GET("", ctl.GetWithName)
+			tablesInfo.GET("/:id", ctl.Get)
+			tablesInfo.POST("", ctl.Create)
+			tablesInfo.PUT("", ctl.Update)
+			tablesInfo.DELETE("/:ids", ctl.DeleteSysTables)
 		}
 	}
 }

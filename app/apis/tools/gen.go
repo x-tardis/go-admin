@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"context"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -18,13 +19,12 @@ import (
 )
 
 func Preview(c *gin.Context) {
-	table := tools.SysTables{}
 	id, err := strconv.Atoi(c.Param("tableId"))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	table.TableId = id
+
 	t1, err := template.ParseFiles("template/v3/model.go.template")
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
@@ -55,7 +55,8 @@ func Preview(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	tab, _ := table.Get()
+
+	tab, _ := tools.CTables.Get(context.Background(), id)
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -81,14 +82,12 @@ func Preview(c *gin.Context) {
 }
 
 func GenCodeV3(c *gin.Context) {
-	table := tools.SysTables{}
 	id, err := strconv.Atoi(c.Param("tableId"))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	table.TableId = id
-	tab, _ := table.Get()
+	tab, _ := tools.CTables.Get(gcontext.Context(c), id)
 
 	if tab.IsActions == 1 {
 		err = ActionsGenV3(tab)
@@ -219,10 +218,7 @@ func GenMenuAndApi(c *gin.Context) {
 	}
 
 	now := time.Now()
-	table := tools.SysTables{
-		TableId: id,
-	}
-	tab, _ := table.Get()
+	tab, _ := tools.CTables.Get(gcontext.Context(c), id)
 
 	Mmenu := models.Menu{
 		MenuName:  tab.TBName + "Manage",

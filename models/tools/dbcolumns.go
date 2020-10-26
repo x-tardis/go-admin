@@ -5,7 +5,6 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
-	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
@@ -26,47 +25,44 @@ type DBColumns struct {
 	ColumnComment          string `gorm:"column:COLUMN_COMMENT" json:"columnComment"`
 }
 
-func (e *DBColumns) GetPage(param paginator.Param) ([]DBColumns, paginator.Info, error) {
-	var doc []DBColumns
-
-	table := new(gorm.DB)
-
-	if deployed.DbConfig.Driver == "mysql" {
-		table = dao.DB.Table("information_schema.`COLUMNS`")
-		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
-
-		if e.TableName != "" {
-			return nil, paginator.Info{}, errors.New("table name cannot be empty！")
-		}
-
-		table = table.Where("TABLE_NAME = ?", e.TableName)
-	}
-
-	info, err := iorm.QueryPages(table, param, &doc)
-	if err != nil {
-		return nil, info, err
-	}
-	return doc, info, err
+type DBColumnsQueryParam struct {
+	TableName string `form:"tableName"`
+	paginator.Param
 }
 
-func (e *DBColumns) GetList() ([]DBColumns, error) {
-	var doc []DBColumns
-	table := new(gorm.DB)
+type cDBColumns struct{}
 
-	if e.TableName == "" {
+var CDBColumns = cDBColumns{}
+
+func (cDBColumns) Query(tbName string) (items []DBColumns, err error) {
+	if tbName == "" {
 		return nil, errors.New("table name cannot be empty！")
 	}
-
-	if deployed.DbConfig.Driver == "mysql" {
-		table = dao.DB.Table("information_schema.columns")
-		table = table.Where("table_schema= ? ", deployed.GenConfig.DBName)
-
-		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
-	} else {
+	if deployed.DbConfig.Driver != "mysql" {
 		return nil, errors.New("目前只支持mysql数据库")
 	}
-	if err := table.Find(&doc).Error; err != nil {
-		return doc, err
+
+	err = dao.DB.Table("information_schema.columns").
+		Where("table_schema= ? ", deployed.GenConfig.DBName).
+		Where("TABLE_NAME = ?", tbName).
+		Order("ORDINAL_POSITION asc").
+		Find(&items).Error
+	return items, err
+}
+
+func (cDBColumns) QueryPage(qp DBColumnsQueryParam) ([]DBColumns, paginator.Info, error) {
+	var items []DBColumns
+
+	db := dao.DB
+	if deployed.DbConfig.Driver == "mysql" {
+		if qp.TableName != "" {
+			return nil, paginator.Info{}, errors.New("table name cannot be empty！")
+		}
+		db = db.Table("information_schema.`COLUMNS`").
+			Where("table_schema= ? ", deployed.GenConfig.DBName).
+			Where("TABLE_NAME = ?", qp.TableName)
 	}
-	return doc, nil
+
+	info, err := iorm.QueryPages(db, qp.Param, &items)
+	return items, info, err
 }

@@ -21,15 +21,15 @@ type User struct {
 	Password string `gorm:"size:128" json:"password"`                  // 密码
 	NickName string `gorm:"size:128" json:"nickName"`                  // 昵称
 	Phone    string `gorm:"size:11" json:"phone"`                      // 手机号
-	RoleId   int    `gorm:"" json:"roleId"`                            // 角色编码
 	Salt     string `gorm:"size:255" json:"salt"`                      // 加密盐
 	Avatar   string `gorm:"size:255" json:"avatar"`                    // 头像
 	Sex      string `gorm:"size:255" json:"sex"`                       // 性别
 	Email    string `gorm:"size:128" json:"email"`                     // 邮箱
+	Status   string `gorm:"size:4;" json:"status"`                     // 状态
+	Remark   string `gorm:"size:255" json:"remark"`                    // 备注
+	RoleId   int    `gorm:"" json:"roleId"`                            // 角色编码
 	DeptId   int    `gorm:"" json:"deptId"`                            // 部门编码
 	PostId   int    `gorm:"" json:"postId"`                            // 职位编码
-	Remark   string `gorm:"size:255" json:"remark"`                    // 备注
-	Status   string `gorm:"size:4;" json:"status"`                     // 状态
 	Creator  string `gorm:"size:128" json:"creator"`                   // 创建者
 	Updator  string `gorm:"size:128" json:"updator"`                   // 更新者
 	Model

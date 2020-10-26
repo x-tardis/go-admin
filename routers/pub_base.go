@@ -16,6 +16,5 @@ func PubBase(v1 gin.IRouter) {
 		r.GET("/preview/:tableId", tools.Preview)
 		r.GET("/toproject/:tableId", tools.GenCodeV3)
 		r.GET("/todb/:tableId", tools.GenMenuAndApi)
-		r.GET("/tabletree", tools.GetSysTablesTree)
 	}
 }

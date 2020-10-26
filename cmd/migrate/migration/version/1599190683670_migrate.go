@@ -288,7 +288,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list8 := []models.User{
-			{1, "admin", "$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2", "zhangwj", "13818888888", 1, "", "", "0", "1@qq.com", 1, 1, "", "0", "1", "1", models.Model{}, "", ""},
+			{1, "admin", "$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2", "zhangwj", "13818888888", "", "", "0", "1@qq.com", "0", "", 1, 1, 1, "1", "1", models.Model{}, "", ""},
 		}
 
 		list9 := []models.DictData{

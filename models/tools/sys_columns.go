@@ -1,8 +1,13 @@
 package tools
 
 import (
+	"context"
+
+	"gorm.io/gorm"
+
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/models"
+	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type SysColumns struct {
@@ -49,6 +54,12 @@ type SysColumns struct {
 
 func (SysColumns) TableName() string {
 	return "sys_columns"
+}
+
+func SysColumnsDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Scopes(trans.CtxDB(ctx)).Model(SysColumns{})
+	}
 }
 
 func (e *SysColumns) GetList() ([]SysColumns, error) {
