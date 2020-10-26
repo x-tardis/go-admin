@@ -87,7 +87,7 @@ func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, pa
 	}
 
 	// 数据权限控制
-	db = db.Scopes(DataScope("sys_config", jwtauth.FromUserId(ctx)))
+	db = db.Scopes(DataScope(Config{}, jwtauth.FromUserId(ctx)))
 	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}

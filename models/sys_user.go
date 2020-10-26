@@ -50,12 +50,13 @@ func UserDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-// UserPage 分页查询数据
+// UserPage 分页查询数据,带部门名
 type UserPage struct {
 	User
 	DeptName string `gorm:"-" json:"deptName"`
 }
 
+// UserView  查询查看数据,带角色名
 type UserView struct {
 	User
 	RoleName string `gorm:"column:role_name"  json:"roleName"`
@@ -104,7 +105,7 @@ func (cUser) QueryPage(ctx context.Context, qp UserQueryParam) ([]UserPage, pagi
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	db = db.Scopes(DataScope("sys_user", jwtauth.FromUserId(ctx)))
+	db = db.Scopes(DataScope(User{}, jwtauth.FromUserId(ctx)))
 	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}

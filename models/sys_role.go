@@ -89,7 +89,7 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 	db = db.Order("sort")
 
 	// 数据权限控制
-	db = db.Scopes(DataScope("sys_role", jwtauth.FromUserId(ctx)))
+	db = db.Scopes(DataScope(Role{}, jwtauth.FromUserId(ctx)))
 	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}

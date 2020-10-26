@@ -72,7 +72,7 @@ func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content,
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	db = db.Scopes(DataScope("sys_content", jwtauth.FromUserId(ctx)))
+	db = db.Scopes(DataScope(Content{}, jwtauth.FromUserId(ctx)))
 	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}

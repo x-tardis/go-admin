@@ -10,6 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
@@ -64,21 +65,18 @@ func (e *Job) SetUpdator(updateBy uint) {
 }
 
 // 获取SysJob带分页
-func (e *Job) GetPage(pageSize int, pageIndex int, v interface{}, list interface{}) (int, error) {
-	table := dao.DB.Table(e.TableName()).Scopes(dto.MakeCondition(v))
+func (cJob) QueryPage(ctx context.Context, param paginator.Param, v interface{}) ([]Job, paginator.Info, error) {
+	var items []Job
 
-	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	// dataPermission := new(DataPermission)
-	userid, _ := strconv.Atoi(e.DataScope)
+	db := dao.DB.Scopes(JobDB(ctx), dto.MakeCondition(v))
 
-	var count int64
-
-	if err := table.Scopes(DataScope(e.TableName(), userid),
-		iorm.Paginate(paginator.Param{pageIndex, pageSize})).
-		Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return 0, err
+	db = db.Scopes(DataScope(Job{}, jwtauth.FromUserId(ctx)))
+	if err := db.Error; err != nil {
+		return items, paginator.Info{}, err
 	}
-	return int(count), nil
+
+	info, err := iorm.QueryPages(db, param, items)
+	return items, info, err
 }
 
 func (cJob) Query(ctx context.Context) (items []Job, err error) {
@@ -101,8 +99,8 @@ func (cJob) Create(ctx context.Context, item Job) (Job, error) {
 }
 
 // 更新SysJob
-func (cJob) Update(ctx context.Context, id uint, e Job) error {
-	return dao.DB.Scopes(JobDB(ctx)).Where("job_id=?", id).Updates(&e).Error
+func (cJob) Update(ctx context.Context, id uint, up Job) error {
+	return dao.DB.Scopes(JobDB(ctx)).Where("job_id=?", id).Updates(&up).Error
 }
 
 func (cJob) RemoveAllEntryID(ctx context.Context) error {

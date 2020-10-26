@@ -88,7 +88,7 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 	}
 
 	// 数据权限控制
-	db = db.Scopes(DataScope("sys_dict_type", jwtauth.FromUserId(ctx)))
+	db = db.Scopes(DataScope(DictType{}, jwtauth.FromUserId(ctx)))
 	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}

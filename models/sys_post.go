@@ -85,7 +85,7 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	}
 
 	// 数据权限控制
-	db = db.Scopes(DataScope("sys_post", jwtauth.FromUserId(ctx)))
+	db = db.Scopes(DataScope(Post{}, jwtauth.FromUserId(ctx)))
 	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}

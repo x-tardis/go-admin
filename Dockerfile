@@ -1,27 +1,34 @@
-
-FROM golang:alpine as builder
-
-MAINTAINER xxx
+FROM golang:1.15.3-alpine3.12 AS builder
 
 ENV GOPROXY https://goproxy.cn/
+ARG ALPINE_VERSION=v3.12
+WORKDIR /release
 
-WORKDIR /go/release
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-RUN apk update && apk add tzdata
+# build deps and then building
+RUN echo https://mirrors.aliyun.com/alpine/${ALPINE_VERSION}/main > /etc/apk/repositories \
+     	&& echo https://mirrors.aliyun.com/alpine/${ALPINE_VERSION}/community >> /etc/apk/repositories
+RUN apk add git \
+            make\
+            tzdata
 
 COPY ./go.mod ./go.mod
+COPY ./go.sum ./go.sum
 RUN go mod download
 COPY . .
-RUN pwd && ls
+RUN pwd && ls && make
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o go-admin .
+# 运行环境
+FROM frolvlad/alpine-glibc:alpine-3.12_glibc-2.31
 
-FROM alpine
+MAINTAINER thinkgos "thinkgo@aliyun.com"
 
-COPY --from=builder /go/release/go-admin /
-COPY --from=builder /go/release/config/ /config/
+RUN apk --no-cache add ca-certificates bash
 
-COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /release/config.yaml /config.yaml
+COPY --from=builder /release/go-admin /
+
+ENV TZ=Asia/Shanghai
 
 EXPOSE 8000
 

@@ -60,7 +60,7 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	db = db.Scopes(DataScope("sys_category", jwtauth.FromUserId(ctx)))
+	db = db.Scopes(DataScope(Category{}, jwtauth.FromUserId(ctx)))
 	if err := db.Error; err != nil {
 		return nil, paginator.Info{}, err
 	}

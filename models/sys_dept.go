@@ -157,7 +157,7 @@ func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items [
 
 	// 数据权限控制
 	if bl {
-		db = db.Scopes(DataScope("sys_dept", jwtauth.FromUserId(ctx)))
+		db = db.Scopes(DataScope(Dept{}, jwtauth.FromUserId(ctx)))
 		if err := db.Error; err != nil {
 			return nil, err
 		}
