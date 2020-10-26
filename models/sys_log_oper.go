@@ -41,7 +41,7 @@ type OperLog struct {
 	Params    string `json:"params" gorm:"-"`    // 参数
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (OperLog) TableName() string {
 	return "sys_operlog"
 }

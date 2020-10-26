@@ -14,8 +14,8 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-ole/go-ole v1.2.4 // indirect
-	github.com/go-openapi/spec v0.19.10 // indirect
-	github.com/go-openapi/swag v0.19.10 // indirect
+	github.com/go-openapi/spec v0.19.11 // indirect
+	github.com/go-openapi/swag v0.19.11 // indirect
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/uuid v1.1.2
@@ -48,14 +48,14 @@ require (
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect
-	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
-	golang.org/x/sys v0.0.0-20201020230747-6e5568b54d1a // indirect
-	golang.org/x/tools v0.0.0-20201021000207-d49c4edd7d96 // indirect
+	golang.org/x/net v0.0.0-20201024042810-be3efd7ff127 // indirect
+	golang.org/x/sys v0.0.0-20201024232916-9f70ab9862d5 // indirect
+	golang.org/x/tools v0.0.0-20201023174141-c8cfbd0f21e6 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
-	gorm.io/driver/mysql v1.0.2
-	gorm.io/driver/postgres v1.0.3
+	gorm.io/driver/mysql v1.0.3
+	gorm.io/driver/postgres v1.0.5
 	gorm.io/driver/sqlite v1.1.3
-	gorm.io/driver/sqlserver v1.0.4 // indirect
-	gorm.io/gorm v1.20.3
+	gorm.io/driver/sqlserver v1.0.5 // indirect
+	gorm.io/gorm v1.20.5
 )

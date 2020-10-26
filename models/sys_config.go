@@ -32,7 +32,7 @@ type Config struct {
 	Params    string `json:"-"  gorm:"-"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (Config) TableName() string {
 	return "sys_config"
 }

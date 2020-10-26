@@ -34,7 +34,7 @@ type Dept struct {
 	Params    string `json:"params" gorm:"-"`
 }
 
-// TableName 实现gorm.Tabler接口
+// TableName 实现schema.Tabler接口
 func (Dept) TableName() string {
 	return "sys_dept"
 }
@@ -229,11 +229,11 @@ func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error)
 
 // Delete 删除部门
 func (cDept) Delete(ctx context.Context, id int) error {
-	userList, err := CUser.GetWithDeptId(ctx, id)
+	count, err := CUser.GetCountWithDeptId(ctx, id)
 	if err != nil {
 		return err
 	}
-	if len(userList) > 0 {
+	if count > 0 {
 		return errors.New("当前部门存在用户，不能删除！")
 	}
 

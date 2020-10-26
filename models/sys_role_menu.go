@@ -18,7 +18,7 @@ type RoleMenu struct {
 	RoleName string `gorm:"size:128"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (RoleMenu) TableName() string {
 	return "sys_role_menu"
 }

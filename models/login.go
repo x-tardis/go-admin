@@ -18,8 +18,6 @@ func (sf *Login) GetUser() (user User, role Role, err error) {
 	if err != nil {
 		return
 	}
-	// check password
-
 	err = deployed.Verify.Compare(sf.Password, "", user.Password)
 	if err != nil {
 		return

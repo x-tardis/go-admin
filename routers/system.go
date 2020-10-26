@@ -16,6 +16,5 @@ func PubSystem(v1 gin.IRouter) {
 }
 
 func System(v1 gin.IRouter) {
-	// system setting
 	v1.PUT("/system/setting", new(system.Setting).Update)
 }

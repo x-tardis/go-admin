@@ -18,7 +18,7 @@ type Setting struct {
 	Model
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (Setting) TableName() string {
 	return "sys_setting"
 }

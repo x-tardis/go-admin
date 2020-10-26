@@ -34,7 +34,7 @@ type DictData struct {
 	Params    string `gorm:"-" json:"params"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (DictData) TableName() string {
 	return "sys_dict_data"
 }

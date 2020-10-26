@@ -28,7 +28,7 @@ type Post struct {
 	Params    string `gorm:"-" json:"params"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (Post) TableName() string {
 	return "sys_post"
 }

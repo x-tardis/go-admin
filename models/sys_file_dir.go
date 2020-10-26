@@ -26,7 +26,7 @@ type FileDir struct {
 	Params    string    `json:"params"  gorm:"-"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (FileDir) TableName() string {
 	return "sys_file_dir"
 }

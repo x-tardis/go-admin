@@ -206,7 +206,7 @@ func (User) BatchDelete(c *gin.Context) {
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/user/profile [get]
 func (User) GetProfile(c *gin.Context) {
-	user, err := models.CUser.GetUserInfo(gcontext.Context(c))
+	user, err := models.CUser.GetViewInfo(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),

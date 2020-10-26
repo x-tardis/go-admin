@@ -30,7 +30,7 @@ type Content struct {
 	Params    string `json:"params"  gorm:"-"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (Content) TableName() string {
 	return "sys_content"
 }

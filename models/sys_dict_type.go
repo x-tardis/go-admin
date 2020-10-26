@@ -28,7 +28,7 @@ type DictType struct {
 	Params    string `gorm:"-" json:"params"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (DictType) TableName() string {
 	return "sys_dict_type"
 }

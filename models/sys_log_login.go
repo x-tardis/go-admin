@@ -33,7 +33,7 @@ type LoginLog struct {
 	Params    string `json:"params" gorm:"-"`    //
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (LoginLog) TableName() string {
 	return "sys_loginlog"
 }

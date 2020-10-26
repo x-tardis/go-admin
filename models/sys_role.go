@@ -39,7 +39,7 @@ type Role struct {
 	Params string `json:"params" gorm:"-"` // (未用)
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (Role) TableName() string {
 	return "sys_role"
 }

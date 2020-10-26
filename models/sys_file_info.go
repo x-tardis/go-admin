@@ -29,7 +29,7 @@ type FileInfo struct {
 	Params    string `json:"params"  gorm:"-"`
 }
 
-// TableName implement gorm.Tabler interface
+// TableName implement schema.Tabler interface
 func (FileInfo) TableName() string {
 	return "sys_file_info"
 }
