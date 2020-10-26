@@ -123,7 +123,7 @@ func (cRoleMenu) Delete(ctx context.Context, roleId int) error {
 	return tx.Commit().Error
 }
 
-func (cRoleMenu) Insert(ctx context.Context, roleId int, menuId []int) error {
+func (cRoleMenu) Create(ctx context.Context, roleId int, menuId []int) error {
 	var (
 		role            Role
 		menu            []Menu
@@ -165,8 +165,7 @@ func (cRoleMenu) Insert(ctx context.Context, roleId int, menuId []int) error {
 			RoleMenu{role.RoleId, m.MenuId, role.RoleKey})
 		if m.MenuType == MenuTypeIfc {
 			// 加入队列
-			casbinRuleQueue = append(casbinRuleQueue,
-				CasbinRule{V0: role.RoleKey, V1: m.Path, V2: m.Action})
+			casbinRuleQueue = append(casbinRuleQueue, CasbinRule{V0: role.RoleKey, V1: m.Path, V2: m.Action})
 		}
 	}
 	// 执行批量插入sys_role_menu

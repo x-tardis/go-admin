@@ -269,20 +269,20 @@ func (User) UploadAvatar(c *gin.Context) {
 // @security Bearer
 // @accept json
 // @produce json
-// @param upPwd body models.UpdateUserPwd true "update password"
+// @param up body models.UpdateUserPwd true "update password"
 // @success 200 {string} string	"{"code": 200, "msg": ""}"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/user/avatar [put]
 func (User) UpdatePassword(c *gin.Context) {
-	upPwd := models.UpdateUserPwd{}
-	if err := c.ShouldBindJSON(&upPwd); err != nil {
+	up := models.UpdateUserPwd{}
+	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	err := models.CUser.UpdatePassword(gcontext.Context(c), upPwd)
+	err := models.CUser.UpdatePassword(gcontext.Context(c), up)
 	if err != nil {
 		servers.Fail(c, http.StatusOK, servers.WithMsg("密码更新失败"))
 		return

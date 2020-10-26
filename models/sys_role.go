@@ -114,11 +114,11 @@ func (cRole) Get(ctx context.Context, id int) (item Role, err error) {
 
 // Create 创建角色
 func (cRole) Create(ctx context.Context, item Role) (Role, error) {
-	var i int64
+	var count int64
 
-	dao.DB.Table(item.TableName()).
-		Where("role_name=? or role_key = ?", item.RoleName, item.RoleKey).Count(&i)
-	if i > 0 {
+	dao.DB.Scopes(RoleDB(ctx)).
+		Where("role_name=? or role_key = ?", item.RoleName, item.RoleKey).Count(&count)
+	if count > 0 {
 		return item, errors.New("角色名称或者角色标识已经存在！")
 	}
 
@@ -152,54 +152,42 @@ func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error)
 
 // BatchDelete 批量删除
 func (cRole) BatchDelete(ctx context.Context, ids []int) error {
-	tx := dao.DB.Begin()
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		var count int64
 
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
-	// 查询角色
-	var roles []Role
-	if err := tx.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Find(&roles).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	var count int64
-	if err := tx.Scopes(UserDB(ctx)).Where("role_id in (?)", ids).Count(&count).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if count > 0 {
-		tx.Rollback()
-		return errors.New("存在绑定用户，请解绑后重试")
-	}
-
-	// 删除角色
-	if err := tx.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Unscoped().Delete(&Role{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	// 删除角色菜单
-	if err := tx.Scopes(RoleMenuDB(ctx)).Where("role_id in (?)", ids).Delete(&RoleMenu{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	// 删除casbin配置
-	for i := 0; i < len(roles); i++ {
-		if err := tx.Scopes(CasbinRuleDB(ctx)).Where("v0 in (?)", roles[0].RoleKey).Delete(&CasbinRule{}).Error; err != nil {
-			tx.Rollback()
+		db := dao.DB
+		if err := db.Scopes(UserDB(ctx)).Where("role_id in (?)", ids).Count(&count).Error; err != nil {
 			return err
 		}
-	}
-	return tx.Commit().Error
+		if count > 0 {
+			return errors.New("存在绑定用户，请解绑后重试")
+		}
+
+		var roles []Role
+		// 查询角色
+		if err := db.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Find(&roles).Error; err != nil {
+			return err
+		}
+
+		// 删除角色
+		if err := db.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Unscoped().Delete(&Role{}).Error; err != nil {
+			return err
+		}
+
+		// 删除角色菜单
+		if err := db.Scopes(RoleMenuDB(ctx)).Where("role_id in (?)", ids).Delete(&RoleMenu{}).Error; err != nil {
+			return err
+		}
+
+		// 删除casbin配置
+		for i := 0; i < len(roles); i++ {
+			if err := db.Scopes(CasbinRuleDB(ctx)).Where("v0 in (?)", roles[0].RoleKey).Delete(&CasbinRule{}).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
 }
 
 // MenuIdList ...
