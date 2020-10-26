@@ -56,46 +56,33 @@ func (SysColumns) TableName() string {
 	return "sys_columns"
 }
 
-func SysColumnsDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
+func ColumnsDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(SysColumns{})
 	}
 }
 
-func (e *SysColumns) GetList() ([]SysColumns, error) {
-	var doc []SysColumns
+type cColumns struct{}
 
-	table := dao.DB.Table("sys_columns")
+var CColumns = cColumns{}
 
-	table = table.Where("table_id = ?", e.TableId)
-
-	if err := table.Find(&doc).Error; err != nil {
-		return nil, err
-	}
-	return doc, nil
+func (cColumns) QueryWithTableId(ctx context.Context, id int) (items []SysColumns, err error) {
+	err = dao.DB.Scopes(ColumnsDB(ctx)).
+		Where("table_id=?", id).
+		Find(&items).Error
+	return items, err
 }
 
-func (e *SysColumns) Create() (SysColumns, error) {
-	var doc SysColumns
-	result := dao.DB.Table("sys_columns").Create(&e)
-	if result.Error != nil {
-		err := result.Error
-		return doc, err
-	}
-	doc = *e
-	return doc, nil
+func (cColumns) Create(ctx context.Context, item SysColumns) (SysColumns, error) {
+	err := dao.DB.Scopes(ColumnsDB(ctx)).Create(&item).Error
+	return item, err
 }
 
-func (e *SysColumns) Update() (update SysColumns, err error) {
-	if err = dao.DB.Table("sys_columns").First(&update, e.ColumnId).Error; err != nil {
+func (cColumns) Update(ctx context.Context, id int, up SysColumns) (item SysColumns, err error) {
+	if err = dao.DB.Scopes(ColumnsDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
-	if err = dao.DB.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
-		return
-	}
-
+	err = dao.DB.Table("sys_columns").Model(&item).Updates(&up).Error
 	return
 }

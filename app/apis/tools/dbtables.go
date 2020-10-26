@@ -20,7 +20,7 @@ import (
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
-func GetDBTableList(c *gin.Context) {
+func QueryDBTablePage(c *gin.Context) {
 	if deployed.DbConfig.Driver == "sqlite3" || deployed.DbConfig.Driver == "postgres" {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithMsg("对不起，sqlite3 或 postgres 不支持代码生成"))

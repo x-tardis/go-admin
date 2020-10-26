@@ -9,7 +9,7 @@ import (
 func PubDB(v1 gin.IRouter) {
 	r := v1.Group("/db")
 	{
-		r.GET("/tables/page", tools.GetDBTableList)
-		r.GET("/columns/page", tools.GetDBColumnList)
+		r.GET("/tables/page", tools.QueryDBTablePage)
+		r.GET("/columns/page", tools.QueryDBColumnPage)
 	}
 }

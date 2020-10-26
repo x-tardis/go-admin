@@ -18,7 +18,7 @@ import (
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/columns/page [get]
-func GetDBColumnList(c *gin.Context) {
+func QueryDBColumnPage(c *gin.Context) {
 	qp := tools.DBColumnsQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))

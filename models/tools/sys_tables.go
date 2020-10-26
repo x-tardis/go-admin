@@ -97,9 +97,7 @@ func (cTables) Get(ctx context.Context, id int) (item SysTables, err error) {
 	if err != nil {
 		return
 	}
-	var col SysColumns
-	col.TableId = id
-	item.Columns, err = col.GetList()
+	item.Columns, err = CColumns.QueryWithTableId(ctx, id)
 	return
 }
 
@@ -110,10 +108,7 @@ func (cTables) GetWithName(ctx context.Context, tbName string) (item SysTables, 
 	if err != nil {
 		return item, err
 	}
-
-	var col SysColumns
-	col.TableId = item.TableId
-	item.Columns, err = col.GetList()
+	item.Columns, err = CColumns.QueryWithTableId(ctx, item.TableId)
 	return item, err
 }
 
@@ -123,10 +118,8 @@ func (cTables) QueryTree(ctx context.Context) (items []SysTables, err error) {
 		return
 	}
 	for i := 0; i < len(items); i++ {
-		var col SysColumns
-		// col.FkCol = append(col.FkCol, SysColumns{ColumnId: 0, ColumnName: "请选择"})
-		col.TableId = items[i].TableId
-		if items[i].Columns, err = col.GetList(); err != nil {
+		items[i].Columns, err = CColumns.QueryWithTableId(ctx, items[i].TableId)
+		if err != nil {
 			return items, err
 		}
 	}
@@ -140,7 +133,7 @@ func (cTables) Create(ctx context.Context, item SysTables) (SysTables, error) {
 	}
 	for i := 0; i < len(item.Columns); i++ {
 		item.Columns[i].TableId = item.TableId
-		item.Columns[i].Create()
+		item.Columns[i], _ = CColumns.Create(ctx, item.Columns[i])
 	}
 	return item, nil
 }
@@ -195,7 +188,7 @@ func (cTables) Update(ctx context.Context, id int, up SysTables) (item SysTables
 				}
 			}
 		}
-		_, _ = up.Columns[i].Update()
+		up.Columns[i], _ = CColumns.Update(ctx, up.Columns[i].ColumnId, up.Columns[i])
 	}
 	return
 }
@@ -207,7 +200,7 @@ func (cTables) Delete(ctx context.Context, id int) error {
 		if err != nil {
 			return err
 		}
-		return dao.DB.Scopes(SysColumnsDB(ctx)).
+		return dao.DB.Scopes(ColumnsDB(ctx)).
 			Delete(SysColumns{}, "table_id=?", id).Error
 	})
 }
