@@ -11,7 +11,6 @@ func Dict(v1 gin.IRouter) {
 	r := v1.Group("/dict")
 	{
 		ctlType := new(system.DictType)
-
 		r.GET("/typeoption", ctlType.GetOption)
 		tr := r.Group("/type")
 		{
