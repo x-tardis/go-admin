@@ -37,7 +37,7 @@ func (cRoleDept) Create(ctx context.Context, roleId int, deptIds []int) error {
 	return dao.DB.Scopes(RoleDeptDB(ctx)).Create(&newItems).Error
 }
 
-func (cRoleDept) Delete(ctx context.Context, roleId int) error {
+func (cRoleDept) DeleteWithRole(ctx context.Context, roleId int) error {
 	return dao.DB.Scopes(RoleDeptDB(ctx)).
 		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
 }

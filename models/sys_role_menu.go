@@ -3,9 +3,8 @@ package models
 import (
 	"context"
 
-	"gorm.io/gorm"
-
 	"github.com/thinkgos/sharp/iorm/trans"
+	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
@@ -75,7 +74,7 @@ func (cRoleMenu) GetIDSWithRoleName(ctx context.Context) (items []MenuPath, err 
 }
 
 func (cRoleMenu) DeleteWith(ctx context.Context, RoleId string, MenuID string) error {
-	db := dao.DB.Scopes(RoleMenuDB(ctx)).Where("role_id = ?", RoleId)
+	db := dao.DB.Scopes(RoleMenuDB(ctx)).Where("role_id=?", RoleId)
 	if MenuID != "" {
 		db = db.Where("menu_id = ?", MenuID)
 	}
@@ -83,101 +82,68 @@ func (cRoleMenu) DeleteWith(ctx context.Context, RoleId string, MenuID string) e
 }
 
 func (cRoleMenu) Delete(ctx context.Context, roleId int) error {
-	tx := dao.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
-
-	err := tx.Scopes(RoleDeptDB(ctx)).
-		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	err = tx.Scopes(RoleMenuDB(ctx)).
-		Where("role_id = ?", roleId).Delete(RoleMenuDB(ctx)).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	var role Role
-
-	err = tx.Scopes(RoleDB(ctx)).
-		Where("role_id = ?", roleId).First(&role).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	sql3 := "delete from sys_casbin_rule where v0= '" + role.RoleKey + "';"
-	if err := tx.Exec(sql3).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	return tx.Commit().Error
-}
-
-func (cRoleMenu) Create(ctx context.Context, roleId int, menuId []int) error {
-	var (
-		role            Role
-		menu            []Menu
-		casbinRuleQueue []CasbinRule // casbinRule 待插入队列
-	)
-
-	// 开始事务
-	tx := dao.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
-
-	// 在事务中做一些数据库操作（从这一点使用'tx'，而不是'db'）
-	err := tx.Scopes(RoleDB(ctx)).
-		Where("role_id = ?", roleId).First(&role).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	err = tx.Scopes(MenuDB(ctx)).
-		Where("menu_id in (?)", menuId).Find(&menu).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	// ORM不支持批量插入所以需要拼接 sql 串
-	var roleMenus []RoleMenu
-
-	for _, m := range menu {
-		roleMenus = append(roleMenus, RoleMenu{role.RoleId, m.MenuId, role.RoleKey})
-		if m.MenuType == MenuTypeIfc {
-			casbinRuleQueue = append(casbinRuleQueue, CasbinRule{V0: role.RoleKey, V1: m.Path, V2: m.Action})
-		}
-	}
-	// 执行批量插入sys_role_menu
-	err = tx.Scopes(RoleMenuDB(ctx)).Create(&roleMenus).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	// 执行批量插入sys_casbin_rule
-	if len(casbinRuleQueue) > 0 {
-		_, err := CCasbinRule.BatchCreate(ctx, casbinRuleQueue)
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		// 删除角色下的部门
+		err := CRoleDept.DeleteWithRole(ctx, roleId)
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
-	}
-	return tx.Commit().Error
+		// 删除目录
+		err = dao.DB.Scopes(RoleMenuDB(ctx)).
+			Where("role_id=?", roleId).Delete(&RoleMenu{}).Error
+		if err != nil {
+			return err
+		}
+		// 删除角色
+		role, err := CRole.Get(ctx, roleId)
+		if err != nil {
+			return err
+		}
+		// 删除casbin
+		return CCasbinRule.DeleteWithRole(ctx, role.RoleKey)
+	})
+}
+
+func (sf cRoleMenu) BatchCreate(ctx context.Context, roleId int, menuId []int) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		var menus []Menu
+		var casbinRules []CasbinRule
+
+		role, err := CRole.Get(ctx, roleId)
+		if err != nil {
+			return err
+		}
+		err = dao.DB.Scopes(MenuDB(ctx)).
+			Where("menu_id in (?)", menuId).Find(&menus).Error
+		if err != nil {
+			return err
+		}
+
+		roleMenus := make([]RoleMenu, len(menus))
+		for _, menu := range menus {
+			roleMenus = append(roleMenus, RoleMenu{role.RoleId, menu.MenuId, role.RoleKey})
+			if menu.MenuType == MenuTypeIfc {
+				casbinRules = append(casbinRules, CasbinRule{PType: "p", V0: role.RoleKey, V1: menu.Path, V2: menu.Action})
+			}
+		}
+
+		// 执行批量插入sys_role_menu
+		_, err = sf.batchCreate(ctx, roleMenus)
+		if err != nil {
+			return err
+		}
+		// 执行批量插入sys_casbin_rule
+		if len(casbinRules) > 0 {
+			_, err := CCasbinRule.BatchCreate(ctx, casbinRules)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func (cRoleMenu) batchCreate(ctx context.Context, items []RoleMenu) ([]RoleMenu, error) {
+	err := dao.DB.Scopes(RoleMenuDB(ctx)).Create(&items).Error
+	return items, err
 }

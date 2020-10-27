@@ -98,7 +98,7 @@ func (Role) Create(c *gin.Context) {
 	}
 
 	if len(item.MenuIds) > 0 {
-		err = models.CRoleMenu.Create(gcontext.Context(c), item.RoleId, newItem.MenuIds)
+		err = models.CRoleMenu.BatchCreate(gcontext.Context(c), item.RoleId, newItem.MenuIds)
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 			return
@@ -141,7 +141,7 @@ func (Role) Update(c *gin.Context) {
 		return
 	}
 	if len(up.MenuIds) > 0 {
-		err := models.CRoleMenu.Create(gcontext.Context(c), up.RoleId, up.MenuIds)
+		err := models.CRoleMenu.BatchCreate(gcontext.Context(c), up.RoleId, up.MenuIds)
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 			return
@@ -188,7 +188,7 @@ func UpdateRoleDataScope(c *gin.Context) {
 
 	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 
-	err = models.CRoleDept.Delete(gcontext.Context(c), up.RoleId)
+	err = models.CRoleDept.DeleteWithRole(gcontext.Context(c), up.RoleId)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
