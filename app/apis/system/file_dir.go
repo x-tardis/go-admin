@@ -48,7 +48,7 @@ func (FileDir) Get(c *gin.Context) {
 // @Param data body models.FileDir true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/sysfiledir [post]
+// @Router /api/v1/filedir [post]
 func (FileDir) Create(c *gin.Context) {
 	newItem := models.FileDir{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {

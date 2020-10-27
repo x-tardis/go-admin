@@ -9,7 +9,7 @@ import (
 // 无需认证的路由代码
 func PubSysFileInfo(v1 gin.IRouter) {
 	ctl := new(system.FileInfo)
-	r := v1.Group("/sysfileinfo")
+	r := v1.Group("/fileinfo")
 	{
 		r.GET("", ctl.QueryPage)
 		r.GET("/:id", ctl.Get)
@@ -22,7 +22,7 @@ func PubSysFileInfo(v1 gin.IRouter) {
 // 无需认证的路由代码
 func PubSysFileDir(v1 gin.IRouter) {
 	ctl := new(system.FileDir)
-	r := v1.Group("/sysfiledir")
+	r := v1.Group("/filedir")
 	{
 		r.GET("", ctl.QueryTree)
 		r.GET("/:id", ctl.Get)

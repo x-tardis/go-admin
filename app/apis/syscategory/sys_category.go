@@ -58,7 +58,7 @@ func (Category) Get(c *gin.Context) {
 // @Param data body models.Category true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/syscategory [post]
+// @Router /api/v1/categories [post]
 func (Category) Create(c *gin.Context) {
 	newItem := models.Category{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {

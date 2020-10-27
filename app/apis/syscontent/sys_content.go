@@ -58,7 +58,7 @@ func (Content) Get(c *gin.Context) {
 // @Param data body models.Content true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/syscontents [post]
+// @Router /api/v1/contents [post]
 func (Content) Create(c *gin.Context) {
 	newItem := models.Content{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {

@@ -9,7 +9,7 @@ import (
 // 需认证的路由代码
 func SysContent(v1 gin.IRouter) {
 	ctl := new(syscontent.Content)
-	r := v1.Group("/syscontents")
+	r := v1.Group("/contents")
 	{
 		r.GET("", ctl.QueryPage)
 		r.GET("/:id", ctl.Get)

@@ -9,7 +9,7 @@ import (
 // 需认证的路由代码
 func SysCategory(v1 gin.IRouter) {
 	ctl := new(syscategory.Category)
-	r := v1.Group("/syscategory")
+	r := v1.Group("/categories")
 	{
 		r.GET("", ctl.QueryPage)
 		r.GET("/:id", ctl.Get)

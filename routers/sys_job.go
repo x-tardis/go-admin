@@ -11,7 +11,7 @@ import (
 
 // 需认证的路由代码
 func SysJobRouter(v1 gin.IRouter) {
-	r := v1.Group("/sysjob")
+	r := v1.Group("/jobs")
 	{
 		sysJob := &models.Job{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(service.SysJobSearch), func() interface{} {
