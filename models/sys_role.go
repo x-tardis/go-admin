@@ -170,7 +170,7 @@ func (cRole) BatchDelete(ctx context.Context, ids []int) error {
 		}
 
 		// 删除角色
-		if err := db.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Unscoped().Delete(&Role{}).Error; err != nil {
+		if err := db.Scopes(RoleDB(ctx)).Unscoped().Where("role_id in (?)", ids).Delete(&Role{}).Error; err != nil {
 			return err
 		}
 
@@ -181,7 +181,7 @@ func (cRole) BatchDelete(ctx context.Context, ids []int) error {
 
 		// 删除casbin配置
 		for i := 0; i < len(roles); i++ {
-			if err := db.Scopes(CasbinRuleDB(ctx)).Where("v0 in (?)", roles[0].RoleKey).Delete(&CasbinRule{}).Error; err != nil {
+			if err := CCasbinRule.DeleteWithRole(ctx, roles[0].RoleKey); err != nil {
 				return err
 			}
 		}
@@ -206,7 +206,7 @@ func (cRole) GetMenuIds(ctx context.Context, roleId int) ([]int, error) {
 		Find(&menuList).Error; err != nil {
 		return nil, err
 	}
-	menuIds := make([]int, 0)
+	menuIds := make([]int, 0, len(menuList))
 	for _, v := range menuList {
 		menuIds = append(menuIds, v.MenuId)
 	}
@@ -231,7 +231,7 @@ func (cRole) GetDeptIds(ctx context.Context, roleId int) ([]int, error) {
 		return nil, err
 	}
 
-	deptIds := make([]int, 0)
+	deptIds := make([]int, 0, len(deptList))
 	for _, v := range deptList {
 		deptIds = append(deptIds, v.DeptId)
 	}

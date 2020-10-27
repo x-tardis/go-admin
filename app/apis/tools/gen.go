@@ -152,6 +152,7 @@ func NOActionsGenV3(tab tools.SysTables) error {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
+
 	extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go", b2.Bytes())
 	extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes())

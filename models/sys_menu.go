@@ -245,6 +245,11 @@ func (cMenu) Delete(ctx context.Context, id int) error {
 		Where("menu_id=?", id).Delete(&Menu{}).Error
 }
 
+func (cMenu) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(MenuDB(ctx)).
+		Where("menu_id in (?)", ids).Delete(&Menu{}).Error
+}
+
 func InitPaths(ctx context.Context, menu *Menu) (err error) {
 	parentMenu := new(Menu)
 	if menu.ParentId != 0 {

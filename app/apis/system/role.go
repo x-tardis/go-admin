@@ -193,8 +193,8 @@ func UpdateRoleDataScope(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	if up.DataScope == "2" {
-		err := models.CRoleDept.Create(gcontext.Context(c), up.RoleId, up.DeptIds)
+	if up.DataScope == models.ScopeCustomize {
+		err := models.CRoleDept.BatchCreate(gcontext.Context(c), up.RoleId, up.DeptIds)
 		if err != nil {
 			servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.CreateFailed))
 			return

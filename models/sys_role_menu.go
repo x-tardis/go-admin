@@ -10,7 +10,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-// RoleMenu role menu
+// RoleMenu role menu 关系表
 type RoleMenu struct {
 	RoleId   int    `gorm:""`
 	MenuId   int    `gorm:""`
@@ -31,11 +31,12 @@ func RoleMenuDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 
 type cRoleMenu struct{}
 
+// CRoleMenu 实例
 var CRoleMenu = cRoleMenu{}
 
-func (cRoleMenu) Get(ctx context.Context, id int) (items []RoleMenu, err error) {
+func (cRoleMenu) Get(ctx context.Context, roleId int) (items []RoleMenu, err error) {
 	err = dao.DB.Scopes(RoleMenuDB(ctx)).
-		Where("role_id = ?", id).Find(&items).Error
+		Where("role_id=?", roleId).Find(&items).Error
 	return
 }
 
@@ -107,7 +108,6 @@ func (cRoleMenu) Delete(ctx context.Context, roleId int) error {
 func (sf cRoleMenu) BatchCreate(ctx context.Context, roleId int, menuId []int) error {
 	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
 		var menus []Menu
-		var casbinRules []CasbinRule
 
 		role, err := CRole.Get(ctx, roleId)
 		if err != nil {
@@ -119,7 +119,8 @@ func (sf cRoleMenu) BatchCreate(ctx context.Context, roleId int, menuId []int) e
 			return err
 		}
 
-		roleMenus := make([]RoleMenu, len(menus))
+		roleMenus := make([]RoleMenu, 0, len(menus))
+		casbinRules := make([]CasbinRule, 0, len(menus))
 		for _, menu := range menus {
 			roleMenus = append(roleMenus, RoleMenu{role.RoleId, menu.MenuId, role.RoleKey})
 			if menu.MenuType == MenuTypeIfc {
