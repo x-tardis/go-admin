@@ -183,7 +183,6 @@ func GetMenuTreeOption(c *gin.Context) {
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）
 // @Description 获取JSON
 // @Tags 菜单
-// @Param id path int true "id"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menurole [get]

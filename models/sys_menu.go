@@ -81,7 +81,7 @@ type MenuQueryParam struct {
 	Visible  string `form:"visible"`
 }
 
-// MenuTitleLabel
+// MenuTitleLabel title树
 type MenuTitleLabel struct {
 	Id       int              `json:"id"`
 	Label    string           `json:"label"`
@@ -90,6 +90,7 @@ type MenuTitleLabel struct {
 
 type cMenu struct{}
 
+// CMenu 实例
 var CMenu = cMenu{}
 
 // toMenuTree 目录树
@@ -103,7 +104,7 @@ func toMenuTree(items []Menu) []Menu {
 	return tree
 }
 
-// deepChildrenMenu 获得递归子目录
+// 获得递归子目录
 func deepChildrenMenu(items []Menu, item Menu) Menu {
 	item.Children = make([]Menu, 0)
 	for _, itm := range items {
@@ -117,41 +118,34 @@ func deepChildrenMenu(items []Menu, item Menu) Menu {
 	return item
 }
 
-// toMenuTitleLabelTree 目录Label树
+// 转换目录title Label树
 func toMenuTitleLabelTree(items []Menu) []MenuTitleLabel {
 	tree := make([]MenuTitleLabel, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
-			lab := MenuTitleLabel{
-				itm.MenuId,
-				itm.Title,
-				make([]MenuTitleLabel, 0),
-			}
-			tree = append(tree, deepChildrenMenuTitleLabel(items, lab))
+			tree = append(tree, deepChildrenMenuTitleLabel(items, MenuTitleLabel{Id: itm.MenuId, Label: itm.Title}))
 		}
 	}
 	return tree
 }
 
-// deepChildrenMenuTitleLabel 获得递归子目录Lable
+// 递归子目录title label
 func deepChildrenMenuTitleLabel(items []Menu, item MenuTitleLabel) MenuTitleLabel {
+	item.Children = make([]MenuTitleLabel, 0)
 	for _, itm := range items {
 		if item.Id == itm.ParentId {
-			mi := MenuTitleLabel{
-				itm.MenuId,
-				itm.Title,
-				make([]MenuTitleLabel, 0),
+			label := MenuTitleLabel{Id: itm.MenuId, Label: itm.Title}
+			if itm.MenuType == MenuTypeToc || itm.MenuType == MenuTypeMenu {
+				label = deepChildrenMenuTitleLabel(items, label)
 			}
-			if itm.MenuType != MenuTypeBtn {
-				mi = deepChildrenMenuTitleLabel(items, mi)
-			}
-			item.Children = append(item.Children, mi)
+			item.Children = append(item.Children, label)
 		}
 	}
 	return item
 }
 
-func (sf cMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, err error) {
+// QueryTree 获取目录树
+func (sf cMenu) QueryTree(ctx context.Context, qp MenuQueryParam) ([]Menu, error) {
 	items, err := sf.QueryPage(ctx, qp)
 	if err != nil {
 		return nil, err
@@ -159,6 +153,7 @@ func (sf cMenu) QueryTree(ctx context.Context, qp MenuQueryParam) (m []Menu, err
 	return toMenuTree(items), nil
 }
 
+// QueryTreeWithRoleName 获取角色的目录树
 func (sf cMenu) QueryTreeWithRoleName(ctx context.Context) ([]Menu, error) {
 	roleName := jwtauth.FromRoleKey(ctx)
 	items, err := sf.QueryWithRoleName(ctx, roleName)
@@ -168,6 +163,7 @@ func (sf cMenu) QueryTreeWithRoleName(ctx context.Context) ([]Menu, error) {
 	return toMenuTree(items), nil
 }
 
+// QueryWithRoleName 通过role name 查询
 func (cMenu) QueryWithRoleName(ctx context.Context, roleName string) (items []Menu, err error) {
 	err = dao.DB.Scopes(MenuDB(ctx)).
 		Select("sys_menu.*").
@@ -177,7 +173,8 @@ func (cMenu) QueryWithRoleName(ctx context.Context, roleName string) (items []Me
 	return
 }
 
-func (sf cMenu) QueryTitleLabelTree(ctx context.Context) (m []MenuTitleLabel, err error) {
+// QueryTitleLabelTree 获取title 树
+func (sf cMenu) QueryTitleLabelTree(ctx context.Context) ([]MenuTitleLabel, error) {
 	items, err := sf.Query(ctx, MenuQueryParam{})
 	if err != nil {
 		return nil, err
@@ -185,6 +182,7 @@ func (sf cMenu) QueryTitleLabelTree(ctx context.Context) (m []MenuTitleLabel, er
 	return toMenuTitleLabelTree(items), nil
 }
 
+// Query 查询
 func (cMenu) Query(ctx context.Context, qp MenuQueryParam) (items []Menu, err error) {
 	db := dao.DB.Scopes(MenuDB(ctx))
 	if qp.MenuName != "" {
@@ -203,6 +201,7 @@ func (cMenu) Query(ctx context.Context, qp MenuQueryParam) (items []Menu, err er
 	return
 }
 
+// QueryPage 查询,分查
 func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, err error) {
 	db := dao.DB.Scopes(MenuDB(ctx))
 	if qp.MenuName != "" {
@@ -228,20 +227,24 @@ func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, er
 	return
 }
 
+// Get 获取
 func (cMenu) Get(ctx context.Context, id int) (item Menu, err error) {
 	err = dao.DB.Scopes(MenuDB(ctx)).Where("menu_id=?", id).Find(&item).Error
 	return
 }
+
+// Create 创建目录
 func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := dao.DB.Scopes(MenuDB(ctx)).Create(&item).Error
 	if err != nil {
 		return item, err
 	}
-	err = InitPaths(ctx, &item)
+	err = item.updatePaths(ctx)
 	return item, err
 }
 
+// Update 更新
 func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
 	if err = dao.DB.Scopes(MenuDB(ctx)).First(&item, id).Error; err != nil {
 		return
@@ -251,32 +254,34 @@ func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error)
 	if err = dao.DB.Scopes(MenuDB(ctx)).Model(&item).Updates(&up).Error; err != nil {
 		return
 	}
-	err = InitPaths(ctx, &up)
+	err = up.updatePaths(ctx)
 	return
 }
 
+// Delete 删除
 func (cMenu) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(MenuDB(ctx)).
 		Where("menu_id=?", id).Delete(&Menu{}).Error
 }
 
+// BatchDelete 批量删除
 func (cMenu) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(MenuDB(ctx)).
 		Where("menu_id in (?)", ids).Delete(&Menu{}).Error
 }
 
-func InitPaths(ctx context.Context, menu *Menu) (err error) {
-	parentMenu := new(Menu)
-	if menu.ParentId != 0 {
+func (sf *Menu) updatePaths(ctx context.Context) (err error) {
+	if sf.ParentId == 0 {
+		sf.Paths = "/0/" + cast.ToString(sf.MenuId)
+	} else {
+		parentMenu := new(Menu)
 		dao.DB.Scopes(MenuDB(ctx)).
-			Where("menu_id = ?", menu.ParentId).First(parentMenu)
+			Where("menu_id=?", sf.ParentId).First(parentMenu)
 		if parentMenu.Paths == "" {
 			return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 		}
-		menu.Paths = parentMenu.Paths + "/" + cast.ToString(menu.MenuId)
-	} else {
-		menu.Paths = "/0/" + cast.ToString(menu.MenuId)
+		sf.Paths = parentMenu.Paths + "/" + cast.ToString(sf.MenuId)
 	}
 	return dao.DB.Scopes(MenuDB(ctx)).
-		Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths).Error
+		Where("menu_id=?", sf.MenuId).Update("paths", sf.Paths).Error
 }
