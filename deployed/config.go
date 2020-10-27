@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/gin-contrib/cors"
 	"github.com/spf13/viper"
 
@@ -33,7 +34,6 @@ func SetupConfig(path string) {
 	SslConfig = ViperSsl()
 	CorsConfig = ViperCors()
 	GenConfig = ViperGen()
-
 }
 
 // 如果filename为空,将使用config.yaml配置文件,并在当前文件搜索
@@ -48,6 +48,13 @@ func LoadConfig(filename string) error {
 	}
 
 	ViperInitDefault()
-
+	viper.OnConfigChange(func(in fsnotify.Event) {
+		// TODO: 防止重复操作
+		c := viper.Sub("feature")
+		FeatureConfig.DataScope.Store(c.GetBool("dataScope"))
+		FeatureConfig.OperDB.Store(c.GetBool("operDB"))
+		FeatureConfig.LoginDB.Store(c.GetBool("loginDB"))
+	})
+	viper.WatchConfig()
 	return viper.ReadInConfig()
 }

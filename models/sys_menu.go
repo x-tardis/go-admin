@@ -13,27 +13,37 @@ import (
 )
 
 const (
-	MenuTypeToc  = "toc" // 目录 M
-	MenuTypeMenu = "mem" // 菜单 C
+	MenuTypeToc  = "toc" // 菜单      M
+	MenuTypeMenu = "mem" // 菜单项    C
 	// MenuTypeLay  = "lay" // 布局 lay
-	MenuTypeBtn = "btn" // 按钮 F
-	MenuTypeIfc = "ifc" // 接口 A
+	MenuTypeBtn = "btn" // 按钮       F
+	MenuTypeIfc = "ifc" // 接口       A
 )
 
+// Menu菜单
+// MenuType = toc 菜单权限, 菜单功能,里面含有菜单项
+// MenuType = men 菜单项权限, 菜单项功能,为实际页面
+//
+// MenuType == btn 按钮权限, 主要用于按钮权限控制,由permission设置
+//      title, paths, permission, visible
+//      标题, 路径树, 权限标识, 排序, 显示
+// MenuType == ifc接口权限,主要用于角色权限路由method,path的设置.
+//      title, path, paths, action, sort, visible
+//      标题, 路径, 路径树, 方法, 排序, 显示
 type Menu struct {
 	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"` // 主键
 	MenuName   string `json:"menuName" gorm:"size:128;"`                // 名称
 	Title      string `json:"title" gorm:"size:128;"`                   // 标题
 	Icon       string `json:"icon" gorm:"size:128;"`                    // 图标
-	Path       string `json:"path" gorm:"size:128;"`                    // 目录路径
+	Path       string `json:"path" gorm:"size:128;"`                    // 路径
 	Paths      string `json:"paths" gorm:"size:128;"`                   // 路径树
 	MenuType   string `json:"menuType" gorm:"size:3;"`                  // 类型
-	Action     string `json:"action" gorm:"size:16;"`                   // 请求方式,仅接口使用
-	Permission string `json:"permission" gorm:"size:255;"`              // 权限标识,仅在(菜单,按钮)使用
+	Action     string `json:"action" gorm:"size:16;"`                   // 请求方式,仅<接口>使用
+	Permission string `json:"permission" gorm:"size:255;"`              // 权限标识,仅在<菜单项,按钮>使用
 	ParentId   int    `json:"parentId" gorm:"size:11;"`                 // 父级主键
 	NoCache    bool   `json:"noCache" gorm:"size:8;"`                   // 不缓存
 	Breadcrumb string `json:"breadcrumb" gorm:"size:255;"`              // 面包屑
-	Component  string `json:"component" gorm:"size:255;"`               // 组件路径
+	Component  string `json:"component" gorm:"size:255;"`               // 组件路径,仅在<菜单,菜单项>使用
 	Sort       int    `json:"sort" gorm:"size:4;"`                      // 排序
 	Visible    string `json:"visible" gorm:"size:1;"`                   // 显示/隐藏
 	IsFrame    string `json:"isFrame" gorm:"size:1;DEFAULT:0;"`         // 是否外链
@@ -41,36 +51,41 @@ type Menu struct {
 	Updator    string `json:"updator" gorm:"size:128;"`                 // 更新者
 	Model
 
-	RoleId   int    `gorm:"-"`
+	RoleId   int    `json:"roleId" gorm:"-"`
 	Children []Menu `json:"children" gorm:"-"`
-	IsSelect bool   `json:"is_select" gorm:"-"`
+	IsSelect bool   `json:"isSelect" gorm:"-"`
 
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params" gorm:"-"`
 }
 
+// TableName implement schema.Tabler interface
 func (Menu) TableName() string {
 	return "sys_menu"
 }
 
+// MenuDB menu db scopes
 func MenuDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(Menu{})
 	}
 }
 
+// MenuQueryParam 查询参数
 type MenuQueryParam struct {
+	Title    string `form:"title"`
 	MenuName string `form:"menuName"`
 	Path     string `form:"path"`
 	Action   string `form:"action"`
 	MenuType string `form:"menuType"`
 	Visible  string `form:"visible"`
-	Title    string `form:"title"`
 }
+
+// MenuLabel
 type MenuLabel struct {
-	Id       int         `json:"id" gorm:"-"`
-	Label    string      `json:"label" gorm:"-"`
-	Children []MenuLabel `json:"children" gorm:"-"`
+	Id       int         `json:"id"`
+	Label    string      `json:"label"`
+	Children []MenuLabel `json:"children"`
 }
 
 type cMenu struct{}
