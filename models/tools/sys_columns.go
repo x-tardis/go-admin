@@ -3,11 +3,11 @@ package tools
 import (
 	"context"
 
+	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type SysColumns struct {

@@ -7,9 +7,9 @@ import (
 	"path"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thinkgos/go-core-package/extimg"
 	"github.com/thinkgos/go-core-package/extos"
 
-	"github.com/x-tardis/go-admin/pkg/extimg"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )

@@ -30,7 +30,6 @@ require (
 	github.com/mssola/user_agent v0.5.2
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/pelletier/go-toml v1.8.1 // indirect
-	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/shirou/gopsutil v2.20.9+incompatible
 	github.com/spf13/afero v1.4.1 // indirect
@@ -41,10 +40,10 @@ require (
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.9
 	github.com/thinkgos/gin-middlewares v0.0.6
-	github.com/thinkgos/go-core-package v0.1.4
+	github.com/thinkgos/go-core-package v0.1.5
 	github.com/thinkgos/http-middlewares v0.0.3
 	github.com/thinkgos/meter v0.0.8
-	github.com/thinkgos/sharp v0.3.4
+	github.com/thinkgos/sharp v0.3.5
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.16.0
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect

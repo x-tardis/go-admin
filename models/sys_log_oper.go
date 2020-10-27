@@ -6,11 +6,11 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
+	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // OperLog operate log

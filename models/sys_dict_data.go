@@ -6,11 +6,11 @@ import (
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
+	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // DictData 字典数据, 字典类型下的实际字典数据

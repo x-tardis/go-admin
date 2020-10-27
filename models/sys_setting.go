@@ -3,10 +3,10 @@ package models
 import (
 	"context"
 
+	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // Setting 系统设置

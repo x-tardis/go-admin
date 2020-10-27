@@ -2,13 +2,13 @@ package models
 
 import (
 	"context"
-	"fmt"
 
 	"gorm.io/gorm"
 
+	"github.com/thinkgos/sharp/iorm/trans"
+
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 // RoleMenu role menu
@@ -158,13 +158,9 @@ func (cRoleMenu) Create(ctx context.Context, roleId int, menuId []int) error {
 	// ORM不支持批量插入所以需要拼接 sql 串
 	var roleMenus []RoleMenu
 
-	casbinRuleSql := "INSERT INTO `sys_casbin_rule`  (`p_type`,`v0`,`v1`,`v2`) VALUES "
-
 	for _, m := range menu {
-		roleMenus = append(roleMenus,
-			RoleMenu{role.RoleId, m.MenuId, role.RoleKey})
+		roleMenus = append(roleMenus, RoleMenu{role.RoleId, m.MenuId, role.RoleKey})
 		if m.MenuType == MenuTypeIfc {
-			// 加入队列
 			casbinRuleQueue = append(casbinRuleQueue, CasbinRule{V0: role.RoleKey, V1: m.Path, V2: m.Action})
 		}
 	}
@@ -175,23 +171,13 @@ func (cRoleMenu) Create(ctx context.Context, roleId int, menuId []int) error {
 		return err
 	}
 
-	// 拼装'sys_casbin_rule'批量插入SQL语句
-	// TODO: casbinRuleQueue队列不为空时才会拼装，否则直接忽略不执行'for'循环
-	for i, v := range casbinRuleQueue {
-		casbinRuleSql += fmt.Sprintf("('p','%s','%s','%s')", v.V0, v.V1, v.V2)
-		if i == len(casbinRuleQueue)-1 {
-			casbinRuleSql += ";"
-		} else {
-			casbinRuleSql += ","
-		}
-	}
 	// 执行批量插入sys_casbin_rule
 	if len(casbinRuleQueue) > 0 {
-		if err := tx.Exec(casbinRuleSql).Error; err != nil {
+		_, err := CCasbinRule.BatchCreate(ctx, casbinRuleQueue)
+		if err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
-
 	return tx.Commit().Error
 }

@@ -3,9 +3,10 @@ package models
 import (
 	"context"
 
+	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/pkg/trans"
+	"github.com/x-tardis/go-admin/deployed/dao"
 )
 
 //sys_casbin_rule
@@ -27,4 +28,13 @@ func CasbinRuleDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Scopes(trans.CtxDB(ctx)).Model(CasbinRule{})
 	}
+}
+
+type cCasbinRule struct{}
+
+var CCasbinRule = cCasbinRule{}
+
+func (cCasbinRule) BatchCreate(ctx context.Context, item []CasbinRule) ([]CasbinRule, error) {
+	err := dao.DB.Scopes(CasbinRuleDB(ctx)).Create(item).Error
+	return item, err
 }

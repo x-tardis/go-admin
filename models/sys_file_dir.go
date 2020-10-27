@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/spf13/cast"
+	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/trans"
 )
 
 type FileDir struct {
