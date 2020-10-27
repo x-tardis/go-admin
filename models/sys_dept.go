@@ -45,11 +45,11 @@ func DeptDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-// DeptLabel dept label
-type DeptLabel struct {
-	Id       int         `json:"id"`
-	Label    string      `json:"label"`
-	Children []DeptLabel `json:"children"`
+// DeptNameLabel dept label
+type DeptNameLabel struct {
+	Id       int             `json:"id"`
+	Label    string          `json:"label"`
+	Children []DeptNameLabel `json:"children"`
 }
 
 // DeptQueryParam 查询参数
@@ -85,11 +85,11 @@ func deepChildrenDept(items []Dept, item Dept) Dept {
 	return item
 }
 
-func toDeptLabelTree(items []Dept) []DeptLabel {
-	tree := make([]DeptLabel, 0)
+func toDeptNameLabelTree(items []Dept) []DeptNameLabel {
+	tree := make([]DeptNameLabel, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
-			tree = append(tree, deepChildrenDeptLabel(items, DeptLabel{
+			tree = append(tree, deepChildrenDeptNameLabel(items, DeptNameLabel{
 				itm.DeptId,
 				itm.DeptName,
 				nil,
@@ -99,27 +99,27 @@ func toDeptLabelTree(items []Dept) []DeptLabel {
 	return tree
 }
 
-func deepChildrenDeptLabel(items []Dept, dept DeptLabel) DeptLabel {
-	dept.Children = make([]DeptLabel, 0)
+func deepChildrenDeptNameLabel(items []Dept, dept DeptNameLabel) DeptNameLabel {
+	dept.Children = make([]DeptNameLabel, 0)
 	for _, itm := range items {
 		if dept.Id == itm.ParentId {
-			dept.Children = append(dept.Children, deepChildrenDeptLabel(items, DeptLabel{
+			dept.Children = append(dept.Children, deepChildrenDeptNameLabel(items, DeptNameLabel{
 				itm.DeptId,
 				itm.DeptName,
-				make([]DeptLabel, 0),
+				make([]DeptNameLabel, 0),
 			}))
 		}
 	}
 	return dept
 }
 
-// QueryLabelTree query label tree
-func (sf cDept) QueryLabelTree(ctx context.Context) ([]DeptLabel, error) {
+// QueryTitleLabelTree query label tree
+func (sf cDept) QueryLabelTree(ctx context.Context) ([]DeptNameLabel, error) {
 	items, err := sf.Query(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return toDeptLabelTree(items), nil
+	return toDeptNameLabelTree(items), nil
 }
 
 // QueryTree query tree

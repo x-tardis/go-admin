@@ -81,11 +81,11 @@ type MenuQueryParam struct {
 	Visible  string `form:"visible"`
 }
 
-// MenuLabel
-type MenuLabel struct {
-	Id       int         `json:"id"`
-	Label    string      `json:"label"`
-	Children []MenuLabel `json:"children"`
+// MenuTitleLabel
+type MenuTitleLabel struct {
+	Id       int              `json:"id"`
+	Label    string           `json:"label"`
+	Children []MenuTitleLabel `json:"children"`
 }
 
 type cMenu struct{}
@@ -117,33 +117,33 @@ func deepChildrenMenu(items []Menu, item Menu) Menu {
 	return item
 }
 
-// toMenuLabelTree 目录Label树
-func toMenuLabelTree(items []Menu) []MenuLabel {
-	tree := make([]MenuLabel, 0)
+// toMenuTitleLabelTree 目录Label树
+func toMenuTitleLabelTree(items []Menu) []MenuTitleLabel {
+	tree := make([]MenuTitleLabel, 0)
 	for _, itm := range items {
 		if itm.ParentId == 0 {
-			lab := MenuLabel{
+			lab := MenuTitleLabel{
 				itm.MenuId,
 				itm.Title,
-				make([]MenuLabel, 0),
+				make([]MenuTitleLabel, 0),
 			}
-			tree = append(tree, deepChildrenMenuLabel(items, lab))
+			tree = append(tree, deepChildrenMenuTitleLabel(items, lab))
 		}
 	}
 	return tree
 }
 
-// deepChildrenMenuLabel 获得递归子目录Lable
-func deepChildrenMenuLabel(items []Menu, item MenuLabel) MenuLabel {
+// deepChildrenMenuTitleLabel 获得递归子目录Lable
+func deepChildrenMenuTitleLabel(items []Menu, item MenuTitleLabel) MenuTitleLabel {
 	for _, itm := range items {
 		if item.Id == itm.ParentId {
-			mi := MenuLabel{
+			mi := MenuTitleLabel{
 				itm.MenuId,
 				itm.Title,
-				make([]MenuLabel, 0),
+				make([]MenuTitleLabel, 0),
 			}
 			if itm.MenuType != MenuTypeBtn {
-				mi = deepChildrenMenuLabel(items, mi)
+				mi = deepChildrenMenuTitleLabel(items, mi)
 			}
 			item.Children = append(item.Children, mi)
 		}
@@ -177,12 +177,12 @@ func (cMenu) QueryWithRoleName(ctx context.Context, roleName string) (items []Me
 	return
 }
 
-func (sf cMenu) QueryLabelTree(ctx context.Context) (m []MenuLabel, err error) {
+func (sf cMenu) QueryTitleLabelTree(ctx context.Context) (m []MenuTitleLabel, err error) {
 	items, err := sf.Query(ctx, MenuQueryParam{})
 	if err != nil {
 		return nil, err
 	}
-	return toMenuLabelTree(items), nil
+	return toMenuTitleLabelTree(items), nil
 }
 
 func (cMenu) Query(ctx context.Context, qp MenuQueryParam) (items []Menu, err error) {

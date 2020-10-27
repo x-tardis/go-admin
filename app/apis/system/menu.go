@@ -135,7 +135,7 @@ func (Menu) Delete(c *gin.Context) {
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
-	result, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
+	result, err := models.CMenu.QueryTitleLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.QueryFailed),
@@ -170,7 +170,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 // @Router /api/v1/menuTreeoption [get]
 // @Security Bearer
 func GetMenuTreeOption(c *gin.Context) {
-	items, err := models.CMenu.QueryLabelTree(gcontext.Context(c))
+	items, err := models.CMenu.QueryTitleLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.QueryFailed),
