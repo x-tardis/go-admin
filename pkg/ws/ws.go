@@ -263,8 +263,6 @@ var WebsocketManager = Manager{
 
 // gin 处理 websocket handler
 func (manager *Manager) WsClient(c *gin.Context) {
-	ctx, cancel := context.WithCancel(context.Background())
-
 	upGrader := websocket.Upgrader{
 		// cross origin domain
 		CheckOrigin: func(r *http.Request) bool {
@@ -282,9 +280,11 @@ func (manager *Manager) WsClient(c *gin.Context) {
 
 	fmt.Println("token: ", c.Query("token"))
 
+	id, channel := c.Param("id"), c.Param("channel")
+	ctx, cancel := context.WithCancel(context.Background())
 	client := &Client{
-		Id:         c.Param("id"),
-		Group:      c.Param("channel"),
+		Id:         id,
+		Group:      channel,
 		Context:    ctx,
 		CancelFunc: cancel,
 		Socket:     conn,
@@ -296,7 +296,7 @@ func (manager *Manager) WsClient(c *gin.Context) {
 	go client.Write(ctx)
 	time.Sleep(time.Second * 15)
 
-	FileMonitoringById(ctx, "temp/job.log", c.Param("id"), c.Param("channel"), SendOne)
+	FileMonitoringById(ctx, "temp/job.log", id, channel, SendOne)
 }
 
 func (manager *Manager) UnWsClient(c *gin.Context) {

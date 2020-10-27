@@ -6,7 +6,7 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.4
-	github.com/casbin/casbin/v2 v2.14.2
+	github.com/casbin/casbin/v2 v2.15.0
 	github.com/casbin/gorm-adapter/v3 v3.0.3
 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -45,11 +45,13 @@ require (
 	github.com/thinkgos/meter v0.0.8
 	github.com/thinkgos/sharp v0.3.5
 	github.com/unrolled/secure v1.0.8
+	go.uber.org/atomic v1.7.0
+	go.uber.org/multierr v1.6.0
 	go.uber.org/zap v1.16.0
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect
-	golang.org/x/net v0.0.0-20201024042810-be3efd7ff127 // indirect
-	golang.org/x/sys v0.0.0-20201024232916-9f70ab9862d5 // indirect
-	golang.org/x/tools v0.0.0-20201023174141-c8cfbd0f21e6 // indirect
+	golang.org/x/net v0.0.0-20201026091529-146b70c837a4 // indirect
+	golang.org/x/sys v0.0.0-20201026173827-119d4633e4d1 // indirect
+	golang.org/x/tools v0.0.0-20201026223136-e84cfc6dd5ca // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gorm.io/driver/mysql v1.0.3

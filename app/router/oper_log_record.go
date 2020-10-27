@@ -22,7 +22,8 @@ func OperLog() gin.HandlerFunc {
 		startTime := time.Now()
 		// 处理请求
 		c.Next()
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && deployed.EnabledDB {
+		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" &&
+			deployed.FeatureConfig.OperDB.Load() {
 			OperLogRecord(c, c.Writer.Status(), time.Since(startTime))
 		}
 	}

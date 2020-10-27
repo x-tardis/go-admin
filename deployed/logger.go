@@ -1,7 +1,6 @@
 package deployed
 
 import (
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/pkg/izap"
@@ -9,10 +8,8 @@ import (
 
 var JobLogger *zap.SugaredLogger
 var RequestLogger *zap.SugaredLogger
-var EnabledDB bool
 
 func SetupLogger() {
-	EnabledDB = viper.GetBool("enabledb")
 	c := ViperLogger()
 	c.FileName = "bus.log"
 	logger := izap.New(c)

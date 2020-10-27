@@ -142,7 +142,7 @@ func loginLogRecord(c *gin.Context, success bool, msg string, username string) {
 	if !success {
 		status = "1"
 	}
-	if deployed.EnabledDB {
+	if deployed.FeatureConfig.LoginDB.Load() {
 		ua := user_agent.New(c.Request.UserAgent())
 		browserName, browserVersion := ua.Browser()
 		location := deployed.IPLocation(c.ClientIP())

@@ -17,6 +17,7 @@ var JwtConfig = new(jwtauth.Config)
 var SslConfig = new(Ssl)
 var GenConfig = new(Gen)
 var CorsConfig = new(cors.Config)
+var FeatureConfig = new(Feature)
 
 // 载入配置文件
 func SetupConfig(path string) {
@@ -27,10 +28,12 @@ func SetupConfig(path string) {
 
 	DbConfig = ViperDatabase()
 	AppConfig = ViperApplication()
+	FeatureConfig = ViperFeature()
 	JwtConfig = ViperJwt()
 	SslConfig = ViperSsl()
 	CorsConfig = ViperCors()
 	GenConfig = ViperGen()
+
 }
 
 // 如果filename为空,将使用config.yaml配置文件,并在当前文件搜索

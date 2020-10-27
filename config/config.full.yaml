@@ -8,10 +8,12 @@ name: testApp
 port: 8000 # 服务端口号
 readtimeout: 1
 writertimeout: 2
-# 数据权限功能开关
-enabledp: false
-enabledb: true
 
+feature:
+  dataScope: false # 数据权限功能开关
+  operDB: false    # 操作日志写入数据库开关
+  loginDB: false   # 登录日志写入数据库开关
+  ormLog: false    # orm日志开关
 ssl:
   # https对应的域名
   domain: localhost:8000

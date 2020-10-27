@@ -11,7 +11,6 @@ type Application struct {
 	Port          string
 	ReadTimeout   int
 	WriterTimeout int
-	EnableDP      bool
 }
 
 func ViperApplication() *Application {
@@ -22,6 +21,5 @@ func ViperApplication() *Application {
 		viper.GetString("port"),
 		viper.GetInt("readTimeout"),
 		viper.GetInt("writerTimeout"),
-		viper.GetBool("enabledp"),
 	}
 }

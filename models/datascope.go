@@ -23,7 +23,7 @@ const (
 
 func DataScope(tabler schema.Tabler, userId int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if !deployed.AppConfig.EnableDP {
+		if !deployed.FeatureConfig.DataScope.Load() {
 			fmt.Printf("%s\n", `数据权限已经为您`+textcolor.Green(`关闭`)+`，如需开启请参考配置文件字段说明`)
 			return db
 		}

@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/go-core-package/extos"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"go.uber.org/multierr"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/models"
@@ -70,13 +71,14 @@ func Preview(c *gin.Context) {
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
 
-	mp := make(map[string]interface{})
-	mp["template/model.go.template"] = b1.String()
-	mp["template/api.go.template"] = b2.String()
-	mp["template/js.go.template"] = b3.String()
-	mp["template/vue.go.template"] = b4.String()
-	mp["template/router.go.template"] = b5.String()
-	mp["template/dto.go.template"] = b6.String()
+	mp := map[string]interface{}{
+		"template/model.go.template":  b1.String(),
+		"template/api.go.template":    b2.String(),
+		"template/js.go.template":     b3.String(),
+		"template/vue.go.template":    b4.String(),
+		"template/router.go.template": b5.String(),
+		"template/dto.go.template":    b6.String(),
+	}
 
 	servers.OK(c, servers.WithData(mp))
 }
@@ -153,14 +155,15 @@ func NOActionsGenV3(tab tools.SysTables) error {
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
 
-	extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes())
-	extos.WriteFile("./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go", b2.Bytes())
-	extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes())
-	extos.WriteFile(deployed.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
-	extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
-	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
-	extos.WriteFile("./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go", b7.Bytes())
-	return nil
+	return multierr.Combine(
+		extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes()),
+		extos.WriteFile("./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go", b2.Bytes()),
+		extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes()),
+		extos.WriteFile(deployed.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes()),
+		extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes()),
+		extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes()),
+		extos.WriteFile("./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go", b7.Bytes()),
+	)
 }
 
 func ActionsGenV3(tab tools.SysTables) error {
@@ -202,13 +205,13 @@ func ActionsGenV3(tab tools.SysTables) error {
 	err = t5.Execute(&b5, tab)
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
-
-	extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes())
-	extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes())
-	extos.WriteFile(deployed.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes())
-	extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes())
-	extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes())
-	return nil
+	return multierr.Combine(
+		extos.WriteFile("./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go", b1.Bytes()),
+		extos.WriteFile("./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go", b3.Bytes()),
+		extos.WriteFile(deployed.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js", b4.Bytes()),
+		extos.WriteFile(deployed.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue", b5.Bytes()),
+		extos.WriteFile("./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go", b6.Bytes()),
+	)
 }
 
 func GenMenuAndApi(c *gin.Context) {
