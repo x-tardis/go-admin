@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"errors"
 
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
@@ -121,12 +122,20 @@ func (cPost) Update(ctx context.Context, id int, up Post) (item Post, err error)
 
 // Delete 删除指定id
 func (cPost) Delete(ctx context.Context, id int) (err error) {
+	count, _ := CUser.GetCountWithPostId(ctx, id)
+	if count > 0 {
+		return errors.New("当前岗位存在用户,不能删除")
+	}
 	return dao.DB.Scopes(PostDB(ctx)).
 		Where("post_id=?", id).Delete(&Post{}).Error
 }
 
 // BatchDelete 删除批量id
 func (cPost) BatchDelete(ctx context.Context, ids []int) error {
+	count, _ := CUser.GetCountWithPostIds(ctx, ids)
+	if count > 0 {
+		return errors.New("岗位存在用户,不能删除")
+	}
 	return dao.DB.Scopes(PostDB(ctx)).
 		Where("post_id in (?)", ids).Delete(&Post{}).Error
 }

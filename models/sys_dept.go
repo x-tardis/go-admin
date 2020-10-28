@@ -225,28 +225,22 @@ func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error)
 
 // Delete 删除部门
 func (cDept) Delete(ctx context.Context, id int) error {
-	count, err := CUser.GetCountWithDeptId(ctx, id)
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return errors.New("当前部门存在用户，不能删除！")
-	}
-
-	tx := dao.DB.Begin()
-	if err := tx.Error; err != nil {
-		return err
-	}
-
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		count, err := CUser.GetCountWithDeptId(ctx, id)
+		if err != nil {
+			return err
 		}
-	}()
+		if count > 0 {
+			return errors.New("当前部门存在用户，不能删除！")
+		}
 
-	if err := tx.Scopes(DeptDB(ctx)).Where("dept_id=?", id).Delete(&Dept{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	return tx.Commit().Error
+		err = CRoleDept.DeleteWithDept(ctx, id)
+		if err != nil {
+			return err
+		}
+
+		return dao.DB.Scopes(DeptDB(ctx)).
+			Delete(&Dept{}, "dept_id=?", id).Error
+	})
+
 }

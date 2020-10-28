@@ -219,8 +219,8 @@ func (cRole) BatchDelete(ctx context.Context, ids []int) error {
 	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
 		var count int64
 
-		db := dao.DB
-		if err := db.Scopes(UserDB(ctx)).Where("role_id in (?)", ids).Count(&count).Error; err != nil {
+		err := dao.DB.Scopes(UserDB(ctx)).Where("role_id in (?)", ids).Count(&count).Error
+		if err != nil {
 			return err
 		}
 		if count > 0 {
@@ -229,26 +229,37 @@ func (cRole) BatchDelete(ctx context.Context, ids []int) error {
 
 		var roles []Role
 		// 查询角色
-		if err := db.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Find(&roles).Error; err != nil {
+		err = dao.DB.Scopes(RoleDB(ctx)).Where("role_id in (?)", ids).Find(&roles).Error
+		if err != nil {
 			return err
 		}
 
 		// 删除角色
-		if err := db.Scopes(RoleDB(ctx)).Unscoped().Where("role_id in (?)", ids).Delete(&Role{}).Error; err != nil {
+		err = dao.DB.Scopes(RoleDB(ctx)).Unscoped().Where("role_id in (?)", ids).Delete(&Role{}).Error
+		if err != nil {
 			return err
 		}
 
-		// 删除角色菜单
-		if err := db.Scopes(RoleMenuDB(ctx)).Where("role_id in (?)", ids).Delete(&RoleMenu{}).Error; err != nil {
+		// 删除角色部门 sys_role_dept
+		err = dao.DB.Scopes(RoleDeptDB(ctx)).Unscoped().Where("role_id in (?)", ids).Delete(&RoleDept{}).Error
+		if err != nil {
+			return err
+		}
+
+		// 删除角色菜单 sys_role_menu
+		err = dao.DB.Scopes(RoleMenuDB(ctx)).Where("role_id in (?)", ids).Delete(&RoleMenu{}).Error
+		if err != nil {
 			return err
 		}
 
 		// 删除casbin配置
 		for i := 0; i < len(roles); i++ {
-			if err := CCasbinRule.DeleteWithRole(ctx, roles[0].RoleKey); err != nil {
+			err = CCasbinRule.DeleteWithRole(ctx, roles[0].RoleKey)
+			if err != nil {
 				return err
 			}
 		}
+
 		return nil
 	})
 

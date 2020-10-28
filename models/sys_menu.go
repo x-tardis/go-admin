@@ -250,26 +250,30 @@ func (cMenu) Get(ctx context.Context, id int) (item Menu, err error) {
 
 // Create 创建目录
 func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
-	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(MenuDB(ctx)).Create(&item).Error
-	if err != nil {
-		return item, err
-	}
-	err = item.updatePaths(ctx)
+	err := trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		item.Creator = jwtauth.FromUserIdStr(ctx)
+		err := dao.DB.Scopes(MenuDB(ctx)).Create(&item).Error
+		if err != nil {
+			return err
+		}
+		return item.updatePaths(ctx)
+	})
 	return item, err
 }
 
 // Update 更新
 func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
-	if err = dao.DB.Scopes(MenuDB(ctx)).First(&item, id).Error; err != nil {
-		return
-	}
+	err = trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		if err := dao.DB.Scopes(MenuDB(ctx)).First(&item, id).Error; err != nil {
+			return err
+		}
 
-	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = dao.DB.Scopes(MenuDB(ctx)).Model(&item).Updates(&up).Error; err != nil {
-		return
-	}
-	err = up.updatePaths(ctx)
+		up.Updator = jwtauth.FromUserIdStr(ctx)
+		if err := dao.DB.Scopes(MenuDB(ctx)).Model(&item).Updates(&up).Error; err != nil {
+			return err
+		}
+		return up.updatePaths(ctx)
+	})
 	return
 }
 
@@ -290,7 +294,7 @@ func (sf cMenu) Delete(ctx context.Context, id int) error {
 				return errors.New("有子项存在,不可删除")
 			}
 		}
-		// 删除 sys_role_menu表的相关menuId
+		// 删除 sys_role_menu
 		if err = CRoleMenu.DeleteWithMenu(ctx, id); err != nil {
 			return err
 		}

@@ -156,8 +156,20 @@ func (cUser) GetWithDeptId(ctx context.Context, deptId int) (items []UserView, e
 }
 
 func (cUser) GetCountWithDeptId(ctx context.Context, deptId int) (count int64, err error) {
-	err = dao.DB.Scopes(UserDB(ctx), userJoinRole()).
+	err = dao.DB.Scopes(UserDB(ctx)).
 		Where("dept_id=?", deptId).Count(&count).Error
+	return
+}
+
+func (cUser) GetCountWithPostId(ctx context.Context, postId int) (count int64, err error) {
+	err = dao.DB.Scopes(UserDB(ctx)).
+		Where("post_id=?", postId).Count(&count).Error
+	return
+}
+
+func (cUser) GetCountWithPostIds(ctx context.Context, postIds []int) (count int64, err error) {
+	err = dao.DB.Scopes(UserDB(ctx)).
+		Where("post_id in (?)", postIds).Count(&count).Error
 	return
 }
 

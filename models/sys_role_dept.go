@@ -11,8 +11,8 @@ import (
 
 // RoleDept role dept关系表
 type RoleDept struct {
-	RoleId int `gorm:""`
-	DeptId int `gorm:""`
+	RoleId int
+	DeptId int
 }
 
 // TableName implement schema.Tabler interface
@@ -45,4 +45,9 @@ func (cRoleDept) BatchCreate(ctx context.Context, roleId int, deptIds []int) err
 func (cRoleDept) DeleteWithRole(ctx context.Context, roleId int) error {
 	return dao.DB.Scopes(RoleDeptDB(ctx)).
 		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
+}
+
+func (cRoleDept) DeleteWithDept(ctx context.Context, deptId int) error {
+	return dao.DB.Scopes(RoleDeptDB(ctx)).
+		Where("dept_id=?", deptId).Delete(&RoleDept{}).Error
 }
