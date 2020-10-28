@@ -26,6 +26,6 @@ func (e *ExecJob) Run() {
 	latencyTime := endTime.Sub(startTime)
 	//TODO: 待完善部分
 	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
-	//ws.SendAll(str)
+	//ws.SendBroadcast(str)
 	deployed.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
 }

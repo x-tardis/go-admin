@@ -9,31 +9,20 @@ import (
 	"github.com/x-tardis/go-admin/app/apis/system"
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
-	"github.com/x-tardis/go-admin/pkg/ws"
 	"github.com/x-tardis/go-admin/routers"
 )
 
 func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
-	go ws.WebsocketManager.Start()
-	go ws.WebsocketManager.SendService()
-	go ws.WebsocketManager.SendAllService()
-
 	// public
 	engine.GET("/", system.HelloWorld)
 	engine.POST("/login", authMiddleware.LoginHandler)
 	engine.GET("/refresh_token", authMiddleware.RefreshHandler) // Refresh time can be longer than token timeout
 	engine.GET("/debug/vars", expvar.Handler())
+
 	// 静态文件
 	StaticFile(engine)
 	// swagger
 	routers.Swagger(engine)
-
-	// 需要认证
-	wsGroup := engine.Group("", authMiddleware.MiddlewareFunc(), OperLog())
-	{
-		wsGroup.GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
-		wsGroup.GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
-	}
 
 	v1 := engine.Group("/api/v1")
 	{ // 无需认证

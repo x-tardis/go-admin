@@ -2,68 +2,69 @@ package ws
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"net/http"
 	"sync"
-	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+)
 
-	"github.com/x-tardis/go-admin/pkg/servers"
+// 消息类型
+const (
+	MsgTypeSingle    = iota // 单体消息
+	MsgTypeGroup            // 组播消息
+	MsgTypeBroadcast        // 广播消息
 )
 
 // Manager 所有 websocket 信息
 type Manager struct {
-	Group                   map[string]map[string]*Client
-	groupCount, clientCount uint
-	Lock                    sync.Mutex
-	Register, UnRegister    chan *Client
-	Message                 chan *MessageData
-	GroupMessage            chan *GroupMessageData
-	BroadCastMessage        chan *BroadCastMessageData
+	register   chan *Client    // 注册
+	unRegister chan UnRegister // 注销
+	message    chan *Message   // 消息
+
+	// 以下需要持锁
+	mu          sync.Mutex
+	groups      map[string]map[string]*Client
+	groupCount  uint
+	clientCount uint
 }
 
 // Client 单个 websocket 信息
 type Client struct {
-	Id, Group  string
+	Id         string
+	Group      string
 	Context    context.Context
 	CancelFunc context.CancelFunc
 	Socket     *websocket.Conn
 	Message    chan []byte
+
+	manager *Manager
 }
 
-// messageData 单个发送数据信息
-type MessageData struct {
-	Id, Group string
-	Context   context.Context
-	Message   []byte
+// 取消注册信息
+type UnRegister struct {
+	group string
+	id    string
 }
 
-// groupMessageData 组广播数据信息
-type GroupMessageData struct {
-	Group   string
-	Message []byte
-}
-
-// 广播发送数据信息
-type BroadCastMessageData struct {
-	Message []byte
+type Message struct {
+	Type  int
+	Id    string
+	Group string
+	Data  []byte
 }
 
 // 读信息，从 websocket 连接直接读取数据
-func (c *Client) Read(cxt context.Context) {
-	defer func(cxt context.Context) {
-		WebsocketManager.UnRegister <- c
+func (c *Client) Read(ctx context.Context) {
+	defer func() {
+		c.manager.UnRegisterClient(c.Group, c.Id)
 		log.Printf("client [%s] disconnect", c.Id)
 		if err := c.Socket.Close(); err != nil {
 			log.Printf("client [%s] disconnect err: %s", c.Id, err)
 		}
-	}(cxt)
+	}()
 
 	for {
-		if cxt.Err() != nil {
+		if ctx.Err() != nil {
 			break
 		}
 		messageType, message, err := c.Socket.ReadMessage()
@@ -75,17 +76,17 @@ func (c *Client) Read(cxt context.Context) {
 	}
 }
 
-// 写信息，从 channel 变量 Send 中读取数据写入 websocket 连接
-func (c *Client) Write(cxt context.Context) {
-	defer func(cxt context.Context) {
+// 写信息，从 channel 变量 SendSingle 中读取数据写入 websocket 连接
+func (c *Client) Write(ctx context.Context) {
+	defer func() {
 		log.Printf("client [%s] disconnect", c.Id)
 		if err := c.Socket.Close(); err != nil {
 			log.Printf("client [%s] disconnect err: %s", c.Id, err)
 		}
-	}(cxt)
+	}()
 
 	for {
-		if cxt.Err() != nil {
+		if ctx.Err() != nil {
 			break
 		}
 		select {
@@ -106,224 +107,119 @@ func (c *Client) Write(cxt context.Context) {
 }
 
 // 启动 websocket 管理器
-func (manager *Manager) Start() {
+func (sf *Manager) Start() {
 	log.Printf("websocket manage start")
+	go sf.SendMessageLoop()
+
 	for {
 		select {
-		// 注册
-		case client := <-manager.Register:
-			log.Printf("client [%s] connect", client.Id)
-			log.Printf("register client [%s] to group [%s]", client.Id, client.Group)
+		case client := <-sf.register: // 注册
+			log.Printf("register: client [%s] to group [%s]", client.Id, client.Group)
 
-			manager.Lock.Lock()
-			if manager.Group[client.Group] == nil {
-				manager.Group[client.Group] = make(map[string]*Client)
-				manager.groupCount += 1
+			sf.mu.Lock()
+			if sf.groups[client.Group] == nil {
+				sf.groups[client.Group] = make(map[string]*Client)
+				sf.groupCount++
 			}
-			manager.Group[client.Group][client.Id] = client
-			manager.clientCount += 1
-			manager.Lock.Unlock()
+			sf.groups[client.Group][client.Id] = client
+			sf.clientCount++
+			sf.mu.Unlock()
 
-		// 注销
-		case client := <-manager.UnRegister:
-			log.Printf("unregister client [%s] from group [%s]", client.Id, client.Group)
-			manager.Lock.Lock()
-			if mGroup, ok := manager.Group[client.Group]; ok {
-				if mClient, ok := mGroup[client.Id]; ok {
-					close(mClient.Message)
-					delete(mGroup, client.Id)
-					manager.clientCount -= 1
-					if len(mGroup) == 0 {
-						//log.Printf("delete empty group [%s]", client.Group)
-						delete(manager.Group, client.Group)
-						manager.groupCount -= 1
+		case ur := <-sf.unRegister: // 注销
+			log.Printf("unregister client [%s] from group [%s]", ur.id, ur.group)
+
+			sf.mu.Lock()
+			if group, ok := sf.groups[ur.group]; ok {
+				if client, ok := group[ur.id]; ok {
+					delete(group, ur.id)
+					sf.clientCount--
+					if len(group) == 0 {
+						delete(sf.groups, ur.group)
+						sf.groupCount--
 					}
-					mClient.CancelFunc()
+					close(client.Message)
+					client.CancelFunc()
 				}
 			}
-			manager.Lock.Unlock()
-
-			// 发送广播数据到某个组的 channel 变量 Send 中
-			//case data := <-manager.boardCast:
-			//	if groupMap, ok := manager.wsGroup[data.GroupId]; ok {
-			//		for _, conn := range groupMap {
-			//			conn.Send <- data.Data
-			//		}
-			//	}
+			sf.mu.Unlock()
 		}
 	}
 }
 
-// 处理单个 client 发送数据
-func (manager *Manager) SendService() {
-	for data := range manager.Message {
-		if groupMap, ok := manager.Group[data.Group]; ok {
-			if conn, ok := groupMap[data.Id]; ok {
-				conn.Message <- data.Message
+func (sf *Manager) SendMessageLoop() {
+	for msg := range sf.message {
+		switch msg.Type {
+		case MsgTypeSingle:
+			if groupMap, ok := sf.groups[msg.Group]; ok {
+				if conn, ok := groupMap[msg.Id]; ok {
+					conn.Message <- msg.Data
+				}
+			}
+		case MsgTypeGroup:
+			if groups, ok := sf.groups[msg.Group]; ok {
+				for _, conn := range groups {
+					conn.Message <- msg.Data
+				}
+			}
+		case MsgTypeBroadcast:
+			// TODO: 分发到组会更快??
+			for _, v := range sf.groups {
+				for _, conn := range v {
+					conn.Message <- msg.Data
+				}
 			}
 		}
 	}
 }
 
-// 处理 group 广播数据
-func (manager *Manager) SendGroupService() {
-	// 发送广播数据到某个组的 channel 变量 Send 中
-	for data := range manager.GroupMessage {
-		if groupMap, ok := manager.Group[data.Group]; ok {
-			for _, conn := range groupMap {
-				conn.Message <- data.Message
-			}
-		}
+// SendSingle 发送单体消息
+func (sf *Manager) SendSingle(id string, group string, message []byte) {
+	sf.message <- &Message{
+		Type:  MsgTypeSingle,
+		Id:    id,
+		Group: group,
+		Data:  message,
 	}
 }
 
-// 处理广播数据
-func (manager *Manager) SendAllService() {
-	for data := range manager.BroadCastMessage {
-		for _, v := range manager.Group {
-			for _, conn := range v {
-				conn.Message <- data.Message
-			}
-		}
-	}
+// SendGroup 发送组播消息
+func (sf *Manager) SendGroup(group string, message []byte) {
+	sf.message <- &Message{Type: MsgTypeGroup, Group: group, Data: message}
 }
 
-// 向指定的 client 发送数据
-func (manager *Manager) Send(cxt context.Context, id string, group string, message []byte) {
-	data := &MessageData{
-		Id:      id,
-		Context: cxt,
-		Group:   group,
-		Message: message,
-	}
-	manager.Message <- data
-}
-
-// 向指定的 Group 广播
-func (manager *Manager) SendGroup(group string, message []byte) {
-	data := &GroupMessageData{
-		Group:   group,
-		Message: message,
-	}
-	manager.GroupMessage <- data
-}
-
-// 广播
-func (manager *Manager) SendAll(message []byte) {
-	data := &BroadCastMessageData{
-		Message: message,
-	}
-	manager.BroadCastMessage <- data
+// SendBroadcast 发送广播消息
+func (sf *Manager) SendBroadcast(message []byte) {
+	sf.message <- &Message{Type: MsgTypeBroadcast, Data: message}
 }
 
 // 注册
-func (manager *Manager) RegisterClient(client *Client) {
-	manager.Register <- client
+func (sf *Manager) RegisterClient(client *Client) {
+	client.manager = sf
+	sf.register <- client
 }
 
 // 注销
-func (manager *Manager) UnRegisterClient(client *Client) {
-	manager.UnRegister <- client
+func (sf *Manager) UnRegisterClient(group, id string) {
+	sf.unRegister <- UnRegister{group, id}
 }
 
 // 当前组个数
-func (manager *Manager) LenGroup() uint {
-	return manager.groupCount
+func (sf *Manager) GroupLen() uint {
+	return sf.groupCount
 }
 
 // 当前连接个数
-func (manager *Manager) LenClient() uint {
-	return manager.clientCount
+func (sf *Manager) ClientLen() uint {
+	return sf.clientCount
 }
 
 // 获取 wsManager 管理器信息
-func (manager *Manager) Info() map[string]interface{} {
-	managerInfo := make(map[string]interface{})
-	managerInfo["groupLen"] = manager.LenGroup()
-	managerInfo["clientLen"] = manager.LenClient()
-	managerInfo["chanRegisterLen"] = len(manager.Register)
-	managerInfo["chanUnregisterLen"] = len(manager.UnRegister)
-	managerInfo["chanMessageLen"] = len(manager.Message)
-	managerInfo["chanGroupMessageLen"] = len(manager.GroupMessage)
-	managerInfo["chanBroadCastMessageLen"] = len(manager.BroadCastMessage)
-	return managerInfo
-}
-
-// 初始化 wsManager 管理器
-var WebsocketManager = Manager{
-	Group:            make(map[string]map[string]*Client),
-	Register:         make(chan *Client, 128),
-	UnRegister:       make(chan *Client, 128),
-	GroupMessage:     make(chan *GroupMessageData, 128),
-	Message:          make(chan *MessageData, 128),
-	BroadCastMessage: make(chan *BroadCastMessageData, 128),
-	groupCount:       0,
-	clientCount:      0,
-}
-
-// gin 处理 websocket handler
-func (manager *Manager) WsClient(c *gin.Context) {
-	upGrader := websocket.Upgrader{
-		// cross origin domain
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-		// 处理 Sec-WebSocket-Protocol Header
-		Subprotocols: []string{c.GetHeader("Sec-WebSocket-Protocol")},
+func (sf *Manager) Info() map[string]interface{} {
+	return map[string]interface{}{
+		"groupLen":          sf.groupCount,
+		"clientLen":         sf.clientCount,
+		"chanRegisterLen":   len(sf.register),
+		"chanUnregisterLen": len(sf.unRegister),
+		"chanMessageLen":    len(sf.message),
 	}
-
-	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		log.Printf("websocket connect error: %s", c.Param("channel"))
-		return
-	}
-
-	fmt.Println("token: ", c.Query("token"))
-
-	id, channel := c.Param("id"), c.Param("channel")
-	ctx, cancel := context.WithCancel(context.Background())
-	client := &Client{
-		Id:         id,
-		Group:      channel,
-		Context:    ctx,
-		CancelFunc: cancel,
-		Socket:     conn,
-		Message:    make(chan []byte, 1024),
-	}
-
-	manager.RegisterClient(client)
-	go client.Read(ctx)
-	go client.Write(ctx)
-	time.Sleep(time.Second * 15)
-
-	FileMonitoringById(ctx, "temp/job.log", id, channel, SendOne)
-}
-
-func (manager *Manager) UnWsClient(c *gin.Context) {
-	id := c.Param("id")
-	group := c.Param("channel")
-	WsLogout(id, group)
-	servers.OK(c,
-		servers.WithData("ws close success"),
-		servers.WithMsg("success"))
-}
-
-func SendGroup(msg []byte) {
-	WebsocketManager.SendGroup("leffss", []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
-	fmt.Println(WebsocketManager.Info())
-}
-
-func SendAll(msg []byte) {
-	WebsocketManager.SendAll([]byte("{\"code\":200,\"data\":" + string(msg) + "}"))
-	fmt.Println(WebsocketManager.Info())
-}
-
-func SendOne(ctx context.Context, id string, group string, msg []byte) {
-	WebsocketManager.Send(ctx, id, group, []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
-	fmt.Println(WebsocketManager.Info())
-}
-
-func WsLogout(id string, group string) {
-	WebsocketManager.UnRegisterClient(&Client{Id: id, Group: group})
-	fmt.Println(WebsocketManager.Info())
 }

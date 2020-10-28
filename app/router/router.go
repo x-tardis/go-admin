@@ -36,6 +36,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	RegisterSystem(engine, authMiddleware)   // 注册系统路由
+	RegisterWs(engine, authMiddleware)       // 注册ws
 	RegisterBusiness(engine, authMiddleware) // 注册业务路由
 	return engine
 }
