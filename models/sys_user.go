@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/extrand"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
 	"github.com/thinkgos/sharp/iorm/trans"
@@ -14,6 +15,8 @@ import (
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
+
+const UserSaltLength = 6
 
 type User struct {
 	UserId   int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 主键
@@ -183,8 +186,8 @@ func (cUser) Create(ctx context.Context, item User) (User, error) {
 	if count > 0 {
 		return item, errors.New("账户已存在！")
 	}
-
-	item.Password, err = deployed.Verify.Hash(item.Password, "")
+	item.Salt = extrand.RandString(UserSaltLength)
+	item.Password, err = deployed.Verify.Hash(item.Password, item.Salt)
 	if err != nil {
 		return item, err
 	}
@@ -209,7 +212,8 @@ func (cUser) Update(ctx context.Context, id int, up User) (item User, err error)
 		up.RoleId = item.RoleId
 	}
 	if up.Password != "" {
-		up.Password, err = deployed.Verify.Hash(up.Password, "")
+		up.Salt = extrand.RandString(UserSaltLength)
+		up.Password, err = deployed.Verify.Hash(up.Password, up.Salt)
 		if err != nil {
 			return
 		}
@@ -234,23 +238,28 @@ func (cUser) UpdateAvatar(ctx context.Context, avatar string) error {
 
 // UpdatePassword 更新密码
 func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
-	item, err := sf.getView(ctx, jwtauth.FromUserId(ctx))
+	item, err := sf.get(ctx, jwtauth.FromUserId(ctx))
 	if err != nil {
 		return errors.New("获取用户数据失败(代码202)")
 	}
 
 	// 校验旧密码 和 新密加签
-	err = deployed.Verify.Compare(pwd.OldPassword, "", item.Password)
+	err = deployed.Verify.Compare(pwd.OldPassword, item.Salt, item.Password)
 	if err != nil {
 		return err
 	}
-	pass, err := deployed.Verify.Hash(pwd.NewPassword, "")
+	salt := extrand.RandString(UserSaltLength)
+	pass, err := deployed.Verify.Hash(pwd.NewPassword, salt)
 	if err != nil {
 		return err
 	}
 
 	return dao.DB.Scopes(UserDB(ctx)).
-		Where("user_id=?", item.UserId).Update("password", pass).Error
+		Where("user_id=?", item.UserId).
+		Updates(map[string]interface{}{
+			"password": pass,
+			"salt":     salt,
+		}).Error
 }
 
 func (cUser) getView(ctx context.Context, id int) (item UserView, err error) {
