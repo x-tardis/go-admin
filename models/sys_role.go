@@ -176,7 +176,7 @@ func (sf cRole) Update(ctx context.Context, id int, up Role) (item Role, err err
 			return err
 		}
 		// 删除 casbin rule
-		err = CCasbinRule.DeleteWithRole(ctx, role.RoleKey)
+		err = CCasbinRule.DeleteWithRoleName(ctx, role.RoleKey)
 		if err != nil {
 			return err
 		}
@@ -254,7 +254,7 @@ func (cRole) BatchDelete(ctx context.Context, ids []int) error {
 
 		// 删除casbin配置
 		for i := 0; i < len(roles); i++ {
-			err = CCasbinRule.DeleteWithRole(ctx, roles[0].RoleKey)
+			err = CCasbinRule.DeleteWithRoleName(ctx, roles[0].RoleKey)
 			if err != nil {
 				return err
 			}

@@ -38,9 +38,8 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		//数据权限检查
 		p := GetPermissionFromContext(c)
 
-		db := dao.DB.WithContext(c).Scopes(
-			Permission(object.TableName(), p),
-		).Where(req.GetId()).Delete(object)
+		db := dao.DB.WithContext(c).Scopes(Permission(object.TableName(), p)).
+			Where(req.GetId()).Delete(object)
 		if db.Error != nil {
 			izap.Sugar.Errorf("MsgID[%s] Delete error: %s", msgID, err)
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("删除失败"))

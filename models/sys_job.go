@@ -14,38 +14,30 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// Job job
 type Job struct {
-	JobId          uint   `json:"jobId" gorm:"primary_key;AUTO_INCREMENT"` // 编码
+	JobId          uint   `json:"jobId" gorm:"primary_key;AUTO_INCREMENT"` // 主键
 	JobName        string `json:"jobName" gorm:"size:255;"`                // 名称
-	JobGroup       string `json:"jobGroup" gorm:"size:255;"`               // 任务分组
-	JobType        int    `json:"jobType" gorm:"size:1;"`                  // 任务类型
+	JobGroup       string `json:"jobGroup" gorm:"size:255;"`               // 分组
+	JobType        int    `json:"jobType" gorm:"size:1;"`                  // 类型
 	CronExpression string `json:"cronExpression" gorm:"size:255;"`         // cron表达式
 	InvokeTarget   string `json:"invokeTarget" gorm:"size:255;"`           // 调用目标
 	Args           string `json:"args" gorm:"size:255;"`                   // 目标参数
 	MisfirePolicy  int    `json:"misfirePolicy" gorm:"size:255;"`          // 执行策略
 	Concurrent     int    `json:"concurrent" gorm:"size:1;"`               // 是否并发
 	Status         int    `json:"status" gorm:"size:1;"`                   // 状态
-	EntryId        int    `json:"entry_id" gorm:"size:11;"`                // job启动时返回的id
-	Creator        string `json:"creator" gorm:"size:128;"`                //
-	Updator        string `json:"updator" gorm:"size:128;"`                //
+	EntryId        int    `json:"entry_id" gorm:"size:11;"`                // job启动时返回的条目id
+	Creator        string `json:"creator" gorm:"size:128;"`                // 创建者
+	Updator        string `json:"updator" gorm:"size:128;"`                // 更新者
 	Model
 
 	DataScope string `json:"dataScope" gorm:"-"`
 }
 
+// TableName implement schema.Tabler interface
 func (Job) TableName() string {
 	return "sys_job"
 }
-
-func JobDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		return db.Scopes(trans.CtxDB(ctx)).Model(Job{})
-	}
-}
-
-type cJob struct{}
-
-var CJob = cJob{}
 
 func (e *Job) Generate() dto.ActiveRecord {
 	o := *e
@@ -64,7 +56,19 @@ func (e *Job) SetUpdator(updateBy uint) {
 	e.Updator = strconv.Itoa(int(updateBy))
 }
 
-// 获取SysJob带分页
+// JobDB job db scope
+func JobDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Scopes(trans.CtxDB(ctx)).Model(Job{})
+	}
+}
+
+type cJob struct{}
+
+// 实例
+var CJob = cJob{}
+
+// QueryPage 查询,分页
 func (cJob) QueryPage(ctx context.Context, param paginator.Param, v interface{}) ([]Job, paginator.Info, error) {
 	var items []Job
 
@@ -79,50 +83,53 @@ func (cJob) QueryPage(ctx context.Context, param paginator.Param, v interface{})
 	return items, info, err
 }
 
+// Query 查询
 func (cJob) Query(ctx context.Context) (items []Job, err error) {
 	err = dao.DB.Scopes(JobDB(ctx)).
 		Where("status=?", 2).Find(&items).Error
 	return
 }
 
-// 获取SysJob
+// Get 获取
 func (cJob) Get(ctx context.Context, id uint) (item Job, err error) {
 	err = dao.DB.Scopes(JobDB(ctx)).
 		Where("job_id=?", id).First(&item).Error
 	return
 }
 
-// 创建SysJob
+// Create 创建
 func (cJob) Create(ctx context.Context, item Job) (Job, error) {
 	err := dao.DB.Scopes(JobDB(ctx)).Create(&item).Error
 	return item, err
 }
 
-// 更新SysJob
+// Update 更新SysJob
 func (cJob) Update(ctx context.Context, id uint, up Job) error {
 	return dao.DB.Scopes(JobDB(ctx)).Where("job_id=?", id).Updates(&up).Error
 }
 
+// Delete 删除
+func (cJob) Delete(ctx context.Context, id int) (err error) {
+	return dao.DB.Scopes(JobDB(ctx)).
+		Delete(&Job{}, "job_id=?", id).Error
+}
+
+// BatchDelete 批量删除
+func (cJob) BatchDelete(ctx context.Context, ids []int) error {
+	return dao.DB.Scopes(JobDB(ctx)).
+		Delete(&Job{}, "job_id in ( ? )", ids).Error
+}
+
+// RemoveAllEntryID 删除所有条目
 func (cJob) RemoveAllEntryID(ctx context.Context) error {
 	return dao.DB.Scopes(JobDB(ctx)).
 		Where("entry_id > ?", 0).
 		Update("entry_id", 0).Error
 }
 
+// RemoveEntryID 删除指定 entry id
 func (cJob) RemoveEntryID(ctx context.Context, entryID int) (err error) {
 	return dao.DB.Scopes(JobDB(ctx)).
 		Where("entry_id = ?", entryID).
 		Update("entry_id", 0).Error
-}
-
-// 删除SysJob
-func (cJob) Delete(ctx context.Context, id int) (err error) {
-	return dao.DB.Scopes(JobDB(ctx)).
-		Where("job_id=?", id).Delete(&Job{}).Error
-}
-
-// 批量删除
-func (cJob) BatchDelete(ctx context.Context, ids []int) error {
-	return dao.DB.Scopes(JobDB(ctx)).
-		Where("job_id in ( ? )", ids).Delete(&Job{}).Error
 }

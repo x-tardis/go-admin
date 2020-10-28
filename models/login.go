@@ -6,6 +6,7 @@ import (
 	"github.com/x-tardis/go-admin/deployed"
 )
 
+// Login 登录
 type Login struct {
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
@@ -13,7 +14,8 @@ type Login struct {
 	CCode    string `form:"code" json:"ccode" binding:"required"` // 验证码
 }
 
-func (sf *Login) GetUser() (user User, role Role, err error) {
+// Get 获取user 和 role
+func (sf *Login) Get() (user User, role Role, err error) {
 	user, err = CUser.GetWithName(context.Background(), sf.Username)
 	if err != nil {
 		return

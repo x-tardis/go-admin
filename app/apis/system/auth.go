@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mssola/user_agent"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/deployed"
@@ -22,7 +23,7 @@ const (
 	usernameKey  = "username"
 	roleIdKey    = "roleId"
 	roleNameKey  = "roleName"
-	roleKey      = "roleKey"
+	roleKeyKey   = "roleKey"
 	dataScopeKey = "dataScope"
 )
 
@@ -40,7 +41,7 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 					usernameKey:  v.Username,
 					roleIdKey:    v.RoleId,
 					roleNameKey:  v.RoleName,
-					roleKey:      v.RoleKey,
+					roleKeyKey:   v.RoleKey,
 					dataScopeKey: v.DataScope,
 				}
 			}
@@ -53,7 +54,7 @@ func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 				Username:  cast.ToString(claims[usernameKey]),
 				RoleId:    cast.ToInt(claims[roleIdKey]),
 				RoleName:  cast.ToString(claims[roleNameKey]),
-				RoleKey:   cast.ToString(claims[roleKey]),
+				RoleKey:   cast.ToString(claims[roleKeyKey]),
 				DataScope: cast.ToString(claims[dataScopeKey]),
 			}
 			ctx := context.WithValue(c.Request.Context(), jwtauth.IdentityKey{}, identity)
@@ -99,7 +100,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 		loginLogRecord(c, false, "验证码错误", login.Username)
 		return nil, jwt.ErrFailedAuthentication
 	}
-	user, role, err := login.GetUser()
+	user, role, err := login.Get()
 	if err != nil {
 		loginLogRecord(c, false, "登录失败", login.Username)
 		deployed.RequestLogger.Debug(err.Error())
@@ -138,17 +139,13 @@ func logoutResponse(c *gin.Context, code int) {
 
 // loginLogRecord Write log to database
 func loginLogRecord(c *gin.Context, success bool, msg string, username string) {
-	status := "0"
-	if !success {
-		status = "1"
-	}
 	if deployed.FeatureConfig.LoginDB.Load() {
 		ua := user_agent.New(c.Request.UserAgent())
 		browserName, browserVersion := ua.Browser()
 		location := deployed.IPLocation(c.ClientIP())
 		loginLog := models.LoginLog{
 			Username:  username,
-			Status:    status,
+			Status:    ternary.IfString(success, "0", "1"),
 			Ip:        c.ClientIP(),
 			Location:  location,
 			Browser:   browserName + " " + browserVersion,
