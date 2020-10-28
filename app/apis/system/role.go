@@ -97,19 +97,6 @@ func (Role) Create(c *gin.Context) {
 		return
 	}
 
-	if len(item.MenuIds) > 0 {
-		err = models.CRoleMenu.BatchCreate(gcontext.Context(c), item.RoleId, newItem.MenuIds)
-		if err != nil {
-			servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
-			return
-		}
-	}
-
-	err = deployed.CasbinEnforcer.LoadPolicy()
-	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
-		return
-	}
 	servers.OK(c, servers.WithData(item))
 }
 
@@ -128,29 +115,9 @@ func (Role) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-
 	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
-		return
-	}
-
-	err = models.CRoleMenu.Delete(gcontext.Context(c), up.RoleId)
-	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
-		return
-	}
-	if len(up.MenuIds) > 0 {
-		err := models.CRoleMenu.BatchCreate(gcontext.Context(c), up.RoleId, up.MenuIds)
-		if err != nil {
-			servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
-			return
-		}
-	}
-
-	err = deployed.CasbinEnforcer.LoadPolicy()
-	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
 	servers.OK(c, servers.WithData(item))
@@ -186,19 +153,10 @@ func UpdateRoleDataScope(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
-
-	err = models.CRoleDept.DeleteWithRole(gcontext.Context(c), up.RoleId)
+	item, err := models.CRole.UpdateDataScope(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
-	}
-	if up.DataScope == models.ScopeCustomize {
-		err := models.CRoleDept.BatchCreate(gcontext.Context(c), up.RoleId, up.DeptIds)
-		if err != nil {
-			servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.CreateFailed))
-			return
-		}
 	}
 	servers.OK(c, servers.WithData(item))
 }

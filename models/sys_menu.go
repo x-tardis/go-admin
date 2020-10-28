@@ -44,16 +44,14 @@ type Menu struct {
 	NoCache    bool   `json:"noCache" gorm:"size:8;"`                   // 不缓存
 	Breadcrumb string `json:"breadcrumb" gorm:"size:255;"`              // 面包屑
 	Component  string `json:"component" gorm:"size:255;"`               // 组件路径,仅在<菜单,菜单项>使用
-	Sort       int    `json:"sort" gorm:"size:4;"`                      // 排序
+	Sort       int    `json:"sort"`                                     // 排序
 	Visible    string `json:"visible" gorm:"size:1;"`                   // 显示/隐藏
 	IsFrame    string `json:"isFrame" gorm:"size:1;DEFAULT:0;"`         // 是否外链
 	Creator    string `json:"creator" gorm:"size:128;"`                 // 创建者
 	Updator    string `json:"updator" gorm:"size:128;"`                 // 更新者
 	Model
 
-	RoleId   int    `json:"roleId" gorm:"-"`
 	Children []Menu `json:"children" gorm:"-"`
-	IsSelect bool   `json:"isSelect" gorm:"-"`
 
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params" gorm:"-"`
@@ -62,6 +60,23 @@ type Menu struct {
 // TableName implement schema.Tabler interface
 func (Menu) TableName() string {
 	return "sys_menu"
+}
+
+func (sf *Menu) updatePaths(ctx context.Context) (err error) {
+	curPath := "/" + cast.ToString(sf.MenuId)
+	if sf.ParentId == 0 {
+		sf.Paths = "/0" + curPath
+	} else {
+		parentMenu := Menu{}
+		err := dao.DB.Scopes(MenuDB(ctx)).
+			Where("menu_id=?", sf.ParentId).First(&parentMenu).Error
+		if err != nil || parentMenu.Paths == "" {
+			return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
+		}
+		sf.Paths = parentMenu.Paths + curPath
+	}
+	return dao.DB.Scopes(MenuDB(ctx)).
+		Where("menu_id=?", sf.MenuId).Update("paths", sf.Paths).Error
 }
 
 // MenuDB menu db scopes
@@ -109,7 +124,7 @@ func deepChildrenMenu(items []Menu, item Menu) Menu {
 	item.Children = make([]Menu, 0)
 	for _, itm := range items {
 		if item.MenuId == itm.ParentId {
-			if itm.MenuType != MenuTypeBtn {
+			if itm.MenuType == MenuTypeToc || itm.MenuType == MenuTypeMenu {
 				itm = deepChildrenMenu(items, itm)
 			}
 			item.Children = append(item.Children, itm)
@@ -259,29 +274,27 @@ func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error)
 }
 
 // Delete 删除
-func (cMenu) Delete(ctx context.Context, id int) error {
-	return dao.DB.Scopes(MenuDB(ctx)).
-		Where("menu_id=?", id).Delete(&Menu{}).Error
-}
-
-// BatchDelete 批量删除
-func (cMenu) BatchDelete(ctx context.Context, ids []int) error {
-	return dao.DB.Scopes(MenuDB(ctx)).
-		Where("menu_id in (?)", ids).Delete(&Menu{}).Error
-}
-
-func (sf *Menu) updatePaths(ctx context.Context) (err error) {
-	if sf.ParentId == 0 {
-		sf.Paths = "/0/" + cast.ToString(sf.MenuId)
-	} else {
-		parentMenu := new(Menu)
-		dao.DB.Scopes(MenuDB(ctx)).
-			Where("menu_id=?", sf.ParentId).First(parentMenu)
-		if parentMenu.Paths == "" {
-			return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
+func (sf cMenu) Delete(ctx context.Context, id int) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		item, err := sf.Get(ctx, id)
+		if err != nil {
+			return err
 		}
-		sf.Paths = parentMenu.Paths + "/" + cast.ToString(sf.MenuId)
-	}
-	return dao.DB.Scopes(MenuDB(ctx)).
-		Where("menu_id=?", sf.MenuId).Update("paths", sf.Paths).Error
+
+		// 查看是否有子项
+		if item.MenuType == MenuTypeToc || item.MenuType == MenuTypeMenu {
+			var count int64
+			dao.DB.Scopes(MenuDB(ctx)).
+				Where("parent_id=?", item.MenuId).Count(&count)
+			if count > 0 {
+				return errors.New("有子项存在,不可删除")
+			}
+		}
+		// 删除 sys_role_menu表的相关menuId
+		if err = CRoleMenu.DeleteWithMenu(ctx, id); err != nil {
+			return err
+		}
+		return dao.DB.Scopes(MenuDB(ctx)).
+			Delete(&Menu{}, "menu_id=?", id).Error
+	})
 }

@@ -18,7 +18,7 @@ type Dept struct {
 	ParentId int    `json:"parentId" gorm:""`                          // 上级主键
 	DeptPath string `json:"deptPath" gorm:"size:255;"`                 // 路径树
 	DeptName string `json:"deptName"  gorm:"size:128;"`                // 名称
-	Sort     int    `json:"sort" gorm:""`                              // 排序
+	Sort     int    `json:"sort"`                                      // 排序
 	Leader   string `json:"leader" gorm:"size:128;"`                   // 负责人
 	Phone    string `json:"phone" gorm:"size:11;"`                     // 负责人联系手机
 	Email    string `json:"email" gorm:"size:64;"`                     // 负责人联系邮箱
@@ -183,18 +183,16 @@ func (cDept) Create(ctx context.Context, item Dept) (Dept, error) {
 
 	deptPath := "/" + cast.ToString(item.DeptId)
 	if item.ParentId == 0 {
-		deptPath = "/0" + deptPath
+		item.DeptPath = "/0" + deptPath
 	} else {
-		var parentDept Dept
+		parentDept := Dept{}
 		dao.DB.Scopes(DeptDB(ctx)).
 			Where("dept_id=?", item.ParentId).First(&parentDept)
-		deptPath = parentDept.DeptPath + deptPath
+		item.DeptPath = parentDept.DeptPath + deptPath
 	}
 
-	item.DeptPath = deptPath
 	err = dao.DB.Scopes(DeptDB(ctx)).
-		Where("dept_id=?", item.DeptId).
-		Updates(map[string]interface{}{"dept_path": deptPath}).Error
+		Where("dept_id=?", item.DeptId).Update("dept_path", deptPath).Error
 	return item, err
 }
 
@@ -207,14 +205,13 @@ func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error)
 
 	deptPath := "/" + cast.ToString(id)
 	if up.ParentId == 0 {
-		deptPath = "/0" + deptPath
+		up.DeptPath = "/0" + deptPath
 	} else {
-		var parentDept Dept
+		parentDept := Dept{}
 		dao.DB.Scopes(DeptDB(ctx)).
 			Where("dept_id=?", up.ParentId).First(&parentDept)
-		deptPath = parentDept.DeptPath + deptPath
+		up.DeptPath = parentDept.DeptPath + deptPath
 	}
-	up.DeptPath = deptPath
 
 	if up.DeptPath != "" && up.DeptPath != item.DeptPath {
 		return item, errors.New("上级部门不允许修改！")

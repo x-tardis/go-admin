@@ -9,6 +9,7 @@ import (
 	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
+	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
@@ -125,11 +126,74 @@ func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	item.Updator = item.Creator
 	err := dao.DB.Scopes(RoleDB(ctx)).Create(&item).Error
+	if err != nil {
+		return item, err
+	}
+	// 更新角色的 sys_role_menu
+	if len(item.MenuIds) > 0 {
+		err = CRoleMenu.BatchCreate(ctx, item.RoleId, item.MenuIds)
+		if err != nil {
+			return item, err
+		}
+	}
+	err = deployed.CasbinEnforcer.LoadPolicy()
 	return item, err
 }
 
 // Update 修改角色信息
-func (cRole) Update(ctx context.Context, id int, up Role) (item Role, err error) {
+func (sf cRole) UpdateDataScope(ctx context.Context, id int, up Role) (item Role, err error) {
+	err = trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		item, err = sf.update(ctx, id, up)
+		if err != nil {
+			return err
+		}
+		err = CRoleDept.DeleteWithRole(ctx, id)
+		if err != nil {
+			return err
+		}
+		if up.DataScope == ScopeCustomize {
+			err = CRoleDept.BatchCreate(ctx, up.RoleId, up.DeptIds)
+		}
+		return err
+	})
+	return
+}
+
+func (sf cRole) Update(ctx context.Context, id int, up Role) (item Role, err error) {
+	err = trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		item, err = sf.update(ctx, id, up)
+		if err != nil {
+			return err
+		}
+		// 删除 sys_role_menu
+		err = CRoleMenu.DeleteWithRole(ctx, id)
+		if err != nil {
+			return err
+		}
+		// 获取角色
+		role, err := CRole.Get(ctx, id)
+		if err != nil {
+			return err
+		}
+		// 删除 casbin rule
+		err = CCasbinRule.DeleteWithRole(ctx, role.RoleKey)
+		if err != nil {
+			return err
+		}
+
+		// 更新 sys_role_menu
+		if len(up.MenuIds) > 0 {
+			err = CRoleMenu.BatchCreate(ctx, id, up.MenuIds)
+			if err != nil {
+				return err
+			}
+		}
+		return deployed.CasbinEnforcer.LoadPolicy()
+	})
+	return
+}
+
+func (cRole) update(ctx context.Context, id int, up Role) (item Role, err error) {
 	if err = dao.DB.Scopes(RoleDB(ctx)).First(&item, id).Error; err != nil {
 		return
 	}

@@ -207,7 +207,7 @@ func GetMenuTreeWithRoleName(c *gin.Context) {
 // @Router /api/v1/menuids/{id} [get]
 // @Security Bearer
 func GetMenuIDS(c *gin.Context) {
-	items, err := models.CRoleMenu.GetIDSWithRoleName(gcontext.Context(c))
+	items, err := models.CRoleMenu.GetIdsWithRoleName(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),

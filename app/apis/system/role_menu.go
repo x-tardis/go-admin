@@ -43,11 +43,10 @@ func (RoleMenu) Create(c *gin.Context) {
 // @Param menu_id query string false "menu_id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/rolemenu/{id} [delete]
+// @Router /api/v1/rolemenu/{roleid} [delete]
 func DeleteRoleMenu(c *gin.Context) {
-	roleId := c.Param("id")
-	menuId := c.Query("menu_id")
-	err := models.CRoleMenu.DeleteWith(gcontext.Context(c), roleId, menuId)
+	roleId := cast.ToInt(c.Param("roleid"))
+	err := models.CRoleMenu.DeleteWithRole(gcontext.Context(c), roleId)
 	if err != nil {
 		servers.Fail(c, http.StatusOK, servers.WithPrompt(prompt.DeleteFailed))
 		return
