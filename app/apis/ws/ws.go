@@ -20,6 +20,8 @@ type Cws struct{}
 
 // gin 处理 websocket handler
 func (Cws) WsClient(c *gin.Context) {
+	id := c.Param("id")
+
 	upGrader := websocket.Upgrader{
 		// cross origin domain
 		CheckOrigin: func(r *http.Request) bool { return true },
@@ -29,11 +31,10 @@ func (Cws) WsClient(c *gin.Context) {
 
 	conn, err := upGrader.Upgrade(c.Writer, c.Request, c.Writer.Header())
 	if err != nil {
-		log.Printf("websocket connect error: %s", c.Param("channel"))
+		log.Printf("websocket upgrade failed, %s", id)
 		return
 	}
 
-	id := c.Param("id")
 	sess := &easyws.Session{
 		GroupID: JobGroup,
 		ID:      id,

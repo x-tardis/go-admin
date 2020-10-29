@@ -118,7 +118,7 @@ INSERT INTO sys_menu VALUES (250, '', '查询操作日志', '', '', '/0/2/211/21
 INSERT INTO sys_menu VALUES (251, '', '删除操作日志', '', '', '/0/2/211/216/251', 'btn', '', 'system:sysoperlog:remove', 216, 0, '', '', 0, '0', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (252, '', '获取登录用户信息', '', '/api/v1/getinfo', '/0/63/256/252', 'ifc', 'GET', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (253, '', '角色数据权限', '', '/api/v1/roledatascope', '/0/63/256/253', 'ifc', 'PUT', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', '2020-07-10 20:47:58', null);
-INSERT INTO sys_menu VALUES (254, '', '部门树接口【数据权限】', '', '/api/v1/roleDeptTreeselect/:id', '/0/63/256/254', 'ifc', 'GET', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
+INSERT INTO sys_menu VALUES (254, '', '部门树接口【数据权限】', '', '/api/v1/roleDeptTreeoption/:id', '/0/63/256/254', 'ifc', 'GET', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (255, '', '部门树【用户列表】', '', '/api/v1/deptTree', '/0/63/256/255', 'ifc', 'GET', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (256, '', '必开接口', '', '', '/0/63/256', 'toc', 'GET', '', 63, 0, '', '', 0, '1', '1', '', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (257, '', '通过key获取参数', 'bug', '/api/v1/configKey/:id', '/0/63/256/257', 'ifc', 'GET', '', 256, 0, '', '', 1, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
