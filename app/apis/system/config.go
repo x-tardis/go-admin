@@ -17,7 +17,7 @@ import (
 
 type Config struct{}
 
-// @tags 系统配置
+// @tags 系统配置/Config
 // @summary 获取系统配置
 // @description 获取系统配置
 // @security Bearer
@@ -54,7 +54,7 @@ func (Config) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @tags 系统配置
+// @tags 系统配置/Config
 // @summary 获取配置
 // @description 获取配置
 // @security Bearer
@@ -78,7 +78,7 @@ func (Config) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 系统配置
+// @tags 系统配置/Config
 // @summary 通过Key获取配置
 // @description 通过Key获取配置
 // @security Bearer
@@ -102,7 +102,7 @@ func (Config) GetWithKey(c *gin.Context) {
 	servers.OK(c, servers.WithData(item), servers.WithMsg(item.ConfigValue))
 }
 
-// @tags 系统配置
+// @tags 系统配置/Config
 // @summary 创建系统配置
 // @description 创建系统配置
 // @security Bearer
@@ -129,7 +129,7 @@ func (Config) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 系统配置
+// @tags 系统配置/Config
 // @summary 更新系统配置
 // @description 更新系统配置
 // @security Bearer
@@ -156,7 +156,7 @@ func (Config) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 系统配置
+// @tags 系统配置/Config
 // @summary 批量删除系统设置
 // @description 批量删除系统设置
 // @security Bearer

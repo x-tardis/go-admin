@@ -15,7 +15,7 @@ import (
 // Dept dept
 type Dept struct{}
 
-// @tags 部门
+// @tags 部门/Dept
 // @summary 分页部门列表数据
 // @description 分页列表
 // @security Bearer
@@ -47,7 +47,7 @@ func (Dept) QueryPage(c *gin.Context) {
 	servers.OK(c, servers.WithData(tree))
 }
 
-// @tags 部门
+// @tags 部门/Dept
 // @summary 分页部门列表数据
 // @description 分页列表
 // @security Bearer
@@ -78,7 +78,7 @@ func (Dept) QueryTree(c *gin.Context) {
 	servers.OK(c, servers.WithData(items))
 }
 
-// @tags 部门
+// @tags 部门/Dept
 // @summary 获取指定Id信息
 // @description 获取指定Id信息
 // @security Bearer
@@ -102,7 +102,7 @@ func (Dept) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 部门
+// @tags 部门/Dept
 // @summary 添加部门信息
 // @description 添加部门信息
 // @security Bearer
@@ -128,7 +128,7 @@ func (Dept) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 部门
+// @tags 部门/Dept
 // @summary 更新部门信息
 // @description 更新部门信息
 // @security Bearer
@@ -156,7 +156,7 @@ func (Dept) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 部门
+// @tags 部门/Dept
 // @summary 删除部门信息
 // @description 删除部门信息
 // @security Bearer
@@ -178,7 +178,7 @@ func (Dept) Delete(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
-// @tags 部门
+// @tags 部门/Dept
 // @summary 获取部门树Label和角色
 // @description
 // @security Bearer

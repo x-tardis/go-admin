@@ -16,7 +16,7 @@ import (
 
 type DictData struct{}
 
-// @tags 字典数据
+// @tags 字典数据/DictData
 // @summary 获取字典数据列表
 // @description 获取字典数据列表
 // @security Bearer
@@ -53,7 +53,7 @@ func (DictData) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @tags 字典数据
+// @tags 字典数据/DictData
 // @summary 通过id获取字典数据
 // @description 通过id获取字典数据
 // @security Bearer
@@ -77,7 +77,7 @@ func (DictData) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 字典数据
+// @tags 字典数据/DictData
 // @summary 添加字典数据
 // @description 添加字典数据
 // @security Bearer
@@ -104,7 +104,7 @@ func (DictData) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 字典数据
+// @tags 字典数据/DictData
 // @summary 修改字典数据
 // @description 修改字典数据
 // @security Bearer
@@ -133,13 +133,13 @@ func (DictData) Update(c *gin.Context) {
 
 // @Summary 删除字典数据
 // @Description 删除数据
-// @Tags 字典数据
+// @Tags 字典数据/DictData
 // @Param dictId path int true "dictId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/data/{dictIds} [delete]
 
-// @tags 字典数据
+// @tags 字典数据/DictData
 // @summary 批量删除字典数据
 // @description 批量删除字典数据
 // @security Bearer
@@ -161,7 +161,7 @@ func (DictData) BatchDelete(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
-// @tags 字典数据
+// @tags 字典数据/DictData
 // @summary 通过字典类型获取字典数据
 // @description 通过字典类型获取字典数据
 // @security Bearer

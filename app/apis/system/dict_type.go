@@ -17,7 +17,7 @@ import (
 // DictType api dict type
 type DictType struct{}
 
-// @tags 字典类型
+// @tags 字典类型/DictType
 // @summary 获取字典列表
 // @description 获取字典列表
 // @security Bearer
@@ -54,7 +54,7 @@ func (DictType) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @tags 字典类型
+// @tags 字典类型/DictType
 // @summary 通过字典id获取字典类型
 // @description 通过字典id获取字典类型
 // @security Bearer
@@ -78,7 +78,7 @@ func (DictType) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 字典类型
+// @tags 字典类型/DictType
 // @summary 创建字典类型
 // @description 创建字典类型
 // @security Bearer
@@ -107,7 +107,7 @@ func (DictType) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 字典类型
+// @tags 字典类型/DictType
 // @summary 修改字典类型
 // @description 修改字典类型
 // @security Bearer
@@ -135,7 +135,7 @@ func (DictType) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 字典类型
+// @tags 字典类型/DictType
 // @summary 批量删除字典类型
 // @description 批量删除字典类型
 // @security Bearer
@@ -157,7 +157,7 @@ func (DictType) BatchDelete(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
-// @tags 字典类型
+// @tags 字典类型/DictType
 // @summary 获取字典类型列表数据
 // @description 获取字典类型列表数据
 // @security Bearer

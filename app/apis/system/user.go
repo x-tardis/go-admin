@@ -18,7 +18,7 @@ import (
 // User api user
 type User struct{}
 
-// @tags 用户
+// @tags 用户/User
 // @summary 列表用户列表
 // @description 列表用户列表
 // @security Bearer
@@ -56,7 +56,7 @@ func (User) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @tags 用户
+// @tags 用户/User
 // @summary 获取用户
 // @description 获取用户
 // @security Bearer
@@ -90,7 +90,7 @@ func (User) Get(c *gin.Context) {
 	})
 }
 
-// @tags 用户
+// @tags 用户/User
 // @summary 获取用户角色和职位
 // @description 获取用户角色和职位
 // @security Bearer
@@ -117,7 +117,7 @@ func (User) GetInit(c *gin.Context) {
 	servers.OK(c, servers.WithData(mp))
 }
 
-// @tags 用户
+// @tags 用户/User
 // @summary 创建用户
 // @description 创建用户
 // @security Bearer
@@ -144,7 +144,7 @@ func (User) Create(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.CreateSuccess))
 }
 
-// @tags 用户
+// @tags 用户/User
 // @summary 修改用户数据
 // @description 修改用户数据
 // @security Bearer
@@ -171,7 +171,7 @@ func (User) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 用户
+// @tags 用户/User
 // @summary 批量删除用户数据
 // @description 批量删除用户数据
 // @security Bearer

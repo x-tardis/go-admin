@@ -38,8 +38,9 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 			OperLog(),
 			authj.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject),
 		)
+		v1.POST("/logout", authMiddleware.LogoutHandler)
 		routers.System(v1)
-		routers.Base(v1, authMiddleware)
+		routers.Base(v1)
 		routers.Dept(v1)
 		routers.Dict(v1)
 		routers.User(v1)

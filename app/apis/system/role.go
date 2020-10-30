@@ -19,17 +19,19 @@ import (
 
 type Role struct{}
 
-// @Tags 角色/Role
-// @Summary 角色列表数据
-// @Description Get JSON
-// @Param roleName query string false "roleName"
-// @Param roleKey query string false "roleKey"
-// @Param status query string false "status"
-// @Param pageSize query int false "页条数"
-// @Param pageIndex query int false "页码"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/roles [get]
-// @Security Bearer
+// @tags 角色/Role
+// @summary 角色列表数据
+// @description Get JSON
+// @accept json
+// @produce json
+// @security Bearer
+// @param roleName query string false "roleName"
+// @param roleKey query string false "roleKey"
+// @param status query string false "status"
+// @param pageSize query int false "页条数"
+// @param pageIndex query int false "页码"
+// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @router /api/v1/roles [get]
 func (Role) QueryPage(c *gin.Context) {
 	qp := models.RoleQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -52,14 +54,16 @@ func (Role) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @Summary 获取Role数据
-// @Description 获取JSON
-// @Tags 角色/Role
-// @Param roleId path string false "roleId"
-// @Success 200 {string} string "{"code": 200, "data": [...]}"
-// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/role/{id} [get]
-// @Security Bearer
+// @tags 角色/Role
+// @summary 获取Role数据
+// @description 获取Role数据
+// @security Bearer
+// @accept json
+// @produce json
+// @param id path string true "id"
+// @success 200 {string} string "{"code": 200, "data": [...]}"
+// @success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @router /api/v1/role/{id} [get]
 func (Role) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CRole.Get(gcontext.Context(c), id)
@@ -75,15 +79,16 @@ func (Role) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 创建角色
-// @Description 获取JSON
-// @Tags 角色/Role
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Role true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/roles [post]
+// @tags 角色/Role
+// @summary 创建角色
+// @description 创建角色
+// @security Bearer
+// @accept json
+// @produce json
+// @param newItem body models.Role true "new item"
+// @success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @router /api/v1/roles [post]
 func (Role) Create(c *gin.Context) {
 	newItem := models.Role{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -100,15 +105,16 @@ func (Role) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 修改用户角色
-// @Description 获取JSON
-// @Tags 角色/Role
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Role true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
-// @Router /api/v1/roles [put]
+// @tags 角色/Role
+// @Summary 修改角色信息
+// @Description 修改角色信息
+// @security Bearer
+// @accept json
+// @produce json
+// @param up body models.Role true "update item"
+// @success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @router /api/v1/roles [put]
 func (Role) Update(c *gin.Context) {
 	up := models.Role{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -123,13 +129,16 @@ func (Role) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 删除用户角色
-// @Description 删除数据
-// @Tags 角色/Role
-// @Param roleId path int true "roleId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/roles/{ids} [delete]
+// @tags 角色/Role
+// @summary 删除用户角色
+// @description 删除用户角色
+// @security Bearer
+// @accept json
+// @produce json
+// @param ids path int true "id列表,以','分隔"
+// @success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @router /api/v1/roles/{ids} [delete]
 func (Role) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CRole.BatchDelete(gcontext.Context(c), ids)

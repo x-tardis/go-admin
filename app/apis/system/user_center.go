@@ -17,7 +17,7 @@ import (
 
 const defaultAvatar = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
 
-// @tags 个人中心
+// @tags 个人中心/UserCenter
 // @summary 获取用户信息
 // @description 获取用户信息
 // @security Bearer
@@ -57,7 +57,7 @@ func (User) GetInfo(c *gin.Context) {
 	servers.OK(c, servers.WithData(mp))
 }
 
-// @tags 个人中心
+// @tags 个人中心/UserCenter
 // @summary 获取个人中心用户信息
 // @description 获取个人中心用户信息
 // @security Bearer
@@ -95,7 +95,7 @@ func (User) GetProfile(c *gin.Context) {
 	})
 }
 
-// @tags 个人中心
+// @tags 个人中心/UserCenter
 // @summary 修改头像
 // @description 修改头像
 // @security Bearer
@@ -126,7 +126,7 @@ func (User) UploadAvatar(c *gin.Context) {
 	servers.OK(c, servers.WithData(avatar))
 }
 
-// @tags 个人中心
+// @tags 个人中心/UserCenter
 // @summary 修改密码
 // @description 修改密码
 // @security Bearer

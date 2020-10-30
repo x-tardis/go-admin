@@ -7,8 +7,8 @@ import (
 )
 
 func PubPublic(v1 gin.IRouter) {
-	p := v1.Group("/public")
+	r := v1.Group("/public")
 	{
-		p.POST("/uploadFile", public.UploadFile)
+		r.POST("/uploadFile", public.UploadFile)
 	}
 }

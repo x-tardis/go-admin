@@ -18,7 +18,7 @@ import (
 // Post post
 type Post struct{}
 
-// @tags 岗位
+// @tags 岗位/Post
 // @summary 获取岗位列表
 // @description 获取岗位列表
 // @security Bearer
@@ -52,7 +52,7 @@ func (Post) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @tags 岗位
+// @tags 岗位/Post
 // @summary 获取id岗位信息
 // @description 获取id岗位信息
 // @security Bearer
@@ -73,7 +73,7 @@ func (Post) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 岗位
+// @tags 岗位/Post
 // @summary 添加岗位
 // @description 获取JSON
 // @security Bearer
@@ -99,7 +99,7 @@ func (Post) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 岗位
+// @tags 岗位/Post
 // @summary 修改岗位
 // @description 获取JSON
 // @security Bearer
@@ -123,7 +123,7 @@ func (Post) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 岗位
+// @tags 岗位/Post
 // @summary 批量删除岗位
 // @description 批量删除数据
 // @security Bearer
