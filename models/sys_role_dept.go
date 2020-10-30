@@ -47,7 +47,21 @@ func (cRoleDept) DeleteWithRole(ctx context.Context, roleId int) error {
 		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
 }
 
+// DeleteWithDept 通过部门id删除
 func (cRoleDept) DeleteWithDept(ctx context.Context, deptId int) error {
 	return dao.DB.Scopes(RoleDeptDB(ctx)).
 		Where("dept_id=?", deptId).Delete(&RoleDept{}).Error
+}
+
+// GetTreeOption 获取部门树和角色已选的部门id列表
+func (cRoleDept) GetDeptTreeOption(ctx context.Context, roleId int) ([]DeptNameLabel, []int, error) {
+	tree, err := CDept.QueryLabelTree(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	deptIds := make([]int, 0)
+	if roleId != 0 {
+		deptIds, err = CRole.GetDeptIds(ctx, roleId)
+	}
+	return tree, deptIds, err
 }
