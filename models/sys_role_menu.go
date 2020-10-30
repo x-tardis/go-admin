@@ -138,3 +138,16 @@ func (cRoleMenu) batchCreate(ctx context.Context, items []RoleMenu) ([]RoleMenu,
 	err := dao.DB.Scopes(RoleMenuDB(ctx)).Create(&items).Error
 	return items, err
 }
+
+// GetMenuTreeOption 获取目录树和角色已选的目录id列表
+func (cRoleMenu) GetMenuTreeOption(ctx context.Context, roleId int) ([]MenuTitleLabel, []int, error) {
+	tree, err := CMenu.QueryTitleLabelTree(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	menuIds := make([]int, 0)
+	if roleId != 0 {
+		menuIds, err = CRole.GetMenuIds(ctx, roleId)
+	}
+	return tree, menuIds, err
+}

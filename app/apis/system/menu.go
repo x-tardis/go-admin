@@ -138,32 +138,6 @@ func (Menu) Delete(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
-func GetMenuTreeRoleOption(c *gin.Context) {
-	items, err := models.CMenu.QueryTitleLabelTree(gcontext.Context(c))
-	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.QueryFailed),
-			servers.WithError(err))
-		return
-	}
-	id := cast.ToInt(c.Param("roleId"))
-	menuIds := make([]int, 0)
-	if id != 0 {
-		menuIds, err = models.CRole.GetMenuIds(gcontext.Context(c), id)
-		if err != nil {
-			servers.Fail(c, http.StatusInternalServerError,
-				servers.WithPrompt(prompt.QueryFailed),
-				servers.WithError(err))
-			return
-		}
-	}
-	servers.JSON(c, http.StatusOK, gin.H{
-		"code":        200,
-		"menus":       items,
-		"checkedKeys": menuIds,
-	})
-}
-
 // @tags 菜单/Menu
 // @Summary 获取菜单树
 // @Description 获取JSON

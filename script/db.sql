@@ -43,7 +43,7 @@ INSERT INTO sys_menu VALUES (89, '', '创建参数', 'bug', '/api/v1/configs', '
 INSERT INTO sys_menu VALUES (90, '', '修改参数', 'bug', '/api/v1/configs', '/0/63/202/90', 'ifc', 'PUT', null, 202, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (91, '', '删除参数', 'bug', '/api/v1/configs/:id', '/0/63/202/91', 'ifc', 'DELETE', null, 202, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (92, '', '获取角色菜单', 'bug', '/api/v1/menurole', '/0/63/256/92', 'ifc', 'GET', null, 256, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', '2020-07-10 20:47:39', null);
-INSERT INTO sys_menu VALUES (93, '', '通过角色id获取角色', 'bug', '/api/v1/roleMenuTreeoption/:id', '/0/63/256/93', 'ifc', 'GET', null, 256, null, null, null, 0, '1', '1', '1', '1', '2020-04-11 15:52:48', '2020-10-30 08:51:02.691000000', null);
+INSERT INTO sys_menu VALUES (93, '', '通过角色id获取角色', 'bug', '/api/v1/roleMenuTree/option/:id', '/0/63/256/93', 'ifc', 'GET', null, 256, null, null, null, 0, '1', '1', '1', '1', '2020-04-11 15:52:48', '2020-10-30 08:51:02.691000000', null);
 INSERT INTO sys_menu VALUES (94, '', '获取菜单树', 'tree-table', '/api/v1/menuTreeoption', '/0/63/256/94', 'ifc', 'GET', null, 256, null, null, null, 0, '1', '1', '1', '1', '2020-04-11 15:52:48', '2020-10-30 08:51:18.484000000', null);
 INSERT INTO sys_menu VALUES (95, '', '获取角色菜单', 'bug', '/api/v1/rolemenu', '/0/63/205/95', 'ifc', 'GET', null, 205, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (96, '', '创建角色菜单', 'bug', '/api/v1/rolemenu', '/0/63/205/96', 'ifc', 'POST', null, 205, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);

@@ -46,6 +46,7 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 		routers.User(v1)
 		routers.Role(v1)
 		routers.RoleDept(v1)
+		routers.RoleMenu(v1)
 		routers.Config(v1)
 		routers.Post(v1)
 		routers.Menu(v1)

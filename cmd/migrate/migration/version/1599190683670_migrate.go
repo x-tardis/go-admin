@@ -179,7 +179,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{PType: "p", V0: "admin", V1: "/api/v1/menurole", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/roledatascope", V2: "PUT"},
 			{PType: "p", V0: "admin", V1: "/api/v1/roleDeptTree/option/:id", V2: "GET"},
-			{PType: "p", V0: "admin", V1: "/api/v1/roleMenuTreeoption/:id", V2: "GET"},
+			{PType: "p", V0: "admin", V1: "/api/v1/roleMenuTree/option/:id", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/menuTreeoption", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/menus", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/menus/:id", V2: "GET"},

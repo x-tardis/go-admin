@@ -53,7 +53,7 @@ func (cRoleDept) DeleteWithDept(ctx context.Context, deptId int) error {
 		Where("dept_id=?", deptId).Delete(&RoleDept{}).Error
 }
 
-// GetTreeOption 获取部门树和角色已选的部门id列表
+// GetDeptTreeOption 获取部门树和角色已选的部门id列表
 func (cRoleDept) GetDeptTreeOption(ctx context.Context, roleId int) ([]DeptNameLabel, []int, error) {
 	tree, err := CDept.QueryLabelTree(ctx)
 	if err != nil {
