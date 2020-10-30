@@ -1,10 +1,10 @@
 package dto
 
 import (
-	"github.com/matchstalk/go-admin-core/search"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/pkg/search"
 )
 
 type GeneralDelDto struct {
