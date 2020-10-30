@@ -25,10 +25,13 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	routers.Swagger(engine)
 
 	v1 := engine.Group("/api/v1")
-	{ // 无需认证
+	{
+		// 无需认证
+		routers.PubBase(v1)
 		routers.PubSystem(v1)
 		routers.PubPublic(v1)
-		routers.PubBase(v1)
+		routers.PubMenu(v1)
+		routers.PubGen(v1)
 		routers.PubDB(v1)
 		routers.PubSysTable(v1)
 
@@ -40,17 +43,16 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 		)
 		v1.POST("/logout", authMiddleware.LogoutHandler)
 		routers.System(v1)
-		routers.Base(v1)
-		routers.Dept(v1)
+		routers.Config(v1)
 		routers.Dict(v1)
+		routers.LoginLog(v1)
+		routers.OperLog(v1)
 		routers.User(v1)
+		routers.Menu(v1)
 		routers.Role(v1)
 		routers.RoleDept(v1)
 		routers.RoleMenu(v1)
-		routers.Config(v1)
+		routers.Dept(v1)
 		routers.Post(v1)
-		routers.Menu(v1)
-		routers.LoginLog(v1)
-		routers.OperLog(v1)
 	}
 }

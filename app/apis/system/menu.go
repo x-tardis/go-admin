@@ -145,9 +145,9 @@ func (Menu) Delete(c *gin.Context) {
 // @Product application/x-www-form-urlencoded
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/menuTreeoption [get]
+// @Router /api/v1/menuTree/option [get]
 // @Security Bearer
-func GetMenuTreeOption(c *gin.Context) {
+func (Menu) GetMenuTreeOption(c *gin.Context) {
 	items, err := models.CMenu.QueryTitleLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,

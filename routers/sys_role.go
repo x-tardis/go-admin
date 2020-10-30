@@ -7,6 +7,7 @@ import (
 
 func Role(v1 gin.IRouter) {
 	ctl := new(system.Role)
+	v1.PUT("/roledatascope", ctl.UpdateDataScope)
 	r := v1.Group("/roles")
 	{
 		r.GET("", ctl.QueryPage)

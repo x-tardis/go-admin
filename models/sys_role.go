@@ -151,7 +151,7 @@ func (sf cRole) UpdateDataScope(ctx context.Context, id int, up Role) (item Role
 		if err != nil {
 			return err
 		}
-		if up.DataScope == ScopeCustomize {
+		if up.DataScope == ScopeCustomize && len(up.DeptIds) > 0 {
 			err = CRoleDept.BatchCreate(ctx, up.RoleId, up.DeptIds)
 		}
 		return err

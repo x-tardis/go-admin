@@ -18,3 +18,7 @@ func Menu(v1 gin.IRouter) {
 		r.DELETE("/:id", ctl.Delete)
 	}
 }
+
+func PubMenu(v1 gin.IRouter) {
+	v1.GET("/menuTree/option", new(system.Menu).GetMenuTreeOption)
+}

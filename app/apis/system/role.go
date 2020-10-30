@@ -155,7 +155,7 @@ func (Role) BatchDelete(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
-func UpdateRoleDataScope(c *gin.Context) {
+func (Role) UpdateDataScope(c *gin.Context) {
 	up := models.Role{}
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
