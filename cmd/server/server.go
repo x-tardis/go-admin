@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -94,8 +93,7 @@ func run(cmd *cobra.Command, args []string) error {
 }
 
 func tip() {
-	content, _ := ioutil.ReadFile("./static/go-admin.txt")
-	fmt.Println(textcolor.Red(string(content)))
+	fmt.Println(textcolor.Red(infra.Banner))
 	fmt.Printf("欢迎使用 %s %s 可以使用 %s 查看命令 \n\n", textcolor.Green("go-admin"), textcolor.Magenta(builder.Version), textcolor.Magenta("-h"))
 	fmt.Println(textcolor.Green("Server run at:"))
 	fmt.Printf("\t-  Local:   http://localhost:%s/ \r\n", deployed.AppConfig.Port)

@@ -14,6 +14,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
+// FileResponse
 type FileResponse struct {
 	Size     int64  `json:"size"`
 	Path     string `json:"path"`
@@ -22,15 +23,17 @@ type FileResponse struct {
 	Type     string `json:"type"`
 }
 
-// @Summary 上传图片
-// @Description 获取JSON
-// @Tags 公共接口
-// @Accept multipart/form-data
-// @Param type query string true "type" (1：单图，2：多图, 3：base64图片)
-// @Param file formData file true "file"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/public/uploadFile [post]
+// @tags 文件上传
+// @summary 上传图片
+// @description 上传图片
+// @accept multipart/form-data
+// @produce json
+// @param type formData string true "type" (1：单图，2：多图, 3：base64图片)
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/public/uploadFile [post]
 func UploadFile(c *gin.Context) {
 	var fileResponse FileResponse
 

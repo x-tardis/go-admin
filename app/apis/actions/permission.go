@@ -79,7 +79,8 @@ func Permission(tableName string, p *DataPermission) func(db *gorm.DB) *gorm.DB 
 	}
 }
 
-func getPermissionFromContext(c *gin.Context) *DataPermission {
+// PermissionForNoAction 提供非action写法数据范围约束
+func GetPermissionFromContext(c *gin.Context) *DataPermission {
 	p := new(DataPermission)
 	if pm, ok := c.Get(PermissionKey); ok {
 		switch v := pm.(type) {
@@ -88,9 +89,4 @@ func getPermissionFromContext(c *gin.Context) *DataPermission {
 		}
 	}
 	return p
-}
-
-// PermissionForNoAction 提供非action写法数据范围约束
-func GetPermissionFromContext(c *gin.Context) *DataPermission {
-	return getPermissionFromContext(c)
 }
