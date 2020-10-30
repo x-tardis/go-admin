@@ -163,29 +163,10 @@ func GetMenuTreeOption(c *gin.Context) {
 // @Description 获取JSON
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/menurole [get]
+// @Router /api/v1/menuTree/role [get]
 // @Security Bearer
-func GetMenuTreeWithRoleName(c *gin.Context) {
+func (Menu) GetMenuTreeWithRoleName(c *gin.Context) {
 	items, err := models.CMenu.QueryTreeWithRoleName(gcontext.Context(c))
-	if err != nil {
-		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.NotFound),
-			servers.WithError(err))
-		return
-	}
-	servers.OK(c, servers.WithData(items))
-}
-
-// @tags 菜单/Menu
-// @Summary 获取角色对应的菜单id数组
-// @Description 获取JSON
-// @Param id path int true "id"
-// @Success 200 {string} string "{"code": 200, "data": [...]}"
-// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/menuids/{id} [get]
-// @Security Bearer
-func GetMenuIDS(c *gin.Context) {
-	items, err := models.CRoleMenu.GetIdsWithRoleName(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.NotFound),

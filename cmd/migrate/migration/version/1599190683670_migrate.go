@@ -175,8 +175,8 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 		list2 := []models.CasbinRule{
 			{PType: "p", V0: "admin", V1: "/api/v1/logout", V2: "POST"},
-			{PType: "p", V0: "admin", V1: "/api/v1/menuids", V2: "GET"},
-			{PType: "p", V0: "admin", V1: "/api/v1/menurole", V2: "GET"},
+			{PType: "p", V0: "admin", V1: "/api/v1/roleMenu/menuids", V2: "GET"},
+			{PType: "p", V0: "admin", V1: "/api/v1/menuTree/role", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/roledatascope", V2: "PUT"},
 			{PType: "p", V0: "admin", V1: "/api/v1/roleDeptTree/option/:id", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/roleMenuTree/option/:id", V2: "GET"},
@@ -207,9 +207,6 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{PType: "p", V0: "admin", V1: "/api/v1/configs", V2: "POST"},
 			{PType: "p", V0: "admin", V1: "/api/v1/configs", V2: "PUT"},
 			{PType: "p", V0: "admin", V1: "/api/v1/configs/:id", V2: "DELETE"},
-			{PType: "p", V0: "admin", V1: "/api/v1/rolemenu", V2: "GET"},
-			{PType: "p", V0: "admin", V1: "/api/v1/rolemenu", V2: "POST"},
-			{PType: "p", V0: "admin", V1: "/api/v1/rolemenu/:id", V2: "DELETE"},
 			{PType: "p", V0: "admin", V1: "/api/v1/deptTree", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/depts", V2: "GET"},
 			{PType: "p", V0: "admin", V1: "/api/v1/depts/:id", V2: "GET"},

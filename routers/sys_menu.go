@@ -8,6 +8,7 @@ import (
 
 func Menu(v1 gin.IRouter) {
 	ctl := new(system.Menu)
+	v1.GET("/menuTree/role", ctl.GetMenuTreeWithRoleName)
 	r := v1.Group("/menus")
 	{
 		r.GET("", ctl.QueryTree)

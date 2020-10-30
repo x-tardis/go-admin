@@ -20,7 +20,6 @@ func LoginLog(v1 gin.IRouter) {
 
 func OperLog(v1 gin.IRouter) {
 	ctl := new(system.OperLog)
-
 	r := v1.Group("/operlog")
 	{
 		r.GET("", ctl.QueryPage)
