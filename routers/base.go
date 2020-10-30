@@ -14,6 +14,6 @@ func Base(v1 gin.IRouter, authMiddleware *jwt.GinJWTMiddleware) {
 	v1.GET("/menurole", system.GetMenuTreeWithRoleName)
 	v1.GET("/menuids", system.GetMenuIDS)
 	v1.PUT("/roledatascope", system.UpdateRoleDataScope)
-	v1.GET("/roleMenuTreeoption/:roleId", system.GetMenuTreeRoleselect)
-	v1.GET("/roleDeptTreeoption/:roleId", system.GetDeptTreeRoleselect)
+	v1.GET("/roleMenuTreeoption/:roleId", system.GetMenuTreeRoleOption)
+	v1.GET("/roleDeptTreeoption/:roleId", system.GetDeptTreeRoleOption)
 }

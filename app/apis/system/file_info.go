@@ -17,6 +17,17 @@ import (
 
 type FileInfo struct{}
 
+// @tags fileinfo
+// @summary 获取fileinfo列表
+// @description 获取fileinfo列表
+// @accept json
+// @produce json
+// @param pId query int false "父id"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/fileinfo [get]
 func (FileInfo) QueryPage(c *gin.Context) {
 	qp := models.FileInfoQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -36,6 +47,17 @@ func (FileInfo) QueryPage(c *gin.Context) {
 	}))
 }
 
+// @tags fileinfo
+// @summary 通过id获取fileinfo
+// @description 通过id获取fileinfo
+// @accept json
+// @produce json
+// @param id path int true "主键"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/fileinfo/{id} [get]
 func (FileInfo) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CFileInfo.Get(gcontext.Context(c), id)
@@ -46,6 +68,17 @@ func (FileInfo) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags fileinfo
+// @summary 创建fileinfo
+// @description 创建fileinfo
+// @accept json
+// @produce json
+// @param newItem body models.FileInfo true "new item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/fileinfo [post]
 func (FileInfo) Create(c *gin.Context) {
 	newItem := models.FileInfo{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -61,6 +94,17 @@ func (FileInfo) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags fileinfo
+// @summary 更新fileinfo
+// @description 更新fileinfo
+// @accept json
+// @produce json
+// @param up body models.FileInfo true "update item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/fileinfo [put]
 func (FileInfo) Update(c *gin.Context) {
 	up := models.FileInfo{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -76,6 +120,17 @@ func (FileInfo) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags fileinfo
+// @summary 批量删除fileinfo
+// @description 批量删除fileinfo
+// @accept json
+// @produce json
+// @param ids path string true "id列表,以','分隔"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/fileinfo/{ids} [delete]
 func (FileInfo) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CFileInfo.BatchDelete(gcontext.Context(c), ids)

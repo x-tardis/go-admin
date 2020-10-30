@@ -134,7 +134,7 @@ func (Menu) Delete(c *gin.Context) {
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
 }
 
-func GetMenuTreeRoleselect(c *gin.Context) {
+func GetMenuTreeRoleOption(c *gin.Context) {
 	result, err := models.CMenu.QueryTitleLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,

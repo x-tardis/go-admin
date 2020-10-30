@@ -95,11 +95,11 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 		db = db.Where("p_id=?", qp.PId)
 	}
 
-	// // 数据权限控制(如果不需要数据权限请将此处去掉)
-	// db = db.Scopes(DataScope("sys_file_dir", jwtauth.FromUserId(ctx)))
-	// if err := db.Error; err != nil {
-	// 	return nil, err
-	// }
+	// 数据权限控制(如果不需要数据权限请将此处去掉)
+	db = db.Scopes(DataScope(FileDir{}, jwtauth.FromUserId(ctx)))
+	if err := db.Error; err != nil {
+		return nil, err
+	}
 
 	err = db.Find(&items).Error
 	return items, err
@@ -148,7 +148,7 @@ func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, e
 		path = "/0" + path
 	} else {
 		var deptP FileDir
-		dao.DB.Scopes(FileDirDB(ctx)).Where("id = ?", up.Id).First(&deptP)
+		dao.DB.Scopes(FileDirDB(ctx)).Where("id=?", up.Id).First(&deptP)
 		path = deptP.Path + path
 	}
 	up.Path = path

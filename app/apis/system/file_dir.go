@@ -15,6 +15,19 @@ import (
 
 type FileDir struct{}
 
+// @tags filedir
+// @summary 获取filedir树
+// @description 获取filedir树
+// @accept json
+// @produce json
+// @param id query int false "主键"
+// @param label query string false "label名称"
+// @param pId query int false "父id"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/filedir [get]
 func (FileDir) QueryTree(c *gin.Context) {
 	qp := models.FileDirQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -30,6 +43,17 @@ func (FileDir) QueryTree(c *gin.Context) {
 	servers.OK(c, servers.WithData(items))
 }
 
+// @tags filedir
+// @summary 通过id获取filedir
+// @description 通过id获取filedir
+// @accept json
+// @produce json
+// @param id path int true "主键"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/filedir/{id} [get]
 func (FileDir) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CFileDir.Get(gcontext.Context(c), id)
@@ -40,15 +64,17 @@ func (FileDir) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加SysFileDir
-// @Description 获取JSON
-// @Tags SysFileDir
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.FileDir true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/filedir [post]
+// @tags filedir
+// @summary 创建filedir
+// @description 创建filedir
+// @accept json
+// @produce json
+// @param newItem body models.FileDir true "new item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/filedir [post]
 func (FileDir) Create(c *gin.Context) {
 	newItem := models.FileDir{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -64,6 +90,17 @@ func (FileDir) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags filedir
+// @summary 更新filedir
+// @description 更新filedir
+// @accept json
+// @produce json
+// @param up body models.FileDir true "update item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/filedir [put]
 func (FileDir) Update(c *gin.Context) {
 	up := models.FileDir{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -79,6 +116,17 @@ func (FileDir) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags filedir
+// @summary 批量删除filedir
+// @description 批量删除filedir
+// @accept json
+// @produce json
+// @param ids path string true "id列表,以','分隔"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/filedir/{ids} [delete]
 func (FileDir) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CFileDir.BatchDelete(gcontext.Context(c), ids)
