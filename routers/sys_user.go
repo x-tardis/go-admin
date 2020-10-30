@@ -19,6 +19,7 @@ func User(v1 gin.IRouter) {
 	}
 	rx := v1.Group("/user")
 	{
+		rx.GET("/info", ctl.GetInfo)
 		rx.GET("/profile", ctl.GetProfile)
 		rx.POST("/avatar", ctl.UploadAvatar)
 		rx.PUT("/pwd", ctl.UpdatePassword)
