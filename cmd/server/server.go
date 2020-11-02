@@ -64,7 +64,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	go func() {
 		jobs.InitJob()
-		jobs.Setup()
+		jobs.Startup()
 	}()
 
 	if viper.GetString("mode") == infra.ModeProd {

@@ -93,7 +93,7 @@ func (cJob) Query(ctx context.Context) (items []Job, err error) {
 // Get 获取
 func (cJob) Get(ctx context.Context, id uint) (item Job, err error) {
 	err = dao.DB.Scopes(JobDB(ctx)).
-		Where("job_id=?", id).First(&item).Error
+		First(&item, "job_id=?", id).Error
 	return
 }
 
@@ -106,6 +106,11 @@ func (cJob) Create(ctx context.Context, item Job) (Job, error) {
 // Update 更新SysJob
 func (cJob) Update(ctx context.Context, id uint, up Job) error {
 	return dao.DB.Scopes(JobDB(ctx)).Where("job_id=?", id).Updates(&up).Error
+}
+
+func (cJob) UpdateEntryID(ctx context.Context, id uint, entityID int) error {
+	return dao.DB.Scopes(JobDB(ctx)).
+		Where("job_id=?", id).Update("entry_id", entityID).Error
 }
 
 // Delete 删除
@@ -128,8 +133,8 @@ func (cJob) RemoveAllEntryID(ctx context.Context) error {
 }
 
 // RemoveEntryID 删除指定 entry id
-func (cJob) RemoveEntryID(ctx context.Context, entryID int) (err error) {
+func (cJob) RemoveEntryID(ctx context.Context, entryID int) error {
 	return dao.DB.Scopes(JobDB(ctx)).
-		Where("entry_id = ?", entryID).
+		Where("entry_id=?", entryID).
 		Update("entry_id", 0).Error
 }

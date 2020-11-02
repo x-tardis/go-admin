@@ -25,8 +25,10 @@ func SysJobRouter(v1 gin.IRouter) {
 		r.PUT("", actions.PermissionAction(), actions.UpdateAction(new(service.SysJobControl)))
 		r.DELETE("", actions.PermissionAction(), actions.DeleteAction(new(service.SysJobById)))
 	}
-	sysJob := &system.Job{}
-
-	v1.GET("/job/remove/:id", sysJob.RemoveJobForService)
-	v1.GET("/job/start/:id", sysJob.StartJobForService)
+	ctl := new(system.Job)
+	rx := v1.Group("/job")
+	{
+		rx.GET("/remove/:id", ctl.RemoveJobForService)
+		rx.GET("/start/:id", ctl.StartJobForService)
+	}
 }
