@@ -273,15 +273,15 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 
 		list7 := []models.DictType{
 			{DictId: 1, DictName: "系统开关", DictType: "sys_normal_disable", Status: "0", Creator: "1", Updator: "1", Remark: "系统开关列表"},
-			{DictId: 2, DictName: "用户性别", DictType: "sys_user_sex", Status: "0", Creator: "1", Updator: "", Remark: "用户性别列表"},
-			{DictId: 3, DictName: "菜单状态", DictType: "sys_show_hide", Status: "0", Creator: "1", Updator: "", Remark: "菜单状态列表"},
-			{DictId: 4, DictName: "系统是否", DictType: "sys_yes_no", Status: "0", Creator: "1", Updator: "", Remark: "系统是否列表"},
-			{DictId: 5, DictName: "任务状态", DictType: "sys_job_status", Status: "0", Creator: "1", Updator: "", Remark: "任务状态列表"},
-			{DictId: 6, DictName: "任务分组", DictType: "sys_job_group", Status: "0", Creator: "1", Updator: "", Remark: "任务分组列表"},
-			{DictId: 7, DictName: "通知类型", DictType: "sys_notice_type", Status: "0", Creator: "1", Updator: "", Remark: "通知类型列表"},
-			{DictId: 8, DictName: "系统状态", DictType: "sys_common_status", Status: "0", Creator: "1", Updator: "", Remark: "登录状态列表"},
-			{DictId: 9, DictName: "操作类型", DictType: "sys_oper_type", Status: "0", Creator: "1", Updator: "", Remark: "操作类型列表"},
-			{DictId: 10, DictName: "通知状态", DictType: "sys_notice_status", Status: "0", Creator: "1", Updator: "", Remark: "通知状态列表"},
+			{DictId: 2, DictName: "用户性别", DictType: "sys_user_sex", Status: "0", Creator: "1", Updator: "1", Remark: "用户性别列表"},
+			{DictId: 3, DictName: "菜单状态", DictType: "sys_show_hide", Status: "0", Creator: "1", Updator: "1", Remark: "菜单状态列表"},
+			{DictId: 4, DictName: "系统是否", DictType: "sys_yes_no", Status: "0", Creator: "1", Updator: "1", Remark: "系统是否列表"},
+			{DictId: 5, DictName: "任务状态", DictType: "sys_job_status", Status: "0", Creator: "1", Updator: "1", Remark: "任务状态列表"},
+			{DictId: 6, DictName: "任务分组", DictType: "sys_job_group", Status: "0", Creator: "1", Updator: "1", Remark: "任务分组列表"},
+			{DictId: 7, DictName: "通知类型", DictType: "sys_notice_type", Status: "0", Creator: "1", Updator: "1", Remark: "通知类型列表"},
+			{DictId: 8, DictName: "系统状态", DictType: "sys_common_status", Status: "0", Creator: "1", Updator: "1", Remark: "登录状态列表"},
+			{DictId: 9, DictName: "操作类型", DictType: "sys_oper_type", Status: "0", Creator: "1", Updator: "1", Remark: "操作类型列表"},
+			{DictId: 10, DictName: "通知状态", DictType: "sys_notice_status", Status: "0", Creator: "1", Updator: "1", Remark: "通知状态列表"},
 		}
 
 		list8 := []models.User{

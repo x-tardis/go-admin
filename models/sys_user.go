@@ -56,13 +56,13 @@ func UserDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 // UserPage 分页查询数据,带部门名
 type UserPage struct {
 	User
-	DeptName string `gorm:"-" json:"deptName"`
+	DeptName string `json:"deptName"`
 }
 
 // UserView  查询查看数据,带角色名
 type UserView struct {
 	User
-	RoleName string `gorm:"column:role_name"  json:"roleName"`
+	RoleName string `json:"roleName"`
 }
 
 // UserQueryParam 查询参数
@@ -71,7 +71,7 @@ type UserQueryParam struct {
 	Status   string `form:"status"`
 	Phone    string `form:"phone"`
 	DeptId   int    `form:"deptId"`
-	// PostId   int    `form:"postId"`
+	// PostId   int    `form:"postId"` // not used
 	paginator.Param
 }
 
@@ -243,7 +243,7 @@ func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
 		return errors.New("获取用户数据失败(代码202)")
 	}
 
-	// 校验旧密码 和 新密加签
+	// 校验旧密码 和 新密采用新盐加签
 	err = deployed.Verify.Compare(pwd.OldPassword, item.Salt, item.Password)
 	if err != nil {
 		return err
