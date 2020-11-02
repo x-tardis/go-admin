@@ -26,7 +26,7 @@ type Job struct {
 	MisfirePolicy  int    `json:"misfirePolicy" gorm:"size:255;"`          // 执行策略
 	Concurrent     int    `json:"concurrent" gorm:"size:1;"`               // 是否并发
 	Status         int    `json:"status" gorm:"size:1;"`                   // 状态
-	EntryId        int    `json:"entry_id" gorm:"size:11;"`                // job启动时返回的条目id
+	EntryId        int    `json:"entry_id" gorm:"size:11;"`                // job启动时cron返回的条目id
 	Creator        string `json:"creator" gorm:"size:128;"`                // 创建者
 	Updator        string `json:"updator" gorm:"size:128;"`                // 更新者
 	Model
@@ -108,9 +108,9 @@ func (cJob) Update(ctx context.Context, id uint, up Job) error {
 	return dao.DB.Scopes(JobDB(ctx)).Where("job_id=?", id).Updates(&up).Error
 }
 
-func (cJob) UpdateEntryID(ctx context.Context, id uint, entityID int) error {
+func (cJob) UpdateEntryID(ctx context.Context, id uint, entryID int) error {
 	return dao.DB.Scopes(JobDB(ctx)).
-		Where("job_id=?", id).Update("entry_id", entityID).Error
+		Where("job_id=?", id).Update("entry_id", entryID).Error
 }
 
 // Delete 删除

@@ -6,26 +6,24 @@ import (
 	"github.com/x-tardis/go-admin/deployed"
 )
 
+// ExecJob exec job
 type ExecJob struct {
 	Base
 }
 
 func (e *ExecJob) Run() {
-	startTime := time.Now()
-	var obj = jobList[e.InvokeTarget]
+	obj := JobList[e.InvokeTarget]
 	if obj == nil {
-		deployed.JobLogger.Warn(" ExecJob Run job nil", e)
+		deployed.JobLogger.Warn(" exec job is nil", e)
 		return
 	}
+
+	startTime := time.Now()
 	obj.Exec(e.Args)
+	latencyTime := time.Since(startTime)
 
-	// 结束时间
-	endTime := time.Now()
-
-	// 执行时间
-	latencyTime := endTime.Sub(startTime)
 	//TODO: 待完善部分
-	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
 	//ws.SendBroadcast(str)
-	deployed.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
+
+	deployed.JobLogger.Infof("JobCore exec success %+v, spend: %v", e, latencyTime)
 }

@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/x-tardis/go-admin/deployed"
@@ -10,7 +10,7 @@ import (
 
 var retryCount = 3
 
-// 任务类型 http
+// HttpJob http job
 type HttpJob struct {
 	Base
 }
@@ -18,27 +18,18 @@ type HttpJob struct {
 // http 任务接口
 func (h *HttpJob) Run() {
 	startTime := time.Now()
-	var count = 0
-	/* 循环 */
-LOOP:
-	if count < retryCount {
-		/* 跳过迭代 */
+	for count := 0; count < retryCount; count++ {
 		str, err := pkg.Get(h.InvokeTarget)
 		if err != nil {
 			// 如果失败暂停一段时间重试
-			fmt.Println(time.Now().Format(timeFormat), " [ERROR] mission failed! ", err)
-			fmt.Printf(time.Now().Format(timeFormat)+" [INFO] Retry after the task fails %d seconds! %s \n", time.Duration(count)*time.Second, str)
+			log.Println("[ERROR] mission failed! ", err)
+			log.Printf("[INFO] Retry after the task fails %d seconds! %s \n", time.Duration(count)*time.Second, str)
 			time.Sleep(time.Duration(count) * time.Second)
-			goto LOOP
+			continue
 		}
-		count++
 	}
-	// 结束时间
-	endTime := time.Now()
-
-	// 执行时间
-	latencyTime := endTime.Sub(startTime)
+	latencyTime := time.Since(startTime)
 	// TODO: 待完善部分
 
-	deployed.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
+	deployed.JobLogger.Infof("JobCore exec success %+v, spend: %v", h, latencyTime)
 }

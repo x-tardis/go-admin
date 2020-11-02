@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
@@ -33,6 +34,7 @@ var StartCmd = &cobra.Command{
 	SilenceUsage: true,
 	PreRun:       setup,
 	RunE:         run,
+	PostRun:      postRun,
 }
 
 func init() {
@@ -47,23 +49,23 @@ func setup(cmd *cobra.Command, args []string) {
 	// // OAM_CONFIGFILE
 	// viper.BindEnv("config") // nolint: errcheck
 
-	//1. 读取配置
+	// 1. 读取配置
 	deployed.SetupConfig(configFile)
-	//2. 设置日志
+	// 2. 设置日志
 	deployed.SetupLogger()
-	//3. 初始化数据库链接
+	// 3. 初始化数据库链接
 	dao.SetupDatabase(deployed.DbConfig.Driver, deployed.DbConfig.Source, deployed.FeatureConfig.OrmLog.Load())
-	//4. 接口访问控制加载
+	// 4. 接口访问控制加载
 	deployed.SetupCasbin()
-
-	izap.Sugar.Info(`starting api server`)
 }
 
 func run(cmd *cobra.Command, args []string) error {
 	var err error
 
+	izap.Sugar.Info(`starting api server`)
+
 	go func() {
-		jobs.InitJob()
+		time.Sleep(time.Millisecond * 100)
 		jobs.Startup()
 	}()
 
@@ -89,7 +91,12 @@ func run(cmd *cobra.Command, args []string) error {
 	if err != nil && !strings.Contains(err.Error(), "use of closed network connection") {
 		log.Fatal("listen and serve : ", err)
 	}
+
 	return nil
+}
+
+func postRun(cmd *cobra.Command, args []string) {
+	jobs.Stop()
 }
 
 func tip() {

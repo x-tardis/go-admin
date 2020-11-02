@@ -50,37 +50,13 @@ func (e *SysJob) StartJob(ctx context.Context, c *dto.GeneralGetDto) error {
 		return err
 	}
 
-	var job jobs.Job
-	if item.JobType == 1 {
-		job = &jobs.HttpJob{
-			Base: jobs.Base{
-				InvokeTarget:   item.InvokeTarget,
-				Name:           item.JobName,
-				JobId:          item.JobId,
-				EntryId:        0,
-				CronExpression: item.CronExpression,
-				Args:           "",
-			},
-		}
-	} else {
-		job = &jobs.ExecJob{
-			Base: jobs.Base{
-				InvokeTarget:   item.InvokeTarget,
-				Name:           item.JobName,
-				JobId:          item.JobId,
-				EntryId:        0,
-				CronExpression: item.CronExpression,
-				Args:           item.Args,
-			},
-		}
-	}
-	item.EntryId, err = jobs.AddJob(job)
+	entryId, err := jobs.AddJob(jobs.Convert(item))
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] jobs AddJob[HttpJob] error:%s", msgID, err)
 		return err
 	}
 
-	err = models.CJob.UpdateEntryID(ctx, c.Id, item.EntryId)
+	err = models.CJob.UpdateEntryID(ctx, c.Id, entryId)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] db error:%s", msgID, err)
 	}
