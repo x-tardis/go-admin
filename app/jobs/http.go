@@ -20,13 +20,12 @@ func (h *HttpJob) Run() {
 	startTime := time.Now()
 	for count := 0; count < retryCount; count++ {
 		str, err := pkg.Get(h.InvokeTarget)
-		if err != nil {
-			// 如果失败暂停一段时间重试
-			log.Println("[ERROR] mission failed! ", err)
-			log.Printf("[INFO] Retry after the task fails %d seconds! %s \n", time.Duration(count)*time.Second, str)
-			time.Sleep(time.Duration(count) * time.Second)
-			continue
+		if err == nil {
+			break
 		}
+		log.Println("[ERROR] mission failed! ", err)
+		log.Printf("[INFO] Retry after the task fails %d seconds! %s \n", time.Duration(count)*time.Second, str)
+		time.Sleep(time.Duration(count) * time.Second)
 	}
 	latencyTime := time.Since(startTime)
 	// TODO: 待完善部分

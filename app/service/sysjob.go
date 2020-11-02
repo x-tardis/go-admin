@@ -13,6 +13,10 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
+type Service struct {
+	Msg string
+}
+
 type SysJob struct {
 	Service
 }
