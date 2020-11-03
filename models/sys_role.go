@@ -74,7 +74,6 @@ func (cRole) Query(ctx context.Context) (items []Role, err error) {
 
 // QueryPage 分页查询角色列表
 func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginator.Info, error) {
-	var err error
 	var items []Role
 
 	db := dao.DB.Scopes(RoleDB(ctx))
@@ -118,7 +117,7 @@ func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	var count int64
 
 	dao.DB.Scopes(RoleDB(ctx)).
-		Where("role_name=? or role_key = ?", item.RoleName, item.RoleKey).Count(&count)
+		Where("role_name=?", item.RoleName).Or("role_key=?", item.RoleKey).Count(&count)
 	if count > 0 {
 		return item, errors.New("角色名称或者角色标识已经存在！")
 	}

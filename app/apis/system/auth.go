@@ -100,25 +100,18 @@ func authenticator(c *gin.Context) (interface{}, error) {
 		loginLogRecord(c, false, "验证码错误", login.Username)
 		return nil, jwt.ErrFailedAuthentication
 	}
-	user, role, err := login.Get()
+	identities, enable, err := login.Get()
 	if err != nil {
 		loginLogRecord(c, false, "登录失败", login.Username)
 		deployed.RequestLogger.Debug(err.Error())
 		return nil, jwt.ErrFailedAuthentication
 	}
-	if user.Status == models.StatusDisable {
+	if !enable {
+		loginLogRecord(c, false, "用户已禁用", login.Username)
 		return nil, jwt.ErrForbidden
 	}
-
 	loginLogRecord(c, true, "登录成功", login.Username)
-	return jwtauth.Identities{
-		UserId:    user.UserId,
-		Username:  user.Username,
-		RoleId:    role.RoleId,
-		RoleName:  role.RoleName,
-		RoleKey:   role.RoleKey,
-		DataScope: role.DataScope,
-	}, nil
+	return identities, nil
 }
 
 // @tags auth

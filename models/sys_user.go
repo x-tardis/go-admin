@@ -16,8 +16,10 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// UserSaltLength 用户密码随机盐的长度
 const UserSaltLength = 6
 
+// User 用户信息
 type User struct {
 	UserId   int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 主键
 	Username string `gorm:"size:64" json:"username"`                   // 用户名
@@ -73,12 +75,6 @@ type UserQueryParam struct {
 	DeptId   int    `form:"deptId"`
 	// PostId   int    `form:"postId"` // not used
 	paginator.Param
-}
-
-// UpdateUserPwd 更新用户密码
-type UpdateUserPwd struct {
-	OldPassword string `json:"oldPassword"`
-	NewPassword string `json:"newPassword"`
 }
 
 type cUser struct{}
@@ -237,19 +233,19 @@ func (cUser) UpdateAvatar(ctx context.Context, avatar string) error {
 }
 
 // UpdatePassword 更新密码
-func (sf cUser) UpdatePassword(ctx context.Context, pwd UpdateUserPwd) error {
+func (sf cUser) UpdatePassword(ctx context.Context, oldPassword, newPassword string) error {
 	item, err := sf.get(ctx, jwtauth.FromUserId(ctx))
 	if err != nil {
 		return errors.New("获取用户数据失败(代码202)")
 	}
 
-	// 校验旧密码 和 新密采用新盐加签
-	err = deployed.Verify.Compare(pwd.OldPassword, item.Salt, item.Password)
+	// 校验旧密码 和 生成新盐并新密加签
+	err = deployed.Verify.Compare(oldPassword, item.Salt, item.Password)
 	if err != nil {
 		return err
 	}
 	salt := extrand.RandString(UserSaltLength)
-	pass, err := deployed.Verify.Hash(pwd.NewPassword, salt)
+	pass, err := deployed.Verify.Hash(newPassword, salt)
 	if err != nil {
 		return err
 	}

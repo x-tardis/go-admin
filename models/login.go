@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 // Login 登录
@@ -15,15 +16,25 @@ type Login struct {
 }
 
 // Get 获取user 和 role
-func (sf *Login) Get() (user User, role Role, err error) {
-	user, err = CUser.GetWithName(context.Background(), sf.Username)
+func (sf *Login) Get() (jwtauth.Identities, bool, error) {
+	user, err := CUser.GetWithName(context.Background(), sf.Username)
 	if err != nil {
-		return
+		return jwtauth.Identities{}, false, err
 	}
 	err = deployed.Verify.Compare(sf.Password, user.Salt, user.Password)
 	if err != nil {
-		return
+		return jwtauth.Identities{}, false, err
 	}
-	role, err = CRole.Get(context.Background(), user.RoleId)
-	return
+	role, err := CRole.Get(context.Background(), user.RoleId)
+	if err != nil {
+		return jwtauth.Identities{}, false, err
+	}
+	return jwtauth.Identities{
+		UserId:    user.UserId,
+		Username:  user.Username,
+		RoleId:    role.RoleId,
+		RoleName:  role.RoleName,
+		RoleKey:   role.RoleKey,
+		DataScope: role.DataScope,
+	}, user.Status == StatusEnable, nil
 }

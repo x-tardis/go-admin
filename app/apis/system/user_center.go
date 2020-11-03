@@ -126,6 +126,12 @@ func (User) UploadAvatar(c *gin.Context) {
 	servers.OK(c, servers.WithData(avatar))
 }
 
+// UpdatePassword 更新用户密码
+type UpdatePassword struct {
+	OldPassword string `json:"oldPassword" binding:"required"`
+	NewPassword string `json:"newPassword" binding:"required"`
+}
+
 // @tags 个人中心/UserCenter
 // @summary 修改密码
 // @description 修改密码
@@ -139,13 +145,13 @@ func (User) UploadAvatar(c *gin.Context) {
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/user/avatar [put]
 func (User) UpdatePassword(c *gin.Context) {
-	up := models.UpdateUserPwd{}
+	up := UpdatePassword{}
 	if err := c.ShouldBindJSON(&up); err != nil {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
 
-	err := models.CUser.UpdatePassword(gcontext.Context(c), up)
+	err := models.CUser.UpdatePassword(gcontext.Context(c), up.OldPassword, up.NewPassword)
 	if err != nil {
 		servers.Fail(c, http.StatusOK, servers.WithMsg("密码更新失败"))
 		return

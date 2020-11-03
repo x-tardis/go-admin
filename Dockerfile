@@ -4,7 +4,7 @@ ENV GOPROXY https://goproxy.cn/
 ARG ALPINE_VERSION=v3.12
 WORKDIR /release
 
-# build deps and then building
+# build depends and then building
 RUN echo https://mirrors.aliyun.com/alpine/${ALPINE_VERSION}/main > /etc/apk/repositories \
      	&& echo https://mirrors.aliyun.com/alpine/${ALPINE_VERSION}/community >> /etc/apk/repositories
 RUN apk add git \
