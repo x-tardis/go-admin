@@ -39,6 +39,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.6.9
+	github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353
 	github.com/thinkgos/gin-middlewares v0.0.6
 	github.com/thinkgos/go-core-package v0.1.5
 	github.com/thinkgos/http-middlewares v0.0.3

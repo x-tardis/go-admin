@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/thinkgos/easyws"
 
-	"github.com/x-tardis/go-admin/pkg/easyws"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 

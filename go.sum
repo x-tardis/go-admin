@@ -481,6 +481,8 @@ github.com/swaggo/gin-swagger v1.3.0/go.mod h1:oy1BRA6WvgtCp848lhxce7BnWH4C8Bxa0
 github.com/swaggo/swag v1.5.1/go.mod h1:1Bl9F/ZBpVWh22nY0zmYyASPO1lI/zIwRDrpZU+tv8Y=
 github.com/swaggo/swag v1.6.9 h1:BukKRwZjnEcUxQt7Xgfrt9fpav0hiWw9YimdNO9wssw=
 github.com/swaggo/swag v1.6.9/go.mod h1:a0IpNeMfGidNOcm2TsqODUh9JHdHu3kxDA0UlGbBKjI=
+github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353 h1:2nc7wBpSeMd52e+y5cnDuumHcr3K3+lIOyJThosRU0c=
+github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353/go.mod h1:FX6typS/wTGZLDDiEyhftRgP36hvmrRJR3R+sotjpAw=
 github.com/thinkgos/gin-middlewares v0.0.6 h1:tFUAGxgMuhcMmgSUlmS+CJ2+lVD5K2f71g6aaBY9ZiM=
 github.com/thinkgos/gin-middlewares v0.0.6/go.mod h1:Ge6nYzqArgroSRNMb+X3aCofqopxnRJmApJ7DfyHk1I=
 github.com/thinkgos/go-core-package v0.1.4 h1:Qmxj5ghoN8ud7yrqf9JLdcsWbbjskNG0FouYEomSL5M=

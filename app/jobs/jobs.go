@@ -33,7 +33,7 @@ func Startup() {
 		log.Println("[ERROR] JobCore init error", err)
 	}
 
-	log.Println("[INFO] JobCore total:0", len(jobItems))
+	log.Println("[INFO] JobCore total:", len(jobItems))
 
 	err = models.CJob.RemoveAllEntryID(context.Background())
 	if err != nil {
