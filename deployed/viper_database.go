@@ -6,9 +6,10 @@ import (
 )
 
 func ViperDatabase() *database.Database {
-	cfg := viper.Sub("database")
+	c := viper.Sub("database")
 	return &database.Database{
-		Driver: cfg.GetString("driver"),
-		Source: cfg.GetString("source"),
+		Driver:    c.GetString("driver"),
+		Source:    c.GetString("source"),
+		EnableLog: c.GetBool("enableLog"),
 	}
 }

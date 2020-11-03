@@ -12,13 +12,13 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-var DbConfig = new(database.Database)
+var FeatureConfig = new(Feature)
 var AppConfig = new(Application)
+var DbConfig = new(database.Database)
 var JwtConfig = new(jwtauth.Config)
 var SslConfig = new(Ssl)
 var GenConfig = new(Gen)
 var CorsConfig = new(cors.Config)
-var FeatureConfig = new(Feature)
 
 // 载入配置文件
 func SetupConfig(path string) {
@@ -27,9 +27,9 @@ func SetupConfig(path string) {
 		log.Fatal(fmt.Sprintf("Parse config file fail: %s", err.Error()))
 	}
 
-	DbConfig = ViperDatabase()
 	AppConfig = ViperApplication()
 	FeatureConfig = ViperFeature()
+	DbConfig = ViperDatabase()
 	JwtConfig = ViperJwt()
 	SslConfig = ViperSsl()
 	CorsConfig = ViperCors()

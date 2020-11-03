@@ -19,8 +19,9 @@ type Config struct {
 
 // Database 数据库配置
 type Database struct {
-	Driver string
-	Source string
+	Driver    string
+	Source    string
+	EnableLog bool
 }
 
 func New(driver, source string) (*gorm.DB, error) {

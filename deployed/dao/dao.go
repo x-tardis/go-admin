@@ -13,15 +13,15 @@ import (
 
 var DB *gorm.DB
 
-func SetupDatabase(driver, source string, enableLog bool) {
+func SetupDatabase(c *database.Database) {
 	var err error
 
-	DB, err = database.New(driver, source)
+	DB, err = database.New(c.Driver, c.Source)
 	if err != nil {
-		log.Fatalf("%s connect error %v", driver, err)
+		log.Fatalf("%s connect error %v", c.Driver, err)
 	}
 
-	if enableLog {
+	if c.EnableLog {
 		DB.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 			SlowThreshold: time.Second,
 			Colorful:      true,

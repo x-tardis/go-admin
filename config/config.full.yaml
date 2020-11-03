@@ -13,7 +13,6 @@ feature:
   dataScope: false # 数据权限功能开关
   operDB: false    # 操作日志写入数据库开关
   loginDB: false   # 登录日志写入数据库开关
-  ormLog: false    # orm日志开关
 ssl:
   # https对应的域名
   domain: localhost:8000
@@ -101,6 +100,7 @@ database:
   source: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
   # source: sqlite3.db
   # source: host=myhost port=myport user=gorm dbname=gorm password=mypassword
+  enableLog: true    # orm日志开关
 gen:
   # 代码生成读取的数据库名称
   dbname: dbname

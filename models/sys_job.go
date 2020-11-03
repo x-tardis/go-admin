@@ -125,16 +125,14 @@ func (cJob) BatchDelete(ctx context.Context, ids []int) error {
 		Delete(&Job{}, "job_id in ( ? )", ids).Error
 }
 
-// RemoveAllEntryID 删除所有条目
+// RemoveAllEntryID 删除所有entry id
 func (cJob) RemoveAllEntryID(ctx context.Context) error {
 	return dao.DB.Scopes(JobDB(ctx)).
-		Where("entry_id > ?", 0).
-		Update("entry_id", 0).Error
+		Where("entry_id > ?", 0).Update("entry_id", 0).Error
 }
 
-// RemoveEntryID 删除指定 entry id
+// RemoveEntryID 删除指定entry id
 func (cJob) RemoveEntryID(ctx context.Context, entryID int) error {
 	return dao.DB.Scopes(JobDB(ctx)).
-		Where("entry_id=?", entryID).
-		Update("entry_id", 0).Error
+		Where("entry_id=?", entryID).Update("entry_id", 0).Error
 }
