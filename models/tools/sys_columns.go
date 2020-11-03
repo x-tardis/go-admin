@@ -48,7 +48,6 @@ type SysColumns struct {
 	FkLabelName        string       `gorm:"size:255;" json:"fkLabelName"`
 	Creator            string       `gorm:"column:creator;size:128;" json:"creator"`
 	Updator            string       `gorm:"column:updator;size:128;" json:"updator"`
-
 	models.Model
 }
 

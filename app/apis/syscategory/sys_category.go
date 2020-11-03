@@ -17,7 +17,7 @@ import (
 
 type Category struct{}
 
-// @tags 分类/Category
+// @tags 文章分类/Category
 // @summary 获取分类列表
 // @description 获取分类列表
 // @security Bearer
@@ -53,7 +53,7 @@ func (Category) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @tags 分类/Category
+// @tags 文章分类/Category
 // @summary 获取分类
 // @description 获取分类
 // @security Bearer
@@ -77,7 +77,7 @@ func (Category) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 分类/Category
+// @tags 文章分类/Category
 // @summary 添加分类
 // @description 添加分类
 // @security Bearer
@@ -104,7 +104,7 @@ func (Category) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 分类/Category
+// @tags 文章分类/Category
 // @summary 更新分类
 // @description 更新分类
 // @security Bearer
@@ -131,7 +131,7 @@ func (Category) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 分类/Category
+// @tags 文章分类/Category
 // @summary 批量删除分类
 // @description 批量删除分类
 // @security Bearer

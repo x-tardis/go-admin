@@ -17,7 +17,7 @@ import (
 
 type Content struct{}
 
-// @tags 内容/Content
+// @tags 文章内容/Content
 // @summary 获取内容列表
 // @description 获取内容列表
 // @security Bearer
@@ -54,7 +54,7 @@ func (Content) QueryPage(c *gin.Context) {
 	}))
 }
 
-// @tags 内容/Content
+// @tags 文章内容/Content
 // @summary 获取内容
 // @description 获取内容
 // @security Bearer
@@ -78,7 +78,7 @@ func (Content) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 内容/Content
+// @tags 文章内容/Content
 // @summary 添加内容
 // @description 添加内容
 // @security Bearer
@@ -105,7 +105,7 @@ func (Content) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 内容/Content
+// @tags 文章内容/Content
 // @summary 更新内容
 // @description 更新内容
 // @security Bearer
@@ -132,7 +132,7 @@ func (Content) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @tags 内容/Content
+// @tags 文章内容/Content
 // @summary 批量删除内容
 // @description 批量删除内容
 // @security Bearer
