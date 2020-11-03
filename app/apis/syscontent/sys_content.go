@@ -17,6 +17,22 @@ import (
 
 type Content struct{}
 
+// @tags 内容/Content
+// @summary 获取内容列表
+// @description 获取内容列表
+// @security Bearer
+// @accept json
+// @produce json
+// @param cateId query string false "cateId分类id"
+// @param name query string false "name"
+// @param status query string false "status"
+// @param pageSize query int false "页条数"
+// @param pageIndex query int false "页码"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/contents [get]
 func (Content) QueryPage(c *gin.Context) {
 	qp := models.ContentQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -38,27 +54,42 @@ func (Content) QueryPage(c *gin.Context) {
 	}))
 }
 
+// @tags 内容/Content
+// @summary 获取内容
+// @description 获取内容
+// @security Bearer
+// @accept json
+// @produce json
+// @param id path int true "主键"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/contents/:id [get]
 func (Content) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
-	result, err := models.CContent.Get(gcontext.Context(c), id)
+	item, err := models.CContent.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
 			servers.WithPrompt(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(result))
+	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加内容管理
-// @Description 获取JSON
-// @Tags 内容管理
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Content true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/contents [post]
+// @tags 内容/Content
+// @summary 添加内容
+// @description 添加内容
+// @security Bearer
+// @accept json
+// @produce json
+// @param newItem body models.Content true "new item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/contents [post]
 func (Content) Create(c *gin.Context) {
 	newItem := models.Content{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -74,6 +105,18 @@ func (Content) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags 内容/Content
+// @summary 更新内容
+// @description 更新内容
+// @security Bearer
+// @accept json
+// @produce json
+// @param up body models.Content true "update item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/contents [put]
 func (Content) Update(c *gin.Context) {
 	up := models.Content{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -89,6 +132,18 @@ func (Content) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags 内容/Content
+// @summary 批量删除内容
+// @description 批量删除内容
+// @security Bearer
+// @accept json
+// @produce json
+// @param ids path string true "以','分隔的id列表"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/contents/{ids} [get]
 func (Content) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CContent.BatchDelete(gcontext.Context(c), ids)

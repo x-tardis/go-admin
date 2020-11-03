@@ -53,8 +53,7 @@ func newDataPermission(tx *gorm.DB, userId interface{}) (*DataPermission, error)
 		Where("sys_user.user_id = ?", userId).
 		Scan(p).Error
 	if err != nil {
-		err = errors.New("获取用户数据出错 msg:" + err.Error())
-		return nil, err
+		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
 	}
 	return p, nil
 }

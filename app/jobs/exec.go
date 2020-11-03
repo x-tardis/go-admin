@@ -12,7 +12,7 @@ type ExecJob struct {
 }
 
 func (e *ExecJob) Run() {
-	obj := JobList[e.InvokeTarget]
+	obj := jobList[e.InvokeTarget]
 	if obj == nil {
 		deployed.JobLogger.Warn(" exec job is nil", e)
 		return

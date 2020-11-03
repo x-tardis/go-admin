@@ -19,8 +19,8 @@ import (
 type User struct{}
 
 // @tags 用户/User
-// @summary 列表用户列表
-// @description 列表用户列表
+// @summary 获取用户列表
+// @description 获取用户列表
 // @security Bearer
 // @accept json
 // @produce json

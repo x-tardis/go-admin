@@ -17,6 +17,21 @@ import (
 
 type Category struct{}
 
+// @tags 分类/Category
+// @summary 获取分类列表
+// @description 获取分类列表
+// @security Bearer
+// @accept json
+// @produce json
+// @param name query string false "name"
+// @param status query string false "status"
+// @param pageSize query int false "页条数"
+// @param pageIndex query int false "页码"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/categories [get]
 func (Category) QueryPage(c *gin.Context) {
 	qp := models.CategoryQueryParam{}
 	if err := c.ShouldBindQuery(&qp); err != nil {
@@ -38,6 +53,18 @@ func (Category) QueryPage(c *gin.Context) {
 	}))
 }
 
+// @tags 分类/Category
+// @summary 获取分类
+// @description 获取分类
+// @security Bearer
+// @accept json
+// @produce json
+// @param id path int true "主键"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/categories/:id [get]
 func (Category) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CCategory.Get(gcontext.Context(c), id)
@@ -50,15 +77,18 @@ func (Category) Get(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
-// @Summary 添加分类
-// @Description 获取JSON
-// @Tags 分类
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Category true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/categories [post]
+// @tags 分类/Category
+// @summary 添加分类
+// @description 添加分类
+// @security Bearer
+// @accept json
+// @produce json
+// @param newItem body models.Category true "new item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/categories [post]
 func (Category) Create(c *gin.Context) {
 	newItem := models.Category{}
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -74,6 +104,18 @@ func (Category) Create(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags 分类/Category
+// @summary 更新分类
+// @description 更新分类
+// @security Bearer
+// @accept json
+// @produce json
+// @param up body models.Category true "update item"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/categories [put]
 func (Category) Update(c *gin.Context) {
 	up := models.Category{}
 	if err := c.ShouldBindJSON(&up); err != nil {
@@ -89,6 +131,18 @@ func (Category) Update(c *gin.Context) {
 	servers.OK(c, servers.WithData(item))
 }
 
+// @tags 分类/Category
+// @summary 批量删除分类
+// @description 批量删除分类
+// @security Bearer
+// @accept json
+// @produce json
+// @param ids path string true "以','分隔的id列表"
+// @success 200 {object} servers.Response "成功"
+// @failure 400 {object} servers.Response "错误请求"
+// @failure 401 {object} servers.Response "鉴权失败"
+// @failure 500 {object} servers.Response "服务器内部错误"
+// @router /api/v1/categories/{ids} [get]
 func (Category) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("id"))
 	err := models.CCategory.BatchDelete(gcontext.Context(c), ids)
