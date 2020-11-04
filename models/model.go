@@ -9,6 +9,7 @@ const (
 	StatusDisable = "1"
 )
 
+// Model 模型
 type Model struct {
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`

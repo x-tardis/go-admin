@@ -12,6 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
+// 目录类型
 const (
 	MenuTypeToc  = "toc" // 菜单      M
 	MenuTypeMenu = "mem" // 菜单项    C
@@ -21,7 +22,7 @@ const (
 )
 
 // Menu菜单
-// MenuType = toc 菜单权限, 菜单功能,里面含有菜单项
+// MenuType = toc 菜单权限, 菜单功能,里面仅含有菜单项
 // MenuType = men 菜单项权限, 菜单项功能,为实际页面
 //
 // MenuType == btn 按钮权限, 主要用于按钮权限控制,由permission设置
@@ -67,9 +68,7 @@ func (sf *Menu) updatePaths(ctx context.Context) (err error) {
 	if sf.ParentId == 0 {
 		sf.Paths = "/0" + curPath
 	} else {
-		parentMenu := Menu{}
-		err := dao.DB.Scopes(MenuDB(ctx)).
-			Where("menu_id=?", sf.ParentId).First(&parentMenu).Error
+		parentMenu, err := CMenu.Get(ctx, sf.ParentId)
 		if err != nil || parentMenu.Paths == "" {
 			return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 		}
@@ -244,7 +243,8 @@ func (cMenu) QueryPage(ctx context.Context, qp MenuQueryParam) (items []Menu, er
 
 // Get 获取
 func (cMenu) Get(ctx context.Context, id int) (item Menu, err error) {
-	err = dao.DB.Scopes(MenuDB(ctx)).Where("menu_id=?", id).Find(&item).Error
+	err = dao.DB.Scopes(MenuDB(ctx)).
+		First(&item, "menu_id=?", id).Error
 	return
 }
 
@@ -262,19 +262,20 @@ func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 }
 
 // Update 更新
-func (cMenu) Update(ctx context.Context, id int, up Menu) (item Menu, err error) {
-	err = trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
-		if err := dao.DB.Scopes(MenuDB(ctx)).First(&item, id).Error; err != nil {
+func (sf cMenu) Update(ctx context.Context, id int, up Menu) (Menu, error) {
+	err := trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		oldItem, err := sf.Get(ctx, id)
+		if err != nil {
 			return err
 		}
 
 		up.Updator = jwtauth.FromUserIdStr(ctx)
-		if err := dao.DB.Scopes(MenuDB(ctx)).Model(&item).Updates(&up).Error; err != nil {
+		if err := dao.DB.Scopes(MenuDB(ctx)).Model(&oldItem).Updates(&up).Error; err != nil {
 			return err
 		}
 		return up.updatePaths(ctx)
 	})
-	return
+	return up, err
 }
 
 // Delete 删除

@@ -45,7 +45,7 @@ func DeptDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-// DeptNameLabel dept label
+// DeptNameLabel dept name label tree
 type DeptNameLabel struct {
 	Id       int             `json:"id"`
 	Label    string          `json:"label"`
@@ -174,58 +174,69 @@ func (cDept) Get(ctx context.Context, id int) (item Dept, err error) {
 }
 
 // Create 创建部门
-func (cDept) Create(ctx context.Context, item Dept) (Dept, error) {
-	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(DeptDB(ctx)).Create(&item).Error
-	if err != nil {
-		return item, err
-	}
-
-	deptPath := "/" + cast.ToString(item.DeptId)
-	if item.ParentId == 0 {
-		item.DeptPath = "/0" + deptPath
-	} else {
-		parentDept := Dept{}
-		dao.DB.Scopes(DeptDB(ctx)).
-			Where("dept_id=?", item.ParentId).First(&parentDept)
-		item.DeptPath = parentDept.DeptPath + deptPath
-	}
-
-	err = dao.DB.Scopes(DeptDB(ctx)).
-		Where("dept_id=?", item.DeptId).Update("dept_path", deptPath).Error
+func (sf cDept) Create(ctx context.Context, item Dept) (Dept, error) {
+	err := trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		item.Creator = jwtauth.FromUserIdStr(ctx)
+		err := dao.DB.Scopes(DeptDB(ctx)).Create(&item).Error
+		if err != nil {
+			return err
+		}
+		deptPath := "/" + cast.ToString(item.DeptId)
+		if item.ParentId == 0 {
+			item.DeptPath = "/0" + deptPath
+		} else {
+			parentDept, err := sf.Get(ctx, item.ParentId)
+			if err != nil || parentDept.DeptPath == "" {
+				return errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
+			}
+			item.DeptPath = parentDept.DeptPath + deptPath
+		}
+		return dao.DB.Scopes(DeptDB(ctx)).
+			Where("dept_id=?", item.DeptId).Update("dept_path", item.DeptPath).Error
+	})
 	return item, err
 }
 
 // Update 更新部门信息
-func (cDept) Update(ctx context.Context, id int, up Dept) (item Dept, err error) {
-	if err = dao.DB.Scopes(DeptDB(ctx)).
-		Where("dept_id=?", id).First(&item).Error; err != nil {
-		return
-	}
+func (sf cDept) Update(ctx context.Context, id int, up Dept) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		oldItem, err := sf.Get(ctx, id)
+		if err != nil {
+			return err
+		}
 
-	deptPath := "/" + cast.ToString(id)
-	if up.ParentId == 0 {
-		up.DeptPath = "/0" + deptPath
-	} else {
-		parentDept := Dept{}
-		dao.DB.Scopes(DeptDB(ctx)).
-			Where("dept_id=?", up.ParentId).First(&parentDept)
-		up.DeptPath = parentDept.DeptPath + deptPath
-	}
+		deptPath := "/" + cast.ToString(id)
+		if up.ParentId == 0 {
+			up.DeptPath = "/0" + deptPath
+		} else {
+			parentDept, err := sf.Get(ctx, up.ParentId)
+			if err != nil {
+				return err
+			}
+			up.DeptPath = parentDept.DeptPath + deptPath
+		}
 
-	if up.DeptPath != "" && up.DeptPath != item.DeptPath {
-		return item, errors.New("上级部门不允许修改！")
-	}
+		if up.DeptPath != "" && up.DeptPath != oldItem.DeptPath {
+			return errors.New("上级部门不允许修改！")
+		}
 
-	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(DeptDB(ctx)).
-		Model(&item).Updates(&up).Error
-	return
+		up.Updator = jwtauth.FromUserIdStr(ctx)
+		return dao.DB.Scopes(DeptDB(ctx)).
+			Model(&oldItem).Updates(&up).Error
+	})
 }
 
 // Delete 删除部门
 func (cDept) Delete(ctx context.Context, id int) error {
 	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		var count int64
+
+		dao.DB.Scopes(DeptDB(ctx)).
+			Where("parent_id=?", id).Count(&count)
+		if count > 0 {
+			return errors.New("有子项存在,不可删除")
+		}
+
 		count, err := CUser.GetCountWithDeptId(ctx, id)
 		if err != nil {
 			return err
@@ -242,5 +253,4 @@ func (cDept) Delete(ctx context.Context, id int) error {
 		return dao.DB.Scopes(DeptDB(ctx)).
 			Delete(&Dept{}, "dept_id=?", id).Error
 	})
-
 }

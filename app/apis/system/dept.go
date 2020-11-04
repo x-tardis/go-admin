@@ -148,12 +148,12 @@ func (Dept) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CDept.Update(gcontext.Context(c), up.DeptId, up)
+	err := models.CDept.Update(gcontext.Context(c), up.DeptId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 部门/Dept
