@@ -106,7 +106,7 @@ func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
 // Get 通过dictCode(主键)
 func (cDictData) Get(ctx context.Context, dictId int) (item DictData, err error) {
 	err = dao.DB.Scopes(DictDataDB(ctx)).
-		Where("dict_id=?", dictId).First(&item).Error
+		First(&item, "dict_id=?", dictId).Error
 	return
 }
 
@@ -119,33 +119,32 @@ func (cDictData) GetWithType(ctx context.Context, dictType string) (items []Dict
 }
 
 // Update 更新
-func (cDictData) Update(ctx context.Context, id int, up DictData) (item DictData, err error) {
-	if err = dao.DB.Scopes(DictDataDB(ctx)).
-		Where("dict_id = ?", id).First(&item).Error; err != nil {
-		return
+func (sf cDictData) Update(ctx context.Context, id int, up DictData) error {
+	item, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
 
 	if up.DictLabel != "" && up.DictLabel != item.DictLabel {
-		return item, errors.New("标签不允许修改！")
+		return errors.New("标签不允许修改！")
 	}
 
 	if up.DictValue != "" && up.DictValue != item.DictValue {
-		return item, errors.New("键值不允许修改！")
+		return errors.New("键值不允许修改！")
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(DictDataDB(ctx)).Model(&item).Updates(&up).Error
-	return
+	return dao.DB.Scopes(DictDataDB(ctx)).Model(&item).Updates(&up).Error
 }
 
 // Delete 删除
 func (cDictData) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(DictDataDB(ctx)).
-		Where("dict_id = ?", id).Delete(&DictData{}).Error
+		Delete(&DictData{}, "dict_id = ?", id).Error
 }
 
 // BatchDelete 批量删除
-func (cDictData) BatchDelete(ctx context.Context, id []int) error {
+func (cDictData) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(DictDataDB(ctx)).
-		Where("dict_id in (?)", id).Delete(&DictData{}).Error
+		Delete(&DictData{}, "dict_id in (?)", ids).Error
 }

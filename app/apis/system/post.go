@@ -115,12 +115,12 @@ func (Post) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	item, err := models.CPost.Update(gcontext.Context(c), up.PostId, up)
+	err := models.CPost.Update(gcontext.Context(c), up.PostId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 岗位/Post

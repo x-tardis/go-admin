@@ -72,7 +72,7 @@ func (cCategory) QueryPage(ctx context.Context, qp CategoryQueryParam) ([]Catego
 // 获取SysCategory
 func (cCategory) Get(ctx context.Context, id int) (item Category, err error) {
 	err = dao.DB.Scopes(CategoryDB(ctx)).
-		Where("id=?", id).First(&item).Error
+		First(&item, "id=?", id).Error
 	return
 }
 
@@ -84,27 +84,24 @@ func (cCategory) Create(ctx context.Context, item Category) (Category, error) {
 }
 
 // 更新SysCategory
-func (cCategory) Update(ctx context.Context, id int, up Category) (update Category, err error) {
-	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(CategoryDB(ctx)).Where("id=?", id).First(&update).Error
+func (sf cCategory) Update(ctx context.Context, id int, up Category) error {
+	oldItem, err := sf.Get(ctx, id)
 	if err != nil {
-		return
+		return err
 	}
 
-	// 参数1:是要修改的数据
-	// 参数2:是修改的数据
-	err = dao.DB.Scopes(CategoryDB(ctx)).Model(&update).Updates(&up).Error
-	return
+	up.Updator = jwtauth.FromUserIdStr(ctx)
+	return dao.DB.Scopes(CategoryDB(ctx)).Model(&oldItem).Updates(&up).Error
 }
 
 // 删除SysCategory
 func (cCategory) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(CategoryDB(ctx)).
-		Where("id=?", id).Delete(&Category{}).Error
+		Delete(&Category{}, "id=?", id).Error
 }
 
 // 批量删除
 func (cCategory) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(CategoryDB(ctx)).
-		Where("id in (?)", ids).Delete(&Category{}).Error
+		Delete(&Category{}, "id in (?)", ids).Error
 }

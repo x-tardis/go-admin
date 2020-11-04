@@ -148,12 +148,12 @@ func (Config) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CConfig.Update(gcontext.Context(c), up.ConfigId, up)
+	err := models.CConfig.Update(gcontext.Context(c), up.ConfigId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 系统配置/Config

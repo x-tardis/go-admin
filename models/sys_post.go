@@ -66,7 +66,8 @@ func (cPost) Query(ctx context.Context, qp PostQueryParam) (items []Post, err er
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)
 	}
-	err = db.Find(&items).Error
+
+	err = db.Order("sort").Find(&items).Error
 	return
 }
 
@@ -84,6 +85,7 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)
 	}
+	db = db.Order("sort")
 
 	// 数据权限控制
 	db = db.Scopes(DataScope(Post{}, jwtauth.FromUserId(ctx)))
@@ -98,7 +100,7 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 // Get 获取岗位信息
 func (cPost) Get(ctx context.Context, id int) (item Post, err error) {
 	err = dao.DB.Scopes(PostDB(ctx)).
-		Where("post_id=?", id).First(&item).Error
+		First(&item, "post_id=?", id).Error
 	return
 }
 
@@ -110,14 +112,13 @@ func (cPost) Create(ctx context.Context, item Post) (Post, error) {
 }
 
 // Update 更新岗位信息
-func (cPost) Update(ctx context.Context, id int, up Post) (item Post, err error) {
-	up.Updator = jwtauth.FromUserIdStr(ctx)
-	if err = dao.DB.Scopes(PostDB(ctx)).First(&item, id).Error; err != nil {
-		return
+func (sf cPost) Update(ctx context.Context, id int, up Post) error {
+	oldItem, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
-
-	err = dao.DB.Scopes(PostDB(ctx)).Model(&item).Updates(&up).Error
-	return
+	up.Updator = jwtauth.FromUserIdStr(ctx)
+	return dao.DB.Scopes(PostDB(ctx)).Model(&oldItem).Updates(&up).Error
 }
 
 // Delete 删除指定id
@@ -127,7 +128,7 @@ func (cPost) Delete(ctx context.Context, id int) (err error) {
 		return errors.New("当前岗位存在用户,不能删除")
 	}
 	return dao.DB.Scopes(PostDB(ctx)).
-		Where("post_id=?", id).Delete(&Post{}).Error
+		Delete(&Post{}, "post_id=?", id).Error
 }
 
 // BatchDelete 删除批量id
@@ -137,5 +138,5 @@ func (cPost) BatchDelete(ctx context.Context, ids []int) error {
 		return errors.New("岗位存在用户,不能删除")
 	}
 	return dao.DB.Scopes(PostDB(ctx)).
-		Where("post_id in (?)", ids).Delete(&Post{}).Error
+		Delete(&Post{}, "post_id in (?)", ids).Error
 }

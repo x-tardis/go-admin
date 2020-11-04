@@ -46,5 +46,5 @@ func (cCasbinRule) BatchCreate(ctx context.Context, item []CasbinRule) ([]Casbin
 // DeleteWithRoleName 通过角色名删除
 func (cCasbinRule) DeleteWithRoleName(ctx context.Context, roleKey string) error {
 	return dao.DB.Scopes(CasbinRuleDB(ctx)).
-		Where("v0=?", roleKey).Delete(&CasbinRule{}).Error
+		Delete(&CasbinRule{}, "v0=?", roleKey).Error
 }

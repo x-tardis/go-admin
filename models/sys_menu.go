@@ -262,8 +262,8 @@ func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 }
 
 // Update 更新
-func (sf cMenu) Update(ctx context.Context, id int, up Menu) (Menu, error) {
-	err := trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+func (sf cMenu) Update(ctx context.Context, id int, up Menu) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
 		oldItem, err := sf.Get(ctx, id)
 		if err != nil {
 			return err
@@ -275,7 +275,6 @@ func (sf cMenu) Update(ctx context.Context, id int, up Menu) (Menu, error) {
 		}
 		return up.updatePaths(ctx)
 	})
-	return up, err
 }
 
 // Delete 删除

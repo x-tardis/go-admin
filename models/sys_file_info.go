@@ -75,7 +75,7 @@ func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileIn
 // Get 获取
 func (cFileInfo) Get(ctx context.Context, id int) (item FileInfo, err error) {
 	err = dao.DB.Scopes(FileInfoDB(ctx)).
-		Where("id=?", id).First(&item).Error
+		First(&item, "id=?", id).Error
 	return
 }
 
@@ -87,26 +87,25 @@ func (cFileInfo) Create(ctx context.Context, item FileInfo) (FileInfo, error) {
 }
 
 // Update 更新
-func (cFileInfo) Update(ctx context.Context, id int, up FileInfo) (item FileInfo, err error) {
-	if err = dao.DB.Scopes(FileInfoDB(ctx)).
-		Where("id=?", id).First(&item).Error; err != nil {
-		return
+func (sf cFileInfo) Update(ctx context.Context, id int, up FileInfo) error {
+	item, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(FileInfoDB(ctx)).
+	return dao.DB.Scopes(FileInfoDB(ctx)).
 		Model(&item).Updates(&up).Error
-	return
 }
 
 // Delete 删除
 func (cFileInfo) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(FileInfoDB(ctx)).
-		Where("id=?", id).Delete(&FileInfo{}).Error
+		Delete(&FileInfo{}, "id=?", id).Error
 }
 
 // BatchDelete 批量删除
 func (cFileInfo) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(FileInfoDB(ctx)).
-		Where("id in (?)", ids).Delete(&FileInfo{}).Error
+		Delete(&FileInfo{}, "id in (?)", ids).Error
 }

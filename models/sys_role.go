@@ -101,14 +101,14 @@ func (cRole) QueryPage(ctx context.Context, qp RoleQueryParam) ([]Role, paginato
 // GetWithName 通过角色名获取角色信息
 func (cRole) GetWithName(ctx context.Context, name string) (item Role, err error) {
 	err = dao.DB.Scopes(RoleDB(ctx)).
-		Where("role_name=?", name).First(&item).Error
+		First(&item, "role_name=?", name).Error
 	return
 }
 
 // Get 通过id获取角色信息
 func (cRole) Get(ctx context.Context, id int) (item Role, err error) {
 	err = dao.DB.Scopes(RoleDB(ctx)).
-		Where("role_id=?", id).First(&item).Error
+		First(&item, "role_id=?", id).Error
 	return
 }
 
@@ -140,9 +140,9 @@ func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 }
 
 // Update 修改角色信息
-func (sf cRole) UpdateDataScope(ctx context.Context, id int, up Role) (item Role, err error) {
-	err = trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
-		item, err = sf.update(ctx, id, up)
+func (sf cRole) UpdateDataScope(ctx context.Context, id int, up Role) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		err := sf.update(ctx, id, up)
 		if err != nil {
 			return err
 		}
@@ -155,12 +155,11 @@ func (sf cRole) UpdateDataScope(ctx context.Context, id int, up Role) (item Role
 		}
 		return err
 	})
-	return
 }
 
-func (sf cRole) Update(ctx context.Context, id int, up Role) (item Role, err error) {
-	err = trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
-		item, err = sf.update(ctx, id, up)
+func (sf cRole) Update(ctx context.Context, id int, up Role) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		err := sf.update(ctx, id, up)
 		if err != nil {
 			return err
 		}
@@ -189,28 +188,29 @@ func (sf cRole) Update(ctx context.Context, id int, up Role) (item Role, err err
 		}
 		return deployed.CasbinEnforcer.LoadPolicy()
 	})
-	return
+
 }
 
-func (cRole) update(ctx context.Context, id int, up Role) (item Role, err error) {
-	if err = dao.DB.Scopes(RoleDB(ctx)).First(&item, id).Error; err != nil {
-		return
+func (cRole) update(ctx context.Context, id int, up Role) error {
+	var oldItem Role
+
+	if err := dao.DB.Scopes(RoleDB(ctx)).First(&oldItem, id).Error; err != nil {
+		return err
 	}
 
-	if item.RoleKey == SuperAdmin && up.Status == StatusDisable {
-		return item, errors.New("超级用户不允许禁用")
+	if oldItem.RoleKey == SuperAdmin && up.Status == StatusDisable {
+		return errors.New("超级用户不允许禁用")
 	}
 	// 角色名称与角色标识不允许修改
-	if up.RoleName != "" && up.RoleName != item.RoleName {
-		return item, errors.New("角色名称不允许修改！")
+	if up.RoleName != "" && up.RoleName != oldItem.RoleName {
+		return errors.New("角色名称不允许修改！")
 	}
-	if up.RoleKey != "" && up.RoleKey != item.RoleKey {
-		return item, errors.New("角色标识不允许修改！")
+	if up.RoleKey != "" && up.RoleKey != oldItem.RoleKey {
+		return errors.New("角色标识不允许修改！")
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(RoleDB(ctx)).Model(&item).Updates(&up).Error
-	return
+	return dao.DB.Scopes(RoleDB(ctx)).Model(&oldItem).Updates(&up).Error
 }
 
 // BatchDelete 批量删除

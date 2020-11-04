@@ -96,7 +96,7 @@ func (cOperLog) QueryPage(ctx context.Context, qp OperLogQueryParam) ([]OperLog,
 // Get 获取
 func (cOperLog) Get(ctx context.Context, id int) (item OperLog, err error) {
 	err = dao.DB.Scopes(OperLogDB(ctx)).
-		Where("oper_id=?", id).First(&item).Error
+		First(&item, "oper_id=?", id).Error
 	return
 }
 
@@ -109,19 +109,19 @@ func (cOperLog) Create(ctx context.Context, item OperLog) (OperLog, error) {
 }
 
 // Update 更新
-func (cOperLog) Update(ctx context.Context, id int, up OperLog) (item OperLog, err error) {
-	if err = dao.DB.Scopes(OperLogDB(ctx)).First(&item, id).Error; err != nil {
-		return
+func (sf cOperLog) Update(ctx context.Context, id int, up OperLog) error {
+	item, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(OperLogDB(ctx)).Model(&item).Updates(&up).Error
-	return
+	return dao.DB.Scopes(OperLogDB(ctx)).Model(&item).Updates(&up).Error
 }
 
 // BatchDelete 批量删除
 func (cOperLog) BatchDelete(ctx context.Context, id []int) error {
 	return dao.DB.Scopes(OperLogDB(ctx)).
-		Where(" oper_id in (?)", id).Delete(&OperLog{}).Error
+		Delete(&OperLog{}, "oper_id in (?)", id).Error
 }
 
 // Clean 清空

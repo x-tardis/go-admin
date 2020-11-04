@@ -81,7 +81,7 @@ func (cLoginLog) QueryPage(ctx context.Context, qp LoginLogQueryParam) ([]LoginL
 // Get 获取
 func (cLoginLog) Get(ctx context.Context, id int) (item LoginLog, err error) {
 	err = dao.DB.Scopes(LoginLogDB(ctx)).
-		Where("info_id=?", id).First(&item).Error
+		First(&item, "info_id=?", id).Error
 	return
 }
 
@@ -94,19 +94,18 @@ func (cLoginLog) Create(ctx context.Context, item LoginLog) (LoginLog, error) {
 }
 
 // Update 更新
-func (cLoginLog) Update(ctx context.Context, id int, up LoginLog) (item LoginLog, err error) {
-	if err = dao.DB.Scopes(LoginLogDB(ctx)).First(&item, id).Error; err != nil {
-		return
+func (sf cLoginLog) Update(ctx context.Context, id int, up LoginLog) error {
+	item, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
-
-	err = dao.DB.Scopes(LoginLogDB(ctx)).Model(&item).Updates(&up).Error
-	return
+	return dao.DB.Scopes(LoginLogDB(ctx)).Model(&item).Updates(&up).Error
 }
 
 // BatchDelete 批量删除id
 func (cLoginLog) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(LoginLogDB(ctx)).
-		Where("info_id in (?)", ids).Delete(&LoginLog{}).Error
+		Delete(&LoginLog{}, "info_id in (?)", ids).Error
 }
 
 // Clean 清空日志

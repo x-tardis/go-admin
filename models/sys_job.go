@@ -86,7 +86,7 @@ func (cJob) QueryPage(ctx context.Context, param paginator.Param, v interface{})
 // Query 查询
 func (cJob) Query(ctx context.Context) (items []Job, err error) {
 	err = dao.DB.Scopes(JobDB(ctx)).
-		Where("status=?", 2).Find(&items).Error
+		Find(&items, "status=?", 2).Error
 	return
 }
 

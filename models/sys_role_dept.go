@@ -44,13 +44,13 @@ func (cRoleDept) BatchCreate(ctx context.Context, roleId int, deptIds []int) err
 // DeleteWithRole 通过角色id删除
 func (cRoleDept) DeleteWithRole(ctx context.Context, roleId int) error {
 	return dao.DB.Scopes(RoleDeptDB(ctx)).
-		Where("role_id=?", roleId).Delete(&RoleDept{}).Error
+		Delete(&RoleDept{}, "role_id=?", roleId).Error
 }
 
 // DeleteWithDept 通过部门id删除
 func (cRoleDept) DeleteWithDept(ctx context.Context, deptId int) error {
 	return dao.DB.Scopes(RoleDeptDB(ctx)).
-		Where("dept_id=?", deptId).Delete(&RoleDept{}).Error
+		Delete(&RoleDept{}, "dept_id=?", deptId).Error
 }
 
 // GetDeptTreeOption 获取部门树和角色已选的部门id列表

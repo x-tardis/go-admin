@@ -98,9 +98,9 @@ func (cDictType) QueryPage(ctx context.Context, qp DictTypeQueryParam) ([]DictTy
 }
 
 // Get 通过id或name查询
-func (cDictType) Get(ctx context.Context, dictId int) (item DictType, err error) {
+func (cDictType) Get(ctx context.Context, id int) (item DictType, err error) {
 	err = dao.DB.Scopes(DictTypeDB(ctx)).
-		Where("dict_id=?", dictId).First(&item).Error
+		First(&item, "dict_id=?", id).Error
 	return
 }
 
@@ -109,7 +109,8 @@ func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
 	var i int64
 
 	dao.DB.Scopes(DictTypeDB(ctx)).
-		Where("dict_name=? or dict_type=?", item.DictName, item.DictType).
+		Where("dict_name=?", item.DictName).
+		Or("dict_type=?", item.DictType).
 		Count(&i)
 	if i > 0 {
 		return item, errors.New("字典名称或者字典类型已经存在！")
@@ -121,31 +122,31 @@ func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
 }
 
 // Update 更新
-func (cDictType) Update(ctx context.Context, id int, up DictType) (item DictType, err error) {
-	if err = dao.DB.Scopes(DictTypeDB(ctx)).First(&item, id).Error; err != nil {
-		return
+func (sf cDictType) Update(ctx context.Context, id int, up DictType) error {
+	item, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
 
 	if up.DictName != "" && up.DictName != item.DictName {
-		return item, errors.New("名称不允许修改！")
+		return errors.New("名称不允许修改！")
 	}
 	if up.DictType != "" && up.DictType != item.DictType {
-		return item, errors.New("类型不允许修改！")
+		return errors.New("类型不允许修改！")
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(DictTypeDB(ctx)).Model(&item).Updates(&up).Error
-	return
+	return dao.DB.Scopes(DictTypeDB(ctx)).Model(&item).Updates(&up).Error
 }
 
 // Delete 根据id删除
 func (cDictType) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(DictTypeDB(ctx)).
-		Where("dict_id=?", id).Delete(&DictData{}).Error
+		Delete(&DictData{}, "dict_id=?", id).Error
 }
 
 // BatchDelete 根据id列表批量删除
 func (cDictType) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(DictTypeDB(ctx)).
-		Where("dict_id in (?)", ids).Delete(&DictType{}).Error
+		Delete(&DictType{}, "dict_id in (?)", ids).Error
 }

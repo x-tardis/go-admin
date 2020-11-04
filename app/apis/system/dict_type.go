@@ -125,14 +125,14 @@ func (DictType) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	item, err := models.CDictType.Update(gcontext.Context(c), up.DictId, up)
+	err := models.CDictType.Update(gcontext.Context(c), up.DictId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.UpdateFailed),
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 字典类型/DictType

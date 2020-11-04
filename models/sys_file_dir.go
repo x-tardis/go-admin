@@ -108,12 +108,12 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 // Get 获取SysFileDir
 func (cFileDir) Get(ctx context.Context, id int) (item FileDir, err error) {
 	err = dao.DB.Scopes(FileDirDB(ctx)).
-		Where("id=?", id).First(&item).Error
+		First(&item, "id=?", id).Error
 	return
 }
 
 // Create 创建
-func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
+func (sf cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 	item.Creator = jwtauth.FromUserIdStr(ctx)
 	err := dao.DB.Scopes(FileDirDB(ctx)).Create(&item).Error
 	if err != nil {
@@ -124,23 +124,22 @@ func (cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 	if item.PId == 0 {
 		path = "/0" + path
 	} else {
-		var deptP FileDir
-		dao.DB.Scopes(FileDirDB(ctx)).Where("id = ?", item.PId).First(&deptP)
+		deptP, _ := sf.Get(ctx, item.PId)
 		path = deptP.Path + path
 	}
 
 	err = dao.DB.Scopes(FileDirDB(ctx)).
-		Where("id = ?", item.Id).
+		Where("id=?", item.Id).
 		Update("path", path).Error
 	item.Path = path
 	return item, err
 }
 
 // Update 更新
-func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, err error) {
-	if err = dao.DB.Scopes(FileDirDB(ctx)).
-		Where("id=?", id).First(&item).Error; err != nil {
-		return
+func (sf cFileDir) Update(ctx context.Context, id int, up FileDir) error {
+	item, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
 
 	path := "/" + cast.ToString(up.Id)
@@ -157,19 +156,18 @@ func (cFileDir) Update(ctx context.Context, id int, up FileDir) (item FileDir, e
 	//	return item, errors.New("上级不允许修改！")
 	// }
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(FileDirDB(ctx)).
+	return dao.DB.Scopes(FileDirDB(ctx)).
 		Model(&item).Updates(&up).Error
-	return
 }
 
 // Delete 删除
 func (cFileDir) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(FileDirDB(ctx)).
-		Where("id=?", id).Delete(&FileDir{}).Error
+		Delete(&FileDir{}, "id=?", id).Error
 }
 
 // BatchDelete 批量删除
 func (cFileDir) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(FileDirDB(ctx)).
-		Where("id in (?)", ids).Delete(&FileDir{}).Error
+		Delete(&FileDir{}, "id in (?)", ids).Error
 }

@@ -143,14 +143,14 @@ func (sf cUser) GetInfo(ctx context.Context) (User, error) {
 // GetWithName 通过用户名获取用户数据, 含密码
 func (cUser) GetWithName(ctx context.Context, username string) (item User, err error) {
 	err = dao.DB.Scopes(UserDB(ctx)).
-		Where("username=? ", username).First(&item).Error
+		First(&item, "username=? ", username).Error
 	return
 }
 
 // GetWithDeptId 查询部门下的用户列表
 func (cUser) GetWithDeptId(ctx context.Context, deptId int) (items []UserView, err error) {
 	err = dao.DB.Scopes(UserDB(ctx), userJoinRole()).
-		Where("dept_id=?", deptId).Find(&items).Error
+		Find(&items, "dept_id=?", deptId).Error
 	return
 }
 
@@ -195,30 +195,31 @@ func (cUser) Create(ctx context.Context, item User) (User, error) {
 // BatchDelete 批量删除用户
 func (cUser) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(UserDB(ctx)).
-		Where("user_id in (?)", ids).Delete(&User{}).Error
+		Delete(&User{}, "user_id in (?)", ids).Error
 }
 
 // 修改
-func (cUser) Update(ctx context.Context, id int, up User) (item User, err error) {
-	if err = dao.DB.Scopes(UserDB(ctx)).First(&item, id).Error; err != nil {
-		return
+func (cUser) Update(ctx context.Context, id int, up User) error {
+	oldItem := User{}
+	err := dao.DB.Scopes(UserDB(ctx)).First(&oldItem, id).Error
+	if err != nil {
+		return err
 	}
 
 	if up.RoleId == 0 {
-		up.RoleId = item.RoleId
+		up.RoleId = oldItem.RoleId
 	}
 	if up.Password != "" {
 		up.Salt = extrand.RandString(UserSaltLength)
 		up.Password, err = deployed.Verify.Hash(up.Password, up.Salt)
 		if err != nil {
-			return
+			return err
 		}
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(UserDB(ctx)).
-		Model(&item).Updates(&up).Error
-	return
+	return dao.DB.Scopes(UserDB(ctx)).
+		Model(&oldItem).Updates(&up).Error
 }
 
 // UpdateAvatar 更新头像
@@ -260,13 +261,13 @@ func (sf cUser) UpdatePassword(ctx context.Context, oldPassword, newPassword str
 
 func (cUser) getView(ctx context.Context, id int) (item UserView, err error) {
 	err = dao.DB.Scopes(UserDB(ctx), userJoinRole()).
-		Where("user_id=?", id).First(&item).Error
+		First(&item, "user_id=?", id).Error
 	return
 }
 
 func (cUser) get(ctx context.Context, id int) (item User, err error) {
 	err = dao.DB.Scopes(UserDB(ctx)).
-		Where("user_id=?", id).First(&item).Error
+		First(&item, "user_id=?", id).Error
 	return
 }
 

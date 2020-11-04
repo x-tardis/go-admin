@@ -163,12 +163,12 @@ func (User) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CUser.Update(gcontext.Context(c), up.UserId, up)
+	err := models.CUser.Update(gcontext.Context(c), up.UserId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 用户/User

@@ -123,12 +123,12 @@ func (Category) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CCategory.Update(gcontext.Context(c), up.Id, up)
+	err := models.CCategory.Update(gcontext.Context(c), up.Id, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 文章分类/Category

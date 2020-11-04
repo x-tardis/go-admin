@@ -84,8 +84,7 @@ func (cContent) QueryPage(ctx context.Context, qp ContentQueryParam) ([]Content,
 // Get 获取
 func (cContent) Get(ctx context.Context, id int) (item Content, err error) {
 	err = dao.DB.Scopes(ContentDB(ctx)).
-		Where("id=?", id).
-		First(&item).Error
+		First(&item, "id=?", id).Error
 	return
 
 }
@@ -98,26 +97,25 @@ func (cContent) Create(ctx context.Context, item Content) (Content, error) {
 }
 
 // 更新SysContent
-func (cContent) Update(ctx context.Context, id int, up Content) (item Content, err error) {
-	if err = dao.DB.Scopes(ContentDB(ctx)).
-		Where("id=?", id).First(&item).Error; err != nil {
-		return
+func (sf cContent) Update(ctx context.Context, id int, up Content) error {
+	item, err := sf.Get(ctx, id)
+	if err != nil {
+		return err
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
-	err = dao.DB.Scopes(ContentDB(ctx)).
+	return dao.DB.Scopes(ContentDB(ctx)).
 		Model(&item).Updates(&up).Error
-	return
 }
 
 // Delete 删除
 func (cContent) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(ContentDB(ctx)).
-		Where("id = ?", id).Delete(&Content{}).Error
+		Delete(&Content{}, "id=?", id).Error
 }
 
 // BatchDelete 批量删除
 func (cContent) BatchDelete(ctx context.Context, ids []int) error {
 	return dao.DB.Scopes(ContentDB(ctx)).
-		Where("id in (?)", ids).Delete(&Content{}).Error
+		Delete(&Content{}, "id in (?)", ids).Error
 }

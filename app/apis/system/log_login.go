@@ -126,14 +126,14 @@ func (LoginLog) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	item, err := models.CLoginLog.Update(gcontext.Context(c), up.InfoId, up)
+	err := models.CLoginLog.Update(gcontext.Context(c), up.InfoId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithPrompt(prompt.UpdateFailed),
 			servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 登录日志

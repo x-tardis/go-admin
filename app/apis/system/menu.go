@@ -110,7 +110,7 @@ func (Menu) Update(c *gin.Context) {
 		return
 	}
 
-	_, err := models.CMenu.Update(gcontext.Context(c), up.MenuId, up)
+	err := models.CMenu.Update(gcontext.Context(c), up.MenuId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return

@@ -121,12 +121,12 @@ func (Role) Update(c *gin.Context) {
 		servers.Fail(c, http.StatusBadRequest, servers.WithError(err))
 		return
 	}
-	item, err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
+	err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @tags 角色/Role
@@ -162,10 +162,10 @@ func (Role) UpdateDataScope(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CRole.UpdateDataScope(gcontext.Context(c), up.RoleId, up)
+	err := models.CRole.UpdateDataScope(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }

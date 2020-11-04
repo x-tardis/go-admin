@@ -123,12 +123,12 @@ func (DictData) Update(c *gin.Context) {
 		return
 	}
 
-	item, err := models.CDictData.Update(gcontext.Context(c), up.DictId, up)
+	err := models.CDictData.Update(gcontext.Context(c), up.DictId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item))
+	servers.OK(c)
 }
 
 // @Summary 删除字典数据

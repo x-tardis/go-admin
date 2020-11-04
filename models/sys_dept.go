@@ -169,7 +169,7 @@ func (cDept) QueryPage(ctx context.Context, qp DeptQueryParam, bl bool) (items [
 // Get 通过Id获取部门
 func (cDept) Get(ctx context.Context, id int) (item Dept, err error) {
 	err = dao.DB.Scopes(DeptDB(ctx)).
-		Where("dept_id=?", id).First(&item).Error
+		First(&item, "dept_id=?", id).Error
 	return
 }
 
