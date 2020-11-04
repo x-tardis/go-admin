@@ -57,7 +57,7 @@ INSERT INTO sys_menu VALUES (108, '', '获取字典数据列表', 'bug', '/api/v
 INSERT INTO sys_menu VALUES (109, '', '通过id获取字典数据', 'bug', '/api/v1/dict/data/:id', '/0/63/69/206/109', 'ifc', 'GET', null, 206, null, null, null, 0, '1', '1', '1', '1', '2020-04-11 15:52:48', '2020-10-30 08:44:03.216000000', null);
 INSERT INTO sys_menu VALUES (110, '', '通过字典类型获取字典数据', 'bug', '/api/v1/dict/databytype/:id', '/0/63/256/110', 'ifc', 'GET', null, 256, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (111, '', '创建字典数据', 'bug', '/api/v1/dict/data', '/0/63/69/206/111', 'ifc', 'POST', null, 206, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
-INSERT INTO sys_menu VALUES (112, '', '修改字典数据', 'bug', '/api/v1/dict/data/', '/0/63/69/206/112', 'ifc', 'PUT', null, 206, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
+INSERT INTO sys_menu VALUES (112, '', '修改字典数据', 'bug', '/api/v1/dict/data', '/0/63/69/206/112', 'ifc', 'PUT', null, 206, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (113, '', '删除字典数据', 'bug', '/api/v1/dict/data/:id', '/0/63/69/206/113', 'ifc', 'DELETE', null, 206, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);
 INSERT INTO sys_menu VALUES (114, '', '获取字典类型列表', 'bug', '/api/v1/dict/type', '/0/63/69/70/114', 'ifc', 'GET', null, 70, null, null, null, 0, '1', '1', '1', '1', '2020-04-11 15:52:48', '2020-10-30 08:43:18.147000000', null);
 INSERT INTO sys_menu VALUES (115, '', '通过id获取字典类型', 'bug', '/api/v1/dict/type/:id', '/0/63/69/70/115', 'ifc', 'GET', null, 70, null, null, null, 0, '1', '1', '1', '0', '2020-04-11 15:52:48', null, null);

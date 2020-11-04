@@ -113,8 +113,14 @@ func (cDictData) Get(ctx context.Context, dictId int) (item DictData, err error)
 // GetWithType 通过dictType获取
 func (cDictData) GetWithType(ctx context.Context, dictType string) (items []DictData, err error) {
 	err = dao.DB.Scopes(DictDataDB(ctx)).
-		Where("dict_type = ?", dictType).
-		Order("sort").Find(&items).Error
+		Order("sort").Find(&items, "dict_type=?", dictType).Error
+	return
+}
+
+// GetWithType 通过dictType获取数量
+func (cDictData) GetCountWithType(ctx context.Context, dictType string) (count int64, err error) {
+	err = dao.DB.Scopes(DictDataDB(ctx)).
+		Where("dict_type=?", dictType).Count(&count).Error
 	return
 }
 
@@ -140,11 +146,37 @@ func (sf cDictData) Update(ctx context.Context, id int, up DictData) error {
 // Delete 删除
 func (cDictData) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(DictDataDB(ctx)).
-		Delete(&DictData{}, "dict_id = ?", id).Error
+		Delete(&DictData{}, "dict_id=?", id).Error
 }
 
 // BatchDelete 批量删除
-func (cDictData) BatchDelete(ctx context.Context, ids []int) error {
+func (sf cDictData) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(DictDataDB(ctx)).
+			Delete(&DictData{}, "dict_id in (?)", ids).Error
+	}
+}
+
+// DeleteWithType 通过dict类型删除
+func (cDictData) DeleteWithType(ctx context.Context, dictType string) error {
 	return dao.DB.Scopes(DictDataDB(ctx)).
-		Delete(&DictData{}, "dict_id in (?)", ids).Error
+		Delete(&DictData{}, "dict_type=?", dictType).Error
+}
+
+// BatchDeleteWithType 通过dict类型删除
+func (sf cDictData) BatchDeleteWithType(ctx context.Context, dictTypes []string) error {
+	switch len(dictTypes) {
+	case 0:
+		return nil
+	case 1:
+		return sf.DeleteWithType(ctx, dictTypes[0])
+	default:
+		return dao.DB.Scopes(DictDataDB(ctx)).
+			Delete(&DictData{}, "dict_type in (?)", dictTypes).Error
+	}
 }

@@ -60,14 +60,14 @@ func (DictType) QueryPage(c *gin.Context) {
 // @security Bearer
 // @accept json
 // @produce json
-// @param dictId path int true "字典类型编码"
+// @param id path int true "字典类型编码"
 // @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
-// @router /api/v1/dict/type/{dictId} [get]
+// @router /api/v1/dict/type/{id} [get]
 func (DictType) Get(c *gin.Context) {
-	dictId := cast.ToInt(c.Param("dictId"))
+	dictId := cast.ToInt(c.Param("id"))
 	item, err := models.CDictType.Get(gcontext.Context(c), dictId)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
@@ -141,14 +141,14 @@ func (DictType) Update(c *gin.Context) {
 // @security Bearer
 // @accept json
 // @produce json
-// @param dictIds path string true "dictId列表,以','分隔"
+// @param ids path string true "id列表,以','分隔"
 // @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
-// @router /api/v1/dict/type/{dictIds} [delete]
+// @router /api/v1/dict/type/{ids} [delete]
 func (DictType) BatchDelete(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("dictIds"))
+	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CDictType.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))

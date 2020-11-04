@@ -106,13 +106,12 @@ func (cDictType) Get(ctx context.Context, id int) (item DictType, err error) {
 
 // Create 创建
 func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
-	var i int64
+	var count int64
 
 	dao.DB.Scopes(DictTypeDB(ctx)).
-		Where("dict_name=?", item.DictName).
-		Or("dict_type=?", item.DictType).
-		Count(&i)
-	if i > 0 {
+		Where("dict_name=?", item.DictName).Or("dict_type=?", item.DictType).
+		Count(&count)
+	if count > 0 {
 		return item, errors.New("字典名称或者字典类型已经存在！")
 	}
 
@@ -140,13 +139,49 @@ func (sf cDictType) Update(ctx context.Context, id int, up DictType) error {
 }
 
 // Delete 根据id删除
-func (cDictType) Delete(ctx context.Context, id int) error {
-	return dao.DB.Scopes(DictTypeDB(ctx)).
-		Delete(&DictData{}, "dict_id=?", id).Error
+func (sf cDictType) Delete(ctx context.Context, id int) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		item, err := sf.Get(ctx, id)
+		if err != nil {
+			return err
+		}
+		err = CDictData.DeleteWithType(ctx, item.DictType)
+		if err != nil {
+			return err
+		}
+		return dao.DB.Scopes(DictTypeDB(ctx)).
+			Delete(&DictData{}, "dict_id=?", id).Error
+	})
 }
 
 // BatchDelete 根据id列表批量删除
-func (cDictType) BatchDelete(ctx context.Context, ids []int) error {
-	return dao.DB.Scopes(DictTypeDB(ctx)).
-		Delete(&DictType{}, "dict_id in (?)", ids).Error
+func (sf cDictType) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+			var items []DictType
+
+			err := dao.DB.Scopes(DictTypeDB(ctx)).
+				Find(&items, "dict_id in (?)", ids).Error
+			if err != nil {
+				return err
+			}
+
+			dictTypes := make([]string, 0, len(items))
+			for _, item := range items {
+				dictTypes = append(dictTypes, item.DictType)
+			}
+			err = CDictData.BatchDeleteWithType(ctx, dictTypes)
+			if err != nil {
+				return err
+			}
+
+			return dao.DB.Scopes(DictTypeDB(ctx)).
+				Delete(&DictType{}, "dict_id in (?)", ids).Error
+		})
+	}
 }

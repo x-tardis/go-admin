@@ -63,7 +63,7 @@ func (Menu) TableName() string {
 	return "sys_menu"
 }
 
-func (sf *Menu) updatePaths(ctx context.Context) (err error) {
+func (sf *Menu) updatePaths(ctx context.Context) error {
 	curPath := "/" + cast.ToString(sf.MenuId)
 	if sf.ParentId == 0 {
 		sf.Paths = "/0" + curPath

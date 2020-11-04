@@ -15,20 +15,20 @@ func Dict(v1 gin.IRouter) {
 		tr := r.Group("/type")
 		{
 			tr.GET("", ctlType.QueryPage)
-			tr.GET("/:dictId", ctlType.Get)
+			tr.GET("/:id", ctlType.Get)
 			tr.POST("", ctlType.Create)
 			tr.PUT("", ctlType.Update)
-			tr.DELETE("/:dictIds", ctlType.BatchDelete)
+			tr.DELETE("/:ids", ctlType.BatchDelete)
 		}
 
 		ctlData := new(system.DictData)
 		dr := r.Group("/data")
 		{
 			dr.GET("", ctlData.QueryPage)
-			dr.GET("/:dictId", ctlData.Get)
+			dr.GET("/:id", ctlData.Get)
 			dr.POST("", ctlData.Create)
 			dr.PUT("", ctlData.Update)
-			dr.DELETE("/:dictIds", ctlData.BatchDelete)
+			dr.DELETE("/:ids", ctlData.BatchDelete)
 		}
 	}
 }
