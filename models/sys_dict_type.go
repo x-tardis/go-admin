@@ -109,7 +109,8 @@ func (cDictType) Create(ctx context.Context, item DictType) (DictType, error) {
 	var count int64
 
 	dao.DB.Scopes(DictTypeDB(ctx)).
-		Where("dict_name=?", item.DictName).Or("dict_type=?", item.DictType).
+		Where("dict_name=?", item.DictName).
+		Or("dict_type=?", item.DictType).
 		Count(&count)
 	if count > 0 {
 		return item, errors.New("字典名称或者字典类型已经存在！")

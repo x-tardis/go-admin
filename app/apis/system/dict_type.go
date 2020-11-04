@@ -166,7 +166,7 @@ func (DictType) BatchDelete(c *gin.Context) {
 // @param dictName query string false "dictName"
 // @param dictType query string false "dictType"
 // @param status query string false "status"
-// @success 200 {object} paginator.Pages "{"code": 200, "data": [...]}"
+// @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"

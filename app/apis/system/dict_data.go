@@ -164,7 +164,6 @@ func (DictData) BatchDelete(c *gin.Context) {
 // @tags 字典数据/DictData
 // @summary 通过字典类型获取字典数据
 // @description 通过字典类型获取字典数据
-// @security Bearer
 // @accept json
 // @produce json
 // @param dictType path string true "dictType"

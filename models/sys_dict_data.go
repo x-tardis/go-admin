@@ -86,20 +86,22 @@ func (cDictData) QueryPage(ctx context.Context, qp DictDataQueryParam) ([]DictDa
 }
 
 func (cDictData) Create(ctx context.Context, item DictData) (DictData, error) {
-	var i int64
+	var count int64
 
-	if err := dao.DB.Scopes(DictDataDB(ctx)).
+	err := dao.DB.Scopes(DictDataDB(ctx)).
 		Where("dict_type=?", item.DictType).
-		Where("dict_label=? or (dict_label=? and dict_value=?)", item.DictLabel, item.DictLabel, item.DictValue).
-		Count(&i).Error; err != nil {
+		Or("dict_label=?", item.DictLabel).
+		Or("dict_label=? and dict_value=?", item.DictLabel, item.DictValue).
+		Count(&count).Error
+	if err != nil {
 		return item, err
 	}
-	if i > 0 {
+	if count > 0 {
 		return item, errors.New("字典标签或者字典键值已经存在！")
 	}
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
-	err := dao.DB.Scopes(DictDataDB(ctx)).Create(&item).Error
+	err = dao.DB.Scopes(DictDataDB(ctx)).Create(&item).Error
 	return item, err
 }
 
