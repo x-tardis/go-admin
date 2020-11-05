@@ -102,10 +102,23 @@ func (sf cLoginLog) Update(ctx context.Context, id int, up LoginLog) error {
 	return dao.DB.Scopes(LoginLogDB(ctx)).Model(&item).Updates(&up).Error
 }
 
-// BatchDelete 批量删除id
-func (cLoginLog) BatchDelete(ctx context.Context, ids []int) error {
+// Delete 删除
+func (cLoginLog) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(LoginLogDB(ctx)).
-		Delete(&LoginLog{}, "info_id in (?)", ids).Error
+		Delete(&LoginLog{}, "info_id=?", id).Error
+}
+
+// BatchDelete 批量删除id
+func (sf cLoginLog) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(LoginLogDB(ctx)).
+			Delete(&LoginLog{}, "info_id in (?)", ids).Error
+	}
 }
 
 // Clean 清空日志

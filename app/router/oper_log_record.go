@@ -69,10 +69,7 @@ func OperLogRecord(c *gin.Context, statusCode int, latencyTime time.Duration) {
 			sysOperLog.BusinessType = "3"
 		}
 	}
-	menuList, _ := models.CMenu.Query(gcontext.Context(c), models.MenuQueryParam{
-		Path:   uri,
-		Action: method,
-	})
+	menuList, _ := models.CMenu.Query(gcontext.Context(c), models.MenuQueryParam{Path: uri, Action: method})
 	if len(menuList) > 0 {
 		sysOperLog.Title = menuList[0].Title
 	}

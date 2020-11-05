@@ -22,7 +22,7 @@ type Config struct {
 	ConfigName  string `json:"configName" gorm:"size:128;"`                 // 名称
 	ConfigKey   string `json:"configKey" gorm:"size:128;"`                  // 键名
 	ConfigValue string `json:"configValue" gorm:"size:255;"`                // 键值
-	ConfigType  string `json:"configType" gorm:"size:64;"`                  // 是否系统内置
+	ConfigType  string `json:"configType" gorm:"size:64;"`                  // 是否系统内置(Y/N) 字典sys_yes_no
 	Remark      string `json:"remark" gorm:"size:128;"`                     // 备注
 	Creator     string `json:"creator" gorm:"size:128;"`                    // 创建者
 	Updator     string `json:"updator" gorm:"size:128;"`                    // 更新者
@@ -98,13 +98,14 @@ func (cConfig) QueryPage(ctx context.Context, qp ConfigQueryParam) ([]Config, pa
 
 // Config 创建
 func (cConfig) Create(ctx context.Context, item Config) (Config, error) {
-	var i int64
+	var count int64
 
+	// 键值应
 	dao.DB.Scopes(ConfigDB(ctx)).
 		Where("config_name=?", item.ConfigName).
 		Or("config_key=?", item.ConfigKey).
-		Count(&i)
-	if i > 0 {
+		Count(&count)
+	if count > 0 {
 		return item, iorm.ErrObjectAlreadyExist
 	}
 
@@ -139,7 +140,14 @@ func (cConfig) Delete(ctx context.Context, id int) (err error) {
 }
 
 // BatchDelete 批量删除
-func (cConfig) BatchDelete(ctx context.Context, ids []int) error {
-	return dao.DB.Scopes(ConfigDB(ctx)).
-		Delete(&Config{}, "config_id in (?)", ids).Error
+func (sf cConfig) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(ConfigDB(ctx)).
+			Delete(&Config{}, "config_id in (?)", ids).Error
+	}
 }

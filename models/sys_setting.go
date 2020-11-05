@@ -43,7 +43,7 @@ var CSetting = cSetting{}
 
 // Get 获取
 func (cSetting) Get(ctx context.Context) (item Setting, err error) {
-	err = dao.DB.Scopes(SettingDB(ctx)).First(&item).Error
+	err = dao.DB.Scopes(SettingDB(ctx)).First(&item, "id=?", 1).Error
 	return
 }
 

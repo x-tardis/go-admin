@@ -118,10 +118,23 @@ func (sf cOperLog) Update(ctx context.Context, id int, up OperLog) error {
 	return dao.DB.Scopes(OperLogDB(ctx)).Model(&item).Updates(&up).Error
 }
 
-// BatchDelete 批量删除
-func (cOperLog) BatchDelete(ctx context.Context, id []int) error {
+// Delete 删除
+func (sf cOperLog) Delete(ctx context.Context, id int) error {
 	return dao.DB.Scopes(OperLogDB(ctx)).
-		Delete(&OperLog{}, "oper_id in (?)", id).Error
+		Delete(&OperLog{}, "oper_id=?", id).Error
+}
+
+// BatchDelete 批量删除
+func (sf cOperLog) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(OperLogDB(ctx)).
+			Delete(&OperLog{}, "oper_id in (?)", ids).Error
+	}
 }
 
 // Clean 清空
