@@ -85,7 +85,6 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 	if qp.Status != "" {
 		db = db.Where("status=?", qp.Status)
 	}
-	db = db.Order("sort")
 
 	// 数据权限控制
 	db = db.Scopes(DataScope(Post{}, jwtauth.FromUserId(ctx)))
@@ -93,6 +92,7 @@ func (cPost) QueryPage(ctx context.Context, qp PostQueryParam) ([]Post, paginato
 		return nil, paginator.Info{}, err
 	}
 
+	db = db.Order("sort")
 	info, err := iorm.QueryPages(db, qp.Param, &items)
 	return items, info, err
 }
@@ -123,7 +123,7 @@ func (sf cPost) Update(ctx context.Context, id int, up Post) error {
 
 // Delete 删除指定id
 func (cPost) Delete(ctx context.Context, id int) (err error) {
-	count, _ := CUser.GetCountWithPostId(ctx, id)
+	count, _ := CUser.CountWithPostId(ctx, id)
 	if count > 0 {
 		return errors.New("当前岗位存在用户,不能删除")
 	}
@@ -132,11 +132,18 @@ func (cPost) Delete(ctx context.Context, id int) (err error) {
 }
 
 // BatchDelete 删除批量id
-func (cPost) BatchDelete(ctx context.Context, ids []int) error {
-	count, _ := CUser.GetCountWithPostIds(ctx, ids)
-	if count > 0 {
-		return errors.New("岗位存在用户,不能删除")
+func (sf cPost) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		count, _ := CUser.CountWithPostIds(ctx, ids)
+		if count > 0 {
+			return errors.New("岗位存在用户,不能删除")
+		}
+		return dao.DB.Scopes(PostDB(ctx)).
+			Delete(&Post{}, "post_id in (?)", ids).Error
 	}
-	return dao.DB.Scopes(PostDB(ctx)).
-		Delete(&Post{}, "post_id in (?)", ids).Error
 }

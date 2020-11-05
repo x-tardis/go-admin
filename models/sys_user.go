@@ -154,22 +154,31 @@ func (cUser) GetWithDeptId(ctx context.Context, deptId int) (items []UserView, e
 	return
 }
 
-func (cUser) GetCountWithDeptId(ctx context.Context, deptId int) (count int64, err error) {
+func (cUser) CountWithDeptId(ctx context.Context, deptId int) (count int64, err error) {
 	err = dao.DB.Scopes(UserDB(ctx)).
 		Where("dept_id=?", deptId).Count(&count).Error
 	return
 }
 
-func (cUser) GetCountWithPostId(ctx context.Context, postId int) (count int64, err error) {
+// CountWithPostId 该岗位下有多少用户
+func (cUser) CountWithPostId(ctx context.Context, postId int) (count int64, err error) {
 	err = dao.DB.Scopes(UserDB(ctx)).
 		Where("post_id=?", postId).Count(&count).Error
 	return
 }
 
-func (cUser) GetCountWithPostIds(ctx context.Context, postIds []int) (count int64, err error) {
-	err = dao.DB.Scopes(UserDB(ctx)).
-		Where("post_id in (?)", postIds).Count(&count).Error
-	return
+// CountWithPostIds 这些岗位下共有多少用户
+func (sf cUser) CountWithPostIds(ctx context.Context, postIds []int) (count int64, err error) {
+	switch len(postIds) {
+	case 0:
+		return 0, nil
+	case 1:
+		return sf.CountWithPostId(ctx, postIds[0])
+	default:
+		err = dao.DB.Scopes(UserDB(ctx)).
+			Where("post_id in (?)", postIds).Count(&count).Error
+		return
+	}
 }
 
 // Create 添加

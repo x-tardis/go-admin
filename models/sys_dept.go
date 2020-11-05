@@ -124,11 +124,11 @@ func (sf cDept) QueryLabelTree(ctx context.Context) ([]DeptNameLabel, error) {
 
 // QueryTree query tree
 func (sf cDept) QueryTree(ctx context.Context, qp DeptQueryParam, bl bool) ([]Dept, error) {
-	list, err := sf.QueryPage(ctx, qp, bl)
+	items, err := sf.QueryPage(ctx, qp, bl)
 	if err != nil {
 		return nil, err
 	}
-	return toDeptTree(list), nil
+	return toDeptTree(items), nil
 }
 
 // Query 查询部门列表
@@ -230,26 +230,23 @@ func (sf cDept) Update(ctx context.Context, id int, up Dept) error {
 func (cDept) Delete(ctx context.Context, id int) error {
 	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
 		var count int64
-
+		// 有子项存在
 		dao.DB.Scopes(DeptDB(ctx)).
 			Where("parent_id=?", id).Count(&count)
 		if count > 0 {
 			return errors.New("有子项存在,不可删除")
 		}
-
-		count, err := CUser.GetCountWithDeptId(ctx, id)
-		if err != nil {
-			return err
-		}
+		// 有用户存在
+		count, _ = CUser.CountWithDeptId(ctx, id)
 		if count > 0 {
 			return errors.New("当前部门存在用户，不能删除！")
 		}
-
-		err = CRoleDept.DeleteWithDept(ctx, id)
+		// 角色与部门的关联
+		err := CRoleDept.DeleteWithDept(ctx, id)
 		if err != nil {
 			return err
 		}
-
+		// 删除部门
 		return dao.DB.Scopes(DeptDB(ctx)).
 			Delete(&Dept{}, "dept_id=?", id).Error
 	})
