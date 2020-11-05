@@ -17,7 +17,7 @@ type FileInfo struct {
 	Type    string `json:"type" gorm:"type:varchar(255);"`    // 类型
 	Name    string `json:"name" gorm:"type:varchar(255);"`    // 名称
 	Size    string `json:"size" gorm:"type:int(11);"`         // 大小
-	PId     int    `json:"pId" gorm:"type:int(11);"`          // 父级id
+	Pid     int    `json:"pid" gorm:"type:int(11);"`          // 父级id
 	Source  string `json:"source" gorm:"type:varchar(255);"`  // 源
 	Url     string `json:"url" gorm:"type:varchar(255);"`     // 路径
 	FullUrl string `json:"fullUrl" gorm:"type:varchar(255);"` // 全路径
@@ -43,7 +43,7 @@ func FileInfoDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 
 // FileInfoQueryParam 查询参数
 type FileInfoQueryParam struct {
-	PId int `form:"pId"`
+	Pid int `form:"pid"`
 	paginator.Param
 }
 
@@ -58,8 +58,8 @@ func (cFileInfo) QueryPage(ctx context.Context, qp FileInfoQueryParam) ([]FileIn
 	var items []FileInfo
 
 	db := dao.DB.Scopes(FileInfoDB(ctx))
-	if qp.PId != 0 {
-		db = db.Where("p_id=?", qp.PId)
+	if qp.Pid != 0 {
+		db = db.Where("pid=?", qp.Pid)
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)

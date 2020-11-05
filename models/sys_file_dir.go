@@ -14,16 +14,17 @@ import (
 type FileDir struct {
 	Id      int    `json:"id"`                                // 主键
 	Label   string `json:"label" gorm:"type:varchar(255);"`   // 名称
-	PId     int    `json:"pId" gorm:"type:int(11);"`          // 父id
+	Pid     int    `json:"pid" gorm:"type:int(11);"`          // 父id
 	Path    string `json:"path" gorm:"size:255;"`             // 路径树
 	Sort    int    `json:"sort" gorm:""`                      // 排序
 	Creator string `json:"creator" gorm:"type:varchar(128);"` // 创建者
 	Updator string `json:"updator" gorm:"type:varchar(128);"` // 更新者
 	Model
 
-	Children  []FileDir `json:"children" gorm:"-"`
-	DataScope string    `json:"dataScope" gorm:"-"`
-	Params    string    `json:"params"  gorm:"-"`
+	Children []FileDir `json:"children" gorm:"-"`
+
+	DataScope string `json:"dataScope" gorm:"-"`
+	Params    string `json:"params"  gorm:"-"`
 }
 
 // TableName implement schema.Tabler interface
@@ -42,7 +43,7 @@ func FileDirDB(ctx context.Context) func(db *gorm.DB) *gorm.DB {
 type FileDirQueryParam struct {
 	Id    int    `form:"id"`
 	Label string `form:"label"`
-	PId   int    `form:"pId"`
+	Pid   int    `form:"pid"`
 }
 
 type cFileDir struct{}
@@ -53,7 +54,7 @@ var CFileDir = cFileDir{}
 func toFileDirTree(items []FileDir) []FileDir {
 	tree := make([]FileDir, 0)
 	for _, itm := range items {
-		if itm.PId == 0 {
+		if itm.Pid == 0 {
 			tree = append(tree, deepChildrenFileDir(items, itm))
 		}
 	}
@@ -63,7 +64,7 @@ func toFileDirTree(items []FileDir) []FileDir {
 func deepChildrenFileDir(items []FileDir, item FileDir) FileDir {
 	item.Children = make([]FileDir, 0)
 	for _, itm := range items {
-		if item.Id == itm.PId {
+		if item.Id == itm.Pid {
 			item.Children = append(item.Children, deepChildrenFileDir(items, itm))
 		}
 	}
@@ -81,7 +82,6 @@ func (sf cFileDir) QueryTree(ctx context.Context, qp FileDirQueryParam) ([]FileD
 
 // Query 查询FileDir带分页
 func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, error) {
-	var err error
 	var items []FileDir
 
 	db := dao.DB.Scopes(FileDirDB(ctx))
@@ -91,8 +91,8 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 	if qp.Label != "" {
 		db = db.Where("label=?", qp.Label)
 	}
-	if qp.PId != 0 {
-		db = db.Where("p_id=?", qp.PId)
+	if qp.Pid != 0 {
+		db = db.Where("pid=?", qp.Pid)
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
@@ -101,7 +101,7 @@ func (cFileDir) Query(ctx context.Context, qp FileDirQueryParam) ([]FileDir, err
 		return nil, err
 	}
 
-	err = db.Find(&items).Error
+	err := db.Find(&items).Error
 	return items, err
 }
 
@@ -121,10 +121,10 @@ func (sf cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 	}
 
 	path := "/" + cast.ToString(item.Id)
-	if item.PId == 0 {
+	if item.Pid == 0 {
 		path = "/0" + path
 	} else {
-		deptP, _ := sf.Get(ctx, item.PId)
+		deptP, _ := sf.Get(ctx, item.Pid)
 		path = deptP.Path + path
 	}
 
