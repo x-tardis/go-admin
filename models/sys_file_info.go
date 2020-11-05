@@ -105,7 +105,14 @@ func (cFileInfo) Delete(ctx context.Context, id int) error {
 }
 
 // BatchDelete 批量删除
-func (cFileInfo) BatchDelete(ctx context.Context, ids []int) error {
-	return dao.DB.Scopes(FileInfoDB(ctx)).
-		Delete(&FileInfo{}, "id in (?)", ids).Error
+func (sf cFileInfo) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(FileInfoDB(ctx)).
+			Delete(&FileInfo{}, "id in (?)", ids).Error
+	}
 }

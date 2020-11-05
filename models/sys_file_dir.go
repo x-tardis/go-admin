@@ -122,16 +122,18 @@ func (sf cFileDir) Create(ctx context.Context, item FileDir) (FileDir, error) {
 
 	path := "/" + cast.ToString(item.Id)
 	if item.Pid == 0 {
-		path = "/0" + path
+		item.Path = "/0" + path
 	} else {
-		deptP, _ := sf.Get(ctx, item.Pid)
-		path = deptP.Path + path
+		deptP, err := sf.Get(ctx, item.Pid)
+		if err != nil {
+			return item, err
+		}
+		item.Path = deptP.Path + path
 	}
 
 	err = dao.DB.Scopes(FileDirDB(ctx)).
 		Where("id=?", item.Id).
-		Update("path", path).Error
-	item.Path = path
+		Update("path", item.Path).Error
 	return item, err
 }
 
@@ -143,11 +145,13 @@ func (sf cFileDir) Update(ctx context.Context, id int, up FileDir) error {
 	}
 
 	path := "/" + cast.ToString(up.Id)
-	if up.Id == 0 {
+	if up.Pid == 0 {
 		path = "/0" + path
 	} else {
-		var deptP FileDir
-		dao.DB.Scopes(FileDirDB(ctx)).Where("id=?", up.Id).First(&deptP)
+		deptP, err := sf.Get(ctx, up.Pid)
+		if err != nil {
+			return err
+		}
 		path = deptP.Path + path
 	}
 	up.Path = path
@@ -167,7 +171,14 @@ func (cFileDir) Delete(ctx context.Context, id int) error {
 }
 
 // BatchDelete 批量删除
-func (cFileDir) BatchDelete(ctx context.Context, ids []int) error {
-	return dao.DB.Scopes(FileDirDB(ctx)).
-		Delete(&FileDir{}, "id in (?)", ids).Error
+func (sf cFileDir) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(FileDirDB(ctx)).
+			Delete(&FileDir{}, "id in (?)", ids).Error
+	}
 }
