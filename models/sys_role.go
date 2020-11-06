@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 
+	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
 	"github.com/thinkgos/sharp/iorm/trans"
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
@@ -131,11 +131,7 @@ func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	// 更新角色的 sys_role_menu
 	if len(item.MenuIds) > 0 {
 		err = CRoleMenu.BatchCreate(ctx, item.RoleId, item.MenuIds)
-		if err != nil {
-			return item, err
-		}
 	}
-	err = deployed.CasbinEnforcer.LoadPolicy()
 	return item, err
 }
 
@@ -186,7 +182,7 @@ func (sf cRole) Update(ctx context.Context, id int, up Role) error {
 				return err
 			}
 		}
-		return deployed.CasbinEnforcer.LoadPolicy()
+		return nil
 	})
 }
 
@@ -199,6 +195,10 @@ func (sf cRole) UpdateStatus(ctx context.Context, id int, enable bool) error {
 		if role.RoleKey == SuperAdmin && !enable {
 			return errors.New("超级角色不允许禁用")
 		}
+
+		dao.DB.Scopes(RoleDB(ctx)).
+			Where("role_id=?", id).
+			Update("status", ternary.IfString(enable, StatusEnable, StatusDisable))
 
 		if enable {
 			// 获取角色和目录
@@ -244,7 +244,7 @@ func (sf cRole) UpdateStatus(ctx context.Context, id int, enable bool) error {
 				return err
 			}
 		}
-		return deployed.CasbinEnforcer.LoadPolicy()
+		return nil
 	})
 }
 

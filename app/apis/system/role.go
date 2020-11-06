@@ -102,6 +102,12 @@ func (Role) Create(c *gin.Context) {
 		return
 	}
 
+	err = deployed.CasbinEnforcer.LoadPolicy()
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
+		return
+	}
+
 	servers.OK(c, servers.WithData(item))
 }
 
@@ -122,6 +128,12 @@ func (Role) Update(c *gin.Context) {
 		return
 	}
 	err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
+		return
+	}
+
+	err = deployed.CasbinEnforcer.LoadPolicy()
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
 		return
@@ -172,6 +184,12 @@ func (Role) Enable(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
+
+	err = deployed.CasbinEnforcer.LoadPolicy()
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
+		return
+	}
 	servers.OK(c)
 }
 
@@ -188,6 +206,11 @@ func (Role) Enable(c *gin.Context) {
 func (Role) Disable(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	err := models.CRole.UpdateStatus(gcontext.Context(c), id, false)
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
+		return
+	}
+	err = deployed.CasbinEnforcer.LoadPolicy()
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
