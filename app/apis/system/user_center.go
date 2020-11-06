@@ -138,7 +138,7 @@ type UpdatePassword struct {
 // @security Bearer
 // @accept json
 // @produce json
-// @param up body models.UpdateUserPwd true "update password"
+// @param up body UpdatePassword true "update password"
 // @success 200 {string} string	"{"code": 200, "msg": ""}"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"

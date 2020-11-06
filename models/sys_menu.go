@@ -29,7 +29,7 @@ const (
 //      title, paths, permission, visible
 //      标题, 路径树, 权限标识, 排序, 显示
 // MenuType == ifc接口权限,主要用于角色权限路由method,path的设置.
-//      title, path, paths, action, sort, visible
+//      title, path, paths, method, sort, visible
 //      标题, 路径, 路径树, 方法, 排序, 显示
 type Menu struct {
 	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"` // 主键
@@ -39,7 +39,7 @@ type Menu struct {
 	Path       string `json:"path" gorm:"size:128;"`                    // 路径
 	Paths      string `json:"paths" gorm:"size:128;"`                   // 路径树
 	MenuType   string `json:"menuType" gorm:"size:3;"`                  // 类型
-	Action     string `json:"action" gorm:"size:16;"`                   // 请求方式,仅<接口>使用
+	Method     string `json:"method" gorm:"size:16;"`                   // 请求方法,仅<接口>使用
 	Permission string `json:"permission" gorm:"size:255;"`              // 权限标识,仅在<菜单项,按钮>使用
 	ParentId   int    `json:"parentId" gorm:"size:11;"`                 // 父级主键
 	NoCache    bool   `json:"noCache" gorm:"size:8;"`                   // 不缓存
@@ -90,7 +90,7 @@ type MenuQueryParam struct {
 	Title    string `form:"title"`
 	MenuName string `form:"menuName"`
 	Path     string `form:"path"`
-	Action   string `form:"action"`
+	Method   string `form:"method"`
 	MenuType string `form:"menuType"`
 	Visible  string `form:"visible"`
 }
@@ -205,8 +205,8 @@ func (cMenu) Query(ctx context.Context, qp MenuQueryParam) (items []Menu, err er
 	if qp.Path != "" {
 		db = db.Where("path=?", qp.Path)
 	}
-	if qp.Action != "" {
-		db = db.Where("action=?", qp.Action)
+	if qp.Method != "" {
+		db = db.Where("method=?", qp.Method)
 	}
 	if qp.MenuType != "" {
 		db = db.Where("menu_type=?", qp.MenuType)

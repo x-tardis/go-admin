@@ -19,8 +19,6 @@ import (
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
 
-const layout = "2006-01-02 15:04:05 Z07:00"
-
 // Os os信息
 type Os struct {
 	GoOs         string `json:"goOs"`
@@ -57,17 +55,18 @@ type Disk struct {
 }
 
 type App struct {
-	Model         string `json:"model"`
-	Pid           int    `json:"pid,string"`
-	Version       string `json:"version"`
-	APIVersion    string `json:"apiVersion"`
-	BuildTime     string `json:"buildTime"`
-	GitCommit     string `json:"gitCommit"`
-	GitFullCommit string `json:"gitFullCommit"`
-	ProjectDir    string `json:"projectDir"`
-	SetupTime     string `json:"setupTime"`   // 程序启动日期
-	RunningTime   string `json:"runningTime"` // 程序运行时间
-	Uptime        string `json:"uptime"`      // 系统运行时间
+	Model         string `json:"model"`         // 型号
+	Pid           int    `json:"pid,string"`    // pid
+	Version       string `json:"version"`       // 版本
+	APIVersion    string `json:"apiVersion"`    // api版本
+	BuildTime     string `json:"buildTime"`     // 编译时间
+	GitCommit     string `json:"gitCommit"`     // git提交码
+	GitFullCommit string `json:"gitFullCommit"` // git提交全码
+	ProjectDir    string `json:"projectDir"`    // 工作目录
+	SetupTime     string `json:"setupTime"`     // 程序启动日期
+	RunningTime   string `json:"runningTime"`   // 程序运行时间
+	Uptime        string `json:"uptime"`        // 系统运行时间
+	Mem           Mem    `json:"mem"`
 }
 
 // SystemInfos system info
@@ -105,8 +104,8 @@ func SystemInfo(c *gin.Context) {
 	sysInfo := syscall.Sysinfo_t{} // Uptime = 秒
 	syscall.Sysinfo(&sysInfo)      // nolint: errcheck
 
-	// memStats := runtime.MemStats{}
-	// runtime.ReadMemStats(&memStats)
+	memStats := runtime.MemStats{}
+	runtime.ReadMemStats(&memStats)
 
 	servers.JSON(c, http.StatusOK, SystemInfos{
 		http.StatusOK,
@@ -146,14 +145,20 @@ func SystemInfo(c *gin.Context) {
 			builder.GitCommit,
 			builder.GitFullCommit,
 			projectDir,
-			setupTime.Format(layout),
+			setupTime.Format("2006-01-02 15:04:05 Z07:00"),
 			time.Since(setupTime).Round(time.Second).String(),
 			(time.Duration(sysInfo.Uptime) * time.Second).String(),
+			Mem{
+				meter.ByteSize(memStats.HeapSys).String(),
+				meter.ByteSize(memStats.HeapAlloc).String(),
+				meter.ByteSize(memStats.HeapSys - memStats.HeapAlloc).String(),
+				extmath.Round(float64(memStats.HeapAlloc)*100/float64(memStats.HeapSys), 2),
+			},
 		},
 	})
 }
 
-const INDEX = `
+const Index = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -184,7 +189,7 @@ $(function(){
 
 func HelloWorld(c *gin.Context) {
 	c.Header("Content-Type", "text/html; charset=utf-8")
-	c.String(200, INDEX)
+	c.String(200, Index)
 }
 
 // @tags 系统信息

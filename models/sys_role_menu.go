@@ -101,7 +101,7 @@ func (sf cRoleMenu) BatchCreate(ctx context.Context, roleId int, menuId []int) e
 					PType: "p",
 					V0:    role.RoleKey,
 					V1:    menu.Path,
-					V2:    menu.Action,
+					V2:    menu.Method,
 				})
 			}
 		}

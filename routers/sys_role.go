@@ -15,5 +15,7 @@ func Role(v1 gin.IRouter) {
 		r.POST("", ctl.Create)
 		r.PUT("", ctl.Update)
 		r.DELETE("/:ids", ctl.BatchDelete)
+		r.PATCH("/enable/:id", ctl.Enable)
+		r.PATCH("/disable/:id", ctl.Disable)
 	}
 }

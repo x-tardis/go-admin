@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -153,6 +154,34 @@ func (Role) BatchDelete(c *gin.Context) {
 		return
 	}
 	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
+}
+
+// @tags 角色/Role
+// @Summary 启动角色
+// @Description 启动角色
+// @security Bearer
+// @accept json
+// @produce json
+// @param id path string true "id"
+// @success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @router /api/v1/roles/enable/{id} [patch]
+func (Role) Enable(c *gin.Context) {
+	log.Println("role enable")
+}
+
+// @tags 角色/Role
+// @Summary 禁用角色
+// @Description 禁用角色
+// @security Bearer
+// @accept json
+// @produce json
+// @param id path string true "id"
+// @success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @router /api/v1/roles/disable/{id} [patch]
+func (Role) Disable(c *gin.Context) {
+	log.Println("role disable")
 }
 
 func (Role) UpdateDataScope(c *gin.Context) {
