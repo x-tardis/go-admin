@@ -77,8 +77,6 @@ func (cRoleMenu) GetIdsWithRoleName(ctx context.Context) (items []MenuPath, err 
 // BatchCreate 批量创建
 func (sf cRoleMenu) BatchCreate(ctx context.Context, roleId int, menuId []int) error {
 	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
-		var menus []Menu
-
 		// 获取角色的标识
 		role, err := CRole.Get(ctx, roleId)
 		if err != nil {
@@ -86,8 +84,7 @@ func (sf cRoleMenu) BatchCreate(ctx context.Context, roleId int, menuId []int) e
 		}
 
 		// 获取目录列表
-		err = dao.DB.Scopes(MenuDB(ctx)).
-			Where("menu_id in (?)", menuId).Find(&menus).Error
+		menus, err := CMenu.BatchGet(ctx, menuId)
 		if err != nil {
 			return err
 		}

@@ -248,6 +248,12 @@ func (cMenu) Get(ctx context.Context, id int) (item Menu, err error) {
 	return
 }
 
+func (cMenu) BatchGet(ctx context.Context, ids []int) (items []Menu, err error) {
+	err = dao.DB.Scopes(MenuDB(ctx)).
+		Where("menu_id in (?)", ids).Find(&items).Error
+	return
+}
+
 // Create 创建目录
 func (cMenu) Create(ctx context.Context, item Menu) (Menu, error) {
 	err := trans.Exec(ctx, dao.DB, func(ctx context.Context) error {

@@ -1,7 +1,6 @@
 package system
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -167,7 +166,13 @@ func (Role) BatchDelete(c *gin.Context) {
 // @success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @router /api/v1/roles/enable/{id} [patch]
 func (Role) Enable(c *gin.Context) {
-	log.Println("role enable")
+	id := cast.ToInt(c.Param("id"))
+	err := models.CRole.UpdateStatus(gcontext.Context(c), id, true)
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
+		return
+	}
+	servers.OK(c)
 }
 
 // @tags 角色/Role
@@ -181,7 +186,13 @@ func (Role) Enable(c *gin.Context) {
 // @success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @router /api/v1/roles/disable/{id} [patch]
 func (Role) Disable(c *gin.Context) {
-	log.Println("role disable")
+	id := cast.ToInt(c.Param("id"))
+	err := models.CRole.UpdateStatus(gcontext.Context(c), id, false)
+	if err != nil {
+		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
+		return
+	}
+	servers.OK(c)
 }
 
 func (Role) UpdateDataScope(c *gin.Context) {

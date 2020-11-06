@@ -179,7 +179,7 @@ func (sf cRole) Update(ctx context.Context, id int, up Role) error {
 			return err
 		}
 
-		// 更新 sys_role_menu
+		// 更新 sys_role_menu 和 sys_casbin_rule
 		if len(up.MenuIds) > 0 {
 			err = CRoleMenu.BatchCreate(ctx, id, up.MenuIds)
 			if err != nil {
@@ -188,18 +188,74 @@ func (sf cRole) Update(ctx context.Context, id int, up Role) error {
 		}
 		return deployed.CasbinEnforcer.LoadPolicy()
 	})
-
 }
 
-func (cRole) update(ctx context.Context, id int, up Role) error {
-	var oldItem Role
+func (sf cRole) UpdateStatus(ctx context.Context, id int, enable bool) error {
+	return trans.Exec(ctx, dao.DB, func(ctx context.Context) error {
+		role, err := sf.Get(ctx, id)
+		if err != nil {
+			return err
+		}
+		if role.RoleKey == SuperAdmin && !enable {
+			return errors.New("超级角色不允许禁用")
+		}
 
-	if err := dao.DB.Scopes(RoleDB(ctx)).First(&oldItem, id).Error; err != nil {
+		if enable {
+			// 获取角色和目录
+			roleMenus, err := CRoleMenu.Get(ctx, id)
+			if err != nil {
+				return err
+			}
+
+			if len(roleMenus) > 0 {
+				menuIds := make([]int, 0, len(roleMenus))
+				for _, menu := range roleMenus {
+					menuIds = append(menuIds, menu.MenuId)
+				}
+				// 获取目录列表
+				menus, err := CMenu.BatchGet(ctx, menuIds)
+				if err != nil {
+					return err
+				}
+				// 插入casbin rule表
+				casbinRules := make([]CasbinRule, 0, len(menus))
+				for _, menu := range menus {
+					if menu.MenuType == MenuTypeIfc {
+						casbinRules = append(casbinRules, CasbinRule{
+							PType: "p",
+							V0:    role.RoleKey,
+							V1:    menu.Path,
+							V2:    menu.Method,
+						})
+					}
+				}
+				// 执行批量插入 sys_casbin_rule
+				if len(casbinRules) > 0 {
+					_, err := CCasbinRule.BatchCreate(ctx, casbinRules)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		} else {
+			// 删除 casbin rule
+			err = CCasbinRule.DeleteWithRoleName(ctx, role.RoleKey)
+			if err != nil {
+				return err
+			}
+		}
+		return deployed.CasbinEnforcer.LoadPolicy()
+	})
+}
+
+func (sf cRole) update(ctx context.Context, id int, up Role) error {
+	oldItem, err := sf.Get(ctx, id)
+	if err != nil {
 		return err
 	}
 
 	if oldItem.RoleKey == SuperAdmin && up.Status == StatusDisable {
-		return errors.New("超级用户不允许禁用")
+		return errors.New("超级角色不允许禁用")
 	}
 	// 角色名称与角色标识不允许修改
 	if up.RoleName != "" && up.RoleName != oldItem.RoleName {
@@ -261,7 +317,6 @@ func (cRole) BatchDelete(ctx context.Context, ids []int) error {
 
 		return nil
 	})
-
 }
 
 // MenuIdList ...
