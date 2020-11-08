@@ -27,7 +27,7 @@ type DictData struct{}
 // @param status query string false "status"
 // @param pageSize query int false "页条数"
 // @param pageIndex query int false "页码"
-// @success 200 {object} paginator.Pages "成功"
+// @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -130,14 +130,6 @@ func (DictData) Update(c *gin.Context) {
 	}
 	servers.OK(c)
 }
-
-// @Summary 删除字典数据
-// @Description 删除数据
-// @Tags 字典数据/DictData
-// @Param dictId path int true "dictId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/dict/data/{dictIds} [delete]
 
 // @tags 字典数据/DictData
 // @summary 批量删除字典数据

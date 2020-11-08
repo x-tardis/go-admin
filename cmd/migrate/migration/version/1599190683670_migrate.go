@@ -272,7 +272,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list6 := []models.Role{
-			{1, "系统管理员", "admin", "0", 1, "", true, "", "", "1", "", models.Model{}, []int{}, []int{}, ""},
+			{1, "系统管理员", "admin", "0", 0, "", true, "", "", "1", "", models.Model{}, []int{}, []int{}, ""},
 		}
 
 		list7 := []models.DictType{
@@ -289,7 +289,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list8 := []models.User{
-			{1, "admin", "$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2", "zhangwj", "13818888888", "", "", "0", "1@qq.com", "0", "", 1, 1, 1, "1", "1", models.Model{}, "", ""},
+			{1, models.SuperAdmin, "$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2", "zhangwj", "13818888888", "", "", "0", "1@qq.com", "0", "", 1, 1, 1, "1", "1", models.Model{}, "", ""},
 		}
 
 		list9 := []models.DictData{
