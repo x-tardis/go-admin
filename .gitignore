@@ -2,7 +2,9 @@
 .vscode
 go-admin
 vendor
-docs
+docs/*.go
+docs/*.yaml
+docs/*.json
 bin
 temp
 static/uploadfile
