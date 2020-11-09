@@ -11,6 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/middleware"
+	"github.com/x-tardis/go-admin/pkg/xxfiled"
 )
 
 func InitRouter() *gin.Engine {
@@ -21,12 +22,12 @@ func InitRouter() *gin.Engine {
 	}
 
 	engine.Use(
-		requestid.RequestID(),                                                // request id
-		gzap.Logger(deployed.RequestLogger.Desugar()),                        // logger
-		gzap.Recovery(izap.Logger, deployed.AppConfig.Mode == infra.ModeDev), // recover, 仅开发时开启stack
-		middleware.NoCache(),                                                 // NoCache is a middleware function that appends headers
-		cors.New(*deployed.CorsConfig),                                       // 跨域处理
-		middleware.Secure(),                                                  // Secure is a middleware function that appends security
+		requestid.RequestID(), // request id
+		gzap.Logger(deployed.RequestLogger.Desugar(), gzap.WithCustomFields(xxfiled.RequestId, xxfiled.Error)), // logger
+		gzap.Recovery(izap.Logger, deployed.AppConfig.Mode == infra.ModeDev),                                   // recover, 仅开发时开启stack
+		middleware.NoCache(),           // NoCache is a middleware function that appends headers
+		cors.New(*deployed.CorsConfig), // 跨域处理
+		middleware.Secure(),            // Secure is a middleware function that appends security
 	)
 
 	// the jwt middleware

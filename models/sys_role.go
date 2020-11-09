@@ -238,7 +238,7 @@ func (sf cRole) UpdateStatus(ctx context.Context, id int, enable bool) error {
 				}
 			}
 		} else {
-			// 删除 casbin rule
+			// 删除 sys_casbin_rule
 			err = CCasbinRule.DeleteWithRoleName(ctx, role.RoleKey)
 			if err != nil {
 				return err
@@ -344,7 +344,7 @@ func (cRole) GetMenuIds(ctx context.Context, roleId int) ([]int, error) {
 
 // DeptIdList ...
 type DeptIdList struct {
-	DeptId int `json:"DeptId"`
+	DeptId int `json:"deptId"`
 }
 
 // GetDeptIds 获取角色对应的部门id列表
