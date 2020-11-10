@@ -1,11 +1,11 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/fvbock/endless"
@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/go-core-package/lib/textcolor"
 	"github.com/thinkgos/sharp/builder"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/x-tardis/go-admin/app/router"
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/misc"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/izap"
 )
@@ -68,10 +70,9 @@ func run(cmd *cobra.Command, args []string) error {
 		time.Sleep(time.Millisecond * 100)
 		jobs.Startup()
 	}()
+	// 设置gin的工作模式
+	gin.SetMode(ternary.IfString(deployed.AppConfig.Mode == infra.ModeProd, gin.ReleaseMode, gin.DebugMode))
 
-	if viper.GetString("mode") == infra.ModeProd {
-		gin.SetMode(gin.ReleaseMode)
-	}
 	engine := router.InitRouter()
 	addr := net.JoinHostPort(deployed.AppConfig.Host, deployed.AppConfig.Port)
 
@@ -91,7 +92,6 @@ func run(cmd *cobra.Command, args []string) error {
 	if err != nil && !strings.Contains(err.Error(), "use of closed network connection") {
 		log.Fatal("listen and serve : ", err)
 	}
-
 	return nil
 }
 
@@ -99,15 +99,48 @@ func postRun(cmd *cobra.Command, args []string) {
 	jobs.Stop()
 }
 
+const tipText = `
+	{{.Banner}}
+
+欢迎使用 {{.Name}} {{.Version}} 可以使用 {{.H}} 查看命令
+{{.ServerTitle}}:
+	-  Local:   http://localhost:{{.Port}}
+	-  Network: http://{{.IP}}:{{.Port}}
+{{.SwaggerTitle}}:
+	-  Local:   http://localhost:{{.Port}}/swagger/index.html
+	-  Network: http://{{.IP}}:{{.Port}}/swagger/index.html
+  {{.PidTitle}}: {{.PID}}
+  Enter {{.Kill}} Shutdown Server
+`
+
+type Tip struct {
+	Banner       string
+	Name         string
+	Version      string
+	H            string
+	ServerTitle  string
+	SwaggerTitle string
+	IP           string
+	Port         string
+	PidTitle     string
+	PID          string
+	Kill         string
+}
+
 func tip() {
-	fmt.Println(textcolor.Red(infra.Banner))
-	fmt.Printf("欢迎使用 %s %s 可以使用 %s 查看命令 \n\n", textcolor.Green("go-admin"), textcolor.Magenta(builder.Version), textcolor.Magenta("-h"))
-	fmt.Println(textcolor.Green("Server run at:"))
-	fmt.Printf("\t-  Local:   http://localhost:%s/ \r\n", deployed.AppConfig.Port)
-	fmt.Printf("\t-  Network: http://%s:%s/ \r\n", infra.LanIP(), deployed.AppConfig.Port)
-	fmt.Println(textcolor.Green("Swagger run at:"))
-	fmt.Printf("\t-  Local:   http://localhost:%s/swagger/index.html \r\n", deployed.AppConfig.Port)
-	fmt.Printf("\t-  Network: http://%s:%s/swagger/index.html \r\n", infra.LanIP(), deployed.AppConfig.Port)
-	fmt.Printf("%s %s \r\n", textcolor.Green("Server run on PID:"), textcolor.Red(cast.ToString(os.Getpid())))
-	log.Printf("Enter %s Shutdown Server\r\n", textcolor.Magenta("Control + C"))
+	tip := Tip{
+		textcolor.Red(infra.Banner),
+		textcolor.Green(deployed.AppConfig.Name),
+		textcolor.Magenta(builder.Version),
+		textcolor.Magenta("-h"),
+		textcolor.Green("Server run at:"),
+		textcolor.Green("Swagger run at:"),
+		infra.LanIP(),
+		deployed.AppConfig.Port,
+		textcolor.Green("Server run on PID:"),
+		textcolor.Red(cast.ToString(os.Getpid())),
+		textcolor.Magenta("Control + C"),
+	}
+	err := template.Must(template.New("tip").Parse(tipText)).Execute(os.Stdout, tip)
+	misc.HandlerError(err)
 }

@@ -15,31 +15,6 @@ import (
 	"github.com/x-tardis/go-admin/cmd/version"
 )
 
-var rootCmd = &cobra.Command{
-	Use:          "go-admin",
-	Short:        "go-admin",
-	SilenceUsage: true,
-	Long:         `go-admin`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			tip()
-			return errors.New(textcolor.Red("requires at least one arg"))
-		}
-		return nil
-	},
-	PersistentPreRunE: func(*cobra.Command, []string) error { return nil },
-	Run: func(cmd *cobra.Command, args []string) {
-		tip()
-	},
-}
-
-func tip() {
-	usage := `欢迎使用 ` + textcolor.Green(`github.com/x-tardis/go-admin `+builder.Version) + ` 可以使用 ` + textcolor.Red(`-h`) + ` 查看命令`
-	fmt.Printf("%s\n", usage)
-	usage1 := `也可以参考 http://doc.zhangwj.com/github.com/x-tardis/go-admin-site/guide/ksks.html 里边的【启动】章节`
-	fmt.Printf("%s\n", usage1)
-}
-
 func init() {
 	rootCmd.AddCommand(server.StartCmd)
 	rootCmd.AddCommand(migrate.StartCmd)
@@ -47,7 +22,29 @@ func init() {
 	rootCmd.AddCommand(config.StartCmd)
 }
 
-//Execute : apply commands
+var rootCmd = &cobra.Command{
+	Use:          "go-admin",
+	Short:        "go-admin",
+	SilenceUsage: true,
+	Long:         `go-admin`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			tip(cmd, args)
+			return errors.New(textcolor.Red("requires at least one arg"))
+		}
+		return nil
+	},
+	Run: tip,
+}
+
+func tip(*cobra.Command, []string) {
+	fmt.Printf("欢迎使用 %s %s 可以使用 %s 查看命令\r\n",
+		textcolor.Green(builder.Model),
+		textcolor.Green(builder.Version),
+		textcolor.Red(`-h`))
+}
+
+// Execute : apply commands
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(-1)

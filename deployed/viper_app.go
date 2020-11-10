@@ -5,12 +5,12 @@ import (
 )
 
 type Application struct {
-	Mode          string
-	Name          string
-	Host          string
-	Port          string
-	ReadTimeout   int
-	WriterTimeout int
+	Mode          string // 工作模式
+	Name          string // 应用名称
+	Host          string // 主机名
+	Port          string // 端口
+	ReadTimeout   int    // 读超时
+	WriterTimeout int    // 写超时
 }
 
 func ViperApplication() *Application {
