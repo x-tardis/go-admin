@@ -2,11 +2,10 @@ package deployed
 
 import (
 	"github.com/casbin/casbin/v2"
+	"github.com/go-redis/redis/v7"
 	"github.com/mojocn/base64Captcha"
 	"github.com/robfig/cron/v3"
 	"github.com/thinkgos/go-core-package/lib/password"
-
-	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/middleware"
@@ -22,6 +21,8 @@ var Cron *cron.Cron
 
 var CasbinEnforcer *casbin.SyncedEnforcer
 
+var Redisc *redis.Client
+
 func SetupCasbin() {
 	var err error
 
@@ -29,4 +30,8 @@ func SetupCasbin() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func SetupRedis() {
+	Redisc = redis.NewClient(ViperRedis(nil, nil))
 }
