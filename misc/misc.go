@@ -2,6 +2,7 @@ package misc
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 
 	"github.com/thinkgos/sharp/builder"
@@ -20,6 +21,6 @@ func PrintVersion() {
 
 func HandlerError(err error) {
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }

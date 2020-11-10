@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
+	"github.com/google/gops/agent"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -23,7 +25,6 @@ import (
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/misc"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/izap"
 )
 
 var configFile string
@@ -62,10 +63,10 @@ func setup(cmd *cobra.Command, args []string) {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	var err error
+	fmt.Println(textcolor.Red("starting server..."))
 
-	izap.Sugar.Info(`starting api server`)
-
+	err := agent.Listen(deployed.ViperGops())
+	misc.HandlerError(err)
 	go func() {
 		time.Sleep(time.Millisecond * 100)
 		jobs.Startup()
@@ -99,8 +100,7 @@ func postRun(cmd *cobra.Command, args []string) {
 	jobs.Stop()
 }
 
-const tipText = `
-	{{.Banner}}
+const tipText = `  {{.Banner}}
 
 欢迎使用 {{.Name}} {{.Version}} 可以使用 {{.H}} 查看命令
 {{.ServerTitle}}:

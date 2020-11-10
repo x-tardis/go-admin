@@ -3,7 +3,6 @@ module github.com/x-tardis/go-admin
 go 1.15
 
 require (
-	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.16.0
@@ -14,10 +13,10 @@ require (
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-openapi/spec v0.19.12 // indirect
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/google/gops v0.3.13
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/jackc/pgx/v4 v4.9.2 // indirect

@@ -7,7 +7,7 @@ import (
 )
 
 func ViperLimiterDefault() {
-	viper.SetDefault("rate.limit", math.MaxFloat64)
+	viper.SetDefault("rate.limit", math.MaxInt32)
 }
 
 func ViperLimiter() float64 {
