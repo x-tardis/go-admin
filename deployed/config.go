@@ -25,6 +25,7 @@ func init() {
 	RegisterViperDefault(ViperLimiterDefault)
 	RegisterViperDefault(ViperCorsDefault)
 	RegisterViperDefault(ViperJwtDefault)
+	RegisterViperDefault(ViperRedisDefault)
 }
 
 // 载入配置文件
