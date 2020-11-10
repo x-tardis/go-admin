@@ -14,9 +14,11 @@ func SetupLogger() {
 	c.FileName = "bus.log"
 	logger := izap.New(c)
 	izap.ReplaceGlobals(logger)
+
 	c.FileName = "job.log"
 	c.InConsole = false
 	JobLogger = izap.New(c).Sugar()
+
 	c.FileName = "request.log"
 	c.InConsole = true
 	RequestLogger = izap.New(c).Sugar()

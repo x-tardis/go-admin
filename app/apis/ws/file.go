@@ -11,6 +11,7 @@ import (
 )
 
 func FileMonitor(ctx context.Context, filename string, group string, hook func(string, []byte)) {
+	// TODO: 文件不存在时处理
 	f, err := os.Open(filename)
 	if err != nil {
 		log.Fatalln(err)
