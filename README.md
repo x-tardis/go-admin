@@ -76,8 +76,8 @@ cd ./go-admin
 go build
 
 # 修改配置 
-# 文件路径  go-admin/config/settings.yml
-vi ./config/setting.yml 
+# 文件路径  go-admin/config/config.yaml 
+vi ./config/config.yaml 
 
 # 1. 配置文件中修改数据库信息 
 # 注意: settings.database 下对应的配置数据
@@ -87,11 +87,11 @@ vi ./config/setting.yml
 #### 初始化数据库，以及服务启动
 ```
 # 首次配置需要初始化数据库资源信息
-./go-admin migrate -c config/settings.yml -m dev
+./go-admin migrate -c config/config.yaml -m dev
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin server -c config/settings.yml -p 8000 -m dev
+./go-admin server -c config/config.yaml  -p 8000 -m dev
 
 ```
 

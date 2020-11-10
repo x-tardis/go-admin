@@ -31,39 +31,47 @@ func run(cmd *cobra.Command, args []string) {
 
 	deployed.SetupConfig(configFile)
 
-	application, errs := json.MarshalIndent(deployed.AppConfig, "", "   ") //转换成JSON返回的是byte[]
-	if errs != nil {
-		fmt.Println(errs.Error())
+	application, err := marshalIndentToString(deployed.AppConfig) // 转换成JSON返回的是byte[]
+	if err != nil {
+		fmt.Println(err)
 	}
-	fmt.Println("application:", string(application))
+	fmt.Println("application:", application)
 
-	jwt, errs := json.MarshalIndent(deployed.JwtConfig, "", "   ") //转换成JSON返回的是byte[]
-	if errs != nil {
-		fmt.Println(errs.Error())
+	jwt, err := marshalIndentToString(deployed.JwtConfig)
+	if err != nil {
+		fmt.Println(err)
 	}
 	fmt.Println("jwt:", string(jwt))
 
-	// cors, errs := json.MarshalIndent(deployed.CorsConfig, "", "   ") //转换成JSON返回的是byte[]
-	// if errs != nil {
-	// 	fmt.Println(errs.Error())
+	// cors, err := marshalIndentToString(deployed.CorsConfig)
+	// if err != nil {
+	// 	fmt.Println(err)
 	// }
-	// fmt.Println("cors:", string(cors))
+	// fmt.Println("cors:", cors)
 
-	database, errs := json.MarshalIndent(dao.DbConfig, "", "   ") //转换成JSON返回的是byte[]
-	if errs != nil {
-		fmt.Println(errs.Error())
+	database, err := marshalIndentToString(dao.DbConfig)
+	if err != nil {
+		fmt.Println(err)
 	}
-	fmt.Println("database:", string(database))
+	fmt.Println("database:", database)
 
-	gen, errs := json.MarshalIndent(deployed.GenConfig, "", "   ") //转换成JSON返回的是byte[]
-	if errs != nil {
-		fmt.Println(errs.Error())
+	gen, err := marshalIndentToString(deployed.GenConfig)
+	if err != nil {
+		fmt.Println(err)
 	}
-	fmt.Println("gen:", string(gen))
+	fmt.Println("gen:", gen)
 
-	loggerConfig, errs := json.MarshalIndent(deployed.ViperLogger(), "", "   ") //转换成JSON返回的是byte[]
-	if errs != nil {
-		fmt.Println(errs.Error())
+	loggerConfig, err := marshalIndentToString(deployed.ViperLogger())
+	if err != nil {
+		fmt.Println(err)
 	}
-	fmt.Println("logger:", string(loggerConfig))
+	fmt.Println("logger:", loggerConfig)
+}
+
+func marshalIndentToString(v interface{}) (string, error) {
+	b, err := json.MarshalIndent(v, "", "   ")
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }

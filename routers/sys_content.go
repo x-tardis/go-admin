@@ -3,7 +3,7 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/app/apis/syscontent"
+	"github.com/x-tardis/go-admin/apis/syscontent"
 )
 
 // 需认证的路由代码

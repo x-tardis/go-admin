@@ -19,12 +19,12 @@ import (
 	"github.com/thinkgos/go-core-package/lib/textcolor"
 	"github.com/thinkgos/sharp/builder"
 
-	"github.com/x-tardis/go-admin/app/jobs"
-	"github.com/x-tardis/go-admin/app/router"
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/misc"
 	"github.com/x-tardis/go-admin/pkg/infra"
+	"github.com/x-tardis/go-admin/pkg/jobs"
+	"github.com/x-tardis/go-admin/router"
 )
 
 var configFile string
@@ -91,7 +91,7 @@ func run(cmd *cobra.Command, args []string) error {
 		err = srv.ListenAndServe()
 	}
 	if err != nil && !strings.Contains(err.Error(), "use of closed network connection") {
-		log.Fatal("listen and serve : ", err)
+		log.Fatal("listen and serve: ", err)
 	}
 	return nil
 }

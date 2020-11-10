@@ -2,7 +2,8 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/x-tardis/go-admin/app/apis/tools"
+
+	"github.com/x-tardis/go-admin/apis/tools"
 )
 
 func PubSysTable(v1 gin.IRouter) {

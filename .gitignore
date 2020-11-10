@@ -1,8 +1,7 @@
 .idea
 .vscode
-go-admin
 vendor
-bin
-temp
-static/uploadfile
-cmd/migrate/migration/version_local/*
+app/go-admin
+app/app
+app/temp
+app/static/uploadfile

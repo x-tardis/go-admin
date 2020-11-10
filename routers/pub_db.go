@@ -3,7 +3,7 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/app/apis/tools"
+	"github.com/x-tardis/go-admin/apis/tools"
 )
 
 func PubDB(v1 gin.IRouter) {

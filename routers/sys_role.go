@@ -2,7 +2,8 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/x-tardis/go-admin/app/apis/system"
+
+	"github.com/x-tardis/go-admin/apis/system"
 )
 
 func Role(v1 gin.IRouter) {

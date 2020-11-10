@@ -3,8 +3,8 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/x-tardis/go-admin/app/apis/actions"
-	"github.com/x-tardis/go-admin/app/apis/system"
+	"github.com/x-tardis/go-admin/apis/actions"
+	"github.com/x-tardis/go-admin/apis/system"
 	"github.com/x-tardis/go-admin/app/service"
 	"github.com/x-tardis/go-admin/models"
 )
