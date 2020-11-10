@@ -4,15 +4,16 @@ mode: dev
 name: go-admin
 # 服务器ip，默认使用 0.0.0.0
 host: 0.0.0.0
-# 端口号
-port: 8000 # 服务端口号
-readtimeout: 1
-writertimeout: 2
+# 服务端口号
+port: 8000
+readtimeout: 1s
+writertimeout: 2s
 
 feature:
   dataScope: false # 数据权限功能开关
   operDB: false    # 操作日志写入数据库开关
   loginDB: false   # 登录日志写入数据库开关
+
 logger:
   # debug, info(默认), warn, error, dpanic, panic, fatal
   level: debug

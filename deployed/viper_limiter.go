@@ -1,11 +1,13 @@
 package deployed
 
 import (
+	"math"
+
 	"github.com/spf13/viper"
 )
 
 func ViperLimiterDefault() {
-	viper.SetDefault("rate.limit", float64(10000))
+	viper.SetDefault("rate.limit", math.MaxFloat64)
 }
 
 func ViperLimiter() float64 {

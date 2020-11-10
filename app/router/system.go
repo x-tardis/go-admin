@@ -3,8 +3,10 @@ package router
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/thinkgos/gin-middlewares/authj"
 	"github.com/thinkgos/gin-middlewares/expvar"
+	"github.com/thinkgos/gin-middlewares/pprof"
 
 	"github.com/x-tardis/go-admin/app/apis/system"
 	"github.com/x-tardis/go-admin/deployed"
@@ -17,7 +19,10 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	engine.GET("/", system.HelloWorld)
 	engine.POST("/login", authMiddleware.LoginHandler)
 	engine.GET("/refresh_token", authMiddleware.RefreshHandler) // Refresh time can be longer than token timeout
+	// debug and metrics
 	engine.GET("/debug/vars", expvar.Handler())
+	engine.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	pprof.Router(engine)
 
 	// 静态文件
 	StaticFile(engine)

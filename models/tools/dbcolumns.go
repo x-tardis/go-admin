@@ -38,7 +38,7 @@ func (cDBColumns) Query(tbName string) (items []DBColumns, err error) {
 	if tbName == "" {
 		return nil, errors.New("table name cannot be empty！")
 	}
-	if deployed.DbConfig.Driver != "mysql" {
+	if dao.DbConfig.Driver != "mysql" {
 		return nil, errors.New("目前只支持mysql数据库")
 	}
 
@@ -54,7 +54,7 @@ func (cDBColumns) QueryPage(qp DBColumnsQueryParam) ([]DBColumns, paginator.Info
 	var items []DBColumns
 
 	db := dao.DB
-	if deployed.DbConfig.Driver == "mysql" {
+	if dao.DbConfig.Driver == "mysql" {
 		if qp.TableName != "" {
 			return nil, paginator.Info{}, errors.New("table name cannot be empty！")
 		}

@@ -35,7 +35,7 @@ var CDBTables = cDBTables{}
 func (cDBTables) QueryPage(qp DbTablesQueryParam) ([]DBTables, paginator.Info, error) {
 	var items []DBTables
 
-	if deployed.DbConfig.Driver != "mysql" {
+	if dao.DbConfig.Driver != "mysql" {
 		return nil, paginator.Info{}, errors.New("目前只支持mysql数据库")
 	}
 
@@ -50,7 +50,7 @@ func (cDBTables) QueryPage(qp DbTablesQueryParam) ([]DBTables, paginator.Info, e
 }
 
 func (cDBTables) Get(tableName string) (item DBTables, err error) {
-	if deployed.DbConfig.Driver != "mysql" {
+	if dao.DbConfig.Driver != "mysql" {
 		return item, errors.New("目前只支持mysql数据库")
 	}
 	if tableName == "" {

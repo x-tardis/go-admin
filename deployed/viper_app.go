@@ -13,6 +13,10 @@ type Application struct {
 	WriterTimeout int    // 写超时
 }
 
+func ViperApplicationDefault() {
+
+}
+
 func ViperApplication() *Application {
 	return &Application{
 		viper.GetString("mode"),

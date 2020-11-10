@@ -12,12 +12,12 @@ import (
 
 // Config 日志配置
 type Config struct {
-	Level       string `yaml:"level" json:"level"`   // 日志等级,默认info
-	Format      string `yaml:"format" json:"format"` // json or console 默认json
-	EncodeLevel string `yaml:"encodeLevel" json:"encodeLevel"`
-	InConsole   bool   `yaml:"inConsole" json:"inConsole"` // 是否在console输出
-	Stack       bool   `yaml:"stack" json:"stack"`         // 使能栈调试输出
-	Path        string `yaml:"path" json:"path"`
+	Level       string `yaml:"level" json:"level"`             // 日志等级,默认info
+	Format      string `yaml:"format" json:"format"`           // json or console 默认json
+	EncodeLevel string `yaml:"encodeLevel" json:"encodeLevel"` // 编码器类型
+	InConsole   bool   `yaml:"inConsole" json:"inConsole"`     // 是否在console输出
+	Stack       bool   `yaml:"stack" json:"stack"`             // 使能栈调试输出
+	Path        string `yaml:"path" json:"path"`               // 日志存放路径
 	// see lumberjack.Logger
 	FileName   string `yaml:"fileName" json:"fileName"`     // 文件名,空字符使用默认    默认<processname>-lumberjack.log
 	MaxSize    int    `yaml:"maxSize" json:"maxSize"`       // 每个日志文件最大尺寸(MB) 默认100MB,
@@ -88,6 +88,7 @@ func New(c Config) *zap.Logger {
 func ReplaceGlobals(l *zap.Logger) {
 	Logger = l
 	Sugar = l.Sugar()
+	zap.ReplaceGlobals(Logger)
 }
 
 // SetLevel 设置zap默认目志等级,线程安全

@@ -8,13 +8,13 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/deployed/dao"
 )
 
 func InitDb(db *gorm.DB) (err error) {
 	filePath := "script/db.sql"
 	err = ExecSql(db, filePath)
-	if deployed.DbConfig.Driver == "postgres" {
+	if dao.DbConfig.Driver == "postgres" {
 		filePath = "script/pg.sql"
 		err = ExecSql(db, filePath)
 	}

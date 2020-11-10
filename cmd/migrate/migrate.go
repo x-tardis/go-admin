@@ -41,7 +41,7 @@ func run(cmd *cobra.Command, args []string) {
 	//2. 设置日志
 	deployed.SetupLogger()
 	//3. 初始化数据库链接
-	dao.SetupDatabase(deployed.DbConfig)
+	dao.SetupDatabase(dao.DbConfig)
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()
@@ -55,7 +55,7 @@ func run(cmd *cobra.Command, args []string) {
 }
 
 func migrateModel() error {
-	if deployed.DbConfig.Driver == "mysql" {
+	if dao.DbConfig.Driver == "mysql" {
 		dao.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
 	err := dao.DB.Debug().AutoMigrate(&models.Migration{})

@@ -8,17 +8,24 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/spf13/viper"
 
-	"github.com/x-tardis/go-admin/pkg/database"
+	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 var FeatureConfig = new(Feature)
 var AppConfig = new(Application)
-var DbConfig = new(database.Database)
 var JwtConfig = new(jwtauth.Config)
 var SslConfig = new(Ssl)
 var GenConfig = new(Gen)
 var CorsConfig = new(cors.Config)
+
+func init() {
+	RegisterViperDefault(ViperApplicationDefault)
+	RegisterViperDefault(ViperLimiterDefault)
+	RegisterViperDefault(ViperCorsDefault)
+	RegisterViperDefault(ViperJwtDefault)
+}
 
 // 载入配置文件
 func SetupConfig(path string) {
@@ -29,7 +36,7 @@ func SetupConfig(path string) {
 
 	AppConfig = ViperApplication()
 	FeatureConfig = ViperFeature()
-	DbConfig = ViperDatabase()
+	dao.DbConfig = dao.ViperDatabase()
 	JwtConfig = ViperJwt()
 	SslConfig = ViperSsl()
 	CorsConfig = ViperCors()
@@ -57,4 +64,16 @@ func LoadConfig(filename string) error {
 	})
 	viper.WatchConfig()
 	return viper.ReadInConfig()
+}
+
+func IsModeDebug() bool {
+	return AppConfig.Mode == infra.ModeDebug
+}
+
+func IsModeProd() bool {
+	return AppConfig.Mode == infra.ModeProd
+}
+
+func IsModeDev() bool {
+	return AppConfig.Mode == infra.ModeDev
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/x-tardis/go-admin/deployed"
+	"github.com/x-tardis/go-admin/deployed/dao"
 )
 
 var configFile string
@@ -48,7 +49,7 @@ func run(cmd *cobra.Command, args []string) {
 	// }
 	// fmt.Println("cors:", string(cors))
 
-	database, errs := json.MarshalIndent(deployed.DbConfig, "", "   ") //转换成JSON返回的是byte[]
+	database, errs := json.MarshalIndent(dao.DbConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}

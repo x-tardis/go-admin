@@ -9,6 +9,7 @@ require (
 	github.com/casbin/casbin/v2 v2.16.0
 	github.com/casbin/gorm-adapter/v3 v3.0.3
 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204 // indirect
+	github.com/didip/tollbooth/v5 v5.2.0
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-contrib/cors v1.3.1
@@ -30,6 +31,7 @@ require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/prometheus/client_golang v0.9.3
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/shirou/gopsutil v3.20.10+incompatible
 	github.com/smartystreets/goconvey v1.6.4

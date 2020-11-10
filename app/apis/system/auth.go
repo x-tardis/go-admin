@@ -13,7 +13,6 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 )
@@ -95,8 +94,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrMissingLoginValues
 	}
 
-	if deployed.AppConfig.Mode == infra.ModeProd &&
-		!deployed.Captcha.Verify(login.CID, login.CCode, true) {
+	if deployed.IsModeProd() && !deployed.Captcha.Verify(login.CID, login.CCode, true) {
 		loginLogRecord(c, false, "验证码错误", login.Username)
 		return nil, jwt.ErrFailedAuthentication
 	}

@@ -56,7 +56,7 @@ func setup(cmd *cobra.Command, args []string) {
 	// 2. 设置日志
 	deployed.SetupLogger()
 	// 3. 初始化数据库链接
-	dao.SetupDatabase(deployed.DbConfig)
+	dao.SetupDatabase(dao.DbConfig)
 	// 4. 接口访问控制加载
 	deployed.SetupCasbin()
 }
@@ -71,7 +71,7 @@ func run(cmd *cobra.Command, args []string) error {
 		jobs.Startup()
 	}()
 	// 设置gin的工作模式
-	gin.SetMode(ternary.IfString(deployed.AppConfig.Mode == infra.ModeProd, gin.ReleaseMode, gin.DebugMode))
+	gin.SetMode(ternary.IfString(deployed.IsModeProd(), gin.ReleaseMode, gin.DebugMode))
 
 	engine := router.InitRouter()
 	addr := net.JoinHostPort(deployed.AppConfig.Host, deployed.AppConfig.Port)
