@@ -5136,6 +5136,53 @@ var doc = `{
         }
     },
     "definitions": {
+        "cpu.InfoStat": {
+            "type": "object",
+            "properties": {
+                "cacheSize": {
+                    "type": "integer"
+                },
+                "coreId": {
+                    "type": "string"
+                },
+                "cores": {
+                    "type": "integer"
+                },
+                "cpu": {
+                    "type": "integer"
+                },
+                "family": {
+                    "type": "string"
+                },
+                "flags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mhz": {
+                    "type": "number"
+                },
+                "microcode": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "modelName": {
+                    "type": "string"
+                },
+                "physicalId": {
+                    "type": "string"
+                },
+                "stepping": {
+                    "type": "integer"
+                },
+                "vendorId": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Category": {
             "type": "object",
             "properties": {
@@ -6158,6 +6205,15 @@ var doc = `{
             "properties": {
                 "list": {
                     "type": "object"
+                },
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -6233,7 +6289,10 @@ var doc = `{
             "type": "object",
             "properties": {
                 "cpuInfo": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cpu.InfoStat"
+                    }
                 },
                 "numCpu": {
                     "type": "string",

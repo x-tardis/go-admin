@@ -42,7 +42,7 @@ swag:
 clean:
 	@echo "----> cleaning..."
 	@go clean
-	@rm -rf ${BINDIR}/*
+	@#rm -rf ${BINDIR}/*
 	@echo "----> clean successful"
 
 help:
@@ -52,5 +52,5 @@ help:
 	@echo " make clean   -- clean build files"
 	@echo " ------------- How to build ------------- "
 
-.PHONY: system swag docker clean help
+.PHONY: system swag clean help
 

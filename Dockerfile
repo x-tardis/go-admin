@@ -9,24 +9,26 @@ RUN echo https://mirrors.aliyun.com/alpine/${ALPINE_VERSION}/main > /etc/apk/rep
      	&& echo https://mirrors.aliyun.com/alpine/${ALPINE_VERSION}/community >> /etc/apk/repositories
 RUN apk add git \
             make\
+            bash\
             tzdata
 
 COPY go.mod ./go.mod
 COPY go.sum ./go.sum
 RUN go mod download
 COPY . .
-RUN pwd && ls && make
+RUN pwd && ls -la && make
 
 # 运行环境
-FROM frolvlad/alpine-glibc:alpine-3.12_glibc-2.31
-
-MAINTAINER thinkgos "thinkgo@aliyun.com"
-
-RUN apk --no-cache add ca-certificates bash
-
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-COPY --from=builder /release/app/config /config
-COPY --from=builder /release/go-admin /
+#FROM frolvlad/alpine-glibc:alpine-3.12_glibc-2.31
+#
+#MAINTAINER thinkgos "thinkgo@aliyun.com"
+#
+#RUN apk --no-cache add ca-certificates bash
+#
+#COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+#COPY --from=builder /release/config /config
+#COPY --from=builder /release/static /static
+#COPY --from=builder /release/go-admin /
 
 ENV TZ=Asia/Shanghai
 

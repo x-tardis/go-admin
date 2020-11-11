@@ -2,6 +2,6 @@
 .vscode
 vendor
 go-admin
+temp
 app/app
-app/temp
 static/uploadfile
