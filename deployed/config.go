@@ -1,24 +1,19 @@
 package deployed
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/gin-contrib/cors"
 	"github.com/spf13/viper"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
 var FeatureConfig = new(Feature)
 var AppConfig = new(Application)
-var JwtConfig = new(jwtauth.Config)
 var SslConfig = new(Ssl)
 var GenConfig = new(Gen)
-var CorsConfig = new(cors.Config)
 
 func init() {
 	RegisterViperDefault(ViperApplicationDefault)
@@ -32,15 +27,13 @@ func init() {
 func SetupConfig(path string) {
 	err := LoadConfig(path)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Parse config file fail: %s", err.Error()))
+		log.Fatalf("Parse config file failed: %+v", err)
 	}
 
 	AppConfig = ViperApplication()
 	FeatureConfig = ViperFeature()
 	dao.DbConfig = dao.ViperDatabase()
-	JwtConfig = ViperJwt()
 	SslConfig = ViperSsl()
-	CorsConfig = ViperCors()
 	GenConfig = ViperGen()
 }
 

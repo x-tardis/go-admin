@@ -109,8 +109,9 @@ const tipText = `  {{.Banner}}
 {{.SwaggerTitle}}:
 	-  Local:   http://localhost:{{.Port}}/swagger/index.html
 	-  Network: http://{{.IP}}:{{.Port}}/swagger/index.html
-  {{.PidTitle}}: {{.PID}}
-  Enter {{.Kill}} Shutdown Server
+{{.PidTitle}}: {{.PID}}
+Enter {{.Kill}} Shutdown Server
+
 `
 
 type Tip struct {

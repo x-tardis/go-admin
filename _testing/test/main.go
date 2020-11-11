@@ -2,8 +2,7 @@ package main
 
 import (
 	"log"
-
-	"github.com/casbin/casbin/v2/util"
+	"time"
 )
 
 func main() {
@@ -22,5 +21,6 @@ func main() {
 	// })
 	// log.Println(err)
 
-	log.Println(util.KeyMatch2("/abc/cde", "/:id"))
+	log.Println(time.Now().String())
+	log.Println(time.Now().Format(time.RFC3339Nano))
 }

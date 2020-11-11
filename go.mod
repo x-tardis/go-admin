@@ -42,9 +42,9 @@ require (
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.6.9
 	github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353
-	github.com/thinkgos/gin-middlewares v0.0.6
+	github.com/thinkgos/gin-middlewares v0.0.7
 	github.com/thinkgos/go-core-package v0.1.5
-	github.com/thinkgos/http-middlewares v0.0.3
+	github.com/thinkgos/http-middlewares v0.0.4
 	github.com/thinkgos/meter v0.0.9
 	github.com/thinkgos/sharp v0.3.5
 	github.com/unrolled/secure v1.0.8
@@ -53,7 +53,6 @@ require (
 	go.uber.org/zap v1.16.0
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
-	golang.org/x/sys v0.0.0-20201109165425-215b40eba54c // indirect
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/tools v0.0.0-20201110030525-169ad6d6ecb2 // indirect
 	gopkg.in/ffmt.v1 v1.5.6

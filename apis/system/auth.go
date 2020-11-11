@@ -27,7 +27,7 @@ const (
 )
 
 // NewJWTAuth new jwt auth
-func NewJWTAuth(c *jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
+func NewJWTAuth(c jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
 		Realm:      c.Realm,
 		Key:        []byte(c.SecretKey),

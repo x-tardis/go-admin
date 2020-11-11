@@ -18,9 +18,9 @@ func ViperCorsDefault() {
 }
 
 // ViperCors cors config
-func ViperCors() *cors.Config {
+func ViperCors() cors.Config {
 	c := viper.Sub("cors")
-	return &cors.Config{
+	return cors.Config{
 		AllowAllOrigins: c.GetBool("allowAllOrigins"),
 		AllowOrigins:    c.GetStringSlice("allowOrigins"), // *
 		//AllowOriginFunc: func(origin string) bool { return true },

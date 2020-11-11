@@ -18,19 +18,19 @@ import (
 
 func OperLog() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 开始时间
-		startTime := time.Now()
-		// 处理请求
-		c.Next()
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" &&
-			deployed.FeatureConfig.OperDB.Load() {
-			OperLogRecord(c, c.Writer.Status(), time.Since(startTime))
+		if deployed.FeatureConfig.OperDB.Load() {
+			startTime := time.Now() // 开始时间
+			c.Next()
+			if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" {
+				OperLogRecord(c, c.Writer.Status(), time.Since(startTime))
+			}
+			return
 		}
+		c.Next()
 	}
 }
 
-// 写入操作日志表
-// 该方法后续即将弃用
+// 写入操作日志表, 该方法后续即将弃用
 func OperLogRecord(c *gin.Context, statusCode int, latencyTime time.Duration) {
 	uri := c.Request.RequestURI
 	method := c.Request.Method

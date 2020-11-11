@@ -16,9 +16,9 @@ func ViperJwtDefault() {
 	viper.SetDefault("jwt.maxRefresh", 24*7*time.Hour)
 }
 
-func ViperJwt() *jwtauth.Config {
+func ViperJwt() jwtauth.Config {
 	cfg := viper.Sub("jwt")
-	return &jwtauth.Config{
+	return jwtauth.Config{
 		Realm:      cfg.GetString("realm"),
 		SecretKey:  cfg.GetString("secretKey"),
 		Timeout:    cfg.GetDuration("timeout"),

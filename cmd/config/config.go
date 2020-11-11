@@ -37,7 +37,7 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	fmt.Println("application:", application)
 
-	jwt, err := marshalIndentToString(deployed.JwtConfig)
+	jwt, err := marshalIndentToString(deployed.ViperJwt())
 	if err != nil {
 		fmt.Println(err)
 	}
