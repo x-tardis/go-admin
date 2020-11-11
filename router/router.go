@@ -35,8 +35,8 @@ func InitRouter() *gin.Engine {
 
 	engine.Use(
 		requestid.RequestID(), // request id
-		gzap.Logger(deployed.RequestLogger.Desugar(), gzap.WithCustomFields(xxfiled.RequestId, xxfiled.Error)), // logger
-		gzap.Recovery(izap.Logger, !deployed.IsModeProd(), gzap.WithCustomFields(xxfiled.RequestId)),           // recover, 仅开发时开启stack
+		gzap.Logger(deployed.RequestLogger, gzap.WithCustomFields(xxfiled.RequestId, xxfiled.Error)), // logger
+		gzap.Recovery(izap.Logger, !deployed.IsModeProd(), gzap.WithCustomFields(xxfiled.RequestId)), // recover, 仅开发时开启stack
 		middleware.NoCache(),           // NoCache is a middleware function that appends headers
 		cors.New(deployed.ViperCors()), // 跨域处理
 		ratelimiter.RateLimit(tollbooth.NewLimiter(deployed.ViperLimiter(), nil)), // 限速器

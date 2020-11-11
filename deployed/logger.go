@@ -7,19 +7,21 @@ import (
 )
 
 var JobLogger *zap.SugaredLogger
-var RequestLogger *zap.SugaredLogger
+var RequestLogger *zap.Logger
 
 func SetupLogger() {
 	c := ViperLogger()
-	c.FileName = "bus.log"
 	logger := izap.New(c)
 	izap.ReplaceGlobals(logger)
+	izap.Logger.Info("base logger init success")
 
 	c.FileName = "job.log"
 	c.InConsole = false
 	JobLogger = izap.New(c).Sugar()
+	JobLogger.Info("job logger init success")
 
 	c.FileName = "request.log"
-	c.InConsole = true
-	RequestLogger = izap.New(c).Sugar()
+	c.InConsole = !IsModeProd()
+	RequestLogger = izap.New(c)
+	RequestLogger.Info("request logger init success")
 }

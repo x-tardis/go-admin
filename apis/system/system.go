@@ -163,7 +163,7 @@ const Index = `
 <html>
 <head>
 <meta charset="utf-8">
-<title>GO-ADMIN欢迎您</title>
+<title>欢迎您</title>
 <style>
 body{
   margin:0; 
@@ -182,11 +182,12 @@ $(function(){
 </script>
 </head>
 <body>
-<iframe id="iframe" frameborder="0" src="https://doc.zhangwj.com/" style="width:100%;"></iframe>
+
 </body>
 </html>
 `
 
+// <iframe id="iframe" frameborder="0" src="https://doc.zhangwj.com/" style="width:100%;"></iframe>
 func HelloWorld(c *gin.Context) {
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(200, Index)

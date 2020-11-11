@@ -101,7 +101,6 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	identities, enable, err := login.Get()
 	if err != nil {
 		loginLogRecord(c, false, "登录失败", login.Username)
-		deployed.RequestLogger.Debug(err.Error())
 		return nil, jwt.ErrFailedAuthentication
 	}
 	if !enable {

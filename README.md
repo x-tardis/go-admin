@@ -1,33 +1,21 @@
-##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
+# go-admin后台管理系统
 
-系统初始化极度简单，只需要配置文件中，修改数据库连接，系统启动后会自动初始化数据库信息以及必须的基础数据
+## 基于Gin + Vue + Element UI的前后端分离权限管理系统 
 
 ## ✨ 特性
 
 - 遵循 RESTful API 设计规范
-
 - 基于 GIN WEB API 框架，提供了丰富的中间件支持（用户认证、跨域、访问日志、追踪ID等）
-
 - 基于Casbin的 RBAC 访问控制模型
-
 - JWT 认证
-
 - 支持 Swagger 文档(基于swaggo)
-
 - 基于 GORM 的数据库存储，可扩展多种类型数据库 
-
 - 配置文件简单的模型映射，快速能够得到想要的配置
-
 - 代码生成工具
-
 - 表单构建工具
-
 - 多命令模式
 
-- TODO: 单元测试
-
-
-## 🎁 内置
+## ✨ 🎁内置
 
 1.  用户管理：用户是系统操作者，该功能主要完成系统用户配置。
 2.  部门管理：配置系统组织机构（公司、部门、小组），树结构展现支持数据权限。
@@ -43,17 +31,19 @@
 12. 表单构建：自定义页面样式，拖拉拽实现页面布局。
 13. 服务监控：查看一些服务器的基本信息。
 
-## 准备工作
-
-你需要在本地安装 [go] [gin] [node](http://nodejs.org/) 和 [git](https://git-scm.com/) 
-
 ## 🗞 系统架构
 
 <p align="center">
   <img  src="https://gitee.com/mydearzwj/image/raw/d9f59ea603e3c8a3977491a1bfa8f122e1a80824/img/go-admin-system.png" width="936px" height="491px">
 </p>
 
-## 📦 本地开发
+---
+
+## 📦本地开发
+
+### 准备工作
+
+你需要在本地安装 [go] [gin] [node](http://nodejs.org/) 和 [git](https://git-scm.com/) 
 
 ### 开发目录创建
 
@@ -77,10 +67,10 @@ go build
 
 # 修改配置 
 # 文件路径  go-admin/config/config.yaml 
-vi ./config/config.yaml 
+vim ./config/config.yaml 
 
 # 1. 配置文件中修改数据库信息 
-# 注意: settings.database 下对应的配置数据
+# 注意: database 下对应的配置数据
 # 2. 确认log路径
 ```
 
@@ -92,22 +82,19 @@ vi ./config/config.yaml
 
 # 启动项目，也可以用IDE进行调试
 ./go-admin server -c config/config.yaml -p 8000 -m dev
-
 ```
 
 #### 使用docker 编译启动
 
 ```shell
 # 编译镜像
-docker build -t go-admin:latest .
+docker build . -t go-admin:latest
 
 # 启动容器，第一个go-admin是容器名字，第二个go-admin是镜像名称
 docker run --name go-admin -p 8000:8000 -d go-admin
 ```
 
-
-
-#### 文档生成
+#### swagger 文档生成
 
 ```bash
 swag init  
@@ -125,3 +112,17 @@ env GOOS=windows GOARCH=amd64 go build main.go
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
+## 相关说明
+
+### 日志说明
+
+日志由`config.yaml`的`logger`项进行配置,日志路径由`logger.path`配置,
+基础日志由`logger.fileName`配置,另有`job.log`和`request.log`
+- 基础日志(`logger.fileName`) 错误等记录
+- job日志 定时任务日志记录
+- request日志 api请求日志记录, 在非`prod`时会输出到console
+
+### 优雅重启或关闭
+
+接收到 SIGHUP 信号将触发`fork/restart`
+实现优雅重启(`kill -1 pid`会发送SIGHUP信号)
