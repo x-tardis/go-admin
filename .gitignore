@@ -1,7 +1,7 @@
 .idea
 .vscode
 vendor
-app/go-admin
+go-admin
 app/app
 app/temp
-app/static/uploadfile
+static/uploadfile

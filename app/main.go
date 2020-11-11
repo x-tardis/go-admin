@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/x-tardis/go-admin/cmd"
 
-	_ "github.com/x-tardis/go-admin/app/docs"
+	_ "github.com/x-tardis/go-admin/docs"
 )
 
 // @title go-admin API

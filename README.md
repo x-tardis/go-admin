@@ -91,7 +91,7 @@ vi ./config/config.yaml
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin server -c config/config.yaml  -p 8000 -m dev
+./go-admin server -c config/config.yaml -p 8000 -m dev
 
 ```
 
@@ -99,7 +99,7 @@ vi ./config/config.yaml
 
 ```shell
 # 编译镜像
-docker build -t go-admin .
+docker build -t go-admin:latest .
 
 # 启动容器，第一个go-admin是容器名字，第二个go-admin是镜像名称
 docker run --name go-admin -p 8000:8000 -d go-admin

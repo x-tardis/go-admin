@@ -1,0 +1,101 @@
+# dev开发环境 debug测试环境 prod线上环境
+mode: dev
+# 服务名称
+name: go-admin
+# 服务器ip，默认使用 0.0.0.0
+host: 0.0.0.0
+# 服务端口号
+port: 8000
+readtimeout: 1s
+writertimeout: 2s
+
+feature:
+  dataScope: false # 数据权限功能开关
+  operDB: false    # 操作日志写入数据库开关
+  loginDB: false   # 登录日志写入数据库开关
+
+logger:
+  # debug, info(默认), warn, error, dpanic, panic, fatal
+  level: debug
+  # 格式: json, console(默认)
+  format: json
+  # LowercaseLevelEncoder: 小写编码器(默认) LowercaseColorLevelEncoder: 小写编码器带颜色
+  # CapitalLevelEncoder: 大写编码器 CapitalColorLevelEncoder: 大写编码器带颜色
+  encodeLevel: LowercaseLevelEncoder
+  # 是否显示在console
+  inConsole: true
+  # 使能栈调式输出
+  stack: false
+  # 保存路径
+  Path: temp
+
+  # 文件名,空字符使用默认
+  fileName: go-admin.log
+  # 每个日志文件最大尺寸(MB) 默认100MB
+  maxSize: 0
+  # 日志文件保存天数, 默认0不删除
+  maxAge: 0
+  # 日志文件保存备份数, 默认0都保存
+  maxBackups: 0
+  # 是否格式化时间戳, 默认UTC时间
+  localTime: false
+  # 压缩文件,采用gzip, 默认不压缩
+  compress: false
+
+jwt:
+  # 显示给用户看的
+  realm: go-admin
+  # token 密钥，生产环境请及时修改
+  secretKey: go-admin
+  # token 过期时间
+  timeout: 2h
+  # token 最大刷新时间
+  maxRefresh: 2h
+cors:
+  allowAllOrigins: false
+  allowOrigins:
+    - '*'
+  allowMethods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - UPDATE
+    - PATCH
+  allowHeaders:
+    - Content-Type
+    - Content-Length
+    - AccessToken
+    - Token
+    - X-Token
+    - Accept
+    - Origin
+    - Authorization
+    - X-CSRF-Token
+    - X-Request-Id
+    - x-Trace-Id
+  allowCredentials: true
+  exposeHeaders:
+    - Content-Type
+    - Content-Length
+    - Access-Control-Allow-Origin
+    - Access-Control-Allow-Headers
+  maxAge: 300s
+  allowWildcard: false
+  allowBrowserExtensions: false
+  allowWebSockets: true
+  allowFiles: false
+database:
+  # 数据库类型 mysql，sqlite3， postgres
+  driver: mysql
+  # driver: sqlite3
+  # 数据库连接字符串 mysql 缺省信息 charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+  source: root:catmaotu@tcp(127.0.0.1:3306)/goadmin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+#  source: sqlite3.db
+  enableLog: true    # orm日志开关
+gen:
+  # 代码生成读取的数据库名称
+  dbname: goadmin
+  # 代码生成是使用前端代码存放位置，需要指定到src文件夹，相对路径
+  frontpath: ../go-admin-ui/src

@@ -15,7 +15,7 @@ COPY go.mod ./go.mod
 COPY go.sum ./go.sum
 RUN go mod download
 COPY . .
-RUN pwd && ls && cd app && make
+RUN pwd && ls && make
 
 # 运行环境
 FROM frolvlad/alpine-glibc:alpine-3.12_glibc-2.31
@@ -26,7 +26,7 @@ RUN apk --no-cache add ca-certificates bash
 
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /release/app/config /config
-COPY --from=builder /release/app/go-admin /
+COPY --from=builder /release/go-admin /
 
 ENV TZ=Asia/Shanghai
 
