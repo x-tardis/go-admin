@@ -29,6 +29,14 @@ func SetupConfig(path string) {
 	if err != nil {
 		log.Fatalf("Parse config file failed: %+v", err)
 	}
+	viper.OnConfigChange(func(in fsnotify.Event) {
+		// TODO: 防止重复操作
+		c := viper.Sub("feature")
+		FeatureConfig.DataScope.Store(c.GetBool("dataScope"))
+		FeatureConfig.OperDB.Store(c.GetBool("operDB"))
+		FeatureConfig.LoginDB.Store(c.GetBool("loginDB"))
+	})
+	viper.WatchConfig()
 
 	AppConfig = ViperApplication()
 	FeatureConfig = ViperFeature()
@@ -49,14 +57,7 @@ func LoadConfig(filename string) error {
 	}
 
 	ViperInitDefault()
-	viper.OnConfigChange(func(in fsnotify.Event) {
-		// TODO: 防止重复操作
-		c := viper.Sub("feature")
-		FeatureConfig.DataScope.Store(c.GetBool("dataScope"))
-		FeatureConfig.OperDB.Store(c.GetBool("operDB"))
-		FeatureConfig.LoginDB.Store(c.GetBool("loginDB"))
-	})
-	viper.WatchConfig()
+
 	return viper.ReadInConfig()
 }
 
