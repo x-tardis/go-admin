@@ -9,7 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/prompt"
+	"github.com/x-tardis/go-admin/pkg/servers/codes"
 )
 
 type RoleDept struct{}
@@ -30,7 +30,7 @@ func (RoleDept) GetDeptTreeOptionRole(c *gin.Context) {
 	tree, deptIds, err := models.CRoleDept.GetDeptTreeOption(gcontext.Context(c), roleId)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithMsg(codes.QueryFailed),
 			servers.WithError(err))
 		return
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/prompt"
+	"github.com/x-tardis/go-admin/pkg/servers/codes"
 )
 
 // User api user
@@ -45,7 +45,7 @@ func (User) QueryPage(c *gin.Context) {
 	items, info, err := models.CUser.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithMsg(codes.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -72,7 +72,7 @@ func (User) Get(c *gin.Context) {
 	user, err := models.CUser.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.NotFound),
+			servers.WithMsg(codes.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -105,7 +105,7 @@ func (User) GetInit(c *gin.Context) {
 	posts, err := models.CPost.Query(gcontext.Context(c), models.PostQueryParam{})
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.NotFound),
+			servers.WithMsg(codes.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -140,7 +140,7 @@ func (User) Create(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithPrompt(prompt.CreateSuccess))
+	servers.OK(c, servers.WithMsg(codes.CreateSuccess))
 }
 
 // @tags 用户/User
@@ -164,7 +164,7 @@ func (User) Update(c *gin.Context) {
 
 	err := models.CUser.Update(gcontext.Context(c), up.UserId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
 		return
 	}
 	servers.OK(c)
@@ -186,8 +186,8 @@ func (User) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CUser.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
 }

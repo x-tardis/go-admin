@@ -11,7 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/prompt"
+	"github.com/x-tardis/go-admin/pkg/servers/codes"
 )
 
 // DictType api dict type
@@ -45,7 +45,7 @@ func (DictType) QueryPage(c *gin.Context) {
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithError(err),
-			servers.WithPrompt(prompt.QueryFailed))
+			servers.WithMsg(codes.QueryFailed))
 		return
 	}
 	servers.OK(c, servers.WithData(paginator.Pages{
@@ -71,7 +71,7 @@ func (DictType) Get(c *gin.Context) {
 	item, err := models.CDictType.Get(gcontext.Context(c), dictId)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithMsg(codes.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -100,7 +100,7 @@ func (DictType) Create(c *gin.Context) {
 	item, err := models.CDictType.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.CreateFailed),
+			servers.WithMsg(codes.CreateFailed),
 			servers.WithError(err))
 		return
 	}
@@ -128,7 +128,7 @@ func (DictType) Update(c *gin.Context) {
 	err := models.CDictType.Update(gcontext.Context(c), up.DictId, up)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.UpdateFailed),
+			servers.WithMsg(codes.UpdateFailed),
 			servers.WithError(err))
 		return
 	}
@@ -151,10 +151,10 @@ func (DictType) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CDictType.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
 }
 
 // @tags 字典类型/DictType
@@ -181,7 +181,7 @@ func (DictType) GetOption(c *gin.Context) {
 	items, err := models.CDictType.Query(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithMsg(codes.QueryFailed),
 			servers.WithError(err))
 		return
 	}

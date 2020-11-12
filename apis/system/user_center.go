@@ -12,7 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/prompt"
+	"github.com/x-tardis/go-admin/pkg/servers/codes"
 )
 
 const defaultAvatar = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
@@ -72,7 +72,7 @@ func (User) GetProfile(c *gin.Context) {
 	user, err := models.CUser.GetViewInfo(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.NotFound),
+			servers.WithMsg(codes.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -120,7 +120,7 @@ func (User) UploadAvatar(c *gin.Context) {
 	avatar := "/" + filPath
 	err := models.CUser.UpdateAvatar(gcontext.Context(c), avatar)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
 		return
 	}
 	servers.OK(c, servers.WithData(avatar))

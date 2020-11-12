@@ -11,7 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/prompt"
+	"github.com/x-tardis/go-admin/pkg/servers/codes"
 )
 
 type DictData struct{}
@@ -43,7 +43,7 @@ func (DictData) QueryPage(c *gin.Context) {
 	item, info, err := models.CDictData.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithMsg(codes.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -70,7 +70,7 @@ func (DictData) Get(c *gin.Context) {
 	item, err := models.CDictData.Get(gcontext.Context(c), dictId)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.NotFound),
+			servers.WithMsg(codes.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -125,7 +125,7 @@ func (DictData) Update(c *gin.Context) {
 
 	err := models.CDictData.Update(gcontext.Context(c), up.DictId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
 		return
 	}
 	servers.OK(c)
@@ -147,10 +147,10 @@ func (DictData) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CDictData.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
 }
 
 // @tags 字典数据/DictData
@@ -168,7 +168,7 @@ func (DictData) GetWithType(c *gin.Context) {
 	dictType := c.Param("dictType")
 	result, err := models.CDictData.GetWithType(gcontext.Context(c), dictType)
 	if err != nil {
-		servers.Fail(c, http.StatusNotFound, servers.WithPrompt(prompt.NotFound))
+		servers.Fail(c, http.StatusNotFound, servers.WithMsg(codes.NotFound))
 		return
 	}
 	servers.OK(c, servers.WithData(result))

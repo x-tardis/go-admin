@@ -12,7 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/prompt"
+	"github.com/x-tardis/go-admin/pkg/servers/codes"
 )
 
 type Role struct{}
@@ -41,7 +41,7 @@ func (Role) QueryPage(c *gin.Context) {
 	items, count, err := models.CRole.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithPrompt(prompt.QueryFailed),
+			servers.WithMsg(codes.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -68,7 +68,7 @@ func (Role) Get(c *gin.Context) {
 	menuIds, err := models.CRole.GetMenuIds(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithPrompt(prompt.NotFound),
+			servers.WithMsg(codes.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -127,13 +127,13 @@ func (Role) Update(c *gin.Context) {
 	}
 	err := models.CRole.Update(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
 		return
 	}
 
 	err = deployed.CasbinEnforcer.LoadPolicy()
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
 		return
 	}
 	servers.OK(c)
@@ -153,7 +153,7 @@ func (Role) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CRole.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
 		return
 	}
 
@@ -162,7 +162,7 @@ func (Role) BatchDelete(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	servers.OK(c, servers.WithPrompt(prompt.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
 }
 
 // @tags 角色/Role
@@ -225,7 +225,7 @@ func (Role) UpdateDataScope(c *gin.Context) {
 
 	err := models.CRole.UpdateDataScope(gcontext.Context(c), up.RoleId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithPrompt(prompt.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
 		return
 	}
 	servers.OK(c)
