@@ -6,7 +6,6 @@ import (
 	"net"
 	"os"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/fvbock/endless"
@@ -24,6 +23,7 @@ import (
 	"github.com/x-tardis/go-admin/misc"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jobs"
+	"github.com/x-tardis/go-admin/pkg/tip"
 	"github.com/x-tardis/go-admin/router"
 )
 
@@ -77,7 +77,7 @@ func run(cmd *cobra.Command, args []string) error {
 	engine := router.InitRouter()
 	addr := net.JoinHostPort(deployed.AppConfig.Host, deployed.AppConfig.Port)
 
-	tip()
+	showTip()
 	// 默认endless服务器会监听下列信号：
 	// syscall.SIGHUP，syscall.SIGUSR1，syscall.SIGUSR2，syscall.SIGINT，syscall.SIGTERM和syscall.SIGTSTP
 	// 接收到 SIGHUP 信号将触发`fork/restart` 实现优雅重启（kill -1 pid会发送SIGHUP信号）
@@ -100,36 +100,8 @@ func postRun(cmd *cobra.Command, args []string) {
 	jobs.Stop()
 }
 
-const tipText = `  {{.Banner}}
-
-欢迎使用 {{.Name}} {{.Version}} 可以使用 {{.H}} 查看命令
-{{.ServerTitle}}:
-	-  Local:   http://localhost:{{.Port}}
-	-  Network: http://{{.IP}}:{{.Port}}
-{{.SwaggerTitle}}:
-	-  Local:   http://localhost:{{.Port}}/swagger/index.html
-	-  Network: http://{{.IP}}:{{.Port}}/swagger/index.html
-{{.PidTitle}}: {{.PID}}
-Enter {{.Kill}} Shutdown Server
-
-`
-
-type Tip struct {
-	Banner       string
-	Name         string
-	Version      string
-	H            string
-	ServerTitle  string
-	SwaggerTitle string
-	IP           string
-	Port         string
-	PidTitle     string
-	PID          string
-	Kill         string
-}
-
-func tip() {
-	tip := Tip{
+func showTip() {
+	t := tip.Tip{
 		textcolor.Red(infra.Banner),
 		textcolor.Green(deployed.AppConfig.Name),
 		textcolor.Magenta(builder.Version),
@@ -142,6 +114,5 @@ func tip() {
 		textcolor.Red(cast.ToString(os.Getpid())),
 		textcolor.Magenta("Control + C"),
 	}
-	err := template.Must(template.New("tip").Parse(tipText)).Execute(os.Stdout, tip)
-	misc.HandlerError(err)
+	tip.Show(t)
 }

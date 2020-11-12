@@ -7,7 +7,7 @@ version = v0.0.1 #`git describe --tags`
 # api版本
 APIversion = v0.0.1
 # 设置固件名称
-firmwareName = go-admin
+firmwareName = ${model}
 
 execveFile := ${firmwareName}
 
@@ -17,7 +17,7 @@ PROJDIR=.
 # 编译平台
 platform = CGO_ENABLED=0
 # 编译选项,如tags,多个采用','分开 sqlite3
-opts = -trimpath
+opts = -trimpath -tags=jsoniter
 # 编译flags
 path = github.com/thinkgos/sharp/builder
 flags = -ldflags "-X '${path}.BuildTime=`date "+%F %T %z"`' \
@@ -37,7 +37,7 @@ system:
 swag:
 	@echo "----> swagger docs building..."
 	@swag init -d ${PROJDIR}/app --parseDependency ${PROJDIR}/apis
-	@echo "----> swagger docs build successful..."
+	@echo "----> swagger docs build successful"
 
 clean:
 	@echo "----> cleaning..."

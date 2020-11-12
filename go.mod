@@ -49,6 +49,7 @@ require (
 	github.com/thinkgos/sharp v0.3.5
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/atomic v1.7.0
+	go.uber.org/automaxprocs v1.3.0
 	go.uber.org/multierr v1.6.0
 	go.uber.org/zap v1.16.0
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449 // indirect

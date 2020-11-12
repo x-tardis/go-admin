@@ -10,10 +10,8 @@ var StartCmd = &cobra.Command{
 	Use:     "version",
 	Short:   "Get version info",
 	Example: "go-admin version",
-	RunE:    run,
-}
-
-func run(*cobra.Command, []string) error {
-	misc.PrintVersion()
-	return nil
+	RunE: func(*cobra.Command, []string) error {
+		misc.PrintVersion()
+		return nil
+	},
 }
