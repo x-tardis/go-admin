@@ -6,10 +6,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/x-tardis/go-admin/cmd/migrate/migration"
-	_ "github.com/x-tardis/go-admin/cmd/migrate/migration/version"
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
+	"github.com/x-tardis/go-admin/migration"
+	_ "github.com/x-tardis/go-admin/migration/version"
 	"github.com/x-tardis/go-admin/models"
 )
 

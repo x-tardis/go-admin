@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/cmd/migrate/migration"
+	"github.com/x-tardis/go-admin/migration"
 	"github.com/x-tardis/go-admin/models"
 )
 

@@ -2,13 +2,14 @@ package migration
 
 import (
 	"fmt"
-	"github.com/spf13/cast"
-	"gorm.io/gorm"
 	"log"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"sync"
+
+	"github.com/spf13/cast"
+	"gorm.io/gorm"
 )
 
 var Migrate = &Migration{
