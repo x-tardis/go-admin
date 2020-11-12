@@ -46,7 +46,7 @@ require (
 	github.com/thinkgos/go-core-package v0.1.5
 	github.com/thinkgos/http-middlewares v0.0.4
 	github.com/thinkgos/meter v0.0.9
-	github.com/thinkgos/sharp v0.3.5
+	github.com/thinkgos/sharp v0.3.6
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/atomic v1.7.0
 	go.uber.org/automaxprocs v1.3.0

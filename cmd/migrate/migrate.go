@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
@@ -17,7 +18,7 @@ var configFile string
 var StartCmd = &cobra.Command{
 	Use:     "migrate",
 	Short:   "Initialize the database",
-	Example: "go-admin migrate -c config/config.yaml",
+	Example: fmt.Sprintf("%s migrate -c config/config.yaml", builder.Name),
 	Run:     run,
 }
 

@@ -1,13 +1,14 @@
-
+# 应用名称
+name = go-admin
 # 型号
-model = go-admin
+model = ${name}
 # 固件版本
 # git describe --tags `git rev-list --tags --max-count=1`
 version = v0.0.1 #`git describe --tags`
 # api版本
 APIversion = v0.0.1
 # 设置固件名称
-firmwareName = ${model}
+firmwareName = ${name}
 
 execveFile := ${firmwareName}
 
@@ -23,8 +24,9 @@ path = github.com/thinkgos/sharp/builder
 flags = -ldflags "-X '${path}.BuildTime=`date "+%F %T %z"`' \
 	-X '${path}.GitCommit=`git rev-parse --short=8 HEAD`' \
 	-X '${path}.GitFullCommit=`git rev-parse HEAD`' \
-	-X '${path}.Version=${version}' \
+	-X '${path}.Name=${name}' \
 	-X '${path}.Model=${model}' \
+	-X '${path}.Version=${version}' \
 	-X '${path}.APIVersion=${APIversion}' -s -w"
 
 system:

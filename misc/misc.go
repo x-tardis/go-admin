@@ -9,7 +9,8 @@ import (
 	"github.com/thinkgos/sharp/builder"
 )
 
-const versionTpl = `  Model:            {{.Model}}
+const versionTpl = `  Name:             {{.Name}}
+  Model:            {{.Model}}
   Version:          {{.Version}}
   API version:      {{.APIVersion}}
   Go version:       {{.GoVersion}}
@@ -21,6 +22,7 @@ const versionTpl = `  Model:            {{.Model}}
 `
 
 type Version struct {
+	Name          string
 	Model         string
 	Version       string
 	APIVersion    string
@@ -35,6 +37,7 @@ type Version struct {
 
 func PrintVersion() {
 	v := Version{
+		builder.Name,
 		builder.Model,
 		builder.Version,
 		builder.APIVersion,
@@ -42,7 +45,8 @@ func PrintVersion() {
 		builder.GitCommit,
 		builder.GitFullCommit,
 		builder.BuildTime,
-		runtime.GOOS, runtime.GOARCH,
+		runtime.GOOS,
+		runtime.GOARCH,
 		runtime.NumCPU(),
 	}
 	template.Must(template.New("version").Parse(versionTpl)).Execute(os.Stdout, v)

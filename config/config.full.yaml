@@ -16,6 +16,7 @@ feature:
 
 rate:
   limit: 1000 # 限速器,每秒多少个token
+
 ssl:
   # https对应的域名
   domain: localhost:8000
@@ -109,3 +110,9 @@ gen:
   dbname: dbname
   # 代码生成是使用前端代码存放位置，需要指定到src文件夹，相对路径
   frontpath: ../go-admin-ui/src
+
+gops:
+  cleanup: true # 关闭清理资源,可选
+  addr: :8080 # host:port 监听地址,可选
+  configDir: . # 配置路径,存储gops的pid,文件名,端口号等 ,可选
+

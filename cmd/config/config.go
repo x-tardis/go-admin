@@ -1,11 +1,12 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
@@ -15,7 +16,7 @@ var configFile string
 var StartCmd = &cobra.Command{
 	Use:     "config",
 	Short:   "Get Application config info",
-	Example: "go-admin config -c config/config.yml",
+	Example: fmt.Sprintf("%s config -c config/config.yml", builder.Name),
 	Run:     run,
 }
 
@@ -41,7 +42,7 @@ func run(cmd *cobra.Command, args []string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("jwt:", string(jwt))
+	fmt.Println("jwt:", jwt)
 
 	// cors, err := marshalIndentToString(deployed.CorsConfig)
 	// if err != nil {
@@ -69,7 +70,7 @@ func run(cmd *cobra.Command, args []string) {
 }
 
 func marshalIndentToString(v interface{}) (string, error) {
-	b, err := json.MarshalIndent(v, "", "   ")
+	b, err := jsoniter.MarshalIndent(v, "", "   ")
 	if err != nil {
 		return "", err
 	}

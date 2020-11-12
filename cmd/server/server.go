@@ -33,7 +33,7 @@ var mode string
 var StartCmd = &cobra.Command{
 	Use:          "server",
 	Short:        "Start API server",
-	Example:      "go-admin server -c config/config.yaml",
+	Example:      fmt.Sprintf("%s server -c config/config.yaml", builder.Name),
 	SilenceUsage: true,
 	PreRun:       setup,
 	RunE:         run,

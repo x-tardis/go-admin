@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/x-tardis/go-admin/app/cmd"
-
-	_ "go.uber.org/automaxprocs" // 容器自动设置proc为max
+	"github.com/x-tardis/go-admin/cmd"
 
 	_ "github.com/x-tardis/go-admin/docs"
+	_ "go.uber.org/automaxprocs" // 容器自动设置proc为max
 )
 
 // @title go-admin API
