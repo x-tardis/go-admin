@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -9,9 +10,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/migration"
-	_ "github.com/x-tardis/go-admin/migration/version"
-	"github.com/x-tardis/go-admin/models"
+	"github.com/x-tardis/go-admin/migrate"
 )
 
 var configFile string
@@ -22,36 +21,30 @@ var StartCmd = &cobra.Command{
 	Run:     run,
 }
 
-// var exec bool
-
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
-	//StartCmd.PersistentFlags().BoolVarP(&exec, "exec", "e", false, "exec script")
 }
 
-func run(cmd *cobra.Command, args []string) {
-	fmt.Println(`start init`)
+func run(cmd *cobra.Command, _ []string) {
+	log.Println(`start init...`)
 
 	viper.BindPFlags(cmd.Flags()) // nolint: errcheck
 	// viper.SetEnvPrefix("oam")
 	// // OAM_CONFIGFILE
 	// viper.BindEnv("config") // nolint: errcheck
 
-	//1. 读取配置
+	// 1. 读取配置
 	deployed.SetupConfig(configFile)
-	//2. 设置日志
+	// 2. 设置日志
 	deployed.SetupLogger()
-	//3. 初始化数据库链接
+	// 3. 初始化数据库链接
 	dao.SetupDatabase(dao.DbConfig)
-	//4. 数据库迁移
-	fmt.Println("数据库迁移开始")
-	_ = migrateModel()
-	//fmt.Println("数据库结构初始化成功！")
-	//5. 数据初始化完成
-	//if err := models.InitDb(); err != nil {
-	//	global.Logger.Fatalf("数据库基础数据初始化失败！error: %v ", err)
-	//}
-
+	// 4. 数据库迁移
+	log.Println("数据库迁移开始")
+	err := migrateModel()
+	if err != nil {
+		log.Fatalf("数据库基础数据初始化失败! %v ", err)
+	}
 	fmt.Println(`数据库基础数据初始化成功`)
 }
 
@@ -59,11 +52,5 @@ func migrateModel() error {
 	if dao.DbConfig.Driver == "mysql" {
 		dao.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
-	err := dao.DB.Debug().AutoMigrate(&models.Migration{})
-	if err != nil {
-		return err
-	}
-	migration.Migrate.SetDb(dao.DB.Debug())
-	migration.Migrate.Migrate()
-	return err
+	return migrate.Migrate(dao.DB.Debug())
 }

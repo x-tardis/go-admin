@@ -1,23 +1,20 @@
-package version
+package migrate
 
 import (
 	"runtime"
 
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/migration"
 	"github.com/x-tardis/go-admin/models"
 )
 
 func init() {
 	_, fileName, _, _ := runtime.Caller(0)
-	migration.Migrate.SetVersion(migration.GetFilename(fileName), _1599190683680Test)
+	Register(GetFilename(fileName), _1599190683680Test)
 }
 
 func _1599190683680Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
-		var err error
-
 		list := []models.Menu{
 			{MenuId: 496, MenuName: "Sources", Title: "资源管理", Icon: "network", Path: "/sources", Paths: "/0/496", MenuType: models.MenuTypeToc, Method: "无", Permission: "", ParentId: 0, NoCache: true, Breadcrumb: "", Component: "Layout", Sort: 3, Visible: "0", Creator: "1", Updator: "1", IsFrame: "1"},
 			{MenuId: 497, MenuName: "File", Title: "文件管理", Icon: "documentation", Path: "file-manage", Paths: "/0/496/497", MenuType: models.MenuTypeMenu, Method: "", Permission: "", ParentId: 496, NoCache: true, Breadcrumb: "", Component: "/fileManage/index", Sort: 0, Visible: "0", Creator: "1", Updator: "1", IsFrame: "1"},
@@ -46,13 +43,10 @@ func _1599190683680Test(db *gorm.DB, version string) error {
 			{MenuId: 521, MenuName: "", Title: "删除内容管理", Icon: "bug", Path: "/api/v1/contents/:id", Paths: "/0/63/516/521", MenuType: models.MenuTypeIfc, Method: "DELETE", Permission: "", ParentId: 516, NoCache: true, Breadcrumb: "", Component: "", Sort: 0, Visible: "1", Creator: "1", Updator: "1", IsFrame: "0"},
 		}
 
-		err = tx.Create(list).Error
+		err := tx.Create(list).Error
 		if err != nil {
 			return err
 		}
-
-		return tx.Create(&models.Migration{
-			Version: version,
-		}).Error
+		return tx.Create(&models.Migration{Version: version}).Error
 	})
 }

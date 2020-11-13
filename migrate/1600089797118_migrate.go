@@ -1,17 +1,16 @@
-package version
+package migrate
 
 import (
 	"runtime"
 
 	"gorm.io/gorm"
 
-	"github.com/x-tardis/go-admin/migration"
 	"github.com/x-tardis/go-admin/models"
 )
 
 func init() {
 	_, fileName, _, _ := runtime.Caller(0)
-	migration.Migrate.SetVersion(migration.GetFilename(fileName), _1600089797118Migrate)
+	Register(GetFilename(fileName), _1600089797118Migrate)
 }
 
 func _1600089797118Migrate(db *gorm.DB, version string) error {
@@ -28,8 +27,6 @@ func _1600089797118Migrate(db *gorm.DB, version string) error {
 		if err != nil {
 			return err
 		}
-		return tx.Create(&models.Migration{
-			Version: version,
-		}).Error
+		return tx.Create(&models.Migration{Version: version}).Error
 	})
 }
