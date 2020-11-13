@@ -1,5 +1,5 @@
 # dev 开发环境 debug 测试环境 prod 线上环境
-mode: prod
+mode: dev
 # 服务名称
 name: go-admin
 # 服务器ip，默认使用 0.0.0.0
@@ -27,7 +27,7 @@ logger:
   # 使能栈调式输出
   stack: false
   # 保存路径
-  Path: temp
+  path: temp
 
   # 文件名,空字符使用默认
   fileName: go-admin.log

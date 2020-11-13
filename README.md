@@ -119,8 +119,8 @@ env GOOS=linux GOARCH=amd64 go build main.go
 日志由`config.yaml`的`logger`项进行配置,日志路径由`logger.path`配置,
 基础日志由`logger.fileName`配置,另有`job.log`和`request.log`
 - 基础日志(`logger.fileName`) 错误等记录
-- job日志 定时任务日志记录
-- request日志 api请求日志记录, 在非`prod`时会输出到console
+- job日志 定时任务日志记录, `info`等级
+- request日志 api请求日志记录, `info`等级, 在非`prod`时会输出到console
 
 ### 优雅重启或关闭
 

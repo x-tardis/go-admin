@@ -40,7 +40,7 @@ logger:
   # 使能栈调式输出
   stack: false
   # 保存路径
-  Path: temp
+  path: temp
 
   # 文件名,空字符使用默认
   fileName: go-admin.log

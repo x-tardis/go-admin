@@ -16,11 +16,13 @@ func SetupLogger() {
 	izap.Logger.Info("base logger init success")
 
 	c.FileName = "job.log"
-	c.InConsole = false
+	c.Level = "info"
+	c.InConsole = !IsModeProd()
 	JobLogger = izap.New(c).Sugar()
 	JobLogger.Info("job logger init success")
 
 	c.FileName = "request.log"
+	c.Level = "info"
 	c.InConsole = !IsModeProd()
 	RequestLogger = izap.New(c)
 	RequestLogger.Info("request logger init success")
