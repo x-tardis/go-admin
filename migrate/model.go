@@ -1,22 +1,13 @@
-package version
+package migrate
 
 import (
-	"runtime"
-
-	"gorm.io/gorm"
-
-	"github.com/x-tardis/go-admin/migration"
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/models/tools"
 )
 
-func init() {
-	_, fileName, _, _ := runtime.Caller(0)
-	migration.Migrate.SetVersion(migration.GetFilename(fileName), _1599190683659Tables)
-}
-
-func _1599190683659Tables(db *gorm.DB, version string) error {
-	err := db.Debug().Migrator().AutoMigrate(
+// baseModels 所有基础模型
+func baseModels() []interface{} {
+	return []interface{}{
 		new(models.CasbinRule),
 		new(models.Dept),
 		new(models.Config),
@@ -39,11 +30,5 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.FileInfo),
 		new(models.Category),
 		new(models.Content),
-	)
-	if err != nil {
-		return err
 	}
-	return db.Create(&models.Migration{
-		Version: version,
-	}).Error
 }
