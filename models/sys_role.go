@@ -14,8 +14,9 @@ import (
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
 
-// SuperAdmin 超级管理员
+// SuperRoot 超级管理员
 const (
+	SuperRoot  = "root"
 	SuperAdmin = "admin"
 )
 
@@ -27,7 +28,7 @@ type Role struct {
 	Status    string `json:"status" gorm:"size:4;"`                    // 状态
 	Sort      int    `json:"sort" gorm:""`                             // 排序
 	Flag      string `json:"flag" gorm:"size:128;"`                    // 标记(未用)
-	Admin     bool   `json:"admin" gorm:"size:4;"`                     // 超级权限(未用)
+	Admin     bool   `json:"admin" gorm:"size:5;"`                     // 超级权限(未用)
 	Remark    string `json:"remark" gorm:"size:255;"`                  // 备注
 	DataScope string `json:"dataScope" gorm:"size:128;"`               // 数据权限
 	Creator   string `json:"creator" gorm:"size:128;"`                 // 创建者
@@ -116,10 +117,13 @@ func (cRole) Get(ctx context.Context, id int) (item Role, err error) {
 func (cRole) Create(ctx context.Context, item Role) (Role, error) {
 	var count int64
 
+	if item.RoleKey == SuperRoot {
+		return item, errors.New("角色标识不允许为root!")
+	}
 	dao.DB.Scopes(RoleDB(ctx)).
 		Where("role_name=?", item.RoleName).Or("role_key=?", item.RoleKey).Count(&count)
 	if count > 0 {
-		return item, errors.New("角色名称或者角色标识已经存在！")
+		return item, errors.New("角色名称或者角色标识已经存在!")
 	}
 
 	item.Creator = jwtauth.FromUserIdStr(ctx)
@@ -255,14 +259,14 @@ func (sf cRole) update(ctx context.Context, id int, up Role) error {
 	}
 
 	if oldItem.RoleKey == SuperAdmin && up.Status == StatusDisable {
-		return errors.New("超级角色不允许禁用")
+		return errors.New("管理员角色不允许禁用")
 	}
 	// 角色名称与角色标识不允许修改
 	if up.RoleName != "" && up.RoleName != oldItem.RoleName {
-		return errors.New("角色名称不允许修改！")
+		return errors.New("角色名称不允许修改!")
 	}
 	if up.RoleKey != "" && up.RoleKey != oldItem.RoleKey {
-		return errors.New("角色标识不允许修改！")
+		return errors.New("角色标识不允许修改!")
 	}
 
 	up.Updator = jwtauth.FromUserIdStr(ctx)
@@ -355,7 +359,7 @@ func (cRole) GetDeptIds(ctx context.Context, roleId int) ([]int, error) {
 		Select("sys_role_dept.dept_id").
 		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").
 		Where("role_id=? ", roleId).
-		Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", roleId).
+		Where("sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", roleId).
 		Find(&deptList).Error; err != nil {
 		return nil, err
 	}

@@ -3,6 +3,8 @@ package models
 import (
 	"context"
 
+	"github.com/thinkgos/go-core-package/lib/ternary"
+
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 )
@@ -34,7 +36,7 @@ func (sf *Login) Get() (jwtauth.Identities, bool, error) {
 		Username:  user.Username,
 		RoleId:    role.RoleId,
 		RoleName:  role.RoleName,
-		RoleKey:   role.RoleKey,
+		RoleKey:   ternary.IfString(user.Username == SuperRoot, SuperRoot, role.RoleKey),
 		DataScope: role.DataScope,
 	}, user.Status == StatusEnable, nil
 }

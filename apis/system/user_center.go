@@ -34,9 +34,9 @@ func (User) GetInfo(c *gin.Context) {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithError(err))
 		return
 	}
-	rolekey := jwtauth.FromRoleKey(gcontext.Context(c))
+	roleKey := jwtauth.FromRoleKey(gcontext.Context(c))
 	mp := map[string]interface{}{
-		"roles":       []string{rolekey},
+		"roles":       []string{roleKey},
 		"permissions": []string{"*:*:*"},
 		"buttons":     []string{"*:*:*"},
 
@@ -48,7 +48,7 @@ func (User) GetInfo(c *gin.Context) {
 		"avatar":       ternary.IfString(user.Avatar == "", defaultAvatar, user.Avatar),
 	}
 
-	if rolekey != models.SuperAdmin {
+	if roleKey != models.SuperRoot {
 		list, _ := models.CRoleMenu.GetPermissionWithRoleId(gcontext.Context(c))
 		mp["permissions"] = list
 		mp["buttons"] = list

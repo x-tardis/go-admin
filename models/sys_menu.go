@@ -179,11 +179,17 @@ func (sf cMenu) QueryTreeWithRoleName(ctx context.Context) ([]Menu, error) {
 
 // QueryWithRoleName 通过role name 查询
 func (cMenu) QueryWithRoleName(ctx context.Context, roleName string) (items []Menu, err error) {
-	err = dao.DB.Scopes(MenuDB(ctx)).
-		Select("sys_menu.*").
-		Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id").
-		Where("sys_role_menu.role_name=? and menu_type in (? , ?)", roleName, MenuTypeToc, MenuTypeMenu).
-		Order("sort").Find(&items).Error
+	if roleName == SuperRoot {
+		err = dao.DB.Scopes(MenuDB(ctx)).
+			Where("menu_type in (? , ?)", MenuTypeToc, MenuTypeMenu).
+			Order("sort").Find(&items).Error
+	} else {
+		err = dao.DB.Scopes(MenuDB(ctx)).
+			Select("sys_menu.*").
+			Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id").
+			Where("sys_role_menu.role_name=? and menu_type in (? , ?)", roleName, MenuTypeToc, MenuTypeMenu).
+			Order("sort").Find(&items).Error
+	}
 	return
 }
 
