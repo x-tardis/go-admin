@@ -49,12 +49,14 @@ func InitRouter() *gin.Engine {
 		log.Fatalf("jwt initialize failed, %+v", err)
 	}
 
+	RegisterPubic(engine, authMiddleware)  // 注册公共开放接口
 	RegisterSystem(engine, authMiddleware) // 注册系统路由
 	RegisterWs(engine, authMiddleware)     // 注册ws
+	custom(engine, authMiddleware)
 	return engine
 }
 
-func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
+func RegisterPubic(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	// public
 	engine.GET("/", system.HelloWorld)
 	engine.POST("/login", authMiddleware.LoginHandler)
@@ -69,7 +71,9 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	StaticFile(engine)
 	// swagger
 	routers.Swagger(engine)
+}
 
+func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	v1 := engine.Group("/api/v1")
 	{
 		// 无需认证
