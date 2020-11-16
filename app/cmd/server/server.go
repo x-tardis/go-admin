@@ -30,7 +30,7 @@ import (
 var configFile string
 var port string
 var mode string
-var StartCmd = &cobra.Command{
+var Cmd = &cobra.Command{
 	Use:          "server",
 	Short:        "Start API server",
 	Example:      fmt.Sprintf("%s server -c config/config.yaml", builder.Name),
@@ -41,9 +41,9 @@ var StartCmd = &cobra.Command{
 }
 
 func init() {
-	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
-	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
-	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,debug,prod")
+	Cmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
+	Cmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
+	Cmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,debug,prod")
 }
 
 func setup(cmd *cobra.Command, args []string) {

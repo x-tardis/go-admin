@@ -9,7 +9,7 @@ import (
 	"github.com/x-tardis/go-admin/misc"
 )
 
-var StartCmd = &cobra.Command{
+var Cmd = &cobra.Command{
 	Use:     "version",
 	Short:   "Get version info",
 	Example: fmt.Sprintf("%s version", builder.Name),

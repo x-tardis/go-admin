@@ -9,18 +9,18 @@ import (
 	"github.com/thinkgos/go-core-package/lib/textcolor"
 	"github.com/thinkgos/sharp/builder"
 
-	"github.com/x-tardis/go-admin/cmd/config"
-	"github.com/x-tardis/go-admin/cmd/migrate"
-	"github.com/x-tardis/go-admin/cmd/server"
-	"github.com/x-tardis/go-admin/cmd/version"
+	"github.com/x-tardis/go-admin/app/cmd/config"
+	"github.com/x-tardis/go-admin/app/cmd/migrate"
+	"github.com/x-tardis/go-admin/app/cmd/server"
+	"github.com/x-tardis/go-admin/app/cmd/version"
 )
 
 func init() {
 	rootCmd.AddCommand(
-		server.StartCmd,
-		migrate.StartCmd,
-		version.StartCmd,
-		config.StartCmd,
+		server.Cmd,
+		migrate.Cmd,
+		version.Cmd,
+		config.Cmd,
 	)
 }
 

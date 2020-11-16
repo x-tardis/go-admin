@@ -13,7 +13,7 @@ import (
 )
 
 var configFile string
-var StartCmd = &cobra.Command{
+var Cmd = &cobra.Command{
 	Use:     "config",
 	Short:   "Get Application config info",
 	Example: fmt.Sprintf("%s config -c config/config.yml", builder.Name),
@@ -21,7 +21,7 @@ var StartCmd = &cobra.Command{
 }
 
 func init() {
-	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
+	Cmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
 }
 
 func run(cmd *cobra.Command, args []string) {

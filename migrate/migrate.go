@@ -66,7 +66,7 @@ func Migrate(db *gorm.DB) error {
 }
 
 // Vs 版本格式
-//  1TTTMMMNNNFFF
+// 1TTTMMMNNNFFF
 // 1: 固定
 // TT: 类型0-990, 主要用于migrate固定排序
 // MMM,NNN,FFF: 主,次,修订版本0-999

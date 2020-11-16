@@ -14,7 +14,7 @@ import (
 )
 
 var configFile string
-var StartCmd = &cobra.Command{
+var Cmd = &cobra.Command{
 	Use:     "migrate",
 	Short:   "Initialize the database",
 	Example: fmt.Sprintf("%s migrate -c config/config.yaml", builder.Name),
@@ -22,7 +22,7 @@ var StartCmd = &cobra.Command{
 }
 
 func init() {
-	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
+	Cmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
 }
 
 func run(cmd *cobra.Command, _ []string) {
