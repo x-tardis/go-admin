@@ -12,6 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // CreateAction 通用新增动作
@@ -22,7 +23,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		req := control.Generate()
 		err := req.Bind(c)
 		if err != nil {
-			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 			return
 		}
 		var object dto.ActiveRecord
@@ -35,10 +36,10 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		err = dao.DB.WithContext(c).Create(object).Error
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] Create error: %s", msgID, err)
-			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("创建失败"))
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.CreateFailed))
 			return
 		}
-		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg("创建成功"))
+		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg(prompt.CreateSuccess))
 		c.Next()
 	}
 }

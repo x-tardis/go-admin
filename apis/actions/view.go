@@ -12,6 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // ViewAction 通用详情动作
@@ -22,7 +23,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 		req := control.Generate()
 		err := req.Bind(c)
 		if err != nil {
-			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 			return
 		}
 		var object dto.ActiveRecord
@@ -47,7 +48,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 		).Where(req.GetId()).First(rsp).Error
 
 		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-			servers.Fail(c, http.StatusNotFound, servers.WithMsg("查看对象不存在或无权查看"))
+			servers.Fail(c, http.StatusNotFound, servers.WithMsg(prompt.NotFound))
 			return
 		}
 		if err != nil {

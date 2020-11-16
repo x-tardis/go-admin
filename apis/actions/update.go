@@ -12,6 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // UpdateAction 通用更新动作
@@ -22,7 +23,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		//更新操作
 		err := req.Bind(c)
 		if err != nil {
-			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 			return
 		}
 		var object dto.ActiveRecord
@@ -41,14 +42,14 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
 			izap.Sugar.Errorf("MsgID[%s] Update error: %s", msgID, err)
-			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("更新失败"))
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.UpdateFailed))
 			return
 		}
 		if db.RowsAffected == 0 {
-			servers.Fail(c, http.StatusForbidden, servers.WithMsg("无权更新该数据"))
+			servers.Fail(c, http.StatusForbidden, servers.WithMsg(prompt.PermissionDenied))
 			return
 		}
-		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg("更新成功"))
+		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg(prompt.UpdatedSuccess))
 		c.Next()
 	}
 }

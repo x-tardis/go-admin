@@ -122,7 +122,7 @@ func (Tables) Create(c *gin.Context) {
 			return
 		}
 	}
-	servers.OK(c, servers.WithMsg("添加成功"))
+	servers.OK(c, servers.WithMsg(prompt.CreateSuccess))
 }
 
 func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {

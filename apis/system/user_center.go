@@ -153,8 +153,8 @@ func (User) UpdatePassword(c *gin.Context) {
 
 	err := models.CUser.UpdatePassword(gcontext.Context(c), up.OldPassword, up.NewPassword)
 	if err != nil {
-		servers.Fail(c, http.StatusOK, servers.WithMsg("密码更新失败"))
+		servers.Fail(c, http.StatusOK, servers.WithMsg(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithMsg("密码修改成功"))
+	servers.OK(c, servers.WithMsg(prompt.UpdatedSuccess))
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Job struct{}
@@ -22,7 +23,7 @@ func (Job) RemoveJobForService(c *gin.Context) {
 	err := c.BindUri(&v)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
-		servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
+		servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 		return
 	}
 	s := service.SysJob{}
@@ -41,7 +42,7 @@ func (Job) StartJobForService(c *gin.Context) {
 	err := c.BindUri(&v)
 	if err != nil {
 		izap.Sugar.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
-		servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
+		servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 		return
 	}
 	s := service.SysJob{}

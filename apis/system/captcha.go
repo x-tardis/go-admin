@@ -7,6 +7,7 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // @tags 验证码
@@ -24,7 +25,7 @@ import (
 func GetCaptcha(c *gin.Context) {
 	id, b64s, err := deployed.Captcha.Generate()
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("验证码获取失败"))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.CaptchaGetFailed))
 		return
 	}
 	servers.JSON(c, http.StatusOK, gin.H{

@@ -12,6 +12,7 @@ import (
 
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // FileResponse
@@ -62,7 +63,7 @@ func UploadFile(c *gin.Context) {
 			Name:     files.Filename,
 			Type:     fileType,
 		}
-		servers.OK(c, servers.WithData(fileResponse), servers.WithMsg("上传成功"))
+		servers.OK(c, servers.WithData(fileResponse), servers.WithMsg(prompt.UploadSuccess))
 		return
 	case "2": // 多图
 		files := c.Request.MultipartForm.File["file"]
@@ -84,7 +85,7 @@ func UploadFile(c *gin.Context) {
 			}
 		}
 
-		servers.OK(c, servers.WithData(multipartFile), servers.WithMsg("上传成功"))
+		servers.OK(c, servers.WithData(multipartFile), servers.WithMsg(prompt.UploadSuccess))
 		return
 	case "3": // base64
 		files, _ := c.GetPostForm("file")
@@ -100,6 +101,6 @@ func UploadFile(c *gin.Context) {
 			Name:     "",
 			Type:     typeStr,
 		}
-		servers.OK(c, servers.WithData(fileResponse), servers.WithMsg("上传成功"))
+		servers.OK(c, servers.WithData(fileResponse), servers.WithMsg(prompt.UploadSuccess))
 	}
 }

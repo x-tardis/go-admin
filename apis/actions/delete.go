@@ -12,6 +12,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // DeleteAction 通用删除动作
@@ -23,7 +24,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		err := req.Bind(c)
 		if err != nil {
 			izap.Sugar.Errorf("MsgID[%s] Bind error: %s", msgID, err)
-			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 			return
 		}
 		var object dto.ActiveRecord
@@ -42,14 +43,14 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			Where(req.GetId()).Delete(object)
 		if db.Error != nil {
 			izap.Sugar.Errorf("MsgID[%s] Delete error: %s", msgID, err)
-			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("删除失败"))
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 			return
 		}
 		if db.RowsAffected == 0 {
-			servers.Fail(c, http.StatusForbidden, servers.WithMsg("无权删除该数据"))
+			servers.Fail(c, http.StatusForbidden, servers.WithMsg(prompt.PermissionDenied))
 			return
 		}
-		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg("删除成功"))
+		servers.OK(c, servers.WithData(object.GetId()), servers.WithMsg(prompt.DeleteSuccess))
 		c.Next()
 	}
 }

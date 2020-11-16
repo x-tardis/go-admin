@@ -15,6 +15,7 @@ import (
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // IndexAction 通用查询动作
@@ -29,7 +30,7 @@ func IndexAction(m dto.ActiveRecord, d dto.Index, f func() interface{}) gin.Hand
 		//查询列表
 		err := req.Bind(c)
 		if err != nil {
-			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg("参数验证失败"))
+			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 			return
 		}
 
@@ -47,7 +48,7 @@ func IndexAction(m dto.ActiveRecord, d dto.Index, f func() interface{}) gin.Hand
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			izap.Sugar.Errorf("MsgID[%s] Index error: %s", msgID, err)
-			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("查询失败"))
+			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.QueryFailed))
 			return
 		}
 
