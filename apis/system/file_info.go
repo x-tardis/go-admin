@@ -11,7 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type FileInfo struct{}
@@ -61,7 +61,7 @@ func (FileInfo) Get(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	item, err := models.CFileInfo.Get(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, http.StatusNotFound, servers.WithMsg(codes.NotFound))
+		servers.Fail(c, http.StatusNotFound, servers.WithMsg(prompt.NotFound))
 		return
 	}
 	servers.OK(c, servers.WithData(item))
@@ -113,7 +113,7 @@ func (FileInfo) Update(c *gin.Context) {
 
 	err := models.CFileInfo.Update(gcontext.Context(c), up.Id, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.UpdateFailed))
 		return
 	}
 	servers.OK(c)
@@ -134,8 +134,8 @@ func (FileInfo) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CFileInfo.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(prompt.DeleteSuccess))
 }

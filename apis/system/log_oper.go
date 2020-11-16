@@ -11,7 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type OperLog struct{}
@@ -46,7 +46,7 @@ func (OperLog) QueryPage(c *gin.Context) {
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithError(err),
-			servers.WithMsg(codes.QueryFailed))
+			servers.WithMsg(prompt.QueryFailed))
 		return
 	}
 	servers.OK(c, servers.WithData(&paginator.Pages{
@@ -72,7 +72,7 @@ func (OperLog) Get(c *gin.Context) {
 	item, err := models.COperLog.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -100,7 +100,7 @@ func (OperLog) Create(c *gin.Context) {
 	item, err := models.COperLog.Create(gcontext.Context(c), newItem)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.CreateFailed),
+			servers.WithMsg(prompt.CreateFailed),
 			servers.WithError(err))
 		return
 	}
@@ -131,8 +131,8 @@ func (OperLog) BatchDelete(c *gin.Context) {
 		err = models.COperLog.BatchDelete(gcontext.Context(c), ids)
 	}
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(prompt.DeleteSuccess))
 }

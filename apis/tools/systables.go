@@ -13,7 +13,7 @@ import (
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Tables struct{}
@@ -37,7 +37,7 @@ func (Tables) QueryPage(c *gin.Context) {
 	items, info, err := tools.CTables.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -52,7 +52,7 @@ func (Tables) QueryTree(c *gin.Context) {
 	items, err := tools.CTables.QueryTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -71,7 +71,7 @@ func (Tables) Get(c *gin.Context) {
 	result, err := tools.CTables.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -87,7 +87,7 @@ func (Tables) GetWithName(c *gin.Context) {
 	item, err := tools.CTables.GetWithName(gcontext.Context(c), tbName)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -249,10 +249,10 @@ func (Tables) Update(c *gin.Context) {
 
 	item, err := tools.CTables.Update(gcontext.Context(c), up.TableId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.UpdateFailed))
 		return
 	}
-	servers.OK(c, servers.WithData(item), servers.WithMsg(codes.UpdatedSuccess))
+	servers.OK(c, servers.WithData(item), servers.WithMsg(prompt.UpdatedSuccess))
 }
 
 // @Summary 删除表结构
@@ -266,8 +266,8 @@ func (Tables) DeleteSysTables(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := tools.CTables.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(prompt.DeleteSuccess))
 }

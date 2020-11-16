@@ -9,7 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // Dept dept
@@ -40,7 +40,7 @@ func (Dept) QueryPage(c *gin.Context) {
 	tree, err := models.CDept.QueryTree(gcontext.Context(c), qp, true)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -71,7 +71,7 @@ func (Dept) QueryTree(c *gin.Context) {
 	items, err := models.CDept.QueryTree(gcontext.Context(c), qp, false)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -95,7 +95,7 @@ func (Dept) Get(c *gin.Context) {
 	item, err := models.CDept.Get(gcontext.Context(c), deptId)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -150,7 +150,7 @@ func (Dept) Update(c *gin.Context) {
 
 	err := models.CDept.Update(gcontext.Context(c), up.DeptId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.UpdateFailed))
 		return
 	}
 	servers.OK(c)
@@ -172,8 +172,8 @@ func (Dept) Delete(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	err := models.CDept.Delete(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(prompt.DeleteSuccess))
 }

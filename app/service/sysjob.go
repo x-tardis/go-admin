@@ -10,7 +10,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jobs"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Service struct {
@@ -39,7 +39,7 @@ func (e *SysJob) RemoveJob(ctx context.Context, c *dto.GeneralDelDto) error {
 		}
 		return err
 	case <-time.After(time.Second * 1):
-		e.Msg = codes.OperationTimeout
+		e.Msg = prompt.OperationTimeout
 	}
 	return nil
 }

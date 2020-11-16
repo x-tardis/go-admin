@@ -11,7 +11,7 @@ import (
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Config struct{}
@@ -43,7 +43,7 @@ func (Config) QueryPage(c *gin.Context) {
 	items, info, err := models.CConfig.QueryPage(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -70,7 +70,7 @@ func (Config) Get(c *gin.Context) {
 	item, err := models.CConfig.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -94,7 +94,7 @@ func (Config) GetWithKey(c *gin.Context) {
 	item, err := models.CConfig.GetWithKey(gcontext.Context(c), key)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -149,7 +149,7 @@ func (Config) Update(c *gin.Context) {
 
 	err := models.CConfig.Update(gcontext.Context(c), up.ConfigId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.UpdateFailed))
 		return
 	}
 	servers.OK(c)
@@ -171,8 +171,8 @@ func (Config) BatchDelete(c *gin.Context) {
 	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CConfig.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(prompt.DeleteSuccess))
 }

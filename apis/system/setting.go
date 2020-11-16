@@ -8,7 +8,7 @@ import (
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 // Setting api setting
@@ -28,7 +28,7 @@ func (Setting) Get(c *gin.Context) {
 	item, err := models.CSetting.Get(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}

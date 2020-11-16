@@ -9,7 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type RoleMenu struct{}
@@ -26,7 +26,7 @@ func (RoleMenu) GetMenuIDS(c *gin.Context) {
 	items, err := models.CRoleMenu.GetIdsWithRoleName(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -38,7 +38,7 @@ func (RoleMenu) GetMenuTreeOptionRole(c *gin.Context) {
 	items, menuIds, err := models.CRoleMenu.GetMenuTreeOption(gcontext.Context(c), roleId)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}

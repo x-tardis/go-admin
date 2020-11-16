@@ -1,4 +1,4 @@
-package codes
+package prompt
 
 const (
 	Unavailable      = "未知错误"

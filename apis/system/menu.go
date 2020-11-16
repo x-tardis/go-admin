@@ -9,7 +9,7 @@ import (
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/servers"
-	"github.com/x-tardis/go-admin/pkg/servers/codes"
+	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
 
 type Menu struct{}
@@ -39,7 +39,7 @@ func (Menu) QueryTree(c *gin.Context) {
 	tree, err := models.CMenu.QueryTree(gcontext.Context(c), qp)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -61,7 +61,7 @@ func (Menu) Get(c *gin.Context) {
 	item, err := models.CMenu.Get(gcontext.Context(c), id)
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
@@ -112,7 +112,7 @@ func (Menu) Update(c *gin.Context) {
 
 	err := models.CMenu.Update(gcontext.Context(c), up.MenuId, up)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.UpdateFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.UpdateFailed))
 		return
 	}
 	servers.OK(c)
@@ -132,10 +132,10 @@ func (Menu) Delete(c *gin.Context) {
 	id := cast.ToInt(c.Param("id"))
 	err := models.CMenu.Delete(gcontext.Context(c), id)
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(codes.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 		return
 	}
-	servers.OK(c, servers.WithMsg(codes.DeleteSuccess))
+	servers.OK(c, servers.WithMsg(prompt.DeleteSuccess))
 }
 
 // @tags 菜单/Menu
@@ -151,7 +151,7 @@ func (Menu) GetMenuTreeOption(c *gin.Context) {
 	items, err := models.CMenu.QueryTitleLabelTree(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
-			servers.WithMsg(codes.QueryFailed),
+			servers.WithMsg(prompt.QueryFailed),
 			servers.WithError(err))
 		return
 	}
@@ -169,7 +169,7 @@ func (Menu) GetMenuTreeWithRoleName(c *gin.Context) {
 	items, err := models.CMenu.QueryTreeWithRoleName(gcontext.Context(c))
 	if err != nil {
 		servers.Fail(c, http.StatusNotFound,
-			servers.WithMsg(codes.NotFound),
+			servers.WithMsg(prompt.NotFound),
 			servers.WithError(err))
 		return
 	}
