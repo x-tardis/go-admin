@@ -1,19 +1,12 @@
 package migrate
 
 import (
-	"runtime"
-
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/models"
 )
 
-func init() {
-	_, fileName, _, _ := runtime.Caller(0)
-	Register(GetFilename(fileName), _1599190683680Test)
-}
-
-func _1599190683680Test(db *gorm.DB, version string) error {
+func BaseAdditionMenu(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		list := []models.Menu{
 			{MenuId: 496, MenuName: "Sources", Title: "资源管理", Icon: "network", Path: "/sources", Paths: "/0/496", MenuType: models.MenuTypeToc, Method: "无", Permission: "", ParentId: 0, NoCache: true, Breadcrumb: "", Component: "Layout", Sort: 3, Visible: "0", Creator: "1", Updator: "1", IsFrame: "1"},

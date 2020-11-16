@@ -1,9 +1,19 @@
 package migrate
 
 import (
+	"gorm.io/gorm"
+
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/models/tools"
 )
+
+func BaseModelsTables(db *gorm.DB, version string) error {
+	err := db.AutoMigrate(baseModels()...)
+	if err != nil {
+		return err
+	}
+	return db.Create(&models.Migration{Version: version}).Error
+}
 
 // baseModels 所有基础模型
 func baseModels() []interface{} {

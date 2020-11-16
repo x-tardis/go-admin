@@ -13,15 +13,16 @@ type errorKey struct{}
 
 // ContextError context error
 func ContextError(c *gin.Context, err error) {
-	if err != nil {
-		ctx := c.Request.Context()
-		if e, ok := ctx.Value(errorKey{}).(error); ok && e != nil {
-			multierr.AppendInto(&e, err)
-			err = e
-		}
-		ctx = context.WithValue(ctx, errorKey{}, err)
-		c.Request = c.Request.WithContext(ctx)
+	if err == nil {
+		panic("xxfield: context error is nil")
 	}
+	ctx := c.Request.Context()
+	if e, ok := ctx.Value(errorKey{}).(error); ok && e != nil {
+		multierr.AppendInto(&e, err)
+		err = e
+	}
+	ctx = context.WithValue(ctx, errorKey{}, err)
+	c.Request = c.Request.WithContext(ctx)
 }
 
 // Error error zap field

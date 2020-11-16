@@ -1,19 +1,12 @@
 package migrate
 
 import (
-	"runtime"
-
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/models"
 )
 
-func init() {
-	_, fileName, _, _ := runtime.Caller(0)
-	Register(GetFilename(fileName), _1599190683670Test)
-}
-
-func _1599190683670Test(db *gorm.DB, version string) error {
+func BaseAdminData(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		list1 := []models.RoleMenu{
 			{RoleId: 1, MenuId: 2, RoleName: "admin"},

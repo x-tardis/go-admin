@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
 	xrequestid "github.com/thinkgos/http-middlewares/requestid"
+
+	"github.com/x-tardis/go-admin/pkg/xxfield"
 )
 
 // Code code interface
@@ -20,6 +22,7 @@ type Response struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg,omitempty"`
 	Data interface{} `json:"data"`
+	err  error       `json:"-"` // for context error
 }
 
 // Option option
@@ -54,19 +57,28 @@ func WithICode(c Code) Option {
 	}
 }
 
-// WithError 设置data为err.Error()
+// WithError 设置err
 func WithError(err error) Option {
 	return func(r *Response) {
+		r.err = err
+	}
+}
+
+// WithDError 设置err和data为err.Error()
+func WithDError(err error) Option {
+	return func(r *Response) {
+		r.err = err
 		r.Data = err.Error()
 	}
 }
 
-// OK 通常成功数据处理
+// OK 通常成功数据处理,永不设置err
 func OK(c *gin.Context, opts ...Option) {
 	r := Response{
 		http.StatusOK,
 		http.StatusText(http.StatusOK),
 		"{}",
+		nil,
 	}
 
 	for _, opt := range opts {
@@ -81,10 +93,15 @@ func Fail(c *gin.Context, code int, opts ...Option) {
 		code,
 		http.StatusText(code),
 		"{}",
+		nil,
 	}
 
 	for _, opt := range opts {
 		opt(&r)
+	}
+
+	if r.err != nil {
+		xxfield.ContextError(c, r.err)
 	}
 	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
 	c.JSON(http.StatusOK, r)

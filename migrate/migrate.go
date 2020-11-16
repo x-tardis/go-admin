@@ -2,12 +2,10 @@ package migrate
 
 import (
 	"context"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"sync"
 
-	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/models"
@@ -15,6 +13,13 @@ import (
 
 var version = make(map[int]func(db *gorm.DB, version string) error)
 var mutex sync.Mutex
+
+func init() {
+	Register(Vs(0, 1, 0, 1), BaseModelsTables)
+	Register(Vs(1, 1, 0, 1), BaseAdminData)
+	Register(Vs(2, 1, 0, 1), BaseAdditionMenu)
+	Register(Vs(3, 1, 0, 1), BaseFileDir)
+}
 
 func Register(key int, f func(db *gorm.DB, version string) error) {
 	mutex.Lock()
@@ -60,7 +65,11 @@ func Migrate(db *gorm.DB) error {
 	return nil
 }
 
-func GetFilename(s string) int {
-	s = filepath.Base(s)
-	return cast.ToInt(s[:13])
+// Vs 版本格式
+//  1TTTMMMNNNFFF
+// 1: 固定
+// TT: 类型0-990, 主要用于migrate固定排序
+// MMM,NNN,FFF: 主,次,修订版本0-999
+func Vs(tp, major, minor, fixed int) int {
+	return (((1000+tp)*1000+major)*1000+minor)*1000 + fixed
 }
