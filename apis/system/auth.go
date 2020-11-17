@@ -20,6 +20,8 @@ import (
 const (
 	userIdKey    = "userId"
 	usernameKey  = "username"
+	deptIdKey    = "deptId"
+	postIdKey    = "postId"
 	roleIdKey    = "roleId"
 	roleNameKey  = "roleName"
 	roleKeyKey   = "roleKey"
@@ -38,6 +40,8 @@ func NewJWTAuth(c jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 				return jwt.MapClaims{
 					userIdKey:    v.UserId,
 					usernameKey:  v.Username,
+					deptIdKey:    v.DeptId,
+					postIdKey:    v.PostId,
 					roleIdKey:    v.RoleId,
 					roleNameKey:  v.RoleName,
 					roleKeyKey:   v.RoleKey,
@@ -51,11 +55,14 @@ func NewJWTAuth(c jwtauth.Config) (*jwt.GinJWTMiddleware, error) {
 			identity := jwtauth.Identities{
 				UserId:    cast.ToInt(claims[userIdKey]),
 				Username:  cast.ToString(claims[usernameKey]),
+				DeptId:    cast.ToInt(claims[deptIdKey]),
+				PostId:    cast.ToInt(claims[postIdKey]),
 				RoleId:    cast.ToInt(claims[roleIdKey]),
 				RoleName:  cast.ToString(claims[roleNameKey]),
 				RoleKey:   cast.ToString(claims[roleKeyKey]),
 				DataScope: cast.ToString(claims[dataScopeKey]),
 			}
+
 			ctx := context.WithValue(c.Request.Context(), jwtauth.IdentityKey{}, identity)
 			c.Request = c.Request.WithContext(ctx)
 			return identity
@@ -130,19 +137,21 @@ func logoutResponse(c *gin.Context, code int) {
 // loginLogRecord Write log to database
 func loginLogRecord(c *gin.Context, success bool, msg string, username string) {
 	if deployed.FeatureConfig.LoginDB.Load() {
-		ua := user_agent.New(c.Request.UserAgent())
+		userAgent := c.Request.UserAgent()
+		clientIP := c.ClientIP()
+		ua := user_agent.New(userAgent)
+
 		browserName, browserVersion := ua.Browser()
-		location := deployed.IPLocation(c.ClientIP())
 		loginLog := models.LoginLog{
 			Username:  username,
 			Status:    ternary.IfString(success, "0", "1"),
-			Ip:        c.ClientIP(),
-			Location:  location,
+			Ip:        clientIP,
+			Location:  deployed.IPLocation(clientIP),
 			Browser:   browserName + " " + browserVersion,
 			Os:        ua.OS(),
 			Platform:  ua.Platform(),
 			LoginTime: time.Now(),
-			Remark:    c.Request.UserAgent(),
+			Remark:    userAgent,
 			Msg:       msg,
 		}
 
