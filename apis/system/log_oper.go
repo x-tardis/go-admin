@@ -29,7 +29,7 @@ type OperLog struct{}
 // @param status query string false "status"
 // @param pageSize query int false "页条数"
 // @param pageIndex query int false "页码"
-// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -62,7 +62,7 @@ func (OperLog) QueryPage(c *gin.Context) {
 // @accept json
 // @produce json
 // @Param id path int true "id"
-// @success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -86,7 +86,7 @@ func (OperLog) Get(c *gin.Context) {
 // @accept json
 // @produce json
 // @Param newItem body models.OperLog true "new item"
-// @success 200 {object} string	"{"code": 200, "msg": ""}"
+// @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -114,7 +114,7 @@ func (OperLog) Create(c *gin.Context) {
 // @accept json
 // @produce json
 // @param ids path string true "以逗号（,）分隔的dd"
-// @success 200 {object} string	"{"code": 200, "msg": ""}"
+// @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"

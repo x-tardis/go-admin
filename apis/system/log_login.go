@@ -28,7 +28,7 @@ type LoginLog struct{}
 // @param status query string false "status"
 // @param pageSize query int false "页条数"
 // @param pageIndex query int false "页码"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -61,7 +61,7 @@ func (LoginLog) QueryPage(c *gin.Context) {
 // @accept json
 // @produce json
 // @param infoId path int true "infoId"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -85,7 +85,7 @@ func (LoginLog) Get(c *gin.Context) {
 // @accept json
 // @produce json
 // @param newItem body models.LoginLog true "newItem"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -113,8 +113,8 @@ func (LoginLog) Create(c *gin.Context) {
 // @security Bearer
 // @accept json
 // @produce json
-// @param up body models.LoginLog true "upate item"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @param up body models.LoginLog true "update item"
+// @Success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -129,10 +129,11 @@ func (LoginLog) Update(c *gin.Context) {
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithMsg(prompt.UpdateFailed),
-			servers.WithError(err))
+			servers.WithError(err),
+		)
 		return
 	}
-	servers.OK(c)
+	servers.OK(c, servers.WithMsg(prompt.UpdatedSuccess))
 }
 
 // @tags 登录日志
@@ -142,7 +143,7 @@ func (LoginLog) Update(c *gin.Context) {
 // @accept json
 // @produce json
 // @param ids path string true "以逗号（,）分割的id列表,如果为clean,将清空日志"
-// @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
@@ -150,8 +151,7 @@ func (LoginLog) Update(c *gin.Context) {
 func (LoginLog) BatchDelete(c *gin.Context) {
 	var err error
 
-	action := c.Param("ids")
-	switch action {
+	switch action := c.Param("ids"); action {
 	case "clean":
 		err = models.CLoginLog.Clean(gcontext.Context(c))
 	default: // ids
@@ -159,7 +159,10 @@ func (LoginLog) BatchDelete(c *gin.Context) {
 		err = models.CLoginLog.BatchDelete(gcontext.Context(c), ids)
 	}
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithMsg(prompt.DeleteFailed),
+			servers.WithError(err),
+		)
 		return
 	}
 	servers.OK(c, servers.WithMsg(prompt.DeleteSuccess))

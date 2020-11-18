@@ -12,26 +12,20 @@ import (
 
 // @tags 验证码
 // @summary 获取验证码
-// @description
+// @description获取验证码
 // @accept json
 // @produce json
-// @success 200 {object} string "{"code": 200, "msg": "success", "data": "data", "id": "id"}"
-// @failure 400 {object} servers.Response "错误请求"
-// @failure 401 {object} servers.Response "鉴权失败"
-// @failure 404 {object} servers.Response "未找到相关信息"
-// @failure 417 {object} servers.Response "客户端请求头错误"
+// @success 200 {object} servers.Response "成功"
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/captcha [get]
 func GetCaptcha(c *gin.Context) {
 	id, b64s, err := deployed.Captcha.Generate()
 	if err != nil {
-		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.CaptchaGetFailed))
+		servers.Fail(c, http.StatusInternalServerError,
+			servers.WithMsg(prompt.CaptchaGetFailed),
+			servers.WithError(err),
+		)
 		return
 	}
-	servers.JSON(c, http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  http.StatusText(http.StatusOK),
-		"id":   id,
-		"data": b64s,
-	})
+	servers.OK(c, servers.WithData(gin.H{"id": id, "data": b64s}))
 }
