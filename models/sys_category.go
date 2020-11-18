@@ -96,12 +96,22 @@ func (sf cCategory) Update(ctx context.Context, id int, up Category) error {
 
 // 删除SysCategory
 func (cCategory) Delete(ctx context.Context, id int) error {
+	if id == 0 {
+		return nil
+	}
 	return dao.DB.Scopes(CategoryDB(ctx)).
 		Delete(&Category{}, "id=?", id).Error
 }
 
 // 批量删除
-func (cCategory) BatchDelete(ctx context.Context, ids []int) error {
-	return dao.DB.Scopes(CategoryDB(ctx)).
-		Delete(&Category{}, "id in (?)", ids).Error
+func (sf cCategory) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(CategoryDB(ctx)).
+			Delete(&Category{}, "id in (?)", ids).Error
+	}
 }

@@ -15,6 +15,6 @@ func SysCategory(v1 gin.IRouter) {
 		r.GET("/:id", ctl.Get)
 		r.POST("", ctl.Create)
 		r.PUT("", ctl.Update)
-		r.DELETE("/:id", ctl.BatchDelete)
+		r.DELETE("/:ids", ctl.BatchDelete)
 	}
 }

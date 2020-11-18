@@ -143,7 +143,7 @@ func (Category) Update(c *gin.Context) {
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/categories/{ids} [get]
 func (Category) BatchDelete(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("id"))
+	ids := infra.ParseIdsGroup(c.Param("ids"))
 	err := models.CCategory.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
