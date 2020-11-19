@@ -201,10 +201,26 @@ func (cUser) Create(ctx context.Context, item User) (User, error) {
 	return item, err
 }
 
-// BatchDelete 批量删除用户
-func (cUser) BatchDelete(ctx context.Context, ids []int) error {
+// Delete 删除用户
+func (sf cUser) Delete(ctx context.Context, id int) error {
+	if id == 0 {
+		return nil
+	}
 	return dao.DB.Scopes(UserDB(ctx)).
-		Delete(&User{}, "user_id in (?)", ids).Error
+		Delete(&User{}, "user_id=?", id).Error
+}
+
+// BatchDelete 批量删除用户
+func (sf cUser) BatchDelete(ctx context.Context, ids []int) error {
+	switch len(ids) {
+	case 0:
+		return nil
+	case 1:
+		return sf.Delete(ctx, ids[0])
+	default:
+		return dao.DB.Scopes(UserDB(ctx)).
+			Delete(&User{}, "user_id in (?)", ids).Error
+	}
 }
 
 // 修改
