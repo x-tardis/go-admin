@@ -5,7 +5,7 @@ import (
 	"text/template"
 )
 
-const tipText = `  {{.Banner}}
+const tipTpl = `  {{.Banner}}
 
 欢迎使用 {{.Name}} {{.Version}} 可以使用 {{.H}} 查看命令
 {{.ServerTitle}}:
@@ -36,6 +36,6 @@ type Tip struct {
 
 // Show show tip
 func Show(t Tip) {
-	template.Must(template.New("tip").Parse(tipText)).
+	template.Must(template.New("tip").Parse(tipTpl)).
 		Execute(os.Stdout, t) // nolint: errcheck
 }

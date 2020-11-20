@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/thinkgos/sharp/builder"
 
-	"github.com/x-tardis/go-admin/misc"
+	"github.com/x-tardis/go-admin/pkg/tip"
 )
 
 var Cmd = &cobra.Command{
@@ -14,7 +14,7 @@ var Cmd = &cobra.Command{
 	Short:   "Get version info",
 	Example: fmt.Sprintf("%s version", builder.Name),
 	RunE: func(*cobra.Command, []string) error {
-		misc.PrintVersion()
+		tip.PrintVersion()
 		return nil
 	},
 }
