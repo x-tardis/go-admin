@@ -143,7 +143,7 @@ type UpdatePassword struct {
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"
 // @failure 500 {object} servers.Response "服务器内部错误"
-// @router /api/v1/user/avatar [put]
+// @router /api/v1/user/password [put]
 func (User) UpdatePassword(c *gin.Context) {
 	up := UpdatePassword{}
 	if err := c.ShouldBindJSON(&up); err != nil {

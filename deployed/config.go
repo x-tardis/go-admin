@@ -16,11 +16,13 @@ var SslConfig = new(Ssl)
 var GenConfig = new(Gen)
 
 func init() {
-	RegisterViperDefault(ViperApplicationDefault)
-	RegisterViperDefault(ViperLimiterDefault)
-	RegisterViperDefault(ViperCorsDefault)
-	RegisterViperDefault(ViperJwtDefault)
-	RegisterViperDefault(ViperRedisDefault)
+	RegisterViperDefault(
+		ViperApplicationDefault,
+		ViperLimiterDefault,
+		ViperCorsDefault,
+		ViperJwtDefault,
+		ViperRedisDefault,
+	)
 }
 
 // 载入配置文件

@@ -2,6 +2,8 @@ package deployed
 
 import (
 	"github.com/spf13/viper"
+
+	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
 type Application struct {
@@ -14,7 +16,8 @@ type Application struct {
 }
 
 func ViperApplicationDefault() {
-
+	viper.SetDefault("mode", infra.ModeProd)
+	viper.SetDefault("port", "80")
 }
 
 func ViperApplication() *Application {
