@@ -22,8 +22,8 @@ logger:
   # LowercaseLevelEncoder: 小写编码器(默认) LowercaseColorLevelEncoder: 小写编码器带颜色
   # CapitalLevelEncoder: 大写编码器 CapitalColorLevelEncoder: 大写编码器带颜色
   encodeLevel: LowercaseLevelEncoder
-  # 是否显示在console
-  inConsole: false
+  # 输出到file,console,multi
+  writer: multi
   # 使能栈调式输出
   stack: false
   # 保存路径

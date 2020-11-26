@@ -12,7 +12,7 @@ func ViperLogger() izap.Config {
 		Level:       c.GetString("level"),
 		Format:      c.GetString("format"),
 		EncodeLevel: c.GetString("encodeLevel"),
-		InConsole:   c.GetBool("inConsole"),
+		Writer:      c.GetString("writer"),
 		Stack:       c.GetBool("stack"),
 		Path:        c.GetString("path"),
 

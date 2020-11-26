@@ -13,9 +13,9 @@ import (
 // Config 日志配置
 type Config struct {
 	Level       string `yaml:"level" json:"level"`             // 日志等级,默认info
-	Format      string `yaml:"format" json:"format"`           // json or console 默认json
+	Format      string `yaml:"format" json:"format"`           // 编码格式: json or console 默认json
 	EncodeLevel string `yaml:"encodeLevel" json:"encodeLevel"` // 编码器类型
-	InConsole   bool   `yaml:"inConsole" json:"inConsole"`     // 是否在console输出
+	Writer      string `yaml:"write" json:"write"`             // 输出: file,console,multi
 	Stack       bool   `yaml:"stack" json:"stack"`             // 使能栈调试输出
 	Path        string `yaml:"path" json:"path"`               // 日志存放路径
 	// see lumberjack.Logger
@@ -55,22 +55,10 @@ func New(c Config) *zap.Logger {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
 
-	writeSyncer := zapcore.AddSync(&lumberjack.Logger{ // 文件切割
-		Filename:   filepath.Join(c.Path, c.FileName),
-		MaxSize:    c.MaxSize,
-		MaxAge:     c.MaxAge,
-		MaxBackups: c.MaxBackups,
-		LocalTime:  c.LocalTime,
-		Compress:   c.Compress,
-	})
-	if c.InConsole {
-		writeSyncer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), writeSyncer)
-	}
-
 	// 设置日志输出等级
 	level := zap.NewAtomicLevelAt(toLevel(c.Level))
 	// 初始化core
-	core := zapcore.NewCore(encoder, writeSyncer, level)
+	core := zapcore.NewCore(encoder, toWriter(&c), level)
 
 	// 添加显示文件名和行号,跳过封装调用层,栈调用,及使能等级
 	if c.Stack {
@@ -129,5 +117,32 @@ func toEncodeLevel(l string) zapcore.LevelEncoder {
 		fallthrough
 	default:
 		return zapcore.LowercaseLevelEncoder
+	}
+}
+
+func toWriter(c *Config) zapcore.WriteSyncer {
+	switch strings.ToLower(c.Writer) {
+	case "file":
+		return zapcore.AddSync(&lumberjack.Logger{ // 文件切割
+			Filename:   filepath.Join(c.Path, c.FileName),
+			MaxSize:    c.MaxSize,
+			MaxAge:     c.MaxAge,
+			MaxBackups: c.MaxBackups,
+			LocalTime:  c.LocalTime,
+			Compress:   c.Compress,
+		})
+	case "multi":
+		return zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&lumberjack.Logger{ // 文件切割
+			Filename:   filepath.Join(c.Path, c.FileName),
+			MaxSize:    c.MaxSize,
+			MaxAge:     c.MaxAge,
+			MaxBackups: c.MaxBackups,
+			LocalTime:  c.LocalTime,
+			Compress:   c.Compress,
+		}))
+	case "console":
+		fallthrough
+	default:
+		return zapcore.AddSync(os.Stdout)
 	}
 }
