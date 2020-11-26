@@ -6,8 +6,8 @@ import (
 
 	"github.com/robfig/cron/v3"
 
-	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/models"
+	"github.com/x-tardis/go-admin/pkg/bcron"
 )
 
 var jobList map[string]JobExec
@@ -25,8 +25,6 @@ func initJob() {
 func Startup() {
 	initJob()
 	log.Println("[INFO] JobCore Starting...")
-
-	deployed.Cron = deployed.NewCron()
 
 	jobItems, err := models.CJob.Query(context.Background())
 	if err != nil {
@@ -49,18 +47,12 @@ func Startup() {
 		models.CJob.UpdateEntryID(context.Background(), v.JobId, entryId) // nolint: errcheck
 	}
 
-	// 启动任务
-	deployed.Cron.Start()
 	log.Println("[INFO] JobCore start success.")
-}
-
-func Stop() {
-	deployed.Cron.Stop()
 }
 
 // 添加任务 AddJob(invokeTarget string, jobId int, jobName string, cronExpression string)
 func AddJob(job Job) (int, error) {
-	id, err := deployed.Cron.AddJob(job.Expression(), job)
+	id, err := bcron.Cron.AddJob(job.Expression(), job)
 	job.SetEntryId(int(id))
 	return int(id), err
 }
@@ -69,7 +61,7 @@ func AddJob(job Job) (int, error) {
 func Remove(entryID int) chan struct{} {
 	ch := make(chan struct{})
 	go func() {
-		deployed.Cron.Remove(cron.EntryID(entryID))
+		bcron.Cron.Remove(cron.EntryID(entryID))
 		log.Println("[INFO] JobCore Remove success ,info entryID :", entryID)
 		ch <- struct{}{}
 	}()

@@ -21,6 +21,7 @@ import (
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/misc"
+	"github.com/x-tardis/go-admin/pkg/bcron"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jobs"
 	"github.com/x-tardis/go-admin/pkg/tip"
@@ -60,6 +61,8 @@ func setup(cmd *cobra.Command, args []string) {
 	dao.SetupDatabase(dao.DbConfig)
 	// 4. 接口访问控制加载
 	deployed.SetupCasbin()
+	// 时钟定时器
+	bcron.Cron.Start()
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -96,8 +99,8 @@ func run(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func postRun(cmd *cobra.Command, args []string) {
-	jobs.Stop()
+func postRun(*cobra.Command, []string) {
+	bcron.Cron.Stop()
 }
 
 func showTip() {
