@@ -10,7 +10,7 @@ import (
 // ViperCorsDefault cors 默认值
 func ViperCorsDefault() {
 	viper.SetDefault("cors.allowOrigins", []string{})
-	viper.SetDefault("cors.allowMethods", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "UPDATE", "PATCH"})
+	viper.SetDefault("cors.allowMethods", []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "UPDATE"})
 	viper.SetDefault("cors.allowHeaders", []string{"Content-Type", "Content-Length", "AccessToken", "X-CSRF-Token", "Authorization", "Token", "X-Token"})
 	viper.SetDefault("cors.allowCredentials", true)
 	viper.SetDefault("cors.exposeHeaders", []string{"Content-Type", "Content-Length", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers"})
@@ -25,9 +25,9 @@ func ViperCors() cors.Config {
 		AllowOrigins:    c.GetStringSlice("allowOrigins"), // *
 		//AllowOriginFunc: func(origin string) bool { return true },
 		AllowMethods:           c.GetStringSlice("allowMethods"),  // "GET", "POST", "PUT", "DELETE", "OPTIONS", "UPDATE", "PATCH"
-		AllowHeaders:           c.GetStringSlice("allowHeaders"),  // "Accept", "Authorization", "Content-Length", "X-CSRF-Token"
+		AllowHeaders:           c.GetStringSlice("allowHeaders"),  // "Content-Type", "Content-Length", "AccessToken", "X-CSRF-Token", "Authorization", "Token", "X-Token"
 		AllowCredentials:       c.GetBool("allowCredentials"),     // true
-		ExposeHeaders:          c.GetStringSlice("exposeHeaders"), // "Link"
+		ExposeHeaders:          c.GetStringSlice("exposeHeaders"), // "Content-Type", "Content-Length", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers"
 		MaxAge:                 c.GetDuration("maxAge"),           // 300s
 		AllowWildcard:          c.GetBool("allowWildcard"),
 		AllowBrowserExtensions: c.GetBool("allowBrowserExtensions"),

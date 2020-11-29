@@ -72,10 +72,10 @@ cors:
     - GET
     - POST
     - PUT
+    - PATCH
     - DELETE
     - OPTIONS
     - UPDATE
-    - PATCH
   allowHeaders:
     - Content-Type
     - Content-Length
