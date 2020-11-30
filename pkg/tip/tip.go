@@ -19,7 +19,7 @@ Enter {{.Kill}} Shutdown Server
 
 `
 
-// Tip tip
+// Tip 提示信息
 type Tip struct {
 	Banner       string // 横幅
 	Name         string // 应用名称
@@ -34,7 +34,7 @@ type Tip struct {
 	Kill         string // 一般为 Control + C
 }
 
-// Show show tip
+// Show 显示tip信息到os.Stdout
 func Show(t Tip) {
 	template.Must(template.New("tip").Parse(tipTpl)).
 		Execute(os.Stdout, t) // nolint: errcheck

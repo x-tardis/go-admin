@@ -1,9 +1,9 @@
 package tip
 
 import (
-	"html/template"
 	"os"
 	"runtime"
+	"text/template"
 
 	"github.com/thinkgos/sharp/builder"
 )
@@ -20,6 +20,7 @@ const versionTpl = `  Name:             {{.Name}}
   NumCPU:           {{.NumCPU}}
 `
 
+// Version 版本信息
 type Version struct {
 	Name          string
 	Model         string
@@ -34,6 +35,7 @@ type Version struct {
 	NumCPU        int
 }
 
+// PrintVersion 打印版本信息至os.Stdout
 func PrintVersion() {
 	v := Version{
 		builder.Name,
