@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"runtime/pprof"
 	"syscall"
 	"time"
 
@@ -21,14 +22,15 @@ import (
 
 // Os os信息
 type Os struct {
-	GoOs         string `json:"goOs"`
-	Arch         string `json:"arch"`
-	NumCPU       int    `json:"numCpu,string"`
-	Mem          int    `json:"mem"`
-	Compiler     string `json:"compiler"`
-	Version      string `json:"version"`
-	NumGoroutine int    `json:"numGoroutine,string"`
-	Ip           string `json:"ip"`
+	Os             string `json:"os"`
+	Arch           string `json:"arch"`
+	NumCPU         int    `json:"numCpu,string"`
+	MemProfileRate int    `json:"memProfileRate,string"`
+	GoVersion      string `json:"goVersion"`
+	Compiler       string `json:"compiler"`
+	GoMaxProcs     int    `json:"gomaxprocs,string"`
+	Threads        int    `json:"threads,string"`
+	NumGoroutine   int    `json:"numGoroutine,string"`
 }
 
 // Mem mem信息
@@ -56,6 +58,7 @@ type Disk struct {
 
 type App struct {
 	Model         string `json:"model"`         // 型号
+	Ppid          int    `json:"ppid,string"`   // ppid
 	Pid           int    `json:"pid,string"`    // pid
 	Version       string `json:"version"`       // 版本
 	APIVersion    string `json:"apiVersion"`    // api版本
@@ -63,9 +66,10 @@ type App struct {
 	GitCommit     string `json:"gitCommit"`     // git提交码
 	GitFullCommit string `json:"gitFullCommit"` // git提交全码
 	ProjectDir    string `json:"projectDir"`    // 工作目录
-	SetupTime     string `json:"setupTime"`     // 程序启动日期
-	RunningTime   string `json:"runningTime"`   // 程序运行时间
-	Uptime        string `json:"uptime"`        // 系统运行时间
+	Ip            string `json:"ip"`
+	SetupTime     string `json:"setupTime"`   // 程序启动日期
+	RunningTime   string `json:"runningTime"` // 程序运行时间
+	Uptime        string `json:"uptime"`      // 系统运行时间
 	Mem           Mem    `json:"mem"`
 }
 
@@ -114,10 +118,11 @@ func SystemInfo(c *gin.Context) {
 			runtime.GOARCH,
 			runtime.NumCPU(),
 			runtime.MemProfileRate,
-			runtime.Compiler,
 			runtime.Version(),
+			runtime.Compiler,
+			runtime.GOMAXPROCS(0),
+			pprof.Lookup("threadcreate").Count(),
 			runtime.NumGoroutine(),
-			infra.LanIP(),
 		},
 		Mem{
 			meter.ByteSize(vMem.Total).String(),
@@ -138,6 +143,7 @@ func SystemInfo(c *gin.Context) {
 		},
 		App{
 			builder.Model,
+			os.Getppid(),
 			os.Getpid(),
 			builder.APIVersion,
 			builder.Version,
@@ -145,6 +151,7 @@ func SystemInfo(c *gin.Context) {
 			builder.GitCommit,
 			builder.GitFullCommit,
 			projectDir,
+			infra.LanIP(),
 			setupTime.Format("2006-01-02 15:04:05 Z07:00"),
 			time.Since(setupTime).Round(time.Second).String(),
 			(time.Duration(sysInfo.Uptime) * time.Second).String(),

@@ -66,11 +66,12 @@ func setup(cmd *cobra.Command, args []string) {
 }
 
 func run(cmd *cobra.Command, args []string) error {
+	var err error
+
 	fmt.Println(textcolor.Red("starting server..."))
 
-	err := agent.Listen(deployed.ViperGops())
-	misc.HandlerError(err)
 	go func() {
+		misc.HandlerError(agent.Listen(deployed.ViperGops()))
 		time.Sleep(time.Millisecond * 100)
 		jobs.Startup()
 	}()
@@ -81,6 +82,7 @@ func run(cmd *cobra.Command, args []string) error {
 	addr := net.JoinHostPort(deployed.AppConfig.Host, deployed.AppConfig.Port)
 
 	showTip()
+
 	// 默认endless服务器会监听下列信号：
 	// syscall.SIGHUP，syscall.SIGUSR1，syscall.SIGUSR2，syscall.SIGINT，syscall.SIGTERM和syscall.SIGTSTP
 	// 接收到 SIGHUP 信号将触发`fork/restart` 实现优雅重启（kill -1 pid会发送SIGHUP信号）
