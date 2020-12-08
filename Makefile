@@ -13,8 +13,9 @@ firmwareName = ${name}
 execveFile := ${firmwareName}
 
 # 路径相关
-PROJDIR=.
-BINDIR=bin
+ProjectDir=.
+BinDir=${CURDIR}/bin
+
 # 编译平台
 platform = CGO_ENABLED=0
 # 编译选项,如tags,多个采用','分开 sqlite3
@@ -31,24 +32,24 @@ flags = -ldflags "-X '${path}.BuildTime=`date "+%F %T %z"`' \
 
 system:
 	@echo "----> system executable building..."
-	@mkdir -p ${BINDIR}
-	@${platform} go build ${opts} ${flags} -o ${BINDIR}/${execveFile} ${PROJDIR}/app
+	@mkdir -p ${BinDir}
+	@${platform} go build ${opts} ${flags} -o ${BinDir}/${execveFile} ${ProjectDir}/app
 	@#upx --best --lzma ${execveFile}
 	@#bzip2 -c ${execveFile} > ${execveFile}.bz2
 	@echo "----> system executable build successful"
 
 run: system
-	@${BINDIR}/${execveFile} server
+	@${BinDir}/${execveFile} server
 
 swag:
 	@echo "----> swagger docs building..."
-	@swag init -d ${PROJDIR}/app --parseDependency ${PROJDIR}/apis
+	@swag init -d ${ProjectDir}/app --parseDependency ${ProjectDir}/apis
 	@echo "----> swagger docs build successful"
 
 clean:
 	@echo "----> cleaning..."
 	@go clean
-	@rm -r ${BINDIR}
+	@rm -r ${BinDir}
 	@echo "----> clean successful"
 
 help:
@@ -59,5 +60,5 @@ help:
 	@echo " make clean   -- clean build files"
 	@echo " ------------- How to build ------------- "
 
-.PHONY: system swag clean help
+.PHONY: system run swag clean help
 
