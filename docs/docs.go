@@ -42,31 +42,7 @@ var doc = `{
                 "summary": "获取验证码",
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"msg\": \"success\", \"data\": \"data\", \"id\": \"id\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "错误请求",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "鉴权失败",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "未找到相关信息",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "417": {
-                        "description": "客户端请求头错误",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -2739,7 +2715,7 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -2783,7 +2759,7 @@ var doc = `{
                 "summary": "修改登录日志",
                 "parameters": [
                     {
-                        "description": "upate item",
+                        "description": "update item",
                         "name": "up",
                         "in": "body",
                         "required": true,
@@ -2794,7 +2770,7 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -2849,7 +2825,7 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -2904,7 +2880,7 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -2959,7 +2935,7 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -3308,7 +3284,7 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -3363,9 +3339,9 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"msg\": \"\"}",
+                        "description": "成功",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     },
                     "400": {
@@ -3418,9 +3394,9 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"msg\": \"\"}",
+                        "description": "成功",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/servers.Response"
                         }
                     },
                     "400": {
@@ -3473,7 +3449,7 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
@@ -4354,36 +4330,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
                         }
-                    },
-                    "400": {
-                        "description": "错误请求",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "鉴权失败",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "未找到相关信息",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "417": {
-                        "description": "客户端请求头错误",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
                     }
                 }
             }
@@ -4485,61 +4431,6 @@ var doc = `{
             }
         },
         "/api/v1/user/avatar": {
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "修改密码",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "个人中心/UserCenter"
-                ],
-                "summary": "修改密码",
-                "parameters": [
-                    {
-                        "description": "update password",
-                        "name": "up",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/system.UpdatePassword"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"msg\": \"\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "错误请求",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "鉴权失败",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/servers.Response"
-                        }
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
@@ -4617,6 +4508,63 @@ var doc = `{
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
                             "$ref": "#/definitions/servers.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "错误请求",
+                        "schema": {
+                            "$ref": "#/definitions/servers.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "鉴权失败",
+                        "schema": {
+                            "$ref": "#/definitions/servers.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/servers.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/password": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "个人中心/UserCenter"
+                ],
+                "summary": "修改密码",
+                "parameters": [
+                    {
+                        "description": "update password",
+                        "name": "up",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.UpdatePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"msg\": \"\"}",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -5665,9 +5613,11 @@ var doc = `{
                     "type": "string"
                 },
                 "password": {
+                    "description": "密码",
                     "type": "string"
                 },
                 "username": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }
@@ -6250,8 +6200,10 @@ var doc = `{
                     "description": "git提交全码",
                     "type": "string"
                 },
+                "ip": {
+                    "type": "string"
+                },
                 "mem": {
-                    "type": "object",
                     "$ref": "#/definitions/system.Mem"
                 },
                 "model": {
@@ -6260,6 +6212,11 @@ var doc = `{
                 },
                 "pid": {
                     "description": "pid",
+                    "type": "string",
+                    "example": "0"
+                },
+                "ppid": {
+                    "description": "ppid",
                     "type": "string",
                     "example": "0"
                 },
@@ -6346,14 +6303,16 @@ var doc = `{
                 "compiler": {
                     "type": "string"
                 },
-                "goOs": {
+                "goVersion": {
                     "type": "string"
                 },
-                "ip": {
-                    "type": "string"
+                "gomaxprocs": {
+                    "type": "string",
+                    "example": "0"
                 },
-                "mem": {
-                    "type": "integer"
+                "memProfileRate": {
+                    "type": "string",
+                    "example": "0"
                 },
                 "numCpu": {
                     "type": "string",
@@ -6363,8 +6322,12 @@ var doc = `{
                     "type": "string",
                     "example": "0"
                 },
-                "version": {
+                "os": {
                     "type": "string"
+                },
+                "threads": {
+                    "type": "string",
+                    "example": "0"
                 }
             }
         },
@@ -6372,26 +6335,21 @@ var doc = `{
             "type": "object",
             "properties": {
                 "app": {
-                    "type": "object",
                     "$ref": "#/definitions/system.App"
                 },
                 "code": {
                     "type": "integer"
                 },
                 "cpu": {
-                    "type": "object",
                     "$ref": "#/definitions/system.Cpu"
                 },
                 "disk": {
-                    "type": "object",
                     "$ref": "#/definitions/system.Disk"
                 },
                 "mem": {
-                    "type": "object",
                     "$ref": "#/definitions/system.Mem"
                 },
                 "os": {
-                    "type": "object",
                     "$ref": "#/definitions/system.Os"
                 }
             }
@@ -6622,7 +6580,6 @@ var doc = `{
                     "type": "string"
                 },
                 "params": {
-                    "type": "object",
                     "$ref": "#/definitions/tools.Params"
                 },
                 "pkColumn": {

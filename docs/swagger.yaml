@@ -371,8 +371,10 @@ definitions:
         description: 验证码id
         type: string
       password:
+        description: 密码
         type: string
       username:
+        description: 用户名
         type: string
     required:
     - ccode
@@ -796,14 +798,19 @@ definitions:
       gitFullCommit:
         description: git提交全码
         type: string
+      ip:
+        type: string
       mem:
         $ref: '#/definitions/system.Mem'
-        type: object
       model:
         description: 型号
         type: string
       pid:
         description: pid
+        example: "0"
+        type: string
+      ppid:
+        description: ppid
         example: "0"
         type: string
       projectDir:
@@ -862,40 +869,40 @@ definitions:
         type: string
       compiler:
         type: string
-      goOs:
+      goVersion:
         type: string
-      ip:
+      gomaxprocs:
+        example: "0"
         type: string
-      mem:
-        type: integer
+      memProfileRate:
+        example: "0"
+        type: string
       numCpu:
         example: "0"
         type: string
       numGoroutine:
         example: "0"
         type: string
-      version:
+      os:
+        type: string
+      threads:
+        example: "0"
         type: string
     type: object
   system.SystemInfos:
     properties:
       app:
         $ref: '#/definitions/system.App'
-        type: object
       code:
         type: integer
       cpu:
         $ref: '#/definitions/system.Cpu'
-        type: object
       disk:
         $ref: '#/definitions/system.Disk'
-        type: object
       mem:
         $ref: '#/definitions/system.Mem'
-        type: object
       os:
         $ref: '#/definitions/system.Os'
-        type: object
     type: object
   system.UpdatePassword:
     properties:
@@ -1050,7 +1057,6 @@ definitions:
         type: string
       params:
         $ref: '#/definitions/tools.Params'
-        type: object
       pkColumn:
         type: string
       pkGoField:
@@ -1100,23 +1106,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "msg": "success", "data": "data", "id": "id"}'
-          schema:
-            type: string
-        "400":
-          description: 错误请求
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "401":
-          description: 鉴权失败
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "404":
-          description: 未找到相关信息
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "417":
-          description: 客户端请求头错误
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "500":
@@ -2831,7 +2821,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "400":
@@ -2866,7 +2856,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "400":
@@ -2891,7 +2881,7 @@ paths:
       - application/json
       description: 修改登录日志
       parameters:
-      - description: upate item
+      - description: update item
         in: body
         name: up
         required: true
@@ -2901,7 +2891,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "400":
@@ -2936,7 +2926,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "400":
@@ -2971,7 +2961,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "400":
@@ -3190,7 +3180,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "400":
@@ -3225,9 +3215,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "msg": ""}'
+          description: 成功
           schema:
-            type: string
+            $ref: '#/definitions/servers.Response'
         "400":
           description: 错误请求
           schema:
@@ -3260,7 +3250,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
         "400":
@@ -3295,9 +3285,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code": 200, "msg": ""}'
+          description: 成功
           schema:
-            type: string
+            $ref: '#/definitions/servers.Response'
         "400":
           description: 错误请求
           schema:
@@ -3853,26 +3843,6 @@ paths:
           description: 成功
           schema:
             $ref: '#/definitions/servers.Response'
-        "400":
-          description: 错误请求
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "401":
-          description: 鉴权失败
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "404":
-          description: 未找到相关信息
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "417":
-          description: 客户端请求头错误
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/servers.Response'
       summary: ping/pong test
       tags:
       - 系统信息
@@ -3973,6 +3943,36 @@ paths:
       summary: 修改头像
       tags:
       - 个人中心/UserCenter
+  /api/v1/user/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/servers.Response'
+        "400":
+          description: 错误请求
+          schema:
+            $ref: '#/definitions/servers.Response'
+        "401":
+          description: 鉴权失败
+          schema:
+            $ref: '#/definitions/servers.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/servers.Response'
+      security:
+      - Bearer: []
+      summary: 获取用户信息
+      tags:
+      - 个人中心/UserCenter
+  /api/v1/user/password:
     put:
       consumes:
       - application/json
@@ -4006,35 +4006,6 @@ paths:
       security:
       - Bearer: []
       summary: 修改密码
-      tags:
-      - 个人中心/UserCenter
-  /api/v1/user/info:
-    get:
-      consumes:
-      - application/json
-      description: 获取用户信息
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "400":
-          description: 错误请求
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "401":
-          description: 鉴权失败
-          schema:
-            $ref: '#/definitions/servers.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/servers.Response'
-      security:
-      - Bearer: []
-      summary: 获取用户信息
       tags:
       - 个人中心/UserCenter
   /api/v1/user/profile:

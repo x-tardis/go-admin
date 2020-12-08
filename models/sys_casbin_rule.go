@@ -11,13 +11,14 @@ import (
 
 // CasbinRule casbin rule
 type CasbinRule struct {
-	PType string `json:"p_type" gorm:"size:100;"` // type
-	V0    string `json:"v0" gorm:"size:100;"`     // role key
-	V1    string `json:"v1" gorm:"size:100;"`     // path
-	V2    string `json:"v2" gorm:"size:100;"`     // method
-	V3    string `json:"v3" gorm:"size:100;"`
-	V4    string `json:"v4" gorm:"size:100;"`
-	V5    string `json:"v5" gorm:"size:100;"`
+	ID    uint   `gorm:"primaryKey;autoIncrement"`
+	PType string `gorm:"size:40;uniqueIndex:unique_index"` // type
+	V0    string `gorm:"size:40;uniqueIndex:unique_index"` // role key
+	V1    string `gorm:"size:40;uniqueIndex:unique_index"` // path
+	V2    string `gorm:"size:40;uniqueIndex:unique_index"` // method
+	V3    string `gorm:"size:40;uniqueIndex:unique_index"`
+	V4    string `gorm:"size:40;uniqueIndex:unique_index"`
+	V5    string `gorm:"size:40;uniqueIndex:unique_index"`
 }
 
 //TableName implement schema.Tabler interface
