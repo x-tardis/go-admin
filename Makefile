@@ -37,6 +37,9 @@ system:
 	@#bzip2 -c ${execveFile} > ${execveFile}.bz2
 	@echo "----> system executable build successful"
 
+run: system
+	@${BINDIR}/${execveFile} server
+
 swag:
 	@echo "----> swagger docs building..."
 	@swag init -d ${PROJDIR}/app --parseDependency ${PROJDIR}/apis
@@ -51,6 +54,7 @@ clean:
 help:
 	@echo " ------------- How to build ------------- "
 	@echo " make         -- build target for system"
+	@echo " run          -- build and run target for system"
 	@echo " make swag    -- build swagger doc"
 	@echo " make clean   -- clean build files"
 	@echo " ------------- How to build ------------- "
