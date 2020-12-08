@@ -14,7 +14,7 @@ execveFile := ${firmwareName}
 
 # 路径相关
 PROJDIR=.
-
+BINDIR=bin
 # 编译平台
 platform = CGO_ENABLED=0
 # 编译选项,如tags,多个采用','分开 sqlite3
@@ -31,7 +31,8 @@ flags = -ldflags "-X '${path}.BuildTime=`date "+%F %T %z"`' \
 
 system:
 	@echo "----> system executable building..."
-	@${platform} go build ${opts} ${flags} -o ${execveFile} ${PROJDIR}/app
+	@mkdir -p ${BINDIR}
+	@${platform} go build ${opts} ${flags} -o ${BINDIR}/${execveFile} ${PROJDIR}/app
 	@#upx --best --lzma ${execveFile}
 	@#bzip2 -c ${execveFile} > ${execveFile}.bz2
 	@echo "----> system executable build successful"
@@ -44,13 +45,13 @@ swag:
 clean:
 	@echo "----> cleaning..."
 	@go clean
-	@#rm -rf ${BINDIR}/*
+	@rm -r ${BINDIR}
 	@echo "----> clean successful"
 
 help:
 	@echo " ------------- How to build ------------- "
 	@echo " make         -- build target for system"
-	@echo " make swag 	 -- build swagger doc"
+	@echo " make swag    -- build swagger doc"
 	@echo " make clean   -- clean build files"
 	@echo " ------------- How to build ------------- "
 
