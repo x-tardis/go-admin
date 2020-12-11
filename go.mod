@@ -4,7 +4,9 @@ go 1.15
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/aliyun/aliyun-oss-go-sdk v2.1.5+incompatible
 	github.com/appleboy/gin-jwt/v2 v2.6.4
+	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/casbin/casbin/v2 v2.19.4
 	github.com/casbin/gorm-adapter/v3 v3.0.4
 	github.com/denisenkom/go-mssqldb v0.9.0 // indirect
@@ -42,7 +44,7 @@ require (
 	github.com/swaggo/swag v1.7.0
 	github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353
 	github.com/thinkgos/gin-middlewares v0.0.7
-	github.com/thinkgos/go-core-package v0.1.5
+	github.com/thinkgos/go-core-package v0.1.7
 	github.com/thinkgos/http-middlewares v0.0.5
 	github.com/thinkgos/meter v0.0.9
 	github.com/thinkgos/sharp v0.4.0
@@ -52,7 +54,6 @@ require (
 	go.uber.org/automaxprocs v1.3.0
 	go.uber.org/multierr v1.6.0
 	go.uber.org/zap v1.16.0
-	golang.org/x/crypto v0.0.0-20201203163018-be400aefbc4c // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/net v0.0.0-20201207224615-747e23833adb // indirect

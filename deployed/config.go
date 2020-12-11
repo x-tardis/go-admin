@@ -14,6 +14,7 @@ var FeatureConfig = new(Feature)
 var AppConfig = new(Application)
 var SslConfig = new(Ssl)
 var GenConfig = new(Gen)
+var OSSConfig = AliyunOSS{}
 
 func init() {
 	RegisterViperDefault(

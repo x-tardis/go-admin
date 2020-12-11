@@ -22,7 +22,7 @@ type FileDir struct{}
 // @produce json
 // @param id query int false "主键"
 // @param label query string false "label名称"
-// @param pId query int false "父id"
+// @param pid query int false "父id"
 // @success 200 {object} servers.Response "成功"
 // @failure 400 {object} servers.Response "错误请求"
 // @failure 401 {object} servers.Response "鉴权失败"

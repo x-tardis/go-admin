@@ -20,7 +20,6 @@ import (
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/misc"
 	"github.com/x-tardis/go-admin/pkg/bcron"
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jobs"
@@ -63,6 +62,7 @@ func setup(cmd *cobra.Command, args []string) {
 	deployed.SetupCasbin()
 	// 时钟定时器
 	bcron.Cron.Start()
+	infra.WritePidFile()
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -71,7 +71,7 @@ func run(cmd *cobra.Command, args []string) error {
 	fmt.Println(textcolor.Red("starting server..."))
 
 	go func() {
-		misc.HandlerError(agent.Listen(deployed.ViperGops()))
+		infra.HandlerError(agent.Listen(deployed.ViperGops()))
 		time.Sleep(time.Millisecond * 100)
 		jobs.Startup()
 	}()
@@ -102,6 +102,7 @@ func run(cmd *cobra.Command, args []string) error {
 }
 
 func postRun(*cobra.Command, []string) {
+	infra.RemovePidFile()
 	bcron.Cron.Stop()
 }
 
