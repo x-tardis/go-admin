@@ -9,7 +9,7 @@ type AliyunOSS struct {
 	AccessKeyId     string
 	AccessKeySecret string
 	Bucket          string
-	BucketDomain    string
+	Https           bool
 }
 
 func ViperAliyunOSS() AliyunOSS {
@@ -22,8 +22,7 @@ func ViperAliyunOSS() AliyunOSS {
 		c.GetString("accessKeyId"),
 		c.GetString("accessKeySecret"),
 		c.GetString("bucket"),
-		"",
+		c.GetBool("https"),
 	}
-	cf.BucketDomain = cf.Bucket + "." + cf.Endpoint
 	return cf
 }

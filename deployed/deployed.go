@@ -6,6 +6,7 @@ import (
 	"github.com/go-redis/redis/v7"
 	"github.com/mojocn/base64Captcha"
 	"github.com/thinkgos/go-core-package/lib/password"
+	"github.com/thinkgos/go-core-package/lib/ternary"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/infra"
@@ -47,5 +48,8 @@ func SetupOSS() {
 		infra.HandlerError(err)
 		OSSBucket, err = OSSClient.Bucket(OSSConfig.Bucket)
 		infra.HandlerError(err)
+
+		CDNDomain = ternary.IfString(OSSConfig.Https, "https://", "http://") +
+			OSSConfig.Bucket + "." + OSSConfig.Endpoint
 	}
 }

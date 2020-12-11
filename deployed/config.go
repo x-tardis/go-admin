@@ -15,6 +15,7 @@ var AppConfig = new(Application)
 var SslConfig = new(Ssl)
 var GenConfig = new(Gen)
 var OSSConfig = AliyunOSS{}
+var CDNDomain string // cdn域名,如果设置了oss,将使用oss的Bucket加速域名,否则使用配置的cdn
 
 func init() {
 	RegisterViperDefault(

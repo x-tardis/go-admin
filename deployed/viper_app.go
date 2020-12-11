@@ -1,6 +1,9 @@
 package deployed
 
 import (
+	"log"
+	"strings"
+
 	"github.com/spf13/viper"
 
 	"github.com/x-tardis/go-admin/pkg/infra"
@@ -29,4 +32,18 @@ func ViperApplication() *Application {
 		viper.GetInt("readTimeout"),
 		viper.GetInt("writerTimeout"),
 	}
+}
+
+func CanonicalCDN() string {
+	if CDNDomain == "" {
+		log.Fatal("deployed.CanonicalCDN: CDN domain can not empty")
+	}
+	if !strings.HasPrefix(CDNDomain, "http://") &&
+		!strings.HasPrefix(CDNDomain, "https://") {
+		CDNDomain = "http://" + CDNDomain
+	}
+	if strings.HasSuffix(CDNDomain, "/") {
+		return CDNDomain
+	}
+	return CDNDomain + "/"
 }

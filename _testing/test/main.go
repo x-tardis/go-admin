@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"time"
+
+	"github.com/x-tardis/go-admin/deployed"
 )
 
 func main() {
@@ -20,7 +21,6 @@ func main() {
 	// 	return models.CUser.BatchDelete(ctx, []int{3})
 	// })
 	// log.Println(err)
-
-	log.Println(time.Now().String())
-	log.Println(time.Now().Format(time.RFC3339Nano))
+	deployed.CDNDomain = "https://a.b.com/"
+	log.Println(deployed.CanonicalCDN())
 }

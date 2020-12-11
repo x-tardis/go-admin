@@ -13,7 +13,7 @@ feature:
   dataScope: false # 数据权限功能开关
   operDB: false    # 操作日志写入数据库开关
   loginDB: false   # 登录日志写入数据库开关
-
+  oss: false       # 开启oss存储
 rate:
   limit: 1000 # 限速器,每秒多少个token
 
@@ -105,6 +105,13 @@ database:
   # source: sqlite3.db
   # source: host=myhost port=myport user=gorm dbname=gorm password=mypassword
   enableLog: true    # orm日志开关
+
+oss:
+  endpoint: endpoint
+  accessKeyId: accessKeyId
+  accessKeySecret: accessKeySecret
+  bucket: bucket
+  https: true   # cdn 支持https
 gen:
   # 代码生成读取的数据库名称
   dbname: dbname

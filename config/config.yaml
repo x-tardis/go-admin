@@ -13,6 +13,7 @@ feature:
   dataScope: false # 数据权限功能开关
   operDB: false    # 操作日志写入数据库开关
   loginDB: false   # 登录日志写入数据库开关
+  oss: false       # 开启oss存储
 
 logger:
   # debug, info(默认), warn, error, dpanic, panic, fatal
