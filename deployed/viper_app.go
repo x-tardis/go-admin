@@ -2,6 +2,7 @@ package deployed
 
 import (
 	"log"
+	"net"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -16,6 +17,10 @@ type Application struct {
 	Port          string // 端口
 	ReadTimeout   int    // 读超时
 	WriterTimeout int    // 写超时
+}
+
+func (sf Application) Addr() string {
+	return net.JoinHostPort(sf.Host, sf.Port)
 }
 
 func ViperApplicationDefault() {

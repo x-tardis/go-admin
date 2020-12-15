@@ -28,7 +28,7 @@ flags = -ldflags "-X '${path}.BuildTime=`date "+%F %T %z"`' \
 	-X '${path}.Name=${name}' \
 	-X '${path}.Model=${model}' \
 	-X '${path}.Version=${version}' \
-	-X '${path}.APIVersion=${APIversion}' -s -w"
+	-X '${path}.APIVersion=${APIversion}' -w" # -s 引起gops无法识别go版本号,upx压缩也同样
 
 system:
 	@echo "----> system executable building..."

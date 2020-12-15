@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"strings"
 	"time"
@@ -79,7 +78,7 @@ func run(cmd *cobra.Command, args []string) error {
 	gin.SetMode(ternary.IfString(deployed.IsModeProd(), gin.ReleaseMode, gin.DebugMode))
 
 	engine := router.InitRouter()
-	addr := net.JoinHostPort(deployed.AppConfig.Host, deployed.AppConfig.Port)
+	addr := deployed.AppConfig.Addr()
 
 	showTip()
 
