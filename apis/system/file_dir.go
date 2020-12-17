@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/habit"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
@@ -128,7 +128,7 @@ func (FileDir) Update(c *gin.Context) {
 // @failure 500 {object} servers.Response "服务器内部错误"
 // @router /api/v1/filedir/{ids} [delete]
 func (FileDir) BatchDelete(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("ids"))
+	ids := habit.ParseIdsGroupInt(c.Param("ids"))
 	err := models.CFileDir.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))

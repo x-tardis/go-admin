@@ -5,11 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/habit"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
@@ -133,7 +133,7 @@ func (Post) Update(c *gin.Context) {
 // @success 500 {string} string	"{"code": 500, "message": "删除失败"}"
 // @router /api/v1/posts/{ids} [delete]
 func (Post) BatchDelete(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("ids"))
+	ids := habit.ParseIdsGroupInt(c.Param("ids"))
 	err := models.CPost.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))

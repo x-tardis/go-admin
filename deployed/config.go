@@ -5,9 +5,9 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"github.com/thinkgos/go-core-package/lib/habit"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
 var FeatureConfig = new(Feature)
@@ -65,13 +65,13 @@ func LoadConfig(filename string) error {
 }
 
 func IsModeDebug() bool {
-	return AppConfig.Mode == infra.ModeDebug
+	return habit.IsModeDebug(AppConfig.Mode)
 }
 
 func IsModeProd() bool {
-	return AppConfig.Mode == infra.ModeProd
+	return habit.IsModeProd(AppConfig.Mode)
 }
 
 func IsModeDev() bool {
-	return AppConfig.Mode == infra.ModeDev
+	return habit.IsModeDev(AppConfig.Mode)
 }

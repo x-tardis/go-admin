@@ -5,12 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/habit"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
@@ -150,7 +150,7 @@ func (Role) Update(c *gin.Context) {
 // @success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @router /api/v1/roles/{ids} [delete]
 func (Role) BatchDelete(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("ids"))
+	ids := habit.ParseIdsGroupInt(c.Param("ids"))
 	err := models.CRole.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))

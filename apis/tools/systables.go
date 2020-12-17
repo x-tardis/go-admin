@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/habit"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/models/tools"
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
@@ -263,7 +263,7 @@ func (Tables) Update(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/sys/tables/info/{ids} [delete]
 func (Tables) DeleteSysTables(c *gin.Context) {
-	ids := infra.ParseIdsGroup(c.Param("ids"))
+	ids := habit.ParseIdsGroupInt(c.Param("ids"))
 	err := tools.CTables.BatchDelete(gcontext.Context(c), ids)
 	if err != nil {
 		servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))

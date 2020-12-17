@@ -5,11 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
+	"github.com/thinkgos/go-core-package/lib/habit"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/gin/gcontext"
 
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
@@ -127,7 +127,7 @@ func (OperLog) BatchDelete(c *gin.Context) {
 	case "clean":
 		err = models.COperLog.Clean(gcontext.Context(c))
 	default: // ids
-		ids := infra.ParseIdsGroup(action)
+		ids := habit.ParseIdsGroupInt(action)
 		err = models.COperLog.BatchDelete(gcontext.Context(c), ids)
 	}
 	if err != nil {

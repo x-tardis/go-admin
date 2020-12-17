@@ -44,11 +44,10 @@ require (
 	github.com/swaggo/swag v1.7.0
 	github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353
 	github.com/thinkgos/gin-middlewares v0.0.7
-	github.com/thinkgos/go-core-package v0.1.8
+	github.com/thinkgos/go-core-package v0.1.9
 	github.com/thinkgos/http-middlewares v0.0.5
 	github.com/thinkgos/meter v0.0.9
 	github.com/thinkgos/sharp v1.0.0
-	github.com/ugorji/go v1.2.1 // indirect
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/atomic v1.7.0
 	go.uber.org/automaxprocs v1.3.0
