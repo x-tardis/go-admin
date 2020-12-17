@@ -13,9 +13,10 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/thinkgos/go-core-package/builder"
+	"github.com/thinkgos/go-core-package/lib/habit"
 	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/go-core-package/lib/textcolor"
-	"github.com/thinkgos/sharp/builder"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/deployed/dao"
@@ -41,8 +42,8 @@ var Cmd = &cobra.Command{
 
 func init() {
 	Cmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Start server with provided configuration file")
-	Cmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
-	Cmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,debug,prod")
+	Cmd.PersistentFlags().StringVarP(&port, "port", "p", "80", "Tcp port server listening on")
+	Cmd.PersistentFlags().StringVarP(&mode, "mode", "m", "prod", "server mode ; eg:dev,debug,prod")
 }
 
 func setup(cmd *cobra.Command, args []string) {
@@ -61,7 +62,7 @@ func setup(cmd *cobra.Command, args []string) {
 	deployed.SetupCasbin()
 	// 时钟定时器
 	bcron.Cron.Start()
-	infra.WritePidFile()
+	habit.WritePidFile()
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -101,7 +102,7 @@ func run(cmd *cobra.Command, args []string) error {
 }
 
 func postRun(*cobra.Command, []string) {
-	infra.RemovePidFile()
+	habit.RemovePidFile()
 	bcron.Cron.Stop()
 }
 

@@ -19,7 +19,6 @@ var CDNDomain string // cdn域名,如果设置了oss,将使用oss的Bucket加速
 
 func init() {
 	RegisterViperDefault(
-		ViperApplicationDefault,
 		ViperLimiterDefault,
 		ViperCorsDefault,
 		ViperJwtDefault,

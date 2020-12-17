@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"text/template"
 
-	"github.com/thinkgos/sharp/builder"
+	"github.com/thinkgos/go-core-package/builder"
 )
 
 const versionTpl = `  Name:             {{.Name}}

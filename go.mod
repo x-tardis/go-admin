@@ -44,10 +44,10 @@ require (
 	github.com/swaggo/swag v1.7.0
 	github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353
 	github.com/thinkgos/gin-middlewares v0.0.7
-	github.com/thinkgos/go-core-package v0.1.7
+	github.com/thinkgos/go-core-package v0.1.8
 	github.com/thinkgos/http-middlewares v0.0.5
 	github.com/thinkgos/meter v0.0.9
-	github.com/thinkgos/sharp v0.4.0
+	github.com/thinkgos/sharp v1.0.0
 	github.com/ugorji/go v1.2.1 // indirect
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/atomic v1.7.0
@@ -57,7 +57,6 @@ require (
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/net v0.0.0-20201207224615-747e23833adb // indirect
-	golang.org/x/sys v0.0.0-20201207223542-d4d67f95c62d // indirect
 	golang.org/x/tools v0.0.0-20201208002638-66f931576d67 // indirect
 	gopkg.in/ffmt.v1 v1.5.6
 	gopkg.in/ini.v1 v1.62.0 // indirect

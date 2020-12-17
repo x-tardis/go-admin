@@ -2471,7 +2471,7 @@ paths:
         type: string
       - description: 父id
         in: query
-        name: pId
+        name: pid
         type: integer
       produces:
       - application/json

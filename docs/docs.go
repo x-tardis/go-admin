@@ -2182,7 +2182,7 @@ var doc = `{
                     {
                         "type": "integer",
                         "description": "父id",
-                        "name": "pId",
+                        "name": "pid",
                         "in": "query"
                     }
                 ],

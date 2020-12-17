@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
-
-	"github.com/x-tardis/go-admin/pkg/infra"
 )
 
 type Application struct {
@@ -21,11 +19,6 @@ type Application struct {
 
 func (sf Application) Addr() string {
 	return net.JoinHostPort(sf.Host, sf.Port)
-}
-
-func ViperApplicationDefault() {
-	viper.SetDefault("mode", infra.ModeProd)
-	viper.SetDefault("port", "80")
 }
 
 func ViperApplication() *Application {
