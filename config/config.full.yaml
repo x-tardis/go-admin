@@ -108,8 +108,9 @@ database:
   dbName: dbname
   #  dbName: sqlite3.db
   logMode: false # orm日志开关
-  extend: #  key-value扩展字段, mysql默认含有参数: charset=utf8mb4&parseTime=True&loc=Local
-    timeout: 1000ms
+  extend: #  []map[string]string扩展字段, mysql默认含有参数: charset=utf8mb4&parseTime=True&loc=Local
+    - key: timeout
+      value: 1000ms
 oss:
   endpoint: endpoint
   accessKeyId: accessKeyId

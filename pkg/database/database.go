@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/thinkgos/go-core-package/lib/univ"
 	"gorm.io/gorm"
@@ -30,16 +29,13 @@ func New(c Config) (*gorm.DB, error) {
 	case "mysql":
 		values := make(univ.Values)
 		values.Add("charset", "utf8mb4")
-		// values.Add("parseTime", "True")
+		values.Add("parseTime", "True")
 		values.Add("loc", "Local")
-
 		for k, v := range c.Extend {
 			values.Add(k, v)
 		}
-
 		dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?%s",
 			c.Username, c.Password, c.Protocol, c.Host, c.Port, c.DbName, values.Encode("=", "&")) // DSN data source name
-		log.Println(dsn)
 		dialect = newMsql(dsn)
 	case "postgres":
 		values := make(univ.Values)
@@ -51,7 +47,8 @@ func New(c Config) (*gorm.DB, error) {
 		for k, v := range c.Extend {
 			values.Add(k, v)
 		}
-		dialect = newPostgres(values.Encode("=", " "))
+		dsn := values.Encode("=", " ")
+		dialect = newPostgres(dsn)
 	case "sqlite3":
 		dialect = newSqlite3(c.DbName)
 	default:
