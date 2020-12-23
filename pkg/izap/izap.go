@@ -12,12 +12,12 @@ import (
 
 // Config 日志配置
 type Config struct {
-	Level       string `yaml:"level" json:"level"`             // 日志等级,默认info
+	Level       string `yaml:"level" json:"level"`             // 日志等级, debug,info,warn,error,dpanic,panic,fatal 默认info
 	Format      string `yaml:"format" json:"format"`           // 编码格式: json or console 默认json
-	EncodeLevel string `yaml:"encodeLevel" json:"encodeLevel"` // 编码器类型
-	Writer      string `yaml:"write" json:"write"`             // 输出: file,console,multi
-	Stack       bool   `yaml:"stack" json:"stack"`             // 使能栈调试输出
-	Path        string `yaml:"path" json:"path"`               // 日志存放路径
+	EncodeLevel string `yaml:"encodeLevel" json:"encodeLevel"` // 编码器类型, 默认 LowercaseLevelEncoder
+	Writer      string `yaml:"write" json:"write"`             // 输出: file,console,multi 默认 console
+	Stack       bool   `yaml:"stack" json:"stack"`             // 使能栈调试输出 , 默认false
+	Path        string `yaml:"path" json:"path"`               // 日志存放路径, 默认 empty
 	// see lumberjack.Logger
 	FileName   string `yaml:"fileName" json:"fileName"`     // 文件名,空字符使用默认    默认<processname>-lumberjack.log
 	MaxSize    int    `yaml:"maxSize" json:"maxSize"`       // 每个日志文件最大尺寸(MB) 默认100MB,

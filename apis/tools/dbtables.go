@@ -20,7 +20,7 @@ import (
 // @Success 200 {object} servers.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
 func QueryDBTablePage(c *gin.Context) {
-	if dao.DbConfig.Driver == "sqlite3" || dao.DbConfig.Driver == "postgres" {
+	if dao.DbConfig.Dialect == "sqlite3" || dao.DbConfig.Dialect == "postgres" {
 		servers.Fail(c, http.StatusInternalServerError,
 			servers.WithMsg("对不起，sqlite3 或 postgres 不支持代码生成"))
 		return

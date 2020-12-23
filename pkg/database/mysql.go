@@ -5,11 +5,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func newMsql(source string) gorm.Dialector {
-	// dsn := fmt.Sprintf("%s:%s@%s(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-	// 	c.UserName, c.Password, c.Protocol, c.Addr, c.DbName) // DSN data source name
+func newMsql(dsn string) gorm.Dialector {
 	return mysql.New(mysql.Config{
-		DSN: source,
+		DSN: dsn,
 		// DefaultStringSize:         256,   // string 类型字段的默认长度
 		// DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
 		// DontSupportRenameIndex:    true,  // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引

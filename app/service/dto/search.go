@@ -45,7 +45,7 @@ func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
 			GormPublic: search.GormPublic{},
 			Join:       make([]*search.GormJoin, 0),
 		}
-		search.ResolveSearchQuery(dao.DbConfig.Driver, q, condition)
+		search.ResolveSearchQuery(dao.DbConfig.Dialect, q, condition)
 		for _, join := range condition.Join {
 			if join == nil {
 				continue

@@ -644,8 +644,8 @@ github.com/thinkgos/gin-middlewares v0.0.7 h1:X8DxCXW6YEvrejTigl5xaA5GZ7lBYzaXC9
 github.com/thinkgos/gin-middlewares v0.0.7/go.mod h1:AV1PYlJJcS2SfJ02idxmK/PRD1y2M1Cxb0p0nPvoKYw=
 github.com/thinkgos/go-core-package v0.1.7 h1:RcnsX3OXCuI6nwKjcHYYAJ2+bn7tEGvzobDvR24BvvQ=
 github.com/thinkgos/go-core-package v0.1.7/go.mod h1:Z3ItrZwmeTuMpQrRRiwjPrBZ6FJvoaRfa/iijVQY6aw=
-github.com/thinkgos/go-core-package v0.1.9 h1:7zWBjZLhhepl4CbzZrc+7hXDsjslz+/It7lMyf7oEyc=
-github.com/thinkgos/go-core-package v0.1.9/go.mod h1:591t4vJXBzUyQfhGY21y9sx5JsbPyjXRTAuFU5mNpEQ=
+github.com/thinkgos/go-core-package v0.1.10 h1:ebaZyKCYNOCQv9J7T862ry8cnWheCZMHjZazk5Utrwo=
+github.com/thinkgos/go-core-package v0.1.10/go.mod h1:591t4vJXBzUyQfhGY21y9sx5JsbPyjXRTAuFU5mNpEQ=
 github.com/thinkgos/http-middlewares v0.0.4 h1:wJIHFybx2py4yMJLJsjrVxxa9Wbq4/PFnq82c/Mnkys=
 github.com/thinkgos/http-middlewares v0.0.4/go.mod h1:2t2WE+sbu20lifeFpVeLey8u9n8QjguxVDnFsgD3DZc=
 github.com/thinkgos/http-middlewares v0.0.5 h1:1EFx9+GE1bbnz2DyzzWPJEx5BTiGaIAGU59uL++o/K8=

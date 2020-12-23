@@ -49,7 +49,7 @@ func run(cmd *cobra.Command, _ []string) {
 }
 
 func migrateModel() error {
-	if dao.DbConfig.Driver == "mysql" {
+	if dao.DbConfig.Dialect == "mysql" {
 		dao.DB.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
 	return migrate.Migrate(dao.DB.Debug())
