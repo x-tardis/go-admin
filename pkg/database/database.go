@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/thinkgos/go-core-package/lib/univ"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	"gorm.io/gorm/schema"
 )
 
 // Config 数据库配置
@@ -22,7 +22,7 @@ type Config struct {
 	LogMode  bool              `yaml:"logMode" json:"logMode"`
 }
 
-func New(c Config) (*gorm.DB, error) {
+func New(c Config, config *gorm.Config, extendNews ...func(c Config) gorm.Dialector) (*gorm.DB, error) {
 	var dialect gorm.Dialector
 
 	switch c.Dialect {
@@ -36,7 +36,14 @@ func New(c Config) (*gorm.DB, error) {
 		}
 		dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?%s",
 			c.Username, c.Password, c.Protocol, c.Host, c.Port, c.DbName, values.Encode("=", "&")) // DSN data source name
-		dialect = newMsql(dsn)
+		dialect = mysql.New(mysql.Config{
+			DSN: dsn,
+			// DefaultStringSize:         256,   // string 类型字段的默认长度
+			// DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
+			// DontSupportRenameIndex:    true,  // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
+			// DontSupportRenameColumn:   true,  // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
+			// SkipInitializeWithVersion: false, // 根据版本自动配置
+		})
 	case "postgres":
 		values := make(univ.Values)
 		values.Add("user", c.Username)
@@ -48,13 +55,19 @@ func New(c Config) (*gorm.DB, error) {
 			values.Add(k, v)
 		}
 		dsn := values.Encode("=", " ")
-		dialect = newPostgres(dsn)
+		dialect = postgres.New(postgres.Config{
+			DSN: dsn,
+		})
 	case "sqlite3":
 		dialect = newSqlite3(c.DbName)
+	case "extend":
+		if len(extendNews) == 0 {
+			panic("select extend should give extend new function")
+		}
+		extendNew := extendNews[0]
+		dialect = extendNew(c)
 	default:
-		panic("please select database driver one of [mysql|postgres|sqlite3], if use sqlite3, build tags with sqlite3!")
+		panic("please select database driver one of [mysql|postgres|sqlite3|extend], if use sqlite3, build tags with sqlite3!")
 	}
-	return gorm.Open(dialect, &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{SingularTable: true},
-	})
+	return gorm.Open(dialect, config)
 }
