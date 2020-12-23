@@ -22,7 +22,7 @@ type Config struct {
 	LogMode  bool              `yaml:"logMode" json:"logMode"`
 }
 
-func New(c Config, config *gorm.Config, extendNews ...func(c Config) gorm.Dialector) (*gorm.DB, error) {
+func New(c Config, config *gorm.Config, dialectorNews ...func(c Config) gorm.Dialector) (*gorm.DB, error) {
 	var dialect gorm.Dialector
 
 	switch c.Dialect {
@@ -61,11 +61,11 @@ func New(c Config, config *gorm.Config, extendNews ...func(c Config) gorm.Dialec
 	case "sqlite3":
 		dialect = newSqlite3(c.DbName)
 	case "extend":
-		if len(extendNews) == 0 {
-			panic("select extend should give extend new function")
+		if len(dialectorNews) == 0 {
+			panic("select option dialector should give a dialector new function")
 		}
-		extendNew := extendNews[0]
-		dialect = extendNew(c)
+		dialectorNew := dialectorNews[0]
+		dialect = dialectorNew(c)
 	default:
 		panic("please select database driver one of [mysql|postgres|sqlite3|extend], if use sqlite3, build tags with sqlite3!")
 	}
