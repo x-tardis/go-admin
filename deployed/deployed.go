@@ -43,13 +43,14 @@ func SetupOSS() {
 	var err error
 
 	if FeatureConfig.OSS {
-		OSSConfig = ViperAliyunOSS()
-		OSSClient, err = oss.New(OSSConfig.Endpoint, OSSConfig.AccessKeyId, OSSConfig.AccessKeySecret)
+		AliAccessKeyConfig = ViperAliAccessKey()
+		AliOSSConfig = ViperAliOSS()
+		OSSClient, err = oss.New(AliOSSConfig.Endpoint, AliAccessKeyConfig.ID, AliAccessKeyConfig.Secret)
 		infra.HandlerError(err)
-		OSSBucket, err = OSSClient.Bucket(OSSConfig.Bucket)
+		OSSBucket, err = OSSClient.Bucket(AliOSSConfig.Bucket)
 		infra.HandlerError(err)
 
-		CDNDomain = ternary.IfString(OSSConfig.Https, "https://", "http://") +
-			OSSConfig.Bucket + "." + OSSConfig.Endpoint
+		CDNDomain = ternary.IfString(AliOSSConfig.Https, "https://", "http://") +
+			AliOSSConfig.Bucket + "." + AliOSSConfig.Endpoint
 	}
 }

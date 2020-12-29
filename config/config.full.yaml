@@ -111,12 +111,15 @@ database:
   extend: #  []map[string]string扩展字段, mysql默认含有参数: charset=utf8mb4&parseTime=True&loc=Local
     - key: timeout
       value: 1000ms
-oss:
-  endpoint: endpoint
-  accessKeyId: accessKeyId
-  accessKeySecret: accessKeySecret
-  bucket: bucket
-  https: true   # cdn 支持https
+
+aliyun:
+  accessKey:
+    accessKeyId: accessKeyId
+    accessKeySecret: accessKeySecret
+  oss:
+    endpoint: endpoint
+    bucket: bucket
+    https: true   # cdn 支持https
 gen:
   # 代码生成读取的数据库名称
   dbname: dbname

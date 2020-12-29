@@ -22,7 +22,7 @@ require (
 	github.com/google/gops v0.3.13
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
-	github.com/jackc/pgx/v4 v4.10.0 // indirect
+	github.com/jackc/pgx/v4 v4.10.1 // indirect
 	github.com/json-iterator/go v1.1.10
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
@@ -47,7 +47,7 @@ require (
 	github.com/thinkgos/go-core-package v0.1.10
 	github.com/thinkgos/http-middlewares v0.0.5
 	github.com/thinkgos/meter v0.0.9
-	github.com/thinkgos/sharp v1.0.0
+	github.com/thinkgos/sharp v1.0.2
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/atomic v1.7.0
 	go.uber.org/automaxprocs v1.3.0
