@@ -5,7 +5,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"github.com/thinkgos/go-core-package/lib/habit"
+	"github.com/thinkgos/x/lib/habit"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 )

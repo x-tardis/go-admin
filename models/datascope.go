@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cast"
-	"github.com/thinkgos/go-core-package/lib/textcolor"
+	"github.com/thinkgos/x/lib/textcolor"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 

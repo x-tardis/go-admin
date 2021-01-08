@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/thinkgos/go-core-package/builder"
-	"github.com/thinkgos/go-core-package/lib/textcolor"
+	"github.com/thinkgos/x/builder"
+	"github.com/thinkgos/x/lib/textcolor"
 
 	"github.com/x-tardis/go-admin/app/cmd/config"
 	"github.com/x-tardis/go-admin/app/cmd/migrate"

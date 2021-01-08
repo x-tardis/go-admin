@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 
-	"github.com/thinkgos/go-core-package/lib/ternary"
+	"github.com/thinkgos/x/lib/ternary"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"

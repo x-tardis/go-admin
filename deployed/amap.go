@@ -1,7 +1,7 @@
 package deployed
 
 import (
-	"github.com/thinkgos/go-core-package/extnet"
+	"github.com/thinkgos/x/extnet"
 
 	"github.com/x-tardis/go-admin/pkg/amap"
 )

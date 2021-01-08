@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mssola/user_agent"
 	"github.com/spf13/cast"
-	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"github.com/thinkgos/x/lib/ternary"
 
 	"github.com/x-tardis/go-admin/deployed"
 	"github.com/x-tardis/go-admin/models"

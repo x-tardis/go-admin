@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"github.com/thinkgos/x/lib/ternary"
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"

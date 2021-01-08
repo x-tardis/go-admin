@@ -1,7 +1,7 @@
 package deployed
 
 import (
-	"github.com/thinkgos/go-core-package/lib/ternary"
+	"github.com/thinkgos/x/lib/ternary"
 	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/pkg/izap"

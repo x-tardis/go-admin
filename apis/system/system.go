@@ -12,9 +12,9 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-	"github.com/thinkgos/go-core-package/builder"
-	"github.com/thinkgos/go-core-package/extmath"
 	"github.com/thinkgos/meter"
+	"github.com/thinkgos/x/builder"
+	"github.com/thinkgos/x/extmath"
 
 	"github.com/x-tardis/go-admin/pkg/infra"
 	"github.com/x-tardis/go-admin/pkg/servers"

@@ -5,8 +5,8 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/go-redis/redis/v7"
 	"github.com/mojocn/base64Captcha"
-	"github.com/thinkgos/go-core-package/lib/password"
-	"github.com/thinkgos/go-core-package/lib/ternary"
+	"github.com/thinkgos/x/lib/password"
+	"github.com/thinkgos/x/lib/ternary"
 
 	"github.com/x-tardis/go-admin/deployed/dao"
 	"github.com/x-tardis/go-admin/pkg/infra"

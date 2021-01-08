@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/thinkgos/go-core-package/lib/univ"
+	"github.com/thinkgos/x/lib/univ"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

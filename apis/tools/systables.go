@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
-	"github.com/thinkgos/go-core-package/lib/habit"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"github.com/thinkgos/x/lib/habit"
 
 	"github.com/x-tardis/go-admin/models/tools"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"

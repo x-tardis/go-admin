@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/thinkgos/go-core-package/lib/ternary"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
 	"github.com/thinkgos/sharp/iorm/trans"
+	"github.com/thinkgos/x/lib/ternary"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed/dao"

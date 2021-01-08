@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thinkgos/go-core-package/extos"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"github.com/thinkgos/x/extos"
 	"go.uber.org/multierr"
 
 	"github.com/x-tardis/go-admin/deployed"

@@ -5,10 +5,10 @@ import (
 	"errors"
 
 	"github.com/spf13/cast"
-	"github.com/thinkgos/go-core-package/extrand"
 	"github.com/thinkgos/sharp/core/paginator"
 	"github.com/thinkgos/sharp/iorm"
 	"github.com/thinkgos/sharp/iorm/trans"
+	"github.com/thinkgos/x/extrand"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/deployed"
