@@ -24,7 +24,7 @@ logger:
   # CapitalLevelEncoder: 大写编码器 CapitalColorLevelEncoder: 大写编码器带颜色
   encodeLevel: LowercaseLevelEncoder
   # 输出到file,console,multi
-  writer: multi
+  adapter: multi
   # 使能栈调式输出
   stack: false
   # 保存路径

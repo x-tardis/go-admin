@@ -18,13 +18,13 @@ func SetupLogger() {
 
 	c.FileName = "job.log"
 	c.Level = "info"
-	c.Writer = ternary.IfString(IsModeProd(), "file", "console")
+	c.Adapter = ternary.IfString(IsModeProd(), "file", "console")
 	JobLogger = izap.New(c).Sugar()
 	JobLogger.Info("job logger init success")
 
 	c.FileName = "request.log"
 	c.Level = "info"
-	c.Writer = ternary.IfString(IsModeProd(), "file", "multi")
+	c.Adapter = ternary.IfString(IsModeProd(), "file", "multi")
 	RequestLogger = izap.New(c)
 	RequestLogger.Info("request logger init success")
 }

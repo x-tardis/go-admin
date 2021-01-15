@@ -79,7 +79,7 @@ func (User) Get(c *gin.Context) {
 	roles, err := models.CRole.Query(gcontext.Context(c))
 	posts, err := models.CPost.Query(gcontext.Context(c), models.PostQueryParam{})
 
-	servers.JSON(c, http.StatusOK, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"data":    user,
 		"postIds": []int{user.PostId},

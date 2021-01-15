@@ -84,7 +84,7 @@ func (User) GetProfile(c *gin.Context) {
 	//获取部门列表
 	dept, err := models.CDept.Get(gcontext.Context(c), user.DeptId)
 
-	servers.JSON(c, http.StatusOK, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"data":    user,
 		"postIds": []int{user.PostId},

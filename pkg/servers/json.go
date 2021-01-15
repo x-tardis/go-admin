@@ -5,8 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thinkgos/gin-middlewares/requestid"
-	xrequestid "github.com/thinkgos/http-middlewares/requestid"
 
 	"github.com/x-tardis/go-admin/pkg/xxfield"
 )
@@ -84,7 +82,6 @@ func OK(c *gin.Context, opts ...Option) {
 	for _, opt := range opts {
 		opt(&r)
 	}
-	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
 	c.JSON(http.StatusOK, r)
 }
 
@@ -103,11 +100,5 @@ func Fail(c *gin.Context, code int, opts ...Option) {
 	if r.err != nil {
 		xxfield.ContextError(c, r.err)
 	}
-	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
 	c.JSON(http.StatusOK, r)
-}
-
-func JSON(c *gin.Context, httpCode int, obj interface{}) {
-	c.Header(xrequestid.RequestIDHeader, requestid.FromRequestID(c))
-	c.JSON(httpCode, obj)
 }

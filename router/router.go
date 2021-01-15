@@ -12,6 +12,7 @@ import (
 	"github.com/thinkgos/gin-middlewares/authj"
 	"github.com/thinkgos/gin-middlewares/expvar"
 	"github.com/thinkgos/gin-middlewares/gzap"
+	"github.com/thinkgos/gin-middlewares/nocache"
 	"github.com/thinkgos/gin-middlewares/pprof"
 	"github.com/thinkgos/gin-middlewares/ratelimiter"
 	"github.com/thinkgos/gin-middlewares/requestid"
@@ -37,10 +38,11 @@ func InitRouter() *gin.Engine {
 		requestid.RequestID(), // request id
 		gzap.Logger(deployed.RequestLogger, gzap.WithCustomFields(xxfield.RequestId, xxfield.Error)), // logger
 		gzap.Recovery(izap.Logger, !deployed.IsModeProd(), gzap.WithCustomFields(xxfield.RequestId)), // recover, 仅开发时开启stack
-		middleware.NoCache(),           // NoCache is a middleware function that appends headers
+		nocache.NoCache(),              // NoCache is a middleware function that appends headers
 		cors.New(deployed.ViperCors()), // 跨域处理
 		ratelimiter.RateLimit(tollbooth.NewLimiter(deployed.ViperLimiter(), nil)), // 限速器
-		middleware.Secure(), // Secure is a middleware function that appends security
+		middleware.Secure(),                // Secure is a middleware function that appends security
+		middleware.WriteResponseHeaderID(), // 写应答头部写request id
 	)
 
 	// the jwt middleware

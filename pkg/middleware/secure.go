@@ -18,5 +18,6 @@ func Secure() gin.HandlerFunc {
 
 		// Also consider adding Content-Security-Policy headers
 		// c.Header("Content-Security-Policy", "script-src 'self' https://cdnjs.cloudflare.com")
+		c.Next()
 	}
 }

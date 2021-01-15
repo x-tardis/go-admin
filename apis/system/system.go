@@ -111,7 +111,7 @@ func SystemInfo(c *gin.Context) {
 	memStats := runtime.MemStats{}
 	runtime.ReadMemStats(&memStats)
 
-	servers.JSON(c, http.StatusOK, SystemInfos{
+	c.JSON(http.StatusOK, SystemInfos{
 		http.StatusOK,
 		Os{
 			runtime.GOOS,

@@ -34,7 +34,7 @@ func (RoleDept) GetDeptTreeOptionRole(c *gin.Context) {
 			servers.WithError(err))
 		return
 	}
-	servers.JSON(c, http.StatusOK, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code":        200,
 		"depts":       tree,
 		"checkedKeys": deptIds,
