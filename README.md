@@ -1,6 +1,8 @@
 # go-admin后台管理系统
 
 ## 基于Gin + Vue + Element UI的前后端分离权限管理系统 
+[go-admin](https://github.com/go-admin-team/go-admin) 的分支,用于自行开发基础套件,
+重新整理了原代码,修复一些bug
 
 ## ✨ 特性
 
