@@ -12,9 +12,8 @@ var RequestLogger *zap.Logger
 
 func SetupLogger() {
 	c := ViperLogger()
-	logger := izap.New(c)
-	izap.ReplaceGlobals(logger)
-	izap.Logger.Info("base logger init success")
+	zap.ReplaceGlobals(izap.New(ViperLogger()))
+	zap.L().Info("base logger init success")
 
 	c.FileName = "job.log"
 	c.Level = "info"

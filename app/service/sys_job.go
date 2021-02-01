@@ -3,10 +3,10 @@ package service
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/sharp/core/paginator"
+	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/models"
-	"github.com/x-tardis/go-admin/pkg/izap"
 )
 
 type SysJobSearch struct {
@@ -26,7 +26,7 @@ func (m *SysJobSearch) GetNeedSearch() interface{} {
 func (m *SysJobSearch) Bind(ctx *gin.Context) error {
 	err := ctx.ShouldBind(m)
 	if err != nil {
-		izap.Sugar.Errorf("MsgID[%s] Bind error: %s", err)
+		zap.S().Errorf("MsgID[%s] Bind error: %s", err)
 	}
 	return err
 }

@@ -12,13 +12,13 @@ import (
 // CasbinRule casbin rule
 type CasbinRule struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement"`
-	PType string `gorm:"size:40;uniqueIndex:unique_index"` // type
-	V0    string `gorm:"size:40;uniqueIndex:unique_index"` // role key
-	V1    string `gorm:"size:40;uniqueIndex:unique_index"` // path
-	V2    string `gorm:"size:40;uniqueIndex:unique_index"` // method
-	V3    string `gorm:"size:40;uniqueIndex:unique_index"`
-	V4    string `gorm:"size:40;uniqueIndex:unique_index"`
-	V5    string `gorm:"size:40;uniqueIndex:unique_index"`
+	Ptype string `gorm:"size:100;uniqueIndex:unique_index"` // type
+	V0    string `gorm:"size:100;uniqueIndex:unique_index"` // role key
+	V1    string `gorm:"size:100;uniqueIndex:unique_index"` // path
+	V2    string `gorm:"size:100;uniqueIndex:unique_index"` // method
+	V3    string `gorm:"size:100;uniqueIndex:unique_index"`
+	V4    string `gorm:"size:100;uniqueIndex:unique_index"`
+	V5    string `gorm:"size:100;uniqueIndex:unique_index"`
 }
 
 //TableName implement schema.Tabler interface

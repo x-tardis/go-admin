@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
@@ -23,7 +23,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		req := control.Generate()
 		err := req.Bind(c)
 		if err != nil {
-			izap.Sugar.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+			zap.S().Errorf("MsgID[%s] Bind error: %s", msgID, err)
 			servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 			return
 		}
@@ -42,7 +42,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		db := dao.DB.WithContext(c).Scopes(Permission(object.TableName(), p)).
 			Where(req.GetId()).Delete(object)
 		if db.Error != nil {
-			izap.Sugar.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+			zap.S().Errorf("MsgID[%s] Delete error: %s", msgID, err)
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.DeleteFailed))
 			return
 		}

@@ -95,7 +95,7 @@ func (sf cRoleMenu) BatchCreate(ctx context.Context, roleId int, menuId []int) e
 			roleMenus = append(roleMenus, RoleMenu{role.RoleId, menu.MenuId, role.RoleKey})
 			if menu.MenuType == MenuTypeIfc {
 				casbinRules = append(casbinRules, CasbinRule{
-					PType: "p",
+					Ptype: "p",
 					V0:    role.RoleKey,
 					V1:    menu.Path,
 					V2:    menu.Method,

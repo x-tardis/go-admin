@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
@@ -35,7 +35,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		object.SetCreator(uint(jwtauth.FromUserId(gcontext.Context(c))))
 		err = dao.DB.WithContext(c).Create(object).Error
 		if err != nil {
-			izap.Sugar.Errorf("MsgID[%s] Create error: %s", msgID, err)
+			zap.S().Errorf("MsgID[%s] Create error: %s", msgID, err)
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.CreateFailed))
 			return
 		}

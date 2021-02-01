@@ -20,7 +20,6 @@ import (
 	"github.com/x-tardis/go-admin/apis/system"
 	"github.com/x-tardis/go-admin/apis/ws"
 	"github.com/x-tardis/go-admin/deployed"
-	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/middleware"
 	"github.com/x-tardis/go-admin/pkg/xxfield"
@@ -36,8 +35,8 @@ func InitRouter() *gin.Engine {
 
 	engine.Use(
 		requestid.RequestID(), // request id
-		gzap.Logger(deployed.RequestLogger, gzap.WithCustomFields(xxfield.RequestId, xxfield.Error)), // logger
-		gzap.Recovery(izap.Logger, !deployed.IsModeProd(), gzap.WithCustomFields(xxfield.RequestId)), // recover, 仅开发时开启stack
+		gzap.Logger(deployed.RequestLogger, gzap.WithCustomFields(xxfield.RequestId, xxfield.Error)),            // logger
+		gzap.Recovery(deployed.RequestLogger, !deployed.IsModeProd(), gzap.WithCustomFields(xxfield.RequestId)), // recover, 仅开发时开启stack
 		nocache.NoCache(),              // NoCache is a middleware function that appends headers
 		cors.New(deployed.ViperCors()), // 跨域处理
 		ratelimiter.RateLimit(tollbooth.NewLimiter(deployed.ViperLimiter(), nil)), // 限速器

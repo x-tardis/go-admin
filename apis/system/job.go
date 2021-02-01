@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/app/service"
 	"github.com/x-tardis/go-admin/app/service/dto"
-	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
@@ -22,7 +22,7 @@ func (Job) RemoveJobForService(c *gin.Context) {
 	var v dto.GeneralDelDto
 	err := c.BindUri(&v)
 	if err != nil {
-		izap.Sugar.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		zap.S().Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
 		servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 		return
 	}
@@ -41,7 +41,7 @@ func (Job) StartJobForService(c *gin.Context) {
 	var v dto.GeneralGetDto
 	err := c.BindUri(&v)
 	if err != nil {
-		izap.Sugar.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		zap.S().Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
 		servers.Fail(c, http.StatusUnprocessableEntity, servers.WithMsg(prompt.IncorrectRequestParam))
 		return
 	}

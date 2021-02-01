@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
 )
@@ -52,7 +52,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 			return
 		}
 		if err != nil {
-			izap.Sugar.Errorf("MsgID[%s] View error: %s", msgID, err)
+			zap.S().Errorf("MsgID[%s] View error: %s", msgID, err)
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg("查看失败"))
 			return
 		}

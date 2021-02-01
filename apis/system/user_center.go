@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/sharp/gin/gcontext"
 	"github.com/thinkgos/x/lib/ternary"
+	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/models"
 	"github.com/x-tardis/go-admin/pkg/infra"
-	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
@@ -113,7 +113,7 @@ func (User) UploadAvatar(c *gin.Context) {
 	guid := infra.GenerateUUID()
 	filPath := "static/uploadfile/" + guid + ".jpg"
 	for _, file := range files {
-		izap.Sugar.Debug(file.Filename)
+		zap.S().Debug(file.Filename)
 		// 上传文件至指定目录
 		_ = c.SaveUploadedFile(file, filPath)
 	}

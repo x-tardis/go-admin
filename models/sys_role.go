@@ -226,7 +226,7 @@ func (sf cRole) UpdateStatus(ctx context.Context, id int, enable bool) error {
 				for _, menu := range menus {
 					if menu.MenuType == MenuTypeIfc {
 						casbinRules = append(casbinRules, CasbinRule{
-							PType: "p",
+							Ptype: "p",
 							V0:    role.RoleKey,
 							V1:    menu.Path,
 							V2:    menu.Method,

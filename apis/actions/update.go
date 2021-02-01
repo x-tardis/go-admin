@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thinkgos/gin-middlewares/requestid"
 	"github.com/thinkgos/sharp/gin/gcontext"
+	"go.uber.org/zap"
 
 	"github.com/x-tardis/go-admin/app/service/dto"
 	"github.com/x-tardis/go-admin/deployed/dao"
-	"github.com/x-tardis/go-admin/pkg/izap"
 	"github.com/x-tardis/go-admin/pkg/jwtauth"
 	"github.com/x-tardis/go-admin/pkg/servers"
 	"github.com/x-tardis/go-admin/pkg/servers/prompt"
@@ -41,7 +41,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
-			izap.Sugar.Errorf("MsgID[%s] Update error: %s", msgID, err)
+			zap.S().Errorf("MsgID[%s] Update error: %s", msgID, err)
 			servers.Fail(c, http.StatusInternalServerError, servers.WithMsg(prompt.UpdateFailed))
 			return
 		}
