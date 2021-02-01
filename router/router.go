@@ -47,13 +47,12 @@ func InitRouter() *gin.Engine {
 	// the jwt middleware
 	authMiddleware, err := system.NewJWTAuth(deployed.ViperJwt())
 	if err != nil {
-		log.Fatalf("jwt initialize failed, %+v", err)
+		log.Fatalf("route: jwt initialize failed, %+v", err)
 	}
 
 	RegisterPubic(engine, authMiddleware)  // 注册公共开放接口
 	RegisterSystem(engine, authMiddleware) // 注册系统路由
 	RegisterWs(engine, authMiddleware)     // 注册ws
-	custom(engine, authMiddleware)
 	return engine
 }
 
@@ -86,11 +85,11 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 		routers.PubDB(v1)
 		routers.PubSysTable(v1)
 		// business public
-		businessMu.RLock()
-		for _, f := range businessPublic {
+		businesses.rw.RLock()
+		for _, f := range businesses.public {
 			f(v1)
 		}
-		businessMu.RUnlock()
+		businesses.rw.RUnlock()
 	}
 	{
 		// 需要认证
@@ -112,12 +111,20 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 		routers.RoleMenu(v1)
 		routers.Dept(v1)
 		routers.Post(v1)
-		// business
-		businessMu.RLock()
-		for _, f := range businessAuthRbac {
+		// business rbac
+		businesses.rw.RLock()
+		for _, f := range businesses.authRBAC {
 			f(v1)
 		}
-		businessMu.RUnlock()
+		businesses.rw.RUnlock()
+	}
+	// custom
+	{
+		businesses.rw.RLock()
+		for _, f := range businesses.custom {
+			f(engine, authMiddleware)
+		}
+		businesses.rw.RUnlock()
 	}
 }
 

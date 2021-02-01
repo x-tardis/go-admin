@@ -9,43 +9,42 @@ import (
 	"github.com/x-tardis/go-admin/routers"
 )
 
-var businessMu = sync.RWMutex{}
+// business 业务接口
+type business struct {
+	rw       sync.RWMutex
+	custom   []func(*gin.Engine, *jwt.GinJWTMiddleware)
+	public   []func(v1 gin.IRouter)
+	authRBAC []func(v1 gin.IRouter)
+}
 
-var custom = func(*gin.Engine, *jwt.GinJWTMiddleware) {}
-
-// 业务公共开放接口
-var businessPublic []func(v1 gin.IRouter)
-
-// 业务有授权,有RBAC角色控制
-var businessAuthRbac []func(v1 gin.IRouter)
-
-func init() {
-	RegisterBusinessPublic(
+var businesses = &business{
+	public: []func(v1 gin.IRouter){
 		routers.PubSysFileInfo,
 		routers.PubSysFileDir,
-	)
-	RegisterBusinessAuthRbac(
+	},
+	authRBAC: []func(v1 gin.IRouter){
 		routers.SysJobRouter,
 		routers.SysContent,
 		routers.SysCategory,
-	)
+	},
 }
 
-func RegisterCustom(f func(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware)) {
-	if f == nil {
-		panic("router: custom function is nil")
-	}
-	custom = f
+func RegisterBusinessCustom(f ...func(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware)) {
+	businesses.rw.Lock()
+	businesses.custom = append(businesses.custom, f...)
+	businesses.rw.Unlock()
 }
 
+// RegisterBusinessPublic 注册公开业务接口,属 "/api/v1" 组
 func RegisterBusinessPublic(f ...func(v1 gin.IRouter)) {
-	businessMu.Lock()
-	businessPublic = append(businessPublic, f...)
-	businessMu.Unlock()
+	businesses.rw.Lock()
+	businesses.public = append(businesses.public, f...)
+	businesses.rw.Unlock()
 }
 
+// RegisterBusinessPublic 注册业务接口,由RBAC授权控制,属 "/api/v1" 组
 func RegisterBusinessAuthRbac(f ...func(v1 gin.IRouter)) {
-	businessMu.Lock()
-	businessAuthRbac = append(businessAuthRbac, f...)
-	businessMu.Unlock()
+	businesses.rw.Lock()
+	businesses.authRBAC = append(businesses.authRBAC, f...)
+	businesses.rw.Unlock()
 }
