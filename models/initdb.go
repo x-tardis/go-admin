@@ -2,8 +2,8 @@ package models
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 
 	"gorm.io/gorm"
@@ -46,7 +46,7 @@ func ExecSql(db *gorm.DB, filePath string) error {
 }
 
 func Ioutil(filePath string) (string, error) {
-	contents, err := ioutil.ReadFile(filePath)
+	contents, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}

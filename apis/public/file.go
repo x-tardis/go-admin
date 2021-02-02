@@ -2,8 +2,8 @@ package public
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path"
 
 	"github.com/gin-gonic/gin"
@@ -92,7 +92,7 @@ func UploadFile(c *gin.Context) {
 		typeStr, ddd, _ := extimg.DecodeBase64(files)
 		guid := infra.GenerateUUID()
 		base64File := "static/uploadfile/" + guid + ".jpg"
-		_ = ioutil.WriteFile(base64File, ddd, 0666)
+		_ = os.WriteFile(base64File, ddd, 0666)
 		fileSize, _ := extos.FileSize(base64File)
 		fileResponse = FileResponse{
 			Size:     fileSize,
