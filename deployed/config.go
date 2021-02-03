@@ -38,7 +38,6 @@ func SetupConfig(path string) {
 		// TODO: 防止重复操作
 		c := viper.Sub("feature")
 		FeatureConfig.DataScope.Store(c.GetBool("dataScope"))
-		FeatureConfig.OperDB.Store(c.GetBool("operDB"))
 		FeatureConfig.LoginDB.Store(c.GetBool("loginDB"))
 	})
 	viper.WatchConfig()
