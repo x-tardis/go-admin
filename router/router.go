@@ -95,7 +95,6 @@ func RegisterSystem(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 		// 需要认证
 		v1.Use(
 			authMiddleware.MiddlewareFunc(),
-			OperLog(),
 			authj.NewAuthorizer(deployed.CasbinEnforcer, jwtauth.CasbinSubject),
 		)
 		v1.POST("/logout", authMiddleware.LogoutHandler)
@@ -134,7 +133,7 @@ func RegisterWs(engine *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) {
 	// 需要认证
 	wsGroup := engine.Group("/ws")
 	{
-		wsGroup.Use(authMiddleware.MiddlewareFunc(), OperLog())
+		wsGroup.Use(authMiddleware.MiddlewareFunc())
 		routers.WsJob(wsGroup)
 	}
 }
