@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/nxadm/tail"
 )
 
 func FileMonitor(ctx context.Context, filename string, group string, hook func(string, []byte)) {
@@ -35,5 +37,22 @@ func FileMonitor(ctx context.Context, filename string, group string, hook func(s
 			return
 		}
 		go hook(group, line)
+	}
+
+}
+
+func tailFile(ctx context.Context, filename string, group string, hook func(string, []byte)) {
+	t, err := tail.TailFile(filename, tail.Config{Follow: true, ReOpen: true})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			t.Done()
+			return
+		case line := <-t.Lines:
+			go hook(group, []byte(line.Text))
+		}
 	}
 }

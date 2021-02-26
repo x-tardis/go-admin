@@ -15,6 +15,7 @@ require (
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
+	github.com/go-chi/chi v4.1.2+incompatible // indirect
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/go-openapi/spec v0.20.3 // indirect
 	github.com/go-redis/redis/v7 v7.4.0
@@ -31,6 +32,8 @@ require (
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/nxadm/tail v1.4.8
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/prometheus/client_golang v1.9.0
 	github.com/prometheus/common v0.17.0 // indirect
@@ -46,11 +49,11 @@ require (
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	github.com/thinkgos/easyws v0.0.0-20201103023452-0a42b2a3b353
-	github.com/thinkgos/gin-middlewares v0.1.1
-	github.com/thinkgos/http-middlewares v0.1.1
-	github.com/thinkgos/meter v0.0.9
+	github.com/thinkgos/gin-middlewares v0.2.0
+	github.com/thinkgos/http-middlewares v0.2.0
+	github.com/thinkgos/meter v0.0.10
 	github.com/thinkgos/sharp v1.0.3
-	github.com/thinkgos/x v0.2.1
+	github.com/thinkgos/x v0.2.2
 	github.com/ugorji/go v1.2.4 // indirect
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/atomic v1.7.0
